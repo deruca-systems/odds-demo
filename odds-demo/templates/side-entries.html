@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+  指示書09 T2: L字レイアウト左袖（position 1、幅30%）用の出走表テンプレート。
+  枠 / 馬番 / 馬名 / 単勝 の4列構成（= 約29.2rem）で、複勝・馬体重・騎手名・枠連は非表示。
+  芥川様 style.css の .popular の .race-table 部分（.popular-table は使わない）を流用する。
+-->
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>出走表（L字左袖）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+  <style>
+    /* L字左袖用レイアウト調整（2026-04-16 仕様書§4 準拠版）:
+     *
+     *   仕様書遵守事項:
+     *     - px 使用禁止 → rem + vw/vh のみで記述
+     *     - ビューポート変動で比例拡縮（monitor=0101 と同思想）
+     *     - 4画面/単画面とも --horse-count / --name-length の CSS 変数で制御
+     *
+     *   cell1 サイズ:
+     *     親 .grid.layout-lshape の grid-template-columns: 22% 1fr → cell1 = 22vw。
+     *     cell1 iframe 内 viewport width = 22vw、height = 100vh（L字では縦フル）。
+     *
+     *   コンテンツ寸法（rem 設計）:
+     *     race-header: 3.8rem 高さ（元 style.css）
+     *     race-table:  3.1 + 3.1 + 17.4 + 6.3 + gap 3*0.1 = 30rem 幅（仕様書 4分割時と
+     *                  同じカラム比率だが馬名列を 16.7→17.4rem に増やして右余白を確保）
+     *     race-main:   残り縦高さ（--row-count で等分）
+     *
+     *   font-size 決定式:
+     *     rem = min(iframe幅 / 30rem相当, iframe高さ / (3.8 + 49.8 + gap相当))
+     *         = min(100vw / 30, 100vh / 54)
+     *         = min(3.333vw, 1.852vh)
+     *     これで race-table 30rem が iframe 幅（cell1 幅 22vw）をはみ出さず、
+     *     race-main 縦が iframe 高さいっぱいを使う（min() で小さい方が勝つ）。
+     */
+    /* font-size 設計（2026-04-17 cell1=20% 対応）:
+     *   cell1 = 20vw（親）。iframe 内部では 100vw = cell1 物理幅。
+     *   race-table は cell1 全幅を使い、内部 grid は 3.1 + 3.1 + 1fr + 6.3rem で馬名伸縮。
+     *   「馬名以外で 12.5rem 占有、残り 1fr は馬名」の想定なら、コンテンツ基準値 29rem が
+     *   cell1 幅にジャストで納まるように:
+     *     rem = 100vw / 29 ≒ 3.448vw
+     *     rem = 100vh / 54 ≒ 1.852vh（縦制限）
+     *   FHD (cell1=384×1080): min(13.24, 20) = 13.24 → 29rem = 384px ぴったり
+     *   4K (cell1=768×2160): min(26.48, 40) = 26.48 → 29rem = 768px ぴったり
+     *   馬名列は cell1 - 12.5rem = 16.5rem 相当が確保される。 */
+    html.single-screen {
+      font-size: min(3.448vw, 1.852vh) !important;
+    }
+    /* style.css の .wrapper は 2×2 grid で子に 1fr×1fr を割り当てる前提。
+     * L字テンプレでは 1 子要素のみなので grid を block に戻す。 */
+    .wrapper {
+      display: block !important;
+      grid-template-columns: none !important;
+      grid-template-rows: none !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+    /* .popular の 96rem × 54rem 固定を解除。iframe 全面を使う。
+     * 元 style.css の padding: 0 0.8rem 0.8rem 0.8rem（左右 1.6rem ≒ 23px）が
+     * race-main 幅を cell1 より狭くする原因 → 左右 padding を 0 に。下 padding のみ残す。 */
+    .side-entries {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      padding: 0 0 0.8rem 0 !important;
+    }
+    /* ヘッダーの天候・馬場・発走時刻・前日発売ブロックは非表示。
+     * race-title（場名・R・レース名・クラス）のみ1行で残す。 */
+    .side-entries .race-header .race-info,
+    .side-entries .race-header .previous-day {
+      display: none !important;
+    }
+    .side-entries .race-header {
+      justify-content: flex-start;
+    }
+    /* race-main: 1カラム grid（race-table のみ）を cell1 全幅に広げる（2026-04-16
+     * スクショ指摘: 30rem 固定だと cell1 右側に黒余白が出ていた）。 */
+    .side-entries .race-main {
+      grid-template-columns: 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+    /* race-table 本体に width: 100% を明示して、grid セル内で auto 縮小されないように。 */
+    .side-entries .race-table {
+      width: 100% !important;
+      min-width: 0;
+    }
+    /* race-table 行のカラム幅: 枠・馬番・単勝は rem 固定、馬名列を 1fr にして
+     * 残り幅を吸収。これで cell1 幅がビューポートで変動してもレイアウト破綻なし。 */
+    .side-entries .race-table__head,
+    .side-entries .race-table__row {
+      width: 100%;
+      grid-template-columns: 3.1rem 3.1rem 1fr 6.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <!-- .popular クラスを流用して 4列グリッド（枠3.1 馬番3.1 馬名16.7 単勝6.3rem）を得る。
+       L字固有の上書きは .side-entries クラスで限定。 -->
+  <div class="popular side-entries" id="popular">
+    <div class="race-header header-blue">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>発走</span><span class="minute" id="hdr-postTime"></span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+    <div class="race-main">
+      <div class="race-table">
+        <div class="race-table__head">
+          <div>枠</div><div>馬番</div><div>馬名</div><div class="win">単勝</div>
+        </div>
+        <div class="race-table__body" id="horseBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- C-03 (2026-04-17): L字レイアウト専用テンプレのため、カットインDOM挿入はしない。
+     画面遷移図「出走表・成績表・変更情報・レース動画エリアにはカットイン非表示」
+     および L字レイアウトは16:9でない（及川判断 2026-04-17）ことによる。
+     後続実装者が誤って ensureCutinTemplate() 呼出を復活させないこと。 -->
+
+<script>
+(function() {
+  // C-03 (2026-04-17): L字レイアウト専用。ensureCutinTemplate() は呼ばない。
+  var D = window.OddsDemo;
+  var dataUrl = null;
+  var currentPoller = null;
+  var lastData = null;
+  var serverOffsetMs = 0;
+
+  function renderHorses(horses) {
+    // --horse-count のみ設定。--row-count は style.css の
+    // `.popular { --row-count: max(10, var(--horse-count)) }` で自動計算される。
+    // これにより 10頭以下は 10行分の高さ、18頭なら 18行分に自動調整される
+    // （単勝・複勝画面と同じ挙動）。
+    var popEl = document.getElementById('popular');
+    popEl.style.setProperty('--horse-count', horses.length);
+    var body = document.getElementById('horseBody');
+    var fragment = document.createDocumentFragment();
+    var winCls = D.computeWinClasses(horses);
+    horses.forEach(function(h) {
+      // 指示書08: 取消馬対応（人気順画面と同じ短縮ラベル）
+      var isScratched = !!h.is_scratched;
+      var rowClasses = 'race-table__row ' + D.frameClassOf(h.frame_no, 'row');
+      if (isScratched) rowClasses += ' row-scratched';
+      var row = D.el('div', rowClasses);
+      row.appendChild(D.el('div', 'race-table__frame', h.frame_no));
+      row.appendChild(D.el('div', 'race-table__number', h.horse_no));
+      var name = D.el('div', 'race-table__name', h.horse_name);
+      name.style.setProperty('--name-length', (h.horse_name || '').length);
+      row.appendChild(name);
+      if (isScratched) {
+        row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
+      } else {
+        var winClass = winCls[h.horse_no] || '';
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+      }
+      fragment.appendChild(row);
+    });
+    body.replaceChildren(fragment);
+  }
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+    lastData = data;
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+    renderHorses(horses);
+  }
+
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'side-entries',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        // C-03 (2026-04-17): L字レイアウト専用のため checkCutin は呼ばない（カットイン非表示）。
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setDataUrl') {
+      dataUrl = e.data.url;
+      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      startPolling();
+    }
+  });
+
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

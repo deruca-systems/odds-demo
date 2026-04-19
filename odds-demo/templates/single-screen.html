@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>単勝・複勝・枠連 単体表示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="screen" id="screen">
+    <div class="race-header header-green">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>締切</span><span class="minute" id="hdr-deadline"></span><span>分前</span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+    <div class="race-main">
+      <div class="race-table">
+        <div class="race-table__head">
+          <div>枠</div>
+          <div>馬番</div>
+          <div>馬名</div>
+          <div class="win">単勝</div>
+          <div class="win">複勝</div>
+          <div>馬体重</div>
+          <div>騎手名</div>
+        </div>
+        <div class="race-table__body" id="horseBody"></div>
+      </div>
+      <!-- H-03 (2026-04-19): id="frame-uren" 付与、親からの postMessage frameOddsPage で表示切替 -->
+      <div class="frame-odds" id="frame-uren">
+        <div class="frame-odds__head"><div>枠連</div></div>
+        <div class="frame-odds__body" id="frameOddsBody"></div>
+      </div>
+      <!-- H-03 (2026-04-19): 枠単ブロック（初期非表示、15秒ごとに枠連と自動切替） -->
+      <div class="frame-umatan" id="frame-utan" style="display:none;">
+        <div class="frame-umatan__head"><div>枠単</div></div>
+        <div class="frame-umatan__wrapper" id="frameUmatanWrapper"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate() が起動時に fetch して body 末尾に挿入する -->
+
+<script>
+(function() {
+  var D = window.OddsDemo;
+  // カットインテンプレートを起動時に取得（fire-and-forget、失敗時は checkCutin/showCutin の DOM存在チェックで安全にスキップ）
+  D.ensureCutinTemplate();
+  var dataUrl = null;
+  var currentPoller = null;   // 指示書07: setInterval 方式から指数バックオフ付き poller に変更
+  var lastData = null;
+  var serverOffsetMs = 0;
+
+  // 枠連ブロックの3カラム配置
+  var FRAME_LAYOUT = [
+    [1, 6, 7], [2, 5, 8], [3, 4]
+  ];
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+
+    lastData = data;
+    document.getElementById('screen').style.setProperty('--horse-count', horses.length);
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+
+    var winCls = D.computeWinClasses(horses);
+    var placeCls = D.computePlaceClasses(horses);
+
+    var body = document.getElementById('horseBody');
+    var horseFragment = document.createDocumentFragment();
+    horses.forEach(function(h) {
+      // 指示書08: 取消馬（is_scratched=1 出走取消 / =2 競走除外）
+      //   - 行全体に row-scratched を付与（CSSで opacity 0.5）
+      //   - 単勝/複勝オッズ欄を「取消」/「除外」ラベルに差替
+      //   - 馬番・枠番・馬名・馬体重・騎手名は通常表示（opacityで薄くなる）
+      var isScratched = !!h.is_scratched;
+      var rowClasses = 'race-table__row ' + D.frameClassOf(h.frame_no, 'row');
+      if (isScratched) rowClasses += ' row-scratched';
+      var row = D.el('div', rowClasses);
+      row.appendChild(D.el('div', 'race-table__frame', h.frame_no));
+      row.appendChild(D.el('div', 'race-table__number', h.horse_no));
+
+      var name = D.el('div', 'race-table__name', h.horse_name);
+      name.style.setProperty('--name-length', (h.horse_name || '').length);
+      row.appendChild(name);
+
+      if (isScratched) {
+        // 指示書08 v2: 単勝+複勝セルを結合した1セル「出走取消」/「競走除外」
+        // grid-column: span 2 で単勝・複勝領域を1セルで占有（demo-helpers.css）。
+        row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabel(h.is_scratched)));
+      } else {
+        var winClass = winCls[h.horse_no] || '';
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+        var pInfo = placeCls[h.horse_no] || {};
+        var place = D.el('div', 'race-table__odds-place');
+        var pMin = D.el('span', pInfo.minPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_min));
+        var pSep = D.el('span', null, '-');
+        var pMax = D.el('span', pInfo.maxPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_max));
+        place.appendChild(pMin); place.appendChild(pSep); place.appendChild(pMax);
+        row.appendChild(place);
+      }
+
+      var weight = D.el('div', 'race-table__weight');
+      var wVal = D.el('span', null, h.weight);
+      if (String(h.weight).length >= 4) wVal.classList.add('weight-long');
+      weight.appendChild(wVal);
+      weight.appendChild(D.el('span', 'weight-diff', D.fmtWeightDiff(h.weight_diff)));
+      row.appendChild(weight);
+
+      row.appendChild(D.el('div', 'race-table__jockey', D.truncateJockey(h.jockey)));
+      horseFragment.appendChild(row);
+    });
+    body.replaceChildren(horseFragment);
+
+    // 枠連ブロック
+    var frameOddsMap = {};
+    (data.frame_odds || []).forEach(function(e) { frameOddsMap[e.frame_a + '-' + e.frame_b] = e; });
+    var popularKeys = D.computeFramePopular(data.frame_odds || []);
+
+    var foBody = document.getElementById('frameOddsBody');
+    var foFragment = document.createDocumentFragment();
+    FRAME_LAYOUT.forEach(function(col) {
+      var colEl = D.el('div', 'frame-odds__col');
+      col.forEach(function(frameA) {
+        var block = D.el('div', 'frame-odds__block ' + D.frameClassOf(frameA, 'block'));
+        block.appendChild(D.el('div', 'frame-odds__label', frameA));
+        for (var frameB = frameA; frameB <= 8; frameB++) {
+          var entry = frameOddsMap[frameA + '-' + frameB];
+          if (!entry) continue;
+          var item = D.el('div', 'frame-odds__item');
+          item.appendChild(D.el('div', 'frame-odds__number', frameB));
+          var valCls = 'frame-odds__value' + (popularKeys[frameA + '-' + frameB] ? ' value-popular' : '');
+          item.appendChild(D.el('div', valCls, D.fmtOdds(entry.odds)));
+          block.appendChild(item);
+        }
+        colEl.appendChild(block);
+      });
+      foFragment.appendChild(colEl);
+    });
+    foBody.replaceChildren(foFragment);
+
+    // H-03 (2026-04-19): 枠単マトリクス描画
+    //   race.frame_umatan（同枠2頭以上のみ同枠あり、最大64件）があれば描画。
+    //   初期は display:none のため画面には出ない。
+    //   親 index.html から postMessage {type:'frameOddsPage', page:'utan'} で表示切替。
+    //   発売なし（umatanData.length===0）時は親にも通知してページング停止させる。
+    var umatanData = race.frame_umatan || [];
+    var utanWrapper = document.getElementById('frameUmatanWrapper');
+    if (umatanData.length > 0) {
+      D.renderFrameUmatan(umatanData, utanWrapper);
+    } else if (utanWrapper) {
+      utanWrapper.replaceChildren();  // 発売なし時に前レースの描画を消す
+    }
+    // H-03 (2026-04-19 改訂): 枠単発売有無を親に通知。親はページング停止/再開を判断。
+    if (window.parent !== window) {
+      try {
+        window.parent.postMessage({
+          type: 'frameUmatanAvailability',
+          url: dataUrl,
+          available: umatanData.length > 0
+        }, '*');
+      } catch (_) {}
+    }
+  }
+
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  // checkCutin は親から受け取った初回固定 offset (serverOffsetMs) を使う。
+  // fetchWithOffset の res.serverOffset は毎 poll で再計算されるため、静的 server_time に
+  // スナップして時間が進まない。ヘッダー startHeaderTicker と同じ基準に揃えるため初回固定を使用。
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'single-screen',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'setDataUrl') {
+      dataUrl = d.url;
+      if (typeof d.baseOffset === 'number') serverOffsetMs = d.baseOffset;
+      startPolling();
+    } else if (d.type === 'frameOddsPage') {
+      // H-03 (2026-04-19): 親から枠連・枠単の切替通知を受信
+      //   d.page: 'uren'（枠連）| 'utan'（枠単）
+      var urenEl = document.getElementById('frame-uren');
+      var utanEl = document.getElementById('frame-utan');
+      if (!urenEl || !utanEl) return;
+      var showUtan = (d.page === 'utan');
+      urenEl.style.display = showUtan ? 'none' : '';
+      utanEl.style.display = showUtan ? '' : 'none';
+    }
+  });
+
+  // 1秒tick でヘッダー deadline を更新（realtime countdown）
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<!--
+  指示書09 T4: L字レイアウト右下（position 3、幅70%×高さ30%）用。
+  馬連 / 3連複 / 3連単 それぞれ人気1〜5位を横3カラムで並べる。
+-->
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>人気順 横3カラム（L字右下）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+  <style>
+    /* L字右下: 横長エリア (cell3 = 幅70%×高さ30%) 一杯を使って 3カラム並べる。
+     *
+     * 元 style.css:
+     *   .popular は width: 96rem; height: 54rem 固定（フル画面前提）
+     *   html.single-screen の font-size は min(1.04vw, 1.85vh)
+     *
+     * L字右下は横長（幅896×高216 程度）。ここで font-size を 2.5vw 等に上げると
+     * html 全体の rem が大きくなり、width:96rem 等の祖先要素が iframe から溢れて
+     * はみ出す（「門別 7R サラ系3歳B2」「馬連 上位1〜5」がヘッダーから逸脱）。
+     *
+     * 解法: font-size は高さベース（1.85vh）のみに固定し、.popular の width/height を
+     * 100% にオーバーライド → 祖先の 96rem 固定を無効化。
+     * cell3 高さ 216px なら 1rem ≒ 4px で各ヘッダー（2rem〜3rem）が 8〜12px 程度に収まる。
+     * 文字サイズ不足ぶんはレイアウト仕様で補う（popular-table__row を 1fr 2列に展開し、
+     * 馬番ブロック・オッズ数字を幅いっぱいに広げる）。
+     */
+    /* 2026-04-16 仕様書§4 準拠版:
+     *   cell3 は親 grid.layout-lshape で width: 78vw 相当、高さは cell2 16:9 の残り。
+     *   FHD 1920×1080 の場合:
+     *     cell1 = 22vw = 422px、cell2,3 幅 = 78vw = 1498px
+     *     cell2 aspect-ratio 16/9 → 高さ = 1498 * 9/16 = 843px
+     *     cell3 高さ = 1080 - 843 = 237px
+     *   1280×720 の場合:
+     *     cell1 = 282px、cell2,3 幅 = 998px、cell2 高さ = 561px、cell3 高さ = 159px
+     *
+     *   コンテンツ寸法（rem 設計）:
+     *     popular-table: 4個並び（馬連・馬単・3連複・3連単）
+     *     各カラム内: popular-table__head（2.2rem 高さ）＋ body（残り）× 5件
+     *     4賭式が横に並ぶ合計幅: およそ 4 × 15rem = 60rem（gap 含む）
+     *     高さ: head 2.2rem + 5行 × ~1.5rem = 9.7rem 程度
+     *
+     *   font-size:
+     *     rem = min(cell3幅 / 60rem, cell3高さ / 10rem)
+     *         = min(78vw / 60, (100vh - 78vw * 9/16) / 10)
+     *     ただし「(100vh - 78vw * 9/16)」は計算複雑なので、簡易に:
+     *         1.25vw で FHD時 24px/rem、1280時 16px/rem。
+     *     頃合いは 1.25vw。ただし cell3 が想定より高い場合に備えて vh 側制限も:
+     *         min(1.25vw, 3vh)
+     *   FHD: min(24, 32.4) = 24 ✓
+     *   1280: min(16, 21.6) = 16 ✓
+     */
+    /* 係数調整: 3vh は cell3 高さ 158px(1280時) で 4.74px/rem と小さすぎた。
+     * cell3 コンテンツは head 2.2rem + 5行 × 1.5rem ≒ 10rem 想定 → rem = 100vh/10 = 10vh。
+     * これで 1280(cell3=998×158): min(12.47, 15.8) = 12.47px/rem
+     *        FHD (cell3=1498×237): min(18.73, 23.7) = 18.73px/rem
+     *        4K  (cell3=2995×474): min(37.44, 47.4) = 37.44px/rem
+     * → どのビューポートでも比例拡縮され、仕様書§4「FHD/4K対応」を満たす。 */
+    html.single-screen {
+      font-size: min(1.25vw, 10vh) !important;
+    }
+    /* style.css の .wrapper は 2×2 grid で子に 1fr×1fr を割り当てる前提。
+     * L字テンプレでは 1 子要素のみなので grid を block に戻し、子を全面に。 */
+    .wrapper {
+      display: block !important;
+      grid-template-columns: none !important;
+      grid-template-rows: none !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+    .wide-popular {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+    }
+    /* cell3 は 216px しかなく race-header に 75px 取られると本文が圧迫される。
+     * ユーザー要望 2026-04-16: 帯は左袖 side-entries にすでに表示されるので、右下は
+     * 4賭式テーブルのみを body 一杯に広げる。race-header ごと非表示。 */
+    .wide-popular .race-header {
+      display: none !important;
+    }
+    /* 4賭式を横並び（馬連・馬単・3連複・3連単）。
+     * 2賭式カラム + 3賭式カラムは幅が違うが、ここでは簡潔に 1fr×4 で等幅配置。 */
+    .wide-popular .race-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 0.2rem;
+      height: 100%;
+      padding: 0;
+    }
+    .wide-popular .popular-table {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+    }
+    .wide-popular .popular-table__body {
+      flex: 1;
+      display: grid;
+      /* minmax(0, 1fr) で行内コンテンツ（馬番ブロック 2rem=40px 等）の内在高さに引っ張られず、
+       * body 高さを 7等分して各行に割り当てる。grid-template-rows: repeat(7, 1fr) だと
+       * min-content 優先で各行 44px になり body 141px から溢れていた。 */
+      grid-template-rows: repeat(var(--rows-per-list), minmax(0, 1fr));
+      min-height: 0;
+      overflow: hidden;
+    }
+    /* 2列 grid（組合せ : オッズ = 1fr : 1fr）で popular-table いっぱいに広げる。
+     * 元 CSS の固定 rem 幅（6.9rem 6.8rem / 10.6rem 6.8rem）を両方とも上書き。 */
+    .wide-popular .popular-table__body .popular-table__row,
+    .wide-popular .popular-table__body.three-combination .popular-table__row {
+      grid-template-columns: 1fr 1fr;
+    }
+    /* 馬番セルを正方形に。cell3 の 1行高さ = (216 - 43) / 7 ≒ 24px なので、
+     * 2.4rem (≒ 47px) は行を超えてしまう。行高さ内に収めるため 1.2rem (≒ 24px) に縮小。
+     * また popular-table__combination span 全体の font-size も行高に収まるよう調整。 */
+    /* 馬番セルの整形（2026-04-17 ユーザー要望:
+     *   1. 馬番を大きく、正方形で
+     *   2. 「-」を基準に、左馬番は右寄せ、右馬番は左寄せ。中央の馬番は中央。
+     * 2賭式（馬連・馬単）= [馬番1][-][馬番2]   span 3個、奇数が馬番、偶数がセパレータ
+     * 3賭式（3連複・3連単）= [馬番1][-][馬番2][-][馬番3]  span 5個、奇数が馬番 */
+
+    /* 奇数番目の span = 馬番セル。1.5rem 正方形、line-height 1 で行内に収める。 */
+    .wide-popular .popular-table__combination > span:nth-child(odd) {
+      width: 1.5rem;
+      height: 1.5rem;
+      font-size: 1.2rem;
+      line-height: 1;
+      display: grid;
+      place-content: center;
+    }
+
+    /* 最初の馬番は右寄せ（「-」に寄る）、最後の馬番は左寄せ（「-」に寄る）。 */
+    .wide-popular .popular-table__combination > span:first-child {
+      justify-self: end;
+    }
+    .wide-popular .popular-table__combination > span:last-child {
+      justify-self: start;
+    }
+    /* 3賭式（3連複・3連単）の真ん中の馬番（span:nth-child(3)）は中央寄せ。
+     * 2賭式では span:nth-child(3) が :last-child と一致するため、
+     * three-combination スコープ限定で center を当てる。 */
+    .wide-popular .popular-table__body.three-combination .popular-table__combination > span:nth-child(3) {
+      justify-self: center;
+    }
+
+    /* popular-table__row: 子要素(combination/odds) の line-height による内在高さが
+     * grid セル高さを超えて scrollHeight overflow を起こすため、line-height 1 と
+     * overflow:hidden で強制的に grid セル高さに収める。 */
+    .wide-popular .popular-table__body .popular-table__row,
+    .wide-popular .popular-table__body.three-combination .popular-table__row {
+      overflow: hidden;
+      line-height: 1;
+    }
+    .wide-popular .popular-table__combination span {
+      font-size: 1rem;
+    }
+    /* オッズ数値も行高に収める */
+    .wide-popular .popular-table__odds {
+      font-size: 1rem;
+    }
+    /* popular-table__head は行よりは余裕があるが、全体を少し詰める */
+    .wide-popular .popular-table__head {
+      height: auto;
+      min-height: 0;
+      padding: 0.2rem 0;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="popular wide-popular" id="popular">
+    <div class="race-header header-green">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>発走</span><span class="minute" id="hdr-postTime"></span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+    <div class="race-main">
+      <div class="popular-table">
+        <div class="popular-table__head">馬連 上位1～5</div>
+        <div class="popular-table__body" id="umarenList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">馬単 上位1～5</div>
+        <div class="popular-table__body" id="umatanList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">3連複 上位1～5</div>
+        <div class="popular-table__body three-combination" id="trioList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">3連単 上位1～5</div>
+        <div class="popular-table__body three-combination" id="trifectaList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // C-03 (2026-04-17): L字レイアウト専用。ensureCutinTemplate() は呼ばない。
+  // 画面遷移図「出走表・成績表・変更情報・レース動画エリアにはカットイン非表示」
+  // および L字レイアウトは16:9でない（及川判断 2026-04-17）ことによる。
+  var D = window.OddsDemo;
+  var dataUrl = null;
+  var currentPoller = null;
+  var lastData = null;
+  var serverOffsetMs = 0;
+  var ROWS_PER_LIST = 5;
+
+  // grid-template-rows の --rows-per-list を反映
+  document.getElementById('popular').style.setProperty('--rows-per-list', ROWS_PER_LIST);
+
+  function renderCombinationList(containerId, list, horses, combSize, limit) {
+    var body = document.getElementById(containerId);
+    var fragment = document.createDocumentFragment();
+    var rows = (list || []).slice(0, limit);
+    for (var i = 0; i < limit; i++) {
+      var entry = rows[i];
+      var row = D.el('div', 'popular-table__row');
+      var comb = D.el('div', 'popular-table__combination');
+      if (entry) {
+        var keys = combSize === 2 ? ['a', 'b'] : ['a', 'b', 'c'];
+        keys.forEach(function(k, idx) {
+          var num = entry[k];
+          var frameNo = D.frameOfHorse(horses, num);
+          comb.appendChild(D.el('span', D.frameClassOf(frameNo, 'num'), num));
+          if (idx < keys.length - 1) comb.appendChild(D.el('span', null, '-'));
+        });
+      } else {
+        for (var j = 0; j < combSize; j++) {
+          comb.appendChild(D.el('span', null, ''));
+          if (j < combSize - 1) comb.appendChild(D.el('span', null, '-'));
+        }
+      }
+      row.appendChild(comb);
+      var popular = entry && D.isTopPopular(entry.rank);
+      var odds = D.el('div', 'popular-table__odds' + (popular ? ' odds-popular' : ''), entry ? D.fmtOdds(entry.odds) : '0.0');
+      row.appendChild(odds);
+      fragment.appendChild(row);
+    }
+    body.replaceChildren(fragment);
+  }
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+    lastData = data;
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+
+    // 指示書08: 取消馬を含むエントリを除外してから 7件表示
+    var umarenList   = D.filterScratchedFromPopular(data.umaren_popular,   horses, 2);
+    var umatanList   = D.filterScratchedFromPopular(data.umatan_popular,   horses, 2);
+    var trioList     = D.filterScratchedFromPopular(data.trio_popular,     horses, 3);
+    var trifectaList = D.filterScratchedFromPopular(data.trifecta_popular, horses, 3);
+
+    renderCombinationList('umarenList',   umarenList,   horses, 2, ROWS_PER_LIST);
+    renderCombinationList('umatanList',   umatanList,   horses, 2, ROWS_PER_LIST);
+    renderCombinationList('trioList',     trioList,     horses, 3, ROWS_PER_LIST);
+    renderCombinationList('trifectaList', trifectaList, horses, 3, ROWS_PER_LIST);
+  }
+
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'wide-popular',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        // C-03 (2026-04-17): L字レイアウト専用のため checkCutin は呼ばない（カットイン非表示）。
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setDataUrl') {
+      dataUrl = e.data.url;
+      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      startPolling();
+    }
+  });
+
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

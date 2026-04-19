@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+  指示書09 T3: 動画表示専用テンプレート（4分割/1画面/L字 共通）。
+  親から postMessage({type:'setVideoConfig', ...}) を受け取り hls.js で HLS ライブ再生する。
+  オッズJSONのポーリングは一切行わない。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>動画フレーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- === BEGIN: TECH-VERIFICATION-ONLY === -->
+  <!-- 権利処理未完了。本番実装時は NAR との商用利用契約後に正式URLを設定すること。
+       hls.js CDN も契約CDN/自社バンドルに差し替える。 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <!-- === END: TECH-VERIFICATION-ONLY === -->
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+    video {
+      width: 100%; height: 100%;
+      object-fit: contain; background: #000;
+      display: block;
+    }
+    /* C-05 (2026-04-17): 仕様書§4 px禁止ルール遵守のため font-size を vw/vh 比例化。
+     * FHD (1920×1080): min(13.44px, 12.96px) = 12.96px（旧12px相当）
+     * 4K  (3840×2160): min(26.88px, 25.92px) = 25.92px（比例拡大）
+     * 1280×720       : min(8.96px,  8.64px)  = 8.64px（小画面で縮小、デバッグ用途のため許容）
+     * status はデバッグ情報のため小さめ係数。本番切替時は削除予定（TECH_VERIFICATION_NOTES.md 参照）。*/
+    .status {
+      position: fixed; left: 0.5rem; bottom: 0.5rem;
+      color: #888; font-size: min(0.7vw, 1.2vh); font-family: monospace;
+      pointer-events: none;
+    }
+    .status.error { color: #FF5252; }
+  </style>
+</head>
+<body>
+  <video id="live" autoplay muted playsinline></video>
+  <div class="status" id="status">待機中…</div>
+
+  <script>
+  (function() {
+    var videoEl = document.getElementById('live');
+    var statusEl = document.getElementById('status');
+    var hls = null;
+    var currentSource = null;
+
+    function setStatus(text, isError) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('error', !!isError);
+    }
+
+    // === BEGIN: TECH-VERIFICATION-ONLY ===
+    /**
+     * 動画設定を適用する（親からの setVideoConfig 受信時に呼ばれる）。
+     * 同じ video_source なら再ロードしない（継続再生）。quality_cap / volume / muted は都度反映。
+     */
+    function applyConfig(cfg) {
+      if (!cfg) return;
+      var videoSource = cfg.video_source;
+      var qualityMode = cfg.quality_mode || 'auto';
+      var qualityCap  = cfg.quality_cap != null ? Number(cfg.quality_cap) : null;
+      var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : true;
+      var volume      = cfg.volume != null ? Number(cfg.volume) : 0.7;
+
+      // audio / volume は常に反映
+      videoEl.muted = audioMuted;
+      videoEl.volume = Math.max(0, Math.min(1, volume));
+
+      if (!videoSource) {
+        setStatus('video_source 未指定', true);
+        return;
+      }
+
+      // 同じ source なら再ロードせず、quality_cap のみ適用
+      if (videoSource === currentSource && hls) {
+        if (qualityMode === 'auto' && qualityCap != null) {
+          hls.autoLevelCapping = qualityCap - 1; // 1-indexed → 0-indexed
+        } else if (qualityMode === 'fixed') {
+          hls.autoLevelCapping = -1;
+        }
+        setStatus('設定更新: cap=' + qualityCap + ' muted=' + audioMuted);
+        return;
+      }
+
+      // 新規 source: hls.js 再起動
+      if (hls) {
+        try { hls.destroy(); } catch (_) {}
+        hls = null;
+      }
+      currentSource = videoSource;
+
+      if (window.Hls && Hls.isSupported()) {
+        hls = new Hls({
+          maxMaxBufferLength: 10,   // ライブ配信向けに短めバッファ
+          liveDurationInfinity: true
+        });
+        hls.loadSource(videoSource);
+        hls.attachMedia(videoEl);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          if (qualityMode === 'auto' && qualityCap != null) {
+            hls.autoLevelCapping = qualityCap - 1;
+          }
+          setStatus('再生開始 ' + (videoSource.split('/').pop()));
+          videoEl.play().catch(function(){});
+        });
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          console.error('[video-frame] hls error', data);
+          if (data && data.fatal) {
+            setStatus('HLS エラー: ' + (data.details || data.type), true);
+          }
+        });
+      } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        // iOS Safari など HLS ネイティブサポート
+        videoEl.src = videoSource;
+        videoEl.addEventListener('loadedmetadata', function() {
+          setStatus('ネイティブHLS再生 ' + videoSource.split('/').pop());
+          videoEl.play().catch(function(){});
+        });
+      } else {
+        setStatus('HLS 非対応ブラウザ', true);
+      }
+    }
+    // === END: TECH-VERIFICATION-ONLY ===
+
+    window.addEventListener('message', function(e) {
+      var d = e.data;
+      if (d && d.type === 'setVideoConfig') {
+        applyConfig(d);
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

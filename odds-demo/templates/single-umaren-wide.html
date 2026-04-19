@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>馬連・ワイド 単体表示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="umaren-wide" id="umarenWide">
+    <div class="race-header header-teal">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>発走</span><span class="minute" id="hdr-postTime"></span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+
+    <div class="race-main">
+      <div class="race-main__head" id="matrixTitle">馬連 / ワイド</div>
+      <div class="race-table" id="matrixBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate() が起動時に fetch して body 末尾に挿入する -->
+
+<script>
+(function() {
+  window.OddsDemo.ensureCutinTemplate(); // カットインテンプレを先行取得（fire-and-forget）
+  var D = window.OddsDemo;
+  var dataUrl = null;
+  var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
+  var pageTimer = null;
+  var lastData = null;
+  var serverOffsetMs = 0;
+
+  // ---- 設定値 ----
+  var UMAREN_PAGE_ROTATION_SEC = 15;
+  var forcedPage = null;
+
+  (function applyQuery() {
+    try {
+      var q = new URL(location.href).searchParams;
+      var pr = Number(q.get('page_rotation'));
+      if (isFinite(pr) && pr >= 1) UMAREN_PAGE_ROTATION_SEC = pr;
+      var fp = Number(q.get('page'));
+      if (isFinite(fp) && fp >= 1) forcedPage = fp;
+    } catch (_) {}
+  })();
+
+  var currentPage = forcedPage || 1;
+  var currentPageCount = 0;
+  var currentHorseCount = -1;
+
+  function getPairOdds(map, a, b) {
+    var lo = Math.min(a, b), hi = Math.max(a, b);
+    return map[lo + '-' + hi];
+  }
+
+  // 1軸分のブロックを生成
+  // position: 'top' → [name, row, row, ...]  grid-row: 1 / span itemCount
+  // position: 'bottom' → [row, row, ..., name]  grid-row: span itemCount / -1
+  //
+  // 指示書08: 取消馬対応
+  //   - 軸馬取消: body に body-scratched（ブロック全体薄表示）、各行のオッズ空白
+  //   - 相手馬取消: 該当行に row-scratched、オッズ空白
+  function createAxisBlock(axisHorse, partners, umarenMap, wideMap, position, scratchedSet) {
+    var axisScratched = !!(scratchedSet && scratchedSet[axisHorse.horse_no]);
+    var bodyClasses = 'race-table__body ' + D.frameClassOf(axisHorse.frame_no, 'body');
+    if (axisScratched) bodyClasses += ' body-scratched';
+    var body = D.el('div', bodyClasses);
+    body.setAttribute('data-position', position);
+
+    // --row-count = 実項目数（name + partners数）に合わせる
+    // body 内部 grid は項目数ぴったりの行数で 1fr 均等、
+    // col 側 grid-row span も同じ値で配置する → 列 grid の 1 行高さと body 内 1 行高さが一致。
+    var itemCount = 1 + partners.length;
+    body.style.setProperty('--row-count', itemCount);
+    if (position === 'top') {
+      body.style.gridRow = '1 / span ' + itemCount;
+    } else {
+      // 下段: col の末尾に揃える
+      body.style.gridRow = 'span ' + itemCount + ' / -1';
+    }
+
+    var nameBlock = D.el('div', 'race-table__name');
+    nameBlock.appendChild(D.el('span', 'name-number', axisHorse.horse_no));
+    nameBlock.appendChild(D.el('span', null, axisHorse.horse_name));
+    nameBlock.style.setProperty('--name-length', (axisHorse.horse_name || '').length);
+
+    var rowEls = partners.map(function(opp) {
+      var oppScratched = !!(scratchedSet && scratchedSet[opp]);
+      // 軸取消時は body-scratched で全体薄化されるため row-scratched は重ねない。
+      // 相手のみ取消時は該当行に row-scratched を付与。
+      var rowClasses = 'race-table__row' + (!axisScratched && oppScratched ? ' row-scratched' : '');
+      var row = D.el('div', rowClasses);
+      row.appendChild(D.el('div', 'race-table__number', opp));
+
+      if (axisScratched || oppScratched) {
+        // オッズは空白表示（馬連/ワイドとも）
+        row.appendChild(D.el('div', 'race-table__umaren', ''));
+        var wideCellEmpty = D.el('div', 'race-table__wide');
+        wideCellEmpty.appendChild(D.el('span', null, ''));
+        wideCellEmpty.appendChild(D.el('span', null, ''));
+        wideCellEmpty.appendChild(D.el('span', null, ''));
+        row.appendChild(wideCellEmpty);
+        return row;
+      }
+
+      var umaren = getPairOdds(umarenMap, axisHorse.horse_no, opp);
+      var umarenCls = 'race-table__umaren' + (umaren && D.isUmarenUnpopular(umaren.odds) ? ' unpopular' : '');
+      row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOdds(umaren.odds) : '-'));
+
+      var wideCell = D.el('div', 'race-table__wide');
+      var wide = getPairOdds(wideMap, axisHorse.horse_no, opp);
+      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.min) : '-'));
+      wideCell.appendChild(D.el('span', null, '-'));
+      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.max) : '-'));
+      row.appendChild(wideCell);
+
+      return row;
+    });
+
+    if (position === 'top') {
+      body.appendChild(nameBlock);
+      rowEls.forEach(function(r) { body.appendChild(r); });
+    } else {
+      // bottom: rows first, then name
+      rowEls.forEach(function(r) { body.appendChild(r); });
+      body.appendChild(nameBlock);
+    }
+    return body;
+  }
+
+  function updateMatrixTitle(pageNo, pageCount) {
+    // 帯の表記は元テンプレートの「馬連 / ワイド」を常時維持。
+    // ページ分割時は末尾にページ指示子のみ付加し、オッズの内容（馬連/ワイド両方）を示す。
+    var title = pageCount <= 1
+      ? '馬連 / ワイド'
+      : ('馬連 / ワイド  P' + pageNo + '/' + pageCount);
+    D.setText(document.getElementById('matrixTitle'), title);
+  }
+
+  function renderCurrentPage() {
+    if (!lastData) return;
+    var horses = lastData.horses || [];
+    var N = horses.length;
+    var pages = D.calcUmarenLayout(N);
+    var pageCount = pages.length;
+    if (currentPage > pageCount) currentPage = 1;
+
+    updateMatrixTitle(currentPage, pageCount);
+
+    var horseByNo = {};
+    horses.forEach(function(h) { horseByNo[h.horse_no] = h; });
+    var umarenMap = {}, wideMap = {};
+    (lastData.umaren_matrix || []).forEach(function(e) { umarenMap[e.a + '-' + e.b] = e; });
+    (lastData.wide_matrix   || []).forEach(function(e) { wideMap[e.a + '-' + e.b] = e; });
+
+    // 指示書08: 取消馬 horse_no セット（軸・相手の両方で使用）
+    var scratchedSet = D.buildScratchedSet(horses);
+
+    var matrixBody = document.getElementById('matrixBody');
+    var fragment = document.createDocumentFragment();
+
+    var cols = pages[currentPage - 1] || [];
+    cols.forEach(function(col) {
+      var colEl = D.el('div', 'race-table__col');
+
+      // 上段（必ず存在）
+      var topHorse = horseByNo[col.topAxis];
+      if (topHorse) {
+        colEl.appendChild(createAxisBlock(topHorse, col.topPartners, umarenMap, wideMap, 'top', scratchedSet));
+      }
+
+      // 下段（botAxis が存在する場合のみ）
+      if (col.botAxis != null) {
+        var botHorse = horseByNo[col.botAxis];
+        if (botHorse) {
+          colEl.appendChild(createAxisBlock(botHorse, col.botPartners, umarenMap, wideMap, 'bottom', scratchedSet));
+        }
+      }
+      // ※ 下段ブロック（.race-table__body）を生成しない = 「上段のみ」の列
+
+      fragment.appendChild(colEl);
+    });
+    matrixBody.replaceChildren(fragment);
+  }
+
+  function startPageRotation(pageCount) {
+    if (pageTimer) { clearInterval(pageTimer); pageTimer = null; }
+    if (forcedPage) return;
+    if (pageCount <= 1) return;
+    pageTimer = setInterval(function() {
+      currentPage = (currentPage % pageCount) + 1;
+      renderCurrentPage();
+    }, UMAREN_PAGE_ROTATION_SEC * 1000);
+  }
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+
+    lastData = data;
+    // --horse-count はレース単位で注入
+    document.getElementById('umarenWide').style.setProperty('--horse-count', horses.length);
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+
+    var pages = D.calcUmarenLayout(horses.length);
+    var pageCount = pages.length;
+
+    // レース切替（頭数変化）を検知したらページを1にリセット。
+    // pageCount が変化した場合のみタイマーを再起動（Bug2 対策）。
+    var raceChanged = (horses.length !== currentHorseCount);
+    if (raceChanged) {
+      currentHorseCount = horses.length;
+      if (!forcedPage) currentPage = 1;
+      if (pageCount !== currentPageCount) {
+        currentPageCount = pageCount;
+        startPageRotation(pageCount);
+      }
+    }
+
+    renderCurrentPage();
+  }
+
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  // checkCutin は親から受け取った初回固定 offset (serverOffsetMs) を使う（ヘッダーと同じ時刻基準）。
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'single-umaren-wide',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setDataUrl') {
+      dataUrl = e.data.url;
+      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      if (e.data.page) forcedPage = e.data.page;
+      startPolling();
+    }
+  });
+
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

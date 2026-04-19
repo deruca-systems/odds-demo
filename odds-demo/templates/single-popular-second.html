@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>人気順16-30 単体表示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="popular popular-second" id="popular">
+    <div class="race-header header-red">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>発走</span><span class="minute" id="hdr-postTime"></span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+    <div class="race-main">
+      <div class="race-table">
+        <div class="race-table__head">
+          <div>枠</div><div>馬番</div><div>馬名</div><div class="win">単勝</div>
+        </div>
+        <div class="race-table__body" id="horseBody"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">馬連 上位16～30</div>
+        <div class="popular-table__body" id="umarenList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">馬単 上位16～30</div>
+        <div class="popular-table__body" id="umatanList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">3連複 上位16～30</div>
+        <div class="popular-table__body three-combination" id="trioList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">3連単 上位16～30</div>
+        <div class="popular-table__body three-combination" id="trifectaList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate() が起動時に fetch して body 末尾に挿入する -->
+
+<script>
+(function() {
+  window.OddsDemo.ensureCutinTemplate(); // カットインテンプレを先行取得（fire-and-forget）
+  var D = window.OddsDemo;
+  var dataUrl = null;
+  var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
+  var lastData = null;
+  var serverOffsetMs = 0;
+  var ROWS_PER_LIST = 15;
+  var OFFSET = 15; // 16位～
+
+  function renderHorses(horses) {
+    document.getElementById('popular').style.setProperty('--horse-count', horses.length);
+    var body = document.getElementById('horseBody');
+    var fragment = document.createDocumentFragment();
+    var winCls = D.computeWinClasses(horses);
+    horses.forEach(function(h) {
+      // 指示書08: 取消馬は row-scratched + 「取消」/「除外」ラベル
+      var isScratched = !!h.is_scratched;
+      var rowClasses = 'race-table__row ' + D.frameClassOf(h.frame_no, 'row');
+      if (isScratched) rowClasses += ' row-scratched';
+      var row = D.el('div', rowClasses);
+      row.appendChild(D.el('div', 'race-table__frame', h.frame_no));
+      row.appendChild(D.el('div', 'race-table__number', h.horse_no));
+      var name = D.el('div', 'race-table__name', h.horse_name);
+      name.style.setProperty('--name-length', (h.horse_name || '').length);
+      row.appendChild(name);
+      if (isScratched) {
+        // 指示書08 v2: 単勝セルを「取消」/「除外」ラベル専用セルに差替。
+        // 人気順画面は単勝セル幅 6.3rem に収まらないため 2文字の短縮ラベルを使用。
+        row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
+      } else {
+        var winClass = winCls[h.horse_no] || '';
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+      }
+      fragment.appendChild(row);
+    });
+    body.replaceChildren(fragment);
+  }
+
+  function renderCombinationList(containerId, list, horses, combSize, offset, limit) {
+    var body = document.getElementById(containerId);
+    var fragment = document.createDocumentFragment();
+    var rows = (list || []).slice(offset, offset + limit);
+    for (var i = 0; i < limit; i++) {
+      var entry = rows[i];
+      var row = D.el('div', 'popular-table__row');
+      var comb = D.el('div', 'popular-table__combination');
+      if (entry) {
+        var keys = combSize === 2 ? ['a', 'b'] : ['a', 'b', 'c'];
+        keys.forEach(function(k, idx) {
+          var num = entry[k];
+          var frameNo = D.frameOfHorse(horses, num);
+          comb.appendChild(D.el('span', D.frameClassOf(frameNo, 'num'), num));
+          if (idx < keys.length - 1) comb.appendChild(D.el('span', null, '-'));
+        });
+      } else {
+        for (var j = 0; j < combSize; j++) {
+          comb.appendChild(D.el('span', null, ''));
+          if (j < combSize - 1) comb.appendChild(D.el('span', null, '-'));
+        }
+      }
+      row.appendChild(comb);
+      var popular = entry && D.isTopPopular(entry.rank);
+      var odds = D.el('div', 'popular-table__odds' + (popular ? ' odds-popular' : ''), entry ? D.fmtOdds(entry.odds) : '0.0');
+      row.appendChild(odds);
+      fragment.appendChild(row);
+    }
+    body.replaceChildren(fragment);
+  }
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+
+    lastData = data;
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+
+    renderHorses(horses);
+    // 指示書08: 取消馬を含むエントリを除外してから 16〜30位表示（件数維持のため繰り上げ）。
+    var umarenList   = D.filterScratchedFromPopular(data.umaren_popular,   horses, 2);
+    var umatanList   = D.filterScratchedFromPopular(data.umatan_popular,   horses, 2);
+    var trioList     = D.filterScratchedFromPopular(data.trio_popular,     horses, 3);
+    var trifectaList = D.filterScratchedFromPopular(data.trifecta_popular, horses, 3);
+    renderCombinationList('umarenList',   umarenList,   horses, 2, OFFSET, ROWS_PER_LIST);
+    renderCombinationList('umatanList',   umatanList,   horses, 2, OFFSET, ROWS_PER_LIST);
+    renderCombinationList('trioList',     trioList,     horses, 3, OFFSET, ROWS_PER_LIST);
+    renderCombinationList('trifectaList', trifectaList, horses, 3, OFFSET, ROWS_PER_LIST);
+  }
+
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'single-popular-second',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setDataUrl') {
+      dataUrl = e.data.url;
+      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      startPolling();
+    }
+  });
+
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

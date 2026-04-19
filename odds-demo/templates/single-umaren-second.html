@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+  馬連オッズ（馬番順）軸馬 10～17 ページ（18は対b>18 が存在しないため省略）
+  ※ 芥川様から single-* 単体HTMLの受領前の暫定テンプレ。
+     docs/画面サンプル(202604015_screen34サンプル)/screen2.html より
+     .screen.screen-umaren.screen-second ブロックを切り抜いて作成。
+     正式版受領時はこのファイルを丸ごと差し替え。
+-->
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>馬連オッズ（馬番順）2 単体表示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="screen screen-umaren screen-second" id="screen">
+    <div class="race-header header-purple">
+      <div class="race-title">
+        <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
+      </div>
+      <div class="race-info">
+        <div class="weather">
+          <img class="weather-icon" id="hdr-weatherIcon" src="../assets/images/weather/sunny.svg" alt="">
+          <span id="hdr-weatherLabel"></span>
+        </div>
+        <div class="course">
+          <span class="course-condition" id="hdr-condition"></span>
+          <span class="course-surface" id="hdr-surface"></span>
+          <span class="course-distance" id="hdr-distance"></span>
+          <span class="course-direction" id="hdr-direction"></span>
+        </div>
+        <div class="race-time">
+          <span>発走</span><span class="minute" id="hdr-postTime"></span>
+        </div>
+      </div>
+      <div class="previous-day is-hidden">前日発売</div>
+    </div>
+    <div class="screen-main">
+      <div class="screen-main__head">馬連オッズ（馬番順）</div>
+      <div class="screen-table" id="oddsTable"></div>
+    </div>
+  </div>
+</div>
+
+<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate() が起動時に fetch して body 末尾に挿入する -->
+
+<script>
+(function() {
+  window.OddsDemo.ensureCutinTemplate();
+  var D = window.OddsDemo;
+  var dataUrl = null;
+  var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
+  var lastData = null;
+  var serverOffsetMs = 0;
+
+  function render(data) {
+    var race = data.race || {};
+    var horses = data.horses || [];
+    lastData = data;
+    document.getElementById('screen').style.setProperty('--horse-count', horses.length);
+    D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
+    D.renderMatrixTable(
+      document.getElementById('oddsTable'),
+      horses,
+      data.umaren_matrix,
+      { type: 'umaren', axisFrom: 10, axisTo: 17 }
+    );
+  }
+
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  function startPolling() {
+    if (currentPoller) currentPoller.stop();
+    currentPoller = D.startResilientPolling({
+      name: 'single-umaren-second',
+      baseIntervalMs: D.pollInterval,
+      fetch: function() {
+        if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
+        return D.fetchWithOffset(dataUrl);
+      },
+      onSuccess: function(res) {
+        render(res.data);
+        D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: 'childServerTime',
+            url: dataUrl,
+            serverTime: res.data.server_time,
+            offset: res.serverOffset
+          }, '*');
+        }
+      }
+    });
+    D.registerPoller(currentPoller);
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setDataUrl') {
+      dataUrl = e.data.url;
+      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      startPolling();
+    }
+  });
+
+  D.startHeaderTicker(function() {
+    return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+/**
+ * odds-demo 専用ヘルパーCSS（芥川様 style.css へは一切手を入れない）
+ *
+ * 含まれるのは以下の最小限のみ:
+ *  1. .is-hidden        表示切替用ユーティリティ（前日発売⇔race-info など）
+ *  2. rem基準のビューポート適合   FHDで画面が縦にはみ出さないための min() 合算
+ */
+
+/* 表示切替用 */
+.is-hidden { display: none !important; }
+
+/*
+ * html.single-screen の font-size をビューポート幅基準に加え高さ基準も考慮した min() に変更。
+ * 芥川様CSSは font-size: 1.0416666667vw（幅基準だけ）で 54rem がちょうど 540px になる前提だが、
+ * 実際のブラウザは上部URLバー・ブックマークバー等でビューポート高さが 540px を下回ることがあり
+ * 縦方向に見切れが発生する。min() で幅・高さの小さい方に追従させて見切れを抑止する。
+ *
+ *   1.0416666667vw ... 96rem がビューポート幅100%
+ *   1.8518518518vh ... 54rem がビューポート高さ100%
+ */
+html.single-screen {
+  font-size: min(1.0416666667vw, 1.8518518518vh);
+}
+
+/*
+ * 天候ラベルの2文字対応（小雨 / 小雪）
+ *
+ * 芥川様CSS の .weather は width: 6.4rem 固定で 1文字ラベル前提。
+ * 2文字ラベル（小雨/小雪）が来ると span が2行に折り返す（height=52px）。
+ * 申し送り仕様書の天候アイコンには light-rain.svg / light-snow.svg が含まれており、
+ * 2文字ラベルの表示が必要なケースは設計上存在する。
+ *
+ * 暫定対応:
+ *   - span に white-space: nowrap を指定して折り返し抑止
+ *   - .weather 自体の min-width を広げて 2文字がボックス内に収まるようにする
+ *     （1文字時は justify-content: center のため中央寄せのまま自然な見た目）
+ *
+ * 恒久対応案（要・芥川様確認）:
+ *   - style.css の .weather { width: 6.4rem } を適切な最小幅に緩める
+ *   - または 2文字時のみサブクラスで幅調整
+ */
+.screen .race-header .race-info .weather,
+.umaren-wide .race-header .race-info .weather,
+.popular .race-header .race-info .weather {
+  width: auto;
+  min-width: 8.6rem;
+}
+.screen .race-header .race-info .weather span,
+.umaren-wide .race-header .race-info .weather span,
+.popular .race-header .race-info .weather span {
+  white-space: nowrap;
+}
+
+/*
+ * 「前日発売」ラベルは芥川様CSSだと .popular 配下のみ定義されている。
+ * .screen / .umaren-wide でも同じ見た目にするため、同スタイルを流用する。
+ * 値は芥川様 .popular .race-header .previous-day と同一。
+ */
+.screen .race-header .previous-day,
+.umaren-wide .race-header .previous-day {
+  width: 9.9rem;
+  height: 2.7rem;
+  display: grid;
+  place-content: center;
+  color: #CEE069;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  border: 0.1rem solid #1C1C1C;
+  border-radius: 0.4rem;
+  background: linear-gradient(113.33deg, #1F3352 27.64%, #0D1117 72.36%);
+  margin-right: 0.8rem;
+}
+
+/*
+ * 馬連ワイドの 4列 × 上下2段 レイアウト用の列ラッパー。
+ *
+ * 芥川様リファレンスの意図: 単勝・複勝・枠連側（左）と馬連・ワイド側（右）で
+ * 「1行の高さ」が完全に揃うこと。
+ *   単勝側: 10 or N 行の grid（--row-count = max(10, --horse-count)）
+ *   馬連側: 同じ --row-count の行グリッドを使用し、body はその中で grid-row で配置
+ *
+ * 各 body に インラインで:
+ *   --row-count: {その body の項目数（name + 相手行）}
+ *   grid-row: 1 / span {項目数}       （上段）
+ *   grid-row: span {項目数} / -1      （下段、末端揃え）
+ * を設定することで、body 内部の 1 行高さが col の 1 行高さと一致する。
+ * 上下段の間の余白（空き行）は自然に中央に生まれ、space-between と同等の見た目になる。
+ */
+.umaren-wide .race-main .race-table__col {
+  display: grid;
+  grid-template-rows: repeat(var(--row-count), minmax(0, 1fr));
+  height: 100%;
+  overflow: hidden;
+}
+.umaren-wide .race-main .race-table__col > .race-table__body {
+  /* body は grid-row: 1 / span N（または span N / -1）で col grid の N cell を
+   * span するので、body の高さは N × col行高さ になる。
+   * 内部レイアウトは grid 1fr 配分（minmax(0,1fr)）で child の display: grid との
+   * 相性問題があったため、確実に等分割するため flex column に切り替える。 */
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+}
+
+/*
+ * 新 style.css（screen2_files 由来）では .umaren-wide の flex chain に
+ * min-height: 0 が無いため、内部の grid 子要素（.race-table__body の
+ * grid-template-rows: repeat(var(--row-count), 1fr) の intrinsic 計算）が
+ * 親の高さを無視して content size に膨張し、結果として .race-main 全体が
+ * 何百 px もはみ出す（54rem ≒ 245px の枠を破る）。
+ * これにより 1行の高さが単勝画面（P1）と一致しなくなる。
+ *   修正: flex chain 全段に min-height: 0 を付与し、grid を親高さに収める。
+ *   芥川様 style.css にも同等の修正を取り込んでもらうべき確認事項。
+ */
+.umaren-wide,
+.umaren-wide .race-main,
+.umaren-wide .race-main .race-table {
+  min-height: 0;
+}
+
+/*
+ * 新 style.css は .umaren-wide .race-main .race-table__row に
+ *   height: calc(46rem / var(--row-count));
+ * を追加している。ここで参照される --row-count は body 側のインラインで
+ * 注入された「その body の項目数 N」になるため、各行が 46rem/N の高さに
+ * なり、単勝側（col grid の 1/10 行）と高さが揃わなくなる。
+ *
+ * デモでの単勝側との行高さ完全同期は demo-helpers.css 側の
+ * .race-table__col grid + body の grid-row span で実現済みのため、
+ * 行自体には固定 height を与えず、body grid に従わせる必要がある。
+ *   修正: row の height を auto にして body grid に従わせる。
+ *   芥川様 style.css の該当ルールも組み込み時に削除依頼すべき確認事項。
+ */
+.umaren-wide .race-main .race-table__row,
+.umaren-wide .race-main .race-table__name {
+  /* style.css の height: calc(46rem / var(--row-count)) は body の inline
+   * --row-count（その body の項目数）参照で col grid 行高さと不一致になる。
+   * body を flex column にしているので flex: 1 1 0 で body 高さを等分する。
+   * これにより body 高さ = N × col行高さ → 各行 = col行高さ = 単勝側行高さ。 */
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+}
+
+/*
+ * 締切直前フラッシュ（デモ表現）
+ * .race-time.is-closing: 発走2分前以内 → 点滅
+ * .race-time.is-closed:  発走済み → グレーアウト
+ * 本番仕様で別途デザインがあれば差し替えること。
+ */
+.race-time.is-closing {
+  animation: demo-race-time-blink 1s infinite;
+}
+.race-time.is-closed {
+  filter: saturate(0.3) brightness(0.7);
+}
+/*
+ * 発売締切時は .race-time 内の「締切」「分前」ラベルを非表示にし、
+ * .minute（中央の数字セル）だけを残す → そこに「発売締切」テキストを表示する。
+ */
+.race-time.is-closed > span:not(.minute) {
+  display: none;
+}
+/*
+ * 画面共通: countdown/closed モード時の .race-time 背景を単勝画面と同じ赤グラデに統一。
+ *
+ * 芥川様 style.css は画面種別ごとに .race-time の背景を別定義:
+ *   .screen (単勝画面)            → 赤グラデ（締切表示想定）
+ *   .umaren-wide/.popular/.screen-second → 黒（発走時刻表示想定）
+ * 4画面全てで時間ベース切替（pre=発走, countdown=締切, closed=発売締切）を
+ * 行うため、countdown/closed モード時は赤グラデ警告色に統一する（暫定）。
+ * pre モード（発走HH:MM表示）のときは芥川様CSSの画面種別背景を維持。
+ * 芥川様から正式CSSが到着したらこのブロックは差し替え／削除する。
+ */
+.race-header .race-info .race-time[data-mode="countdown"],
+.race-header .race-info .race-time[data-mode="closed"] {
+  background: linear-gradient(98.03deg, #BF0808 24.91%, #5A0F02 75.09%);
+  border-left: 0.2rem solid #000000;
+}
+@keyframes demo-race-time-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.5; }
+}
+
+/*
+ * カットイン CUT-001（締切5分前） / CUT-002（発売終了）
+ * 暫定スタイル — スクリーンショット（Bパターン）からの再現。
+ * 芥川様から正式HTML＋CSSが到着次第、このブロックは削除する。
+ */
+.cutin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0D1117;
+}
+.cutin-overlay.is-hidden {
+  display: none;
+}
+.cutin {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.cutin__header {
+  background: #0D1117;
+  border-bottom: 0.15rem solid #30363d;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+.cutin__venue {
+  color: #58a6ff;
+  font-size: 3rem;
+  font-weight: bold;
+}
+.cutin__chevron {
+  color: #6e8ba8;
+  font-size: 2.5rem;
+  margin: 0 0.8rem;
+}
+.cutin__race {
+  color: #e6edf3;
+  font-size: 3rem;
+  font-weight: bold;
+}
+.cutin__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0D1117;
+}
+/* CUT-001: 締切N分前 */
+.cutin__body--countdown {
+  gap: 1rem;
+}
+.cutin__body--countdown .cutin__label {
+  color: #e6edf3;
+  font-size: 4.5rem;
+  font-weight: bold;
+}
+.cutin__body--countdown .cutin__number {
+  color: #CEE069;
+  font-size: 14rem;
+  font-weight: bold;
+  font-family: "Segoe UI", sans-serif;
+  line-height: 1;
+}
+/* CUT-002: 発売終了 */
+.cutin__body--closed .cutin__message {
+  color: #CEE069;
+  font-size: 5rem;
+  font-weight: bold;
+}
+.cutin__footer {
+  padding: 1.2rem 2rem;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+.cutin__footer--warning {
+  background: #CC0000;
+}
+.cutin__footer--thankyou {
+  background: #444444;
+}
+
+/*
+ * 取消馬（is_scratched）の視覚処理（指示書08 v2 改訂 2026-04-16）
+ *
+ * 方針変更:
+ *   旧: opacity 0.5 で薄化 → 馬場の暗背景に埋もれて逆に読みにくい／単勝と複勝の
+ *       「取消・取消」並列表示にユーザーから違和感指摘
+ *   新: opacity 廃止、単勝+複勝セルを結合して「出走取消」「競走除外」を赤太字で1箇所表示。
+ *       マトリクス・馬連ワイドの空白セルは濃いグレー背景に統一。
+ *
+ *   .row-scratched           — 行全体の薄化は廃止（互換のため class は残す。現状何もしない）
+ *   .race-table__scratched   — 単勝/複勝を spanning した結合セル（ダーク背景+赤太字）
+ *   .odds-scratched          — マトリクス空白セルの暗背景
+ *   .body-scratched          — マトリクス/馬連ワイドの取消軸ブロック全体の暗背景
+ *
+ * 色値は指示書08 の仮値。芥川様確認の上で後日調整予定。
+ */
+
+/* 単勝（+複勝）の結合ラベルセル。.race-table__row の grid を前提に grid-column span。
+ * - .screen では 単勝(6.3rem) + 複勝(13.6rem) を1セルで占有 → grid-column: span 2
+ * - .popular では 単勝のみなので通常のセル幅（span 指定なし、下で上書き）
+ * 背景 #3a3a3a + 赤太字で警告を明示。nth-child(even) の #26364E より優先する。 */
+.race-table__scratched {
+  grid-column: span 2;
+  display: grid;
+  place-items: center;
+  background: #3a3a3a !important;
+  color: #FF5252;
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+/* 人気順画面は単勝セル1つ分 → span しない。セル幅 6.3rem に収めるため短縮表記「取消」「除外」。 */
+.popular .race-table__row .race-table__scratched {
+  grid-column: auto;
+  font-size: 1.8rem;
+  letter-spacing: 0;
+}
+
+/* マトリクス（馬連/馬単 馬番順）の空白オッズセル。
+ * 元 style.css の `.screen .screen-main .screen-table__row:nth-child(odd) .screen-table__odds`
+ * が nth-child で #26364E を指定するため、同詳細度以上のセレクタで上書きする。
+ *
+ * 軸取消（body-scratched）時は body 自体の背景は付けず、配下の全オッズセルのみ暗背景にする。
+ * body に background: #1a1a1a を付けると、ブロック末尾の余白スペースまで染まって
+ * 相手が少ない軸ほど不格好になるため、セル単位に留める（ユーザー要望 2026-04-16）。
+ * 軸番号セル（.screen-table__name）は通常の枠色を保持（同要望）。 */
+.screen .screen-main .screen-table .screen-table__row .screen-table__odds.odds-scratched,
+.screen .screen-main .screen-table .screen-table__body.body-scratched .screen-table__row .screen-table__odds {
+  background-color: #1a1a1a;
+}
+
+/* 馬連ワイド 軸取消ブロック: body 自体の背景は付けず、umaren/wide セルのみ暗背景に。
+ * 同様に軸名ブロック（.race-table__name）も枠色のまま維持。 */
+.umaren-wide .race-main .race-table__body.body-scratched .race-table__row .race-table__umaren,
+.umaren-wide .race-main .race-table__body.body-scratched .race-table__row .race-table__wide,
+.umaren-wide .race-main .race-table__row.row-scratched .race-table__umaren,
+.umaren-wide .race-main .race-table__row.row-scratched .race-table__wide {
+  background: #1a1a1a !important;
+}
+
+/*
+ * 馬単画面（.screen-umatan）用の number-{color} フレーム色適用（暫定）。
+ *
+ * 芥川様 style.css では .screen-umaren にのみ number-{color} 対応があり、
+ * .screen-umatan では nth-child ベースで 18頭固定の色分けになっている。
+ * <18頭レースや正確な枠色反映のため、umaren と同じ number-{color} 対応を
+ * .screen-umatan にも展開する。セレクタ詳細度を nth-child ルールより高く
+ * して確実に上書きする。
+ * 芥川様から .screen-umatan 正式CSS追加時にこのブロックは削除する。
+ */
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-white {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-black {
+  background-color: #0D1117;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-red {
+  background-color: #3C0000;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-blue {
+  background-color: #00003F;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-yellow {
+  background-color: #3C3C00;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-green {
+  background-color: #004700;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-orange {
+  background-color: #653600;
+  color: inherit;
+}
+.screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-pink {
+  background-color: #581058;
+  color: inherit;
+}

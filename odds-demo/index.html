@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>4画面JSONポーリングサンプル（親フレーム）</title>
+<meta name="viewport" content="width=1920">
+<!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
+<script src="assets/js/common.js"></script>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #000; color: #e6edf3;
+    font-family: "Yu Gothic UI", sans-serif;
+    overflow: hidden;
+  }
+  body { font-size: 0.75rem; }
+
+  /* 情報バー（オーバーレイ、iframeの寸法には影響しない） */
+  .info-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0 0.6rem;
+    background: rgba(28, 36, 51, 0.85);
+    border-bottom: 0.1rem solid #30363d;
+    font-size: 0.75rem;
+    z-index: 10;
+  }
+  .info-bar__title { color: #CEE069; font-weight: bold; }
+  .info-bar__item { color: #8b949e; }
+  .info-bar__item strong { color: #58a6ff; font-family: "Segoe UI", monospace; }
+  .info-bar__btn {
+    background: transparent; color: #8b949e;
+    border: 0.1rem solid #30363d; padding: 0 0.5rem;
+    font-size: 0.7rem; font-family: inherit; cursor: pointer;
+  }
+  .info-bar__btn:hover { color: #CEE069; border-color: #CEE069; }
+
+  /* 情報バー非表示時に右上に表示する復帰用ハンドル */
+  .info-bar__reveal {
+    position: fixed; top: 0; right: 0;
+    width: 1.2rem; height: 1.2rem;
+    background: rgba(206, 224, 105, 0.4);
+    color: #0D1117; font-size: 0.8rem; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 11;
+    border-bottom-left-radius: 0.3rem;
+  }
+
+  body.hide-bar .info-bar { display: none; }
+  body:not(.hide-bar) .info-bar__reveal { display: none; }
+
+  .grid {
+    position: absolute; inset: 0;
+    display: grid;
+    background: #000;
+  }
+  .grid iframe { width: 100%; height: 100%; border: 0; display: block; background: #0D1117; }
+  .grid .cell { position: relative; overflow: hidden; }
+
+  /* === 4分割レイアウト（従来） === */
+  .grid.layout-4split {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  /* === 1画面レイアウト（指示書09 T1） === */
+  .grid.layout-1screen {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+  .grid.layout-1screen .cell-1 { grid-row: 1; grid-column: 1; }
+  .grid.layout-1screen .cell-2,
+  .grid.layout-1screen .cell-3,
+  .grid.layout-1screen .cell-4 { display: none; }
+
+  /* === L字レイアウト 3分割（指示書09 T1 / 2026-04-16 仕様書§4 準拠版） ===
+   *   設計思想:
+   *     - 仕様書§4「px禁止・rem基本・FHD/4K比例拡縮」に準拠。
+   *     - monitor=0101（.screen）の vw/vh min() スケーリングと同じ思想を踏襲。
+   *     - cell1 は画面幅 22% 固定比率。FHD 1920 → 422px、4K 3840 → 845px、1280 → 281px。
+   *     - cell2 は aspect-ratio: 16/9 で幅から高さ自動決定。常に 16:9 を保証。
+   *     - cell3 は残り高さ。
+   *   これでビューポートサイズが変わっても全 cell が比例拡縮する。 */
+  .grid.layout-lshape {
+    grid-template-columns: 20% 1fr;     /* 2026-04-17: 22%→20% に切り上げ（ユーザー要望） */
+    grid-template-rows: auto 1fr;
+  }
+  .grid.layout-lshape .cell-1 { grid-row: 1 / 3; grid-column: 1; }
+  .grid.layout-lshape .cell-2 {
+    grid-row: 1;
+    grid-column: 2;
+    aspect-ratio: 16 / 9;
+    max-height: 100%;
+  }
+  .grid.layout-lshape .cell-3 { grid-row: 2; grid-column: 2; }
+  .grid.layout-lshape .cell-4 { display: none; }
+
+  .cell__badge {
+    position: absolute; bottom: 0.1rem; right: 0.1rem;
+    background: rgba(0,0,0,0.5); color: #CEE069;
+    padding: 0 0.3rem; font-size: 0.65rem;
+    z-index: 1; pointer-events: none;
+  }
+  body.hide-bar .cell__badge { display: none; }
+</style>
+</head>
+<body>
+
+<div class="info-bar">
+  <span class="info-bar__title">4画面JSONポーリングサンプル</span>
+  <span class="info-bar__item">端末: <strong id="barMonitor">----</strong></span>
+  <span class="info-bar__item">スロット: <strong id="barSlot">-</strong></span>
+  <span class="info-bar__item">レース: <strong id="barRace">-</strong></span>
+  <span class="info-bar__item">サーバ時刻: <strong id="barServerTime">--:--:--</strong></span>
+  <span class="info-bar__item">補正値: <strong id="barOffset">0</strong>ms</span>
+  <span class="info-bar__item">スケジュールpoll: <strong id="barSchedulePoll">-</strong>秒</span>
+  <span class="info-bar__item">オッズpoll: <strong id="barOddsPoll">-</strong>秒</span>
+  <span class="info-bar__item">次切替: <strong id="barNextSwitch">-</strong></span>
+  <span class="info-bar__item">状態: <strong id="barStatus">初期化中</strong></span>
+  <button class="info-bar__btn" onclick="document.body.classList.add('hide-bar')">非表示 (H)</button>
+</div>
+<div class="info-bar__reveal" onclick="document.body.classList.remove('hide-bar')" title="情報バーを表示 (H)">i</div>
+
+<div class="grid layout-4split" id="gridRoot">
+  <div class="cell cell-1"><iframe id="frame1" name="frame1"></iframe><div class="cell__badge">P1</div></div>
+  <div class="cell cell-2"><iframe id="frame2" name="frame2"></iframe><div class="cell__badge">P2</div></div>
+  <div class="cell cell-3"><iframe id="frame3" name="frame3"></iframe><div class="cell__badge">P3</div></div>
+  <div class="cell cell-4"><iframe id="frame4" name="frame4"></iframe><div class="cell__badge">P4</div></div>
+</div>
+
+<script>
+(function() {
+  // ---- 設定（すぐ変えられる位置にまとめる） ----
+  // C-01 (2026-04-17): 本番デフォルト30秒（全画面リスト v1.0【3/10確定事項】「オッズ画面更新頻度：30秒」）。
+  //   ?fast=1 付与時のみ 10秒 に短縮（デモ用モード、スロット短縮版と同時連動）。
+  //   ?schedule_poll=N / ?odds_poll=N が個別上書き（最優先）。
+  // H-04 (2026-04-17): NEXT_RACE_DELAY_SEC 追加（発走時刻+N秒で次レース自動遷移）。
+  //   デフォルト60秒（= 締切+180秒、J-WEB準拠）、?fast=1 で 5秒、?next_race_sec=N で上書き可。
+  var SCHEDULE_POLL_SEC = 30;   // スケジュールJSONポーリング（秒、本番デフォルト）
+  var ODDS_POLL_SEC     = 30;   // 子テンプレのオッズJSONポーリング（秒、本番デフォルト）
+  var NEXT_RACE_DELAY_SEC = 60; // 発走時刻+N秒で次レース遷移（H-04 Phase 1 §1 合意値）
+  var FRAME_UMATAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
+  var SLOT_TICK_SEC     = 5;    // 時間帯切替の検査間隔（秒）- 1秒tickではなく5秒で十分
+  var DISPLAY_TICK_SEC  = 1;    // 情報バー表示更新（秒）。サーバ負荷には関与しない。
+
+  // URLクエリで上書き可能:
+  //   ?schedule_poll=5   スケジュールpoll秒（最優先）
+  //   ?odds_poll=5       オッズpoll秒（最優先）
+  //   ?next_race_sec=5   次レース遷移秒（最優先）
+  //   ?monitor=0101      端末番号
+  //   ?fast=1            デモ用モード: 短縮スケジュール版 + ポーリング10秒 + 次レース遷移5秒
+  var USE_FAST = false;
+  (function applyQuery() {
+    var q = new URL(location.href).searchParams;
+    if (q.get('fast') === '1' || q.get('fast') === 'true') {
+      USE_FAST = true;
+      // C-01: fast=1 連動でポーリングも10秒（デモ実演用）
+      SCHEDULE_POLL_SEC = 10;
+      ODDS_POLL_SEC = 10;
+      // H-04 Phase 1 §9.4 案F1: fast=1 で次レース遷移秒も 5秒に短縮
+      NEXT_RACE_DELAY_SEC = 5;
+    }
+    // 個別上書きは fast=1 連動より優先
+    var sp = Number(q.get('schedule_poll'));
+    var op = Number(q.get('odds_poll'));
+    var nr = Number(q.get('next_race_sec'));
+    if (isFinite(sp) && sp >= 1) SCHEDULE_POLL_SEC = sp;
+    if (isFinite(op) && op >= 1) ODDS_POLL_SEC = op;
+    if (isFinite(nr) && nr >= 1) NEXT_RACE_DELAY_SEC = nr;
+  })();
+
+  // H-04 Phase 1 §9.2 案P1採用: position 文字列 "P1"-"P4" を iframe 番号に対応付け
+  var POSITION_TO_FRAME_NUM = { 'P1': 1, 'P2': 2, 'P3': 3, 'P4': 4 };
+
+  function positionToFrameNum(pos) {
+    return POSITION_TO_FRAME_NUM[pos];
+  }
+  function getIframeByPosition(pos) {
+    var n = positionToFrameNum(pos);
+    return n ? document.getElementById('frame' + n) : null;
+  }
+
+  var MONITOR_ID = (new URLSearchParams(location.search)).get('monitor') || '0101';
+  var SCHEDULE_URL = 'data/schedule_' + MONITOR_ID + (USE_FAST ? '_fast' : '') + '.json';
+
+  // 指示書09 T5-3: layout 値 → CSS クラス
+  var LAYOUT_CLASS_MAP = {
+    '4split':  'layout-4split',
+    '1screen': 'layout-1screen',
+    'lshape':  'layout-lshape'
+  };
+
+  function applyLayout(layoutValue) {
+    var gridEl = document.getElementById('gridRoot') || document.querySelector('.grid');
+    if (!gridEl) return;
+    Object.keys(LAYOUT_CLASS_MAP).forEach(function(k) {
+      gridEl.classList.remove(LAYOUT_CLASS_MAP[k]);
+    });
+    var cls = LAYOUT_CLASS_MAP[layoutValue] || 'layout-4split';
+    gridEl.classList.add(cls);
+  }
+
+  // === BEGIN: TECH-VERIFICATION-ONLY ===
+  // 地方競馬ライブ映像 HLS ベースURL（指示書09 T5-1）
+  // 権利処理未完了。本番実装時は NAR との商用利用契約後に正式URLを設定すること。
+  //
+  // 2026-04-17 修正: パスを `/hls-live/keiba/_definst_/liveevent/` → `/keiba/nar/live/` に変更。
+  //   旧パスはサブプレイリスト（各品質）用で、マスタープレイリスト（EXT-X-STREAM-INF）は
+  //   新パス `/keiba/nar/live/` に存在する。旧パスを直接叩くと manifestLoadError で再生不可。
+  //   参考: simple.keiba-lv-st.jp が使用している URL = https://movie61auhrn2-3.keiba-racing.jp/keiba/nar/live/ooi_https.m3u8
+  var VIDEO_URL_BASE =
+    'https://movie61auhrn2-3.keiba-racing.jp/keiba/nar/live/';
+
+  var VENUE_CODE_MAP = {
+    'monbetsu':  'monbetsu',   // 門別（確認済）
+    'ooi':       'ooi',        // 大井（確認済）
+    'sonoda':    'sonoda',     // 園田（VOD URLから推測）
+    // 以下は推測。本番稼働前に実際のURLで検証必要
+    'obihiro':   'obihiro',
+    'morioka':   'morioka',
+    'mizusawa':  'mizusawa',
+    'urawa':     'urawa',
+    'funabashi': 'funabashi',
+    'kawasaki':  'kawasaki',
+    'kanazawa':  'kanazawa',
+    'kasamatsu': 'kasamatsu',
+    'nagoya':    'nagoya',
+    'himeji':    'himeji',
+    'kouchi':    'kouchi',
+    'saga':      'saga'
+  };
+
+  // 指示書09 T5-2: 動画URL組み立て
+  // video_source_override が指定されていればそれを優先（開発時の疎通確認用・デモ HLS 差替）。
+  // NAR 正式URLが権利処理未完了のため、開発時は公開 HLS テストストリームを充てる運用。
+  function buildVideoUrl(frame) {
+    if (frame.video_source_override) {
+      return frame.video_source_override;
+    }
+    var venueCode = VENUE_CODE_MAP[frame.venue_code];
+    if (!venueCode) {
+      console.error('Unknown venue_code:', frame.venue_code);
+      return null;
+    }
+    if (frame.quality_mode === 'fixed' && frame.quality_fixed) {
+      return VIDEO_URL_BASE + venueCode + frame.quality_fixed + '.m3u8';
+    }
+    // auto モード: マスタープレイリスト
+    return VIDEO_URL_BASE + venueCode + '_https.m3u8';
+  }
+  // === END: TECH-VERIFICATION-ONLY ===
+
+  // ---- 状態 ----
+  // H-04 (2026-04-17): screens[] 構造対応のため状態を刷新。
+  //   screenStates は slot 切替時に再構築され、各画面の独立 race 進行を管理する。
+  var serverOffset = 0;
+  var offsetFixed = false;           // serverOffset を最初の1回だけで確定させる
+  var currentSchedule = null;
+  var currentSlotId = null;
+  var screenStates = [];             // [{position, template, type, races, currentRaceIndex, currentRaceId, lastTransitionMs, iframeEl, videoConfig}, ...]
+  var childOffsets = {};
+
+  document.getElementById('barMonitor').textContent = MONITOR_ID;
+  document.getElementById('barSchedulePoll').textContent = SCHEDULE_POLL_SEC;
+  document.getElementById('barOddsPoll').textContent = ODDS_POLL_SEC;
+
+  // ---- 時刻補正 ----
+  function correctedNow() { return Date.now() + serverOffset; }
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+  function fmtTime(d) {
+    return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+  }
+
+  function resolveSlotTime(str, referenceDate) {
+    if (!str) return NaN;
+    if (/\d{4}-\d{2}-\d{2}/.test(str)) return Date.parse(str);
+    var m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(str);
+    if (!m) return NaN;
+    var ref = referenceDate || new Date(correctedNow());
+    var d = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate(),
+                     Number(m[1]), Number(m[2]), Number(m[3] || 0));
+    return d.getTime();
+  }
+
+  // ---- スケジュール取得 ----
+  // 指示書07: AbortController による 10秒タイムアウト追加。共通 fetchWithOffset とは別実装の
+  // 理由は、親は offsetFixed（初回のみ offset 確定）という固有ロジックが必要なため。
+  async function fetchSchedule() {
+    var t0 = Date.now();
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, 10000);
+    try {
+      var res = await fetch(SCHEDULE_URL + '?t=' + t0, { signal: controller.signal });
+      if (!res.ok) throw new Error('schedule HTTP ' + res.status);
+      var data = await res.json();
+      var t1 = Date.now();
+      var clientTime = t0 + (t1 - t0) / 2;
+      // offset は「最初の1回だけ」固定する。
+      // 静的JSONではserver_timeが更新されないため、毎回再計算するとサーバ時刻が凍結する。
+      if (!offsetFixed && data.server_time) {
+        var srv = Date.parse(data.server_time);
+        if (!isNaN(srv)) {
+          serverOffset = srv - clientTime;
+          offsetFixed = true;
+        }
+      }
+      return data;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // ---- screen iframe 反映（H-04 新構造） ----
+  // H-04: screens[] 配列を iframe に反映。screen.type='video' は hls設定、'odds' は template+data_source。
+
+  // 親URLクエリのうち、子iframeに伝播したいものを抽出して QueryString を作る
+  function buildChildQuery() {
+    var params = new URLSearchParams();
+    params.set('poll', ODDS_POLL_SEC);
+    var parentQ = new URL(location.href).searchParams;
+    // 子テンプレートが解釈するクエリのみ伝播
+    ['page_rotation', 'page'].forEach(function(k) {
+      var v = parentQ.get(k);
+      if (v) params.set(k, v);
+    });
+    return '?' + params.toString();
+  }
+
+  // H-04: 使用しない position の iframe をクリアする（layout切替で不要になった場合）
+  function clearUnusedFrames() {
+    var used = {};
+    screenStates.forEach(function(s) {
+      var n = positionToFrameNum(s.position);
+      if (n) used[n] = true;
+    });
+    [1, 2, 3, 4].forEach(function(pos) {
+      if (used[pos]) return;
+      var iframe = document.getElementById('frame' + pos);
+      if (!iframe) return;
+      if (iframe.getAttribute('data-template') === 'about:blank' || !iframe.getAttribute('data-template')) return;
+      iframe.setAttribute('data-template', 'about:blank');
+      iframe.removeAttribute('data-source');
+      iframe.removeAttribute('data-sig');
+      iframe.onload = null;
+      iframe.src = 'about:blank';
+    });
+  }
+
+  // H-04 Phase 1 §5.2: 起動時・slot切替時の初期レース選択
+  function getInitialRaceIndex(races, now) {
+    if (!races || races.length === 0) return -1;
+    if (races.length === 1) return 0;  // 1レース固定は締切後も継続表示
+    for (var i = 0; i < races.length; i++) {
+      var postMs = Date.parse(races[i].post_time_iso);
+      if (isNaN(postMs)) continue;
+      var displayEndMs = postMs + NEXT_RACE_DELAY_SEC * 1000;
+      if (now < displayEndMs) return i;
+    }
+    return races.length - 1;  // 全レース発走+N秒超: 末尾継続
+  }
+
+  // H-04: slot.screens[] から screenStates を構築（slot 切替時に呼ばれる）
+  function buildScreenStates(slot) {
+    var screens = slot.screens || [];
+    return screens.map(function(screen) {
+      var state = {
+        position: screen.position,
+        template: screen.template,
+        type: screen.type || 'odds',
+        races: screen.races || [],
+        currentRaceIndex: -1,
+        currentRaceId: null,
+        lastTransitionMs: 0,
+        iframeEl: getIframeByPosition(screen.position),
+        videoConfig: null,
+        // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
+        //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
+        //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
+        //   hasFrameUmatan: 子 iframe からの通知で更新される枠単発売有無フラグ。
+        //     発売なし時は checkFrameOddsPaging がスキップされ、枠連のみ表示される。
+        frameOddsPage: 'uren',
+        frameOddsPageTick: 0,
+        hasFrameUmatan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
+      };
+      if (state.type === 'video') {
+        state.videoConfig = {
+          venue_code:             screen.venue_code,
+          quality_mode:           screen.quality_mode || 'auto',
+          quality_cap:            screen.quality_cap,
+          quality_fixed:          screen.quality_fixed,
+          audio_muted:            screen.audio_muted != null ? screen.audio_muted : true,
+          volume:                 screen.volume != null ? screen.volume : 0.7,
+          video_source_override:  screen.video_source_override
+        };
+      }
+      return state;
+    });
+  }
+
+  function initializeScreen(state) {
+    if (state.type === 'video') {
+      applyVideoScreen(state);
+      return;
+    }
+    state.currentRaceIndex = getInitialRaceIndex(state.races, correctedNow());
+    if (state.currentRaceIndex >= 0) {
+      state.currentRaceId = state.races[state.currentRaceIndex].race_id;
+    }
+    applyOddsScreen(state);
+  }
+
+  // odds screen: template を iframe に読み込み、data_source を postMessage で通知
+  function applyOddsScreen(state) {
+    var iframe = state.iframeEl;
+    if (!iframe) return;
+    var race = state.currentRaceIndex >= 0 ? state.races[state.currentRaceIndex] : null;
+    var dataUrl = race ? '../' + race.data_source : null;
+    var childQuery = buildChildQuery();
+    if (iframe.getAttribute('data-template') !== state.template) {
+      iframe.setAttribute('data-template', state.template);
+      iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
+      iframe.src = state.template + childQuery;
+      iframe.onload = (function(d) {
+        return function() {
+          if (!d) return;
+          try {
+            iframe.contentWindow.postMessage({
+              type: 'setDataUrl', url: d, baseOffset: serverOffset
+            }, '*');
+          } catch (_) {}
+        };
+      })(dataUrl);
+      if (dataUrl) iframe.setAttribute('data-source', dataUrl);
+    } else if (iframe.getAttribute('data-source') !== dataUrl) {
+      // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
+      if (dataUrl) iframe.setAttribute('data-source', dataUrl);
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'setDataUrl', url: dataUrl, baseOffset: serverOffset
+        }, '*');
+      } catch (_) {}
+    }
+  }
+
+  // 次レース遷移時の data_source のみ更新（iframe 再ロードしない）
+  function applyOddsScreenDataSourceOnly(state) {
+    var iframe = state.iframeEl;
+    if (!iframe || state.currentRaceIndex < 0) return;
+    var race = state.races[state.currentRaceIndex];
+    if (!race) return;
+    var dataUrl = '../' + race.data_source;
+    iframe.setAttribute('data-source', dataUrl);
+    try {
+      iframe.contentWindow.postMessage({
+        type: 'setDataUrl', url: dataUrl, baseOffset: serverOffset
+      }, '*');
+    } catch (_) {}
+  }
+
+  // ---- video screen（指示書09 T5-4 互換） ----
+  // === BEGIN: TECH-VERIFICATION-ONLY ===
+  function applyVideoScreen(state) {
+    var iframe = state.iframeEl;
+    if (!iframe) return;
+    var cfg = state.videoConfig || {};
+    var videoTemplate = state.template;
+    var sig = 'video|' + (cfg.venue_code || '') + '|' + (cfg.quality_mode || 'auto') + '|' + (cfg.quality_fixed || '') + '|' + (cfg.video_source_override || '');
+    var needsReload = iframe.getAttribute('data-template') !== videoTemplate;
+    var needsReconfig = iframe.getAttribute('data-sig') !== sig;
+
+    var sendConfig = function() {
+      var videoSource = buildVideoUrl(cfg);
+      if (!videoSource) return;
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'setVideoConfig',
+          video_source: videoSource,
+          quality_mode: cfg.quality_mode != null ? cfg.quality_mode : 'auto',
+          quality_cap:  cfg.quality_cap  != null ? cfg.quality_cap  : 4,
+          audio_muted:  cfg.audio_muted  != null ? cfg.audio_muted  : true,
+          volume:       cfg.volume       != null ? cfg.volume       : 0.7
+        }, '*');
+      } catch (_) {}
+    };
+
+    if (needsReload) {
+      iframe.setAttribute('data-template', videoTemplate);
+      iframe.setAttribute('data-sig', sig);
+      iframe.removeAttribute('data-source');
+      iframe.src = videoTemplate;
+      iframe.onload = sendConfig;
+    } else if (needsReconfig) {
+      iframe.setAttribute('data-sig', sig);
+      sendConfig();
+    }
+  }
+  // === END: TECH-VERIFICATION-ONLY ===
+
+  // H-04 Phase 1 §5.3-5.4: 1秒tickでの次レース遷移判定
+  function checkNextRaceTransitions() {
+    var now = correctedNow();
+    screenStates.forEach(function(state) {
+      if (state.type === 'video') return;
+      if (state.currentRaceIndex < 0) return;
+      if (state.races.length <= 1) return;  // 1レース固定は遷移なし
+      var currentRace = state.races[state.currentRaceIndex];
+      if (!currentRace || !currentRace.post_time_iso) return;
+      var postMs = Date.parse(currentRace.post_time_iso);
+      if (isNaN(postMs)) return;
+      var triggerMs = postMs + NEXT_RACE_DELAY_SEC * 1000;
+      if (now < triggerMs) return;
+      transitionToNextRace(state, now);
+    });
+  }
+
+  function transitionToNextRace(state, now) {
+    if (now - state.lastTransitionMs < 2000) return;  // 重複発火防止
+    var nextIndex = state.currentRaceIndex + 1;
+    if (nextIndex >= state.races.length) return;       // 末尾: 継続表示
+    state.currentRaceIndex = nextIndex;
+    state.currentRaceId = state.races[nextIndex].race_id;
+    state.lastTransitionMs = now;
+    applyOddsScreenDataSourceOnly(state);
+    // H-03 (2026-04-19): レース切替時は枠連/枠単ページを初期値 'uren' に戻す
+    //   iframe 側 DOM は継続使用（再ロードなし）のため、前レースの表示状態（utan）が
+    //   残り得る。明示的に 'uren' へ戻して一貫性を確保。
+    //   hasFrameUmatan も初期値 true に戻す（新レースのデータ受信後に子からの通知で再判定）。
+    if (state.template === 'templates/single-screen.html') {
+      state.frameOddsPage = 'uren';
+      state.frameOddsPageTick = 0;
+      state.hasFrameUmatan = true;
+      notifyFrameOddsPage(state);
+    }
+  }
+
+  // ---- スロット選択 ----
+  // slots[] から correctedNow に含まれるスロットを選ぶ。なければ直近の未来スロット or 最後のスロット。
+  function pickCurrentSlotIndex(slots) {
+    if (!slots || !slots.length) return -1;
+    var now = correctedNow();
+    // 1) now が start..end に収まるスロット
+    for (var i = 0; i < slots.length; i++) {
+      var s = resolveSlotTime(slots[i].start_time);
+      var e = resolveSlotTime(slots[i].end_time);
+      if (!isNaN(s) && !isNaN(e) && now >= s && now < e) return i;
+    }
+    // 2) now がどれにも該当しないとき、start が now より過去の最も新しいスロット
+    var latestIdx = -1, latestStart = -Infinity;
+    for (var j = 0; j < slots.length; j++) {
+      var st = resolveSlotTime(slots[j].start_time);
+      if (!isNaN(st) && st <= now && st > latestStart) {
+        latestStart = st;
+        latestIdx = j;
+      }
+    }
+    if (latestIdx >= 0) return latestIdx;
+    // 3) すべて未来 → 最初のスロット
+    return 0;
+  }
+
+  var currentSlotIndex = -1;
+
+  // H-04 (2026-04-17): 旧 applyCurrentRace → applyCurrentSlot に刷新。
+  //   race_rotation_seconds を廃止し、slot.screens[] から screenStates を構築。
+  //   slot切替時のみ screenStates を再構築し、画面ごとの race 進行は 1秒tick で管理。
+  function applyCurrentSlot(schedule) {
+    var slots = schedule.slots;
+    if (!slots || !slots.length) return;
+    var slotIdx = pickCurrentSlotIndex(slots);
+    var slot = slots[slotIdx] || {};
+    if (!slot.screens || !slot.screens.length) return;
+
+    var slotChanged = (currentSlotId !== slot.slot_id);
+    if (slotChanged) {
+      if (currentSlotIndex >= 0) setStatus('スロット切替中');
+      currentSlotId = slot.slot_id;
+      currentSlotIndex = slotIdx;
+
+      // 指示書09 T5-3: slot.layout に応じて CSS クラスを切替
+      applyLayout(slot.layout);
+
+      // screenStates を再構築（slot 内では不変）
+      screenStates = buildScreenStates(slot);
+      screenStates.forEach(initializeScreen);
+      clearUnusedFrames();
+    }
+
+    // 情報バー（P1 代表表示、H-04 Phase 1 §9.7 案D1）
+    updateInfoBarSlotAndRace(slot);
+  }
+
+  function updateInfoBarSlotAndRace(slot) {
+    document.getElementById('barSlot').textContent = slot.slot_id != null ? slot.slot_id : '-';
+    // P1 を優先、無ければ最初のodds screenを代表として表示
+    var rep = null;
+    for (var i = 0; i < screenStates.length; i++) {
+      var s = screenStates[i];
+      if (s.type === 'video') continue;
+      if (s.currentRaceIndex < 0) continue;
+      if (s.position === 'P1') { rep = s; break; }
+      if (!rep) rep = s;
+    }
+    var raceLabel = '-';
+    if (rep) {
+      var race = rep.races[rep.currentRaceIndex];
+      if (race) raceLabel = race.race_key || race.race_id || '-';
+    }
+    document.getElementById('barRace').textContent = raceLabel;
+  }
+
+  // ---- 時間帯切替 ----
+  // slots[] 形式では現在のスロットの end_time を次の切替点として扱う。
+  function getNextSlotTransitionMs(schedule) {
+    if (!schedule) return NaN;
+    if (schedule.slots && schedule.slots.length) {
+      // 現在スロットの end_time、または次スロットの start_time（早い方）
+      if (currentSlotIndex >= 0 && currentSlotIndex < schedule.slots.length) {
+        var endMs = resolveSlotTime(schedule.slots[currentSlotIndex].end_time);
+        return endMs;
+      }
+      // fallback: 最初の未来スロットの start_time
+      var now = correctedNow();
+      for (var i = 0; i < schedule.slots.length; i++) {
+        var s = resolveSlotTime(schedule.slots[i].start_time);
+        if (!isNaN(s) && s > now) return s;
+      }
+    }
+    // 旧形式
+    if (schedule.next_slot && schedule.next_slot.start_time) {
+      return resolveSlotTime(schedule.next_slot.start_time);
+    }
+    return NaN;
+  }
+
+  function checkSlotTransition(schedule) {
+    // H-04 (2026-04-17): スロット境界到達時に applyCurrentSlot 再実行。
+    //   screenStates の再構築は applyCurrentSlot 内で slot_id 変化を検知して行われる。
+    var transitionMs = getNextSlotTransitionMs(schedule);
+    if (isNaN(transitionMs)) return;
+    if (correctedNow() >= transitionMs) {
+      applyCurrentSlot(schedule);
+    }
+  }
+
+  function setStatus(s) {
+    var el = document.getElementById('barStatus');
+    if (el) el.textContent = s;
+  }
+
+  // ---- メインループ: 指示書07 指数バックオフ付きポーリング ----
+  // スケジュール取得失敗時は画面遷移やリロードはせず、現在のスロット表示を維持する。
+  // 情報バーの status に連続失敗回数を反映。
+  var schedulePoller = null;
+  function startSchedulePolling() {
+    if (schedulePoller) schedulePoller.stop();
+    schedulePoller = window.OddsDemo.startResilientPolling({
+      name: 'schedule',
+      baseIntervalMs: SCHEDULE_POLL_SEC * 1000,
+      fetch: fetchSchedule,
+      onSuccess: function(sched) {
+        currentSchedule = sched;
+        applyCurrentSlot(sched);
+        setStatus('正常');
+      },
+      onFailure: function(err, failCount) {
+        setStatus('スケジュール取得失敗（連続' + failCount + '回）');
+      }
+    });
+    window.OddsDemo.registerPoller(schedulePoller);
+  }
+
+  // 表示用1秒tick（純クライアント側。サーバ負荷には一切寄与しない）
+  // H-04 (2026-04-17): 1秒tick で以下をまとめて実行:
+  //   1. 情報バー表示更新
+  //   2. slot情報バーの最新化（screenStates の race 表示を反映）
+  //   3. 次レース遷移判定（checkNextRaceTransitions）
+  setInterval(function() {
+    document.getElementById('barServerTime').textContent = fmtTime(new Date(correctedNow()));
+    document.getElementById('barOffset').textContent = Math.round(serverOffset);
+
+    if (currentSchedule) {
+      var transitionMs = getNextSlotTransitionMs(currentSchedule);
+      if (!isNaN(transitionMs)) {
+        var ms = transitionMs - correctedNow();
+        if (ms > 0) {
+          var sec = Math.floor(ms / 1000);
+          var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+          document.getElementById('barNextSwitch').textContent = pad2(h) + ':' + pad2(m) + ':' + pad2(s);
+        } else {
+          document.getElementById('barNextSwitch').textContent = '切替中';
+        }
+      }
+    }
+
+    // H-04: 1秒tick で次レース遷移判定を実施
+    if (currentSchedule && screenStates.length) {
+      checkNextRaceTransitions();
+      // H-03: 1秒tick で枠連/枠単の 15秒周期切替を実施
+      checkFrameOddsPaging();
+      // 情報バーのレース表示を最新化（遷移発生時に表示も更新）
+      var slots = currentSchedule.slots || [];
+      var currentSlot = null;
+      for (var i = 0; i < slots.length; i++) {
+        if (slots[i].slot_id === currentSlotId) { currentSlot = slots[i]; break; }
+      }
+      if (currentSlot) updateInfoBarSlotAndRace(currentSlot);
+    }
+  }, DISPLAY_TICK_SEC * 1000);
+
+  // H-03 (2026-04-19): 枠連・枠単の自動ページング管理
+  //   template === 'templates/single-screen.html' の screenState に対し、1秒tickで経過秒を加算し、
+  //   FRAME_UMATAN_PAGE_SEC（15秒）経過で 'uren'↔'utan' を切り替え iframe に postMessage 通知。
+  //   他 template は対象外（Tick数も進めない = 無駄処理回避）。
+  function checkFrameOddsPaging() {
+    screenStates.forEach(function(state) {
+      if (state.type !== 'odds') return;
+      if (state.template !== 'templates/single-screen.html') return;
+      if (!state.iframeEl) return;
+      // H-03 (2026-04-19 改訂): 枠単発売なしレースはページング停止
+      if (state.hasFrameUmatan === false) return;
+      state.frameOddsPageTick = (state.frameOddsPageTick || 0) + 1;
+      if (state.frameOddsPageTick >= FRAME_UMATAN_PAGE_SEC) {
+        state.frameOddsPageTick = 0;
+        state.frameOddsPage = (state.frameOddsPage === 'uren') ? 'utan' : 'uren';
+        notifyFrameOddsPage(state);
+      }
+    });
+  }
+
+  function notifyFrameOddsPage(state) {
+    if (!state.iframeEl || !state.iframeEl.contentWindow) return;
+    try {
+      state.iframeEl.contentWindow.postMessage({
+        type: 'frameOddsPage',
+        page: state.frameOddsPage
+      }, '*');
+    } catch (_) {}
+  }
+
+  // 時間帯切替の判定はスケジュールpoll とは別の軽量 tick。サーバ通信は発生しない。
+  setInterval(function() {
+    if (currentSchedule) checkSlotTransition(currentSchedule);
+  }, SLOT_TICK_SEC * 1000);
+
+  // 子iframeからのレポート受信
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'childServerTime') {
+      childOffsets[d.url] = d.offset;
+      return;
+    }
+    // H-03 (2026-04-19 改訂): 子 single-screen.html から枠単発売有無の通知受信
+    //   発売なし時はページング停止、強制的に枠連表示へ戻す
+    if (d.type === 'frameUmatanAvailability') {
+      var state = findScreenStateBySource(e.source);
+      if (!state) return;
+      state.hasFrameUmatan = !!d.available;
+      if (!state.hasFrameUmatan && state.frameOddsPage !== 'uren') {
+        state.frameOddsPage = 'uren';
+        state.frameOddsPageTick = 0;
+        notifyFrameOddsPage(state);
+      }
+      return;
+    }
+  });
+
+  // H-03: postMessage の送信元 Window から screenState を引く
+  function findScreenStateBySource(sourceWin) {
+    for (var i = 0; i < screenStates.length; i++) {
+      var s = screenStates[i];
+      if (s.iframeEl && s.iframeEl.contentWindow === sourceWin) return s;
+    }
+    return null;
+  }
+
+  // 情報バーをキーボード（H）でトグル
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'h' || e.key === 'H') {
+      document.body.classList.toggle('hide-bar');
+    }
+  });
+
+  // 起動
+  startSchedulePolling();
+})();
+</script>
+
+</body>
+</html>
