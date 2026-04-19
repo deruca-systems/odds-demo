@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-04-19T17:07:16+09:00",
+  "server_time": "2026-04-19T20:10:42+09:00",
   "org": "JRA",
   "place_code": "09",
   "place_name": "阪神",
@@ -7,7 +7,7 @@
   "changes": [
     {
       "chg_seq": 1,
-      "chg_time": "2026-04-19T17:46:16+09:00",
+      "chg_time": "2026-04-19T20:49:42+09:00",
       "race_no": 11,
       "chg_type": 1,
       "chg_type_name": "騎手変更",
@@ -22,7 +22,7 @@
     },
     {
       "chg_seq": 2,
-      "chg_time": "2026-04-19T18:16:16+09:00",
+      "chg_time": "2026-04-19T21:19:42+09:00",
       "race_no": 11,
       "chg_type": 2,
       "chg_type_name": "出走取消",
@@ -34,7 +34,7 @@
     },
     {
       "chg_seq": 3,
-      "chg_time": "2026-04-19T18:16:16+09:00",
+      "chg_time": "2026-04-19T21:19:42+09:00",
       "race_no": 11,
       "chg_type": 2,
       "chg_type_name": "出走取消",
@@ -46,7 +46,7 @@
     },
     {
       "chg_seq": 4,
-      "chg_time": "2026-04-19T18:31:16+09:00",
+      "chg_time": "2026-04-19T21:34:42+09:00",
       "race_no": 11,
       "chg_type": 3,
       "chg_type_name": "競走除外",

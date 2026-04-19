@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-04-19T17:07:16+09:00",
+  "server_time": "2026-04-19T20:10:42+09:00",
   "org": "NAR",
   "place_code": "45",
   "place_name": "船橋",
@@ -7,7 +7,7 @@
   "changes": [
     {
       "chg_seq": 1,
-      "chg_time": "2026-04-19T16:15:16+09:00",
+      "chg_time": "2026-04-19T19:18:42+09:00",
       "race_no": 4,
       "chg_type": 2,
       "chg_type_name": "出走取消",

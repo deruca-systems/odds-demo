@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-04-19T17:07:16+09:00",
+  "server_time": "2026-04-19T20:10:42+09:00",
   "race": {
     "org": "JRA",
     "place_code": "09",
@@ -8,8 +8,8 @@
     "race_name": "大阪杯",
     "race_class": "",
     "deadline_min": 127,
-    "post_time": "19:16",
-    "post_time_iso": "2026-04-19T19:16:16+09:00",
+    "post_time": "22:19",
+    "post_time_iso": "2026-04-19T22:19:42+09:00",
     "weather": "cloudy",
     "weather_label": "曇",
     "surface": "芝",

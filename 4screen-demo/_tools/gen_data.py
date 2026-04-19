@@ -1095,7 +1095,7 @@ def build_schedule_0102(fast: bool = False) -> dict:
         s3_start, s3_end = 120, 180
         post_offset = 10
 
-    # 大井ライブ（odds は 門別7R ダミーを流用）
+    # 浦和ライブ（odds は 門別7R ダミーを流用。2026-04-19 に大井→浦和へ切替、浦和開催日のため）
     race = _race_spec("odds_NAR_30_07.json", post_offset)
 
     slots = [
@@ -1103,19 +1103,19 @@ def build_schedule_0102(fast: bool = False) -> dict:
         build_slot(
             "slot1", s1_start, s1_end, "PAT-LSHAPE-VIDEO",
             {"P1": [race], "P3": [race]},
-            video_config_by_pos={"P2": _video_config(venue_code="ooi")},
+            video_config_by_pos={"P2": _video_config(venue_code="urawa")},
         ),
         # slot2: 1画面動画のみ
         build_slot(
             "slot2", s2_start, s2_end, "PAT-1SCREEN-VIDEO",
             {},
-            video_config_by_pos={"P1": _video_config(venue_code="ooi")},
+            video_config_by_pos={"P1": _video_config(venue_code="urawa")},
         ),
         # slot3: 4分割（P4=動画）
         build_slot(
             "slot3", s3_start, s3_end, "PAT-4SPLIT-RIGHTBOTTOM-VIDEO",
             {"P1": [race], "P2": [race], "P3": [race]},
-            video_config_by_pos={"P4": _video_config(venue_code="ooi")},
+            video_config_by_pos={"P4": _video_config(venue_code="urawa")},
         ),
     ]
     return {

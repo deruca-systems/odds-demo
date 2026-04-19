@@ -1,11 +1,11 @@
 {
-  "server_time": "2026-04-19T17:07:16+09:00",
+  "server_time": "2026-04-19T20:10:42+09:00",
   "monitor_id": "0104",
   "slots": [
     {
       "slot_id": "slot1",
-      "start_time": "2026-04-19T17:07:16+09:00",
-      "end_time": "2026-04-19T18:07:16+09:00",
+      "start_time": "2026-04-19T20:10:42+09:00",
+      "end_time": "2026-04-19T21:10:42+09:00",
       "layout": "4split",
       "display_pattern_id": "PAT-4SPLIT-STD",
       "screens": [
@@ -16,7 +16,7 @@
             {
               "race_id": "JRA_06_11",
               "race_key": "中山11R",
-              "post_time_iso": "2026-04-19T17:37:16+09:00",
+              "post_time_iso": "2026-04-19T20:40:42+09:00",
               "data_source": "data/odds_JRA_06_11.json"
             }
           ]
@@ -28,7 +28,7 @@
             {
               "race_id": "JRA_06_11",
               "race_key": "中山11R",
-              "post_time_iso": "2026-04-19T17:37:16+09:00",
+              "post_time_iso": "2026-04-19T20:40:42+09:00",
               "data_source": "data/odds_JRA_06_11.json"
             }
           ]
@@ -40,7 +40,7 @@
             {
               "race_id": "JRA_06_11",
               "race_key": "中山11R",
-              "post_time_iso": "2026-04-19T17:37:16+09:00",
+              "post_time_iso": "2026-04-19T20:40:42+09:00",
               "data_source": "data/odds_JRA_06_11.json"
             }
           ]
@@ -52,7 +52,7 @@
             {
               "race_id": "JRA_06_11",
               "race_key": "中山11R",
-              "post_time_iso": "2026-04-19T17:37:16+09:00",
+              "post_time_iso": "2026-04-19T20:40:42+09:00",
               "data_source": "data/odds_JRA_06_11.json"
             }
           ]
