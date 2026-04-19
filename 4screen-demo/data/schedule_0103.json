@@ -1,0 +1,87 @@
+{
+  "server_time": "2026-04-19T17:07:16+09:00",
+  "monitor_id": "0103",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-19T17:07:16+09:00",
+      "end_time": "2026-04-19T19:07:16+09:00",
+      "layout": "4split",
+      "display_pattern_id": "PAT-4SPLIT-STD",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/single-screen.html",
+          "races": [
+            {
+              "race_id": "NAR_49_02",
+              "race_key": "名古屋2R",
+              "post_time_iso": "2026-04-19T17:37:16+09:00",
+              "data_source": "data/odds_NAR_49_02.json"
+            },
+            {
+              "race_id": "NAR_49_07",
+              "race_key": "名古屋7R",
+              "post_time_iso": "2026-04-19T18:37:16+09:00",
+              "data_source": "data/odds_NAR_49_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/single-umaren-wide.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-19T17:52:16+09:00",
+              "data_source": "data/odds_NAR_30_07.json"
+            },
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-04-19T18:52:16+09:00",
+              "data_source": "data/odds_NAR_45_01.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "template": "templates/single-popular.html",
+          "races": [
+            {
+              "race_id": "JRA_06_11",
+              "race_key": "中山11R",
+              "post_time_iso": "2026-04-19T18:07:16+09:00",
+              "data_source": "data/odds_JRA_06_11.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-04-19T18:57:16+09:00",
+              "data_source": "data/odds_JRA_05_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "template": "templates/single-popular-second.html",
+          "races": [
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-04-19T18:22:16+09:00",
+              "data_source": "data/odds_JRA_09_11.json"
+            },
+            {
+              "race_id": "NAR_49_09",
+              "race_key": "名古屋9R",
+              "post_time_iso": "2026-04-19T19:02:16+09:00",
+              "data_source": "data/odds_NAR_49_09.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
