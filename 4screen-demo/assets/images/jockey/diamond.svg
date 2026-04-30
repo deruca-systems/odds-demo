@@ -1,0 +1,6 @@
+<!-- DEMO PLACEHOLDER (2026-04-30 session3 改訂3): 芥川様未配布アイコン。
+     正式版は芥川様確認事項 (◇ 記号、jockey 行内、白 stroke 想定)。
+     当面 jockey/triangle.svg (10x10, stroke="white") と同等スタイルで暫定生成。 -->
+<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 1L9 5L5 9L1 5L5 1Z" stroke="white"/>
+</svg>

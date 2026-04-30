@@ -1,0 +1,6 @@
+<!-- DEMO PLACEHOLDER (2026-04-30 session3): 芥川様未配布アイコン。
+     正式版は芥川様確認事項 (CC指示書 v1.1 §5.5: 4Kg減 ★ 用 jockey内アイコン)。
+     当面は jockey/triangle.svg と同等の white スタイルで暫定生成し、納品時にそのまま差し替え。 -->
+<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 0.5L6.39058 4.01539L10 4.31966L7.25 6.79656L8.09017 10.5L5 8.51539L1.90983 10.5L2.75 6.79656L0 4.31966L3.60942 4.01539L5 0.5Z" fill="white"/>
+</svg>

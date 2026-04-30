@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>出走成績3R表示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 3R-entries-results-phase3 (2026-04-30): payout-board DOM を screen5.html 準拠に書き換え。
+       芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css?v=20260430s3d">
+  <script src="../assets/js/common.js?v=20260430"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="race-container">
+    <div class="race-screen">
+      <!-- 3 列（P1=1R, P2=2R, P3=3R） -->
+      <div class="race-screen__col" data-col-idx="0" data-odds-status="0">
+        <!-- 動的に render される -->
+      </div>
+      <div class="race-screen__col" data-col-idx="1" data-odds-status="0">
+      </div>
+      <div class="race-screen__col" data-col-idx="2" data-odds-status="0">
+      </div>
+    </div>
+    <!-- 右端: 減量記号凡例。
+         構造は芥川様 screen5.html 準拠 (race-info__inner > race-info__item × N)。
+         テキスト・記号構成はユーザー指示 (2026-04-30 session3 改訂3) で公式情報に厳密準拠:
+           出典: JRA 公式 https://www.jra.go.jp/keiba/rules/ (見習騎手・女性騎手の減量記号)
+                NAR 公式 https://www.keiba.go.jp/Howtoread/theracecard.html (通常競馬／ばんえい競馬)
+                JRA-DB システム仕様書 コード表2303 (値=9 ◇ = 5年以上 or 101勝以上の女性騎手 2Kg減)
+           表示順: kg 降順 (★4 → ▲3 → △2 → ◇2 → ☆1)、JRA/NAR で kg 値は完全一致
+         芥川様確認事項:
+           - info/diamond.svg は芥川未配布、当面 placeholder で暫定（jockey/diamond.svg も同様）
+           - screen5.html サンプル値の「▲2Kg減」(本来 3Kg減) と
+             ばんえい末尾の「☆10Kg減」欠落、末尾 filler 文言も併せて確認依頼予定。 -->
+    <div class="race-info">
+      <div class="race-info__inner">
+        <div class="race-info__item">騎手に付く記号</div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/fill-star.svg" alt=""><span class="race-info__text"><span>4Kg</span>減</span></div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/fill-triangle.svg" alt=""><span class="race-info__text"><span>3Kg</span>減</span></div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span class="race-info__text"><span>2Kg</span>減</span></div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/diamond.svg" alt=""><span class="race-info__text"><span>2Kg</span>減</span></div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span class="race-info__text"><span>1Kg</span>減</span></div>
+        <div class="race-info__item">（ばんえいは</div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span class="race-info__text"><span>20Kg</span>減</span></div>
+        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span class="race-info__text"><span>10Kg</span>減）</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var D = window.OddsDemo;
+
+  // ==============================================================
+  // 定数・ユーティリティ
+  // ==============================================================
+  var RESULTS_POLL_INTERVAL_MS = 30000;  // v0.5 §7.2 準拠（30 秒）
+
+  // 賭式日本語ラベル
+  var BET_TYPE_LABEL = {
+    win: '単勝', place: '複勝',
+    frame_quinella: '枠連', frame_exacta: '枠単',
+    quinella: '馬連', exacta: '馬単',
+    wide: 'ワイド', trio: '3連複', trifecta: '3連単'
+  };
+
+  // 賭式コード → payout-board__group--{modifier}
+  var BET_TYPE_MOD = {
+    win: 'single', place: 'place',
+    frame_quinella: 'wakuren', frame_exacta: 'wakutan',
+    quinella: 'umaren', exacta: 'umatan',
+    wide: 'wide', trio: 'trio', trifecta: 'trifecta'
+  };
+
+  // 賭式表示順（screen5.html 準拠）
+  var BET_TYPE_ORDER = [
+    'win', 'place', 'frame_quinella', 'frame_exacta',
+    'quinella', 'exacta', 'wide', 'trio', 'trifecta'
+  ];
+
+  // ビットマップ decode
+  function decodeBitmap(bitmap) {
+    if (!bitmap) return [];
+    var out = [];
+    for (var i = 0; i < bitmap.length; i++) {
+      if (bitmap[i] === '1') out.push(i + 1);
+    }
+    return out;
+  }
+
+  // 馬体重増減フォーマット
+  function formatWeightDiff(diff) {
+    if (diff == null) return '<span>(計不)</span>';
+    if (diff === 0) return '<span>(</span><span>0)</span>';
+    var sign = diff > 0 ? '+' : '';
+    return '<span>(' + sign + '</span><span>' + diff + ')</span>';
+  }
+
+  // 金額フォーマット（円区切り）
+  function formatAmount(n) {
+    return (n == null) ? '-' : Number(n).toLocaleString('ja-JP');
+  }
+
+  // ==============================================================
+  // 成績モード render
+  // ==============================================================
+  function renderResultsMode(colIdx, data) {
+    var col = document.querySelector('[data-col-idx="' + colIdx + '"]');
+    if (!col) return;
+    col.setAttribute('data-odds-status', data.odds_status != null ? data.odds_status : 1);
+
+    // 中止オーバーレイ
+    if (data.odds_status === 2 || data.odds_status === 3) {
+      col.innerHTML = buildCancelledColumn(data);
+      return;
+    }
+
+    col.innerHTML = ''
+      + buildHeader(data, 'results')
+      + buildRaceRecord(data.entries, data.dead_heat_pattern)
+      + buildRacePayout(data.payouts, data.refund, data.dead_heat_pattern);
+  }
+
+  // ばんえい判定: organizer_type='NAR' かつ place_cd='03'（帯広）
+  function isBanei(data) {
+    var org = data.organizer_type || (data.race && data.race.organizer_type);
+    var pp  = data.place_cd       || (data.race && data.race.place_cd);
+    return org === 'NAR' && pp === '03';
+  }
+
+  function buildHeader(data, mode) {
+    var title;
+    if (mode === 'results') {
+      title = '<div class="race-screen__header-title">競走成績</div>';
+    } else {
+      var post = data.post_time || (data.race && data.race.post_time) || '--:--';
+      title = '<div class="race-screen__header-time"><span>発走</span><span class="minute">' + post + '</span></div>';
+    }
+    // 3R テンプレのヘッダは馬場水分を出さない（成績/出走表双方）
+    return '<div class="race-screen__header">'
+         + '<div class="race-screen__header-name">' + (data.place_name || (data.race && data.race.place_name) || '')
+         +   '<span class="race-number">' + (data.rr || (data.race && data.race.rr) || '')
+         +     '<span>R</span></span></div>'
+         + title
+         + '</div>';
+  }
+
+  function buildRaceRecord(entries, pattern) {
+    var count = entries.length;
+    var html = '<div class="race-record" data-pattern="' + pattern
+             + '" style="--record-rows: ' + count + ';">';
+    entries.forEach(function(e) {
+      // 同着時は rank の数字のみ表示
+      var rankHtml = String(e.rank);
+      html += '<div class="race-record__row">'
+            + '<div class="race-record__rank">' + rankHtml + '</div>'
+            + '<div class="race-record__number ' + (e.frame_color_class || '') + '">' + e.horse_no + '</div>'
+            + '<div class="race-record__name" style="--name-length: ' + (e.horse_name || '').length + ';">'
+            +   (e.horse_name || '') + '</div>'
+            + '<div class="race-record__time">' + renderMarginOrTime(e) + '</div>'
+            + '<div class="race-record__jockey">' + (e.jockey || '') + '</div>'
+            + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // M-2 着差プロポーショナル対策: "1 1/2" を <span> で分離
+  function renderMarginOrTime(entry) {
+    if (entry.time) return entry.time;
+    if (entry.margin_name) {
+      var parts = entry.margin_name.split(' ');
+      if (parts.length === 2) {
+        return '<span class="time-int">' + parts[0] + '</span>'
+             + '<span class="time-frac">' + parts[1] + '</span>';
+      }
+      return entry.margin_name;
+    }
+    return '';
+  }
+
+  // ==============================================================
+  // 払戻ブロック render（screen5.html 準拠: payout-board 構造）
+  // ==============================================================
+
+  // パターン別 payout-board アウタークラス
+  // A → race-record3（3着入線行），E → race-record4（4着入線行）
+  function getPayoutBoardClass(pattern) {
+    if (pattern === 'A') return 'payout-board race-record3';
+    if (pattern === 'E') return 'payout-board race-record4';
+    return 'payout-board';
+  }
+
+  // パターン別 payout-board__column クラス
+  // NORMAL: 単列固定, D/F: height-loose（2rem/item），E: height-tight（1.8rem/item）
+  // それ以外(A/B/C/G/H): デフォルト高さで flex-wrap が自動2列化
+  function getColumnClass(pattern) {
+    if (pattern === 'NORMAL') return 'payout-board__column payout-board__column--single-col';
+    if (pattern === 'D' || pattern === 'F') return 'payout-board__column height-loose';
+    if (pattern === 'E') return 'payout-board__column height-tight';
+    return 'payout-board__column';
+  }
+
+  function buildRacePayout(payouts, refund, pattern) {
+    payouts = payouts || {};
+    var boardCls = getPayoutBoardClass(pattern);
+    var colCls   = getColumnClass(pattern);
+
+    var html = '<div class="' + boardCls + '" data-pattern="' + pattern + '">';
+    html += '<div class="payout-board__columns">';
+    html += '<div class="' + colCls + '">';
+
+    BET_TYPE_ORDER.forEach(function(bt) {
+      var items = payouts[bt] || [];
+      if (items.length > 0) {
+        html += buildPayoutGroup(bt, items);
+      }
+    });
+
+    html += '</div>';  // payout-board__column
+    html += '</div>';  // payout-board__columns
+
+    html += buildRefundFooter(refund);
+
+    html += '</div>';  // payout-board
+    return html;
+  }
+
+  // 賭式グループ（ラベル + アイテム列）
+  function buildPayoutGroup(betType, items) {
+    var label = BET_TYPE_LABEL[betType] || betType;
+    var mod   = BET_TYPE_MOD[betType]   || betType;
+    var itemsHtml = items.map(function(p) {
+      return buildPayoutItem(betType, p);
+    }).join('');
+    return '<div class="payout-board__group payout-board__group--' + mod + '">'
+         + '<div class="payout-board__type">' + label + '</div>'
+         + '<div class="payout-board__items">' + itemsHtml + '</div>'
+         + '</div>';
+  }
+
+  function buildPayoutItem(betType, p) {
+    return '<div class="payout-board__item">'
+         + buildPayoutNumber(betType, p)
+         + buildPayoutPrice(p)
+         + '</div>';
+  }
+
+  // 馬番/組番 HTML（複勝は rank 付き）
+  function buildPayoutNumber(betType, p) {
+    if (betType === 'place') {
+      var rankLabel = p.place_label || '';       // e.g. "1着"
+      var rankNum   = rankLabel.replace('着', '');
+      var horse     = String(p.combination || '');
+      return '<div class="payout-board__number payout-board__number--rank">'
+           + '<span class="rank-flex">' + rankNum + '<span>着</span></span>'
+           + '<span>' + horse + '</span>'
+           + '</div>';
+    }
+    // 通常: combination を "-" 区切りで分解
+    var combo = String(p.combination || '').split('-');
+    var inner = combo.map(function(n, i) {
+      return (i > 0 ? '<span class="number-hyphen">-</span>' : '') + n;
+    }).join('');
+    return '<div class="payout-board__number">' + inner + '</div>';
+  }
+
+  // 金額 HTML（特払対応）
+  function buildPayoutPrice(p) {
+    if (p.is_special_pay) {
+      return '<div class="payout-board__price is-special-pay">'
+           + '<span class="payout-board__special-label">特払</span>'
+           + formatAmount(p.amount)
+           + '<span>円</span></div>';
+    }
+    return '<div class="payout-board__price">'
+         + formatAmount(p.amount)
+         + '<span>円</span></div>';
+  }
+
+  // 返還フッター（screen5.html payout-board__footer 準拠）
+  // 2026-04-30 session3 改訂2:
+  //   - 返還データの有無に関わらず footer (高さ 2.4rem) は常に描画 → 3 列の底揃え保持
+  //   - 返還ありの場合: 「返還」ラベル + 返還項目を表示
+  //   - 返還なしの場合: ラベル含め内容を出さず、空の footer のみ（背景・border 領域だけ残る）
+  //     （ユーザー指示 2026-04-30 session3 改訂2: 「何もないときは『返還』の文字なしで」）
+  function buildRefundFooter(refund) {
+    var h  = refund ? decodeBitmap(refund.horse_no_bitmap)    : [];
+    var b  = refund ? decodeBitmap(refund.bracket_no_bitmap)  : [];
+    var sb = (refund && refund.same_bracket_bitmap) ? decodeBitmap(refund.same_bracket_bitmap) : [];
+
+    if (!h.length && !b.length && !sb.length) {
+      // 返還無し: 空 footer (高さだけ予約)。「返還」ラベルも refund-flex も出さない。
+      return '<div class="payout-board__footer"></div>';
+    }
+
+    var items = [];
+    h.forEach(function(n)  { items.push('<div class="payout-board__refund">返還馬番 <span>' + n + '</span></div>'); });
+    b.forEach(function(n)  { items.push('<div class="payout-board__refund">返還枠番 <span>' + n + '</span></div>'); });
+    sb.forEach(function(n) { items.push('<div class="payout-board__refund">返還同枠 <span>' + n + '</span></div>'); });
+
+    return '<div class="payout-board__footer">'
+         + '<div class="payout-board__refund-label">返還</div>'
+         + '<div class="payout-board__refund-flex">' + items.join('') + '</div>'
+         + '</div>';
+  }
+
+  function buildCancelledColumn(data) {
+    var msg = data.odds_status === 2 ? 'レース中止' : '開催中止';
+    return buildHeader(data, 'results')
+         + '<div class="race-record is-hidden"></div>'
+         + '<div class="payout-board payout-board--cancelled" data-pattern="CANCELLED">'
+         +   '<div class="race-cancelled-message">' + msg + '</div>'
+         + '</div>';
+  }
+
+  // ==============================================================
+  // 出走表モード render
+  // ==============================================================
+  function renderEntriesMode(colIdx, data) {
+    var col = document.querySelector('[data-col-idx="' + colIdx + '"]');
+    if (!col) return;
+    var race = data.race || {};
+    col.setAttribute('data-odds-status', race.odds_status != null ? race.odds_status : 0);
+
+    // 中止オーバーレイ
+    if (race.odds_status === 2 || race.odds_status === 3) {
+      col.innerHTML = buildCancelledColumn(race);
+      return;
+    }
+
+    col.innerHTML = ''
+      + buildHeader(race, 'entries')
+      + buildRaceTable(data.horses || [], race);
+  }
+
+  function buildRaceTable(horses, data) {
+    // M-5: プロトタイプのヘッダ「負担」→「斤量」に変更（画面仕様書 §4-1 No.6）
+    // 2026-04-21 Phase 3: ばんえい時は「斤量」→「重量」（議事録 20260408 §3）
+    var banei = isBanei(data || {});
+    var fwtHeader = banei ? '重量' : '斤量';
+    var html = '<div class="race-table" data-banei="' + (banei ? '1' : '0') + '">'
+             + '<div class="race-table__head">'
+             +   '<div>番</div>'
+             +   '<div>馬名</div>'
+             +   '<div>馬体重</div>'
+             +   '<div>性齢</div>'
+             +   '<div>' + fwtHeader + '</div>'
+             +   '<div>騎手名</div>'
+             + '</div>'
+             + '<div class="race-table__body" style="--horse-count: ' + horses.length + ';">';
+    horses.forEach(function(h) {
+      var rowCls = 'race-table__row';
+      if (D.frameClassOf) rowCls += ' ' + D.frameClassOf(h.frame_no, 'row');
+      // M-4: 取消・除外ラベル表示
+      var isScratched = h.is_scratched === 1 || h.is_scratched === 2;
+      if (isScratched) rowCls += ' row-scratched';
+
+      html += '<div class="' + rowCls + '">'
+            + '<div class="race-table__number">' + (h.horse_no != null ? h.horse_no : '') + '</div>'
+            + '<div class="race-table__name" style="--name-length: ' + (h.horse_name || '').length + ';">'
+            +   (h.horse_name || '') + '</div>';
+
+      // 2026-04-21 Phase 3: ばんえい時は負担重量が整数(3-4桁)、通常は小数 1 桁
+      // 2026-04-30 session3 改: 取消馬でも斤量(fwt)は表示する。
+      // 取消セルは race-table__scratched で 馬体重(2)+性齢(3) の 2 セル結合（base CSS span 2）。
+      var fwtStr = '--';
+      if (h.fwt != null) {
+        fwtStr = banei ? String(Math.round(h.fwt)) : Number(h.fwt).toFixed(1);
+      }
+      if (isScratched) {
+        var label = h.is_scratched === 1 ? '出走取消' : '競走除外';
+        html += '<div class="race-table__scratched">' + label + '</div>'
+              + '<div class="race-table__assigned-weight">'
+              +   fwtStr + '</div>';
+      } else {
+        html += '<div class="race-table__weight">'
+              +   '<span>' + (h.weight != null ? h.weight : '--') + '</span>'
+              +   '<span class="weight-diff">' + formatWeightDiff(h.weight_diff) + '</span>'
+              + '</div>'
+              + '<div class="race-table__sex-age">' + (h.sex || '')
+              +   '<span class="age">' + (h.age != null ? h.age : '') + '</span></div>'
+              + '<div class="race-table__assigned-weight">'
+              +   fwtStr + '</div>';
+      }
+
+      // 騎手名（減量記号アイコン付き、genryokigo があれば）
+      // 2026-04-30 session3 改訂3: ◇ (JRA-DB コード表2303 値=9 / NAR 公式: 2Kg減 女性騎手) を追加
+      var jockeyIcon = '';
+      if (h.genryokigo) {
+        var iconMap = { '★': 'fill-star', '▲': 'fill-triangle', '△': 'triangle', '☆': 'star', '◇': 'diamond' };
+        var iconName = iconMap[h.genryokigo] || '';
+        if (iconName) {
+          jockeyIcon = '<img class="jockey-icon" src="../assets/images/jockey/'
+                     + iconName + '.svg" alt="">';
+        }
+      }
+      html += '<div class="race-table__jockey">' + jockeyIcon
+            + (h.jockey || '') + '</div>'
+            + '</div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  // ==============================================================
+  // モード切替 + ポーリング
+  // ==============================================================
+  // raceUrls[i] = { resultsUrl: "...", oddsUrl: "..." }
+  var raceUrls = [null, null, null];
+
+  async function pollRaceColumn(colIdx) {
+    var urls = raceUrls[colIdx];
+    if (!urls) return;
+
+    // 1. 成績モード試行（results JSON）
+    try {
+      var res = await D.fetchWithOffset(urls.resultsUrl);
+      if (res && res.data && Array.isArray(res.data.entries)) {
+        renderResultsMode(colIdx, res.data);
+        return;
+      }
+    } catch (e) {
+      // 404 想定、出走表モードにフォールバック
+    }
+
+    // 2. 出走表モード（odds JSON）
+    try {
+      var res2 = await D.fetchWithOffset(urls.oddsUrl);
+      if (res2 && res2.data) {
+        renderEntriesMode(colIdx, res2.data);
+        return;
+      }
+    } catch (e2) {
+      console.warn('[entries-results-3r] both fetches failed col=' + colIdx, e2);
+    }
+  }
+
+  // 親からの postMessage（setEntriesResults3r）受信
+  window.addEventListener('message', function(e) {
+    if (!e.data) return;
+    if (e.data.type === 'setEntriesResults3r') {
+      var races = e.data.races || [];
+      // 各レースの URL を組立: results → odds のフォールバック URL も作る
+      raceUrls = races.slice(0, 3).map(function(r) {
+        var resultsUrl = r.url;
+        // odds フォールバック URL: "/results/" → "/odds/"
+        var oddsUrl = (resultsUrl || '').replace('/results/', '/odds/');
+        return { resultsUrl: resultsUrl, oddsUrl: oddsUrl };
+      });
+      // 初回即時 fetch
+      raceUrls.forEach(function(_, i) { pollRaceColumn(i); });
+    }
+  });
+
+  // ポーリング（30 秒周期）
+  setInterval(function() {
+    raceUrls.forEach(function(_, i) {
+      if (raceUrls[i]) pollRaceColumn(i);
+    });
+  }, RESULTS_POLL_INTERVAL_MS);
+
+})();
+</script>
+
+</body>
+</html>

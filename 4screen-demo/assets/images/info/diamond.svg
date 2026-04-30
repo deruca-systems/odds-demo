@@ -1,0 +1,7 @@
+<!-- DEMO PLACEHOLDER (2026-04-30 session3 改訂3): 芥川様未配布アイコン。
+     正式版は芥川様確認事項 (◇ 記号 = JRA-DB コード表2303 値=9 / NAR keiba.go.jp 公式: 2Kg減)。
+     当面 info/triangle.svg (12x12, stroke="#FFBF00") と同等スタイルで暫定生成。
+     ◇ (ダイヤ) = 中心 (6,1)→(11,6)→(6,11)→(1,6) の 4 頂点。 -->
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 1L11 6L6 11L1 6L6 1Z" stroke="#FFBF00"/>
+</svg>

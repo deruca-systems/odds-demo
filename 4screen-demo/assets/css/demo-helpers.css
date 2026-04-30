@@ -271,6 +271,55 @@ html.single-screen {
 }
 
 /*
+ * 特払い表示（is-special-pay）
+ *
+ * style.css に is-special-pay ルール未定義のため暫定追加。
+ * 実際の払戻金額 + 「特払」ラベルをセットで表示する。
+ * 芥川様正式CSS追加時にこのブロックは削除・差し替えする。
+ */
+.payout-board__price.is-special-pay {
+  position: relative;
+}
+.payout-board__price.is-special-pay .payout-board__special-label {
+  display: inline-block;
+  font-size: 1.4rem;
+  color: #FFBF00;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+
+/*
+ * [DEMO ONLY 防御コード / 芥川様確認事項] entries-results-3r 列高オーバー対策
+ * (2026-04-30 session3 追加 → 改訂2 で防御目的に変更)
+ *
+ * 同着パターン定義書 v1.1 §5「成績行数」欄では、すべてのパターンで成績行数 ≤ 5
+ * (NORMAL/B/C/D/F/G/H=5, E=4, A=3) と定義されており、芥川様 style.css の
+ * .race-record__row { height: 2.8rem } 固定でも 50.6rem の列高に収まる。
+ *
+ * 本ルールに従っている限り本 CSS は発火しない。
+ * **gen_data.py 等が成績行数を spec 超過で生成した場合の防御**として残す。
+ * （初回 session3 では gen_data.py の B パターンが 6 行生成していたため必要だったが、
+ *   改訂2 で gen_data.py 側を spec 準拠に修正済み。本ブロックは予防的に残置）
+ *
+ * 芥川様確認事項:
+ *   - 想定外データ (例: バッチ実装側で 6 頭以上の成績データが流入) のフォールバック仕様
+ *
+ * 確実に不要と判断された時にこのブロックは削除予定。
+ */
+.race-container .race-screen .race-record {
+  --record-area: 14.4rem;
+}
+.race-container .race-screen .race-record[data-pattern="A"] {
+  --record-area: 9.6rem;
+}
+.race-container .race-screen .race-record[data-pattern="E"] {
+  --record-area: 11.6rem;
+}
+.race-container .race-screen .race-record__row {
+  height: min(2.8rem, calc(var(--record-area) / max(1, var(--record-rows, 5))));
+}
+
+/*
  * 取消馬（is_scratched）の視覚処理（指示書08 v2 改訂 2026-04-16）
  *
  * 方針変更:
@@ -288,9 +337,13 @@ html.single-screen {
  */
 
 /* 単勝（+複勝）の結合ラベルセル。.race-table__row の grid を前提に grid-column span。
- * - .screen では 単勝(6.3rem) + 複勝(13.6rem) を1セルで占有 → grid-column: span 2
+ * - .screen (single-screen.html, 7列) では 単勝(6.3rem) + 複勝(13.6rem) を1セルで占有 → grid-column: span 2
  * - .popular では 単勝のみなので通常のセル幅（span 指定なし、下で上書き）
- * 背景 #3a3a3a + 赤太字で警告を明示。nth-child(even) の #26364E より優先する。 */
+ * - .race-screen (entries-results-3r, 6列: 番/馬名/馬体重/性齢/斤量/騎手名) でも
+ *   span 2 (馬体重(2)+性齢(3)) で結合し、斤量(4) と騎手名(5) は通常セルのまま表示する
+ *   （ユーザー指示 2026-04-30 session3 改: 「出走取消は2セル / 斤量は表示」）
+ * 背景 #3a3a3a + 赤太字で警告を明示。nth-child(even) の #26364E より優先する。
+ * 芥川様確認事項: scratched クラスの正式定義（col 構造・font-size・色値の確定）。 */
 .race-table__scratched {
   grid-column: span 2;
   display: grid;
@@ -298,7 +351,7 @@ html.single-screen {
   background: #3a3a3a !important;
   color: #FF5252;
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 1.6rem;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
@@ -307,6 +360,10 @@ html.single-screen {
   grid-column: auto;
   font-size: 1.8rem;
   letter-spacing: 0;
+}
+/* single-screen.html (.screen) は本来の 2rem 表示を維持（7列幅で十分なため） */
+.screen .race-table__row .race-table__scratched {
+  font-size: 2rem;
 }
 
 /* マトリクス（馬連/馬単 馬番順）の空白オッズセル。
