@@ -1,0 +1,93 @@
+{
+  "server_time": "2026-04-30T14:00:06+09:00",
+  "monitor_id": 106,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:00:06+09:00",
+      "end_time": "2026-04-30T20:00:06+09:00",
+      "layout": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "4分割標準",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "06",
+          "organizer_type": "JRA",
+          "display_pattern_id": 1,
+          "display_pattern_name": "4分割標準",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_06_08",
+              "race_key": "中山8R",
+              "post_time_iso": "2026-04-30T14:30:06+09:00",
+              "data_source": "odds/20260430/JRA_06_08.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "06",
+          "organizer_type": "JRA",
+          "display_pattern_id": 1,
+          "display_pattern_name": "4分割標準",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_06_08",
+              "race_key": "中山8R",
+              "post_time_iso": "2026-04-30T14:30:06+09:00",
+              "data_source": "odds/20260430/JRA_06_08.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-popular.html",
+          "place_cd": "06",
+          "organizer_type": "JRA",
+          "display_pattern_id": 1,
+          "display_pattern_name": "4分割標準",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_06_08",
+              "race_key": "中山8R",
+              "post_time_iso": "2026-04-30T14:30:06+09:00",
+              "data_source": "odds/20260430/JRA_06_08.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/single-popular-second.html",
+          "place_cd": "06",
+          "organizer_type": "JRA",
+          "display_pattern_id": 1,
+          "display_pattern_name": "4分割標準",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_06_08",
+              "race_key": "中山8R",
+              "post_time_iso": "2026-04-30T14:30:06+09:00",
+              "data_source": "odds/20260430/JRA_06_08.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

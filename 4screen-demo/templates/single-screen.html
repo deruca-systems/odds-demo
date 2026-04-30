@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>単勝・複勝・枠連 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
   <link rel="stylesheet" href="../assets/css/demo-helpers.css">
-  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20260422c"></script>
 </head>
 <body>
 
@@ -52,9 +52,9 @@
         <div class="frame-odds__body" id="frameOddsBody"></div>
       </div>
       <!-- H-03 (2026-04-19): 枠単ブロック（初期非表示、15秒ごとに枠連と自動切替） -->
-      <div class="frame-umatan" id="frame-utan" style="display:none;">
-        <div class="frame-umatan__head"><div>枠単</div></div>
-        <div class="frame-umatan__wrapper" id="frameUmatanWrapper"></div>
+      <div class="frame-utan" id="frame-utan" style="display:none;">
+        <div class="frame-utan__head"><div>枠単</div></div>
+        <div class="frame-utan__wrapper" id="frameUtanWrapper"></div>
       </div>
     </div>
   </div>
@@ -112,12 +112,12 @@
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabel(h.is_scratched)));
       } else {
         var winClass = winCls[h.horse_no] || '';
-        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', race.organizer_type)));
         var pInfo = placeCls[h.horse_no] || {};
         var place = D.el('div', 'race-table__odds-place');
-        var pMin = D.el('span', pInfo.minPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_min));
+        var pMin = D.el('span', pInfo.minPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_min, 'place', race.organizer_type));
         var pSep = D.el('span', null, '-');
-        var pMax = D.el('span', pInfo.maxPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_max));
+        var pMax = D.el('span', pInfo.maxPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_max, 'place', race.organizer_type));
         place.appendChild(pMin); place.appendChild(pSep); place.appendChild(pMax);
         row.appendChild(place);
       }
@@ -152,7 +152,7 @@
           var item = D.el('div', 'frame-odds__item');
           item.appendChild(D.el('div', 'frame-odds__number', frameB));
           var valCls = 'frame-odds__value' + (popularKeys[frameA + '-' + frameB] ? ' value-popular' : '');
-          item.appendChild(D.el('div', valCls, D.fmtOdds(entry.odds)));
+          item.appendChild(D.el('div', valCls, D.fmtOdds(entry.odds, 'frame_quinella', race.organizer_type)));
           block.appendChild(item);
         }
         colEl.appendChild(block);
@@ -162,14 +162,14 @@
     foBody.replaceChildren(foFragment);
 
     // H-03 (2026-04-19): 枠単マトリクス描画
-    //   race.frame_umatan（同枠2頭以上のみ同枠あり、最大64件）があれば描画。
+    //   race.frame_utan（同枠2頭以上のみ同枠あり、最大64件）があれば描画。
     //   初期は display:none のため画面には出ない。
     //   親 index.html から postMessage {type:'frameOddsPage', page:'utan'} で表示切替。
-    //   発売なし（umatanData.length===0）時は親にも通知してページング停止させる。
-    var umatanData = race.frame_umatan || [];
-    var utanWrapper = document.getElementById('frameUmatanWrapper');
-    if (umatanData.length > 0) {
-      D.renderFrameUmatan(umatanData, utanWrapper);
+    //   発売なし（utanData.length===0）時は親にも通知してページング停止させる。
+    var utanData = race.frame_utan || [];
+    var utanWrapper = document.getElementById('frameUtanWrapper');
+    if (utanData.length > 0) {
+      D.renderFrameUtan(utanData, utanWrapper, race.organizer_type);
     } else if (utanWrapper) {
       utanWrapper.replaceChildren();  // 発売なし時に前レースの描画を消す
     }
@@ -177,9 +177,9 @@
     if (window.parent !== window) {
       try {
         window.parent.postMessage({
-          type: 'frameUmatanAvailability',
+          type: 'frameUtanAvailability',
           url: dataUrl,
-          available: umatanData.length > 0
+          available: utanData.length > 0
         }, '*');
       } catch (_) {}
     }
@@ -219,7 +219,9 @@
     if (!d) return;
     if (d.type === 'setDataUrl') {
       dataUrl = d.url;
-      if (typeof d.baseOffset === 'number') serverOffsetMs = d.baseOffset;
+      // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
+      //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
+      //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       startPolling();
     } else if (d.type === 'frameOddsPage') {
       // H-03 (2026-04-19): 親から枠連・枠単の切替通知を受信

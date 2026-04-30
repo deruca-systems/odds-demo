@@ -1,0 +1,48 @@
+{
+  "server_time": "2026-04-30T14:00:06+09:00",
+  "monitor_id": 113,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:00:06+09:00",
+      "end_time": "2026-04-30T15:00:06+09:00",
+      "layout": "1screen",
+      "display_pattern_id": 10,
+      "display_pattern_name": "3R出走成績",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/entries-results-3r.html",
+          "place_cd": "30",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "3R出走成績",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_30_04",
+              "race_key": "門別4R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_30_04.json"
+            },
+            {
+              "race_id": "NAR_30_05",
+              "race_key": "門別5R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_30_05.json"
+            },
+            {
+              "race_id": "NAR_30_06",
+              "race_key": "門別6R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_30_06.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

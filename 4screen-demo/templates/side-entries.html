@@ -9,9 +9,9 @@
   <meta charset="UTF-8">
   <title>出走表（L字左袖）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
   <link rel="stylesheet" href="../assets/css/demo-helpers.css">
-  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20260422c"></script>
   <style>
     /* L字左袖用レイアウト調整（2026-04-16 仕様書§4 準拠版）:
      *
@@ -176,7 +176,7 @@
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
       } else {
         var winClass = winCls[h.horse_no] || '';
-        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', race.organizer_type)));
       }
       fragment.appendChild(row);
     });
@@ -220,7 +220,9 @@
   window.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
-      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
+      //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
+      //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       startPolling();
     }
   });

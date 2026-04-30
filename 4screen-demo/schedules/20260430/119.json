@@ -1,0 +1,41 @@
+{
+  "server_time": "2026-04-21T14:12:44+09:00",
+  "monitor_id": 119,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:12:44+09:00",
+      "end_time": "2026-04-30T14:17:44+09:00",
+      "layout": "1screen",
+      "display_pattern_id": 10,
+      "display_pattern_name": "3R出走成績（ばんえい競馬・帯広）",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/entries-results-3r.html",
+          "races": [
+            {
+              "race_id": "NAR_03_01",
+              "race_key": "帯広1R",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "results/20260430/NAR_03_01.json"
+            },
+            {
+              "race_id": "NAR_03_02",
+              "race_key": "帯広2R",
+              "post_time_iso": "2026-04-30T14:45:44+09:00",
+              "data_source": "results/20260430/NAR_03_02.json"
+            },
+            {
+              "race_id": "NAR_03_03",
+              "race_key": "帯広3R",
+              "post_time_iso": "2026-04-30T15:15:44+09:00",
+              "data_source": "results/20260430/NAR_03_03.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

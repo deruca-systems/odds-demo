@@ -1,0 +1,48 @@
+{
+  "server_time": "2026-04-30T14:00:06+09:00",
+  "monitor_id": 109,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:00:06+09:00",
+      "end_time": "2026-04-30T14:05:06+09:00",
+      "layout": "1screen",
+      "display_pattern_id": 10,
+      "display_pattern_name": "3R出走成績",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/entries-results-3r.html",
+          "place_cd": "49",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "3R出走成績",
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_49_04",
+              "race_key": "名古屋4R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_49_04.json"
+            },
+            {
+              "race_id": "NAR_49_05",
+              "race_key": "名古屋5R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_49_05.json"
+            },
+            {
+              "race_id": "NAR_49_06",
+              "race_key": "名古屋6R",
+              "post_time_iso": "2026-04-30T14:00:06+09:00",
+              "data_source": "results/20260430/NAR_49_06.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

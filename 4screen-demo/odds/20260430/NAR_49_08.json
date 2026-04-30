@@ -1,0 +1,4483 @@
+{
+  "server_time": "2026-04-30T14:00:06+09:00",
+  "race": {
+    "organizer_type": "NAR",
+    "place_cd": "49",
+    "place_name": "名古屋",
+    "rr": 8,
+    "race_name": "サラ系3歳オープン",
+    "race_class": "",
+    "grade": null,
+    "deadline_min": 64,
+    "deadline": "15:04",
+    "deadline_iso": "2026-04-30T15:04:06+09:00",
+    "post_time": "15:06",
+    "post_time_iso": "2026-04-30T15:06:06+09:00",
+    "weather_cd": 4,
+    "weather_label": "雨",
+    "track_cd": 0,
+    "track_cond_cd": 4,
+    "track_cond_dirt_cd": null,
+    "distance": 1800,
+    "course_direction": 1,
+    "pn": 16,
+    "is_previous_day": false,
+    "odds_status": 0,
+    "frame_utan": [
+      {
+        "frame_a": 1,
+        "frame_b": 1,
+        "odds": 549.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 2,
+        "odds": 976.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 3,
+        "odds": 1082.3,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 4,
+        "odds": 662.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 5,
+        "odds": 1406.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 6,
+        "odds": 358.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 7,
+        "odds": 529.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 1,
+        "frame_b": 8,
+        "odds": 732.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 1,
+        "odds": 370.9,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 2,
+        "odds": 803.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 3,
+        "odds": 1174.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 4,
+        "odds": 21.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 5,
+        "odds": 106.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 6,
+        "odds": 1144.3,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 7,
+        "odds": 66.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 2,
+        "frame_b": 8,
+        "odds": 162.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 1,
+        "odds": 1420.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 2,
+        "odds": 318.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 3,
+        "odds": 411.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 4,
+        "odds": 849.9,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 5,
+        "odds": 118.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 6,
+        "odds": 886.3,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 7,
+        "odds": 1450.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 3,
+        "frame_b": 8,
+        "odds": 60.0,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 1,
+        "odds": 1098.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 2,
+        "odds": 1248.0,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 3,
+        "odds": 1071.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 4,
+        "odds": 855.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 5,
+        "odds": 762.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 6,
+        "odds": 1402.0,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 7,
+        "odds": 1157.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 4,
+        "frame_b": 8,
+        "odds": 1187.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 1,
+        "odds": 730.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 2,
+        "odds": 17.9,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 3,
+        "odds": 354.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 4,
+        "odds": 1367.9,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 5,
+        "odds": 1143.6,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 6,
+        "odds": 930.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 7,
+        "odds": 1363.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 5,
+        "frame_b": 8,
+        "odds": 1427.8,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 1,
+        "odds": 768.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 2,
+        "odds": 1401.9,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 3,
+        "odds": 165.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 4,
+        "odds": 771.6,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 5,
+        "odds": 621.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 6,
+        "odds": 887.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 7,
+        "odds": 211.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 6,
+        "frame_b": 8,
+        "odds": 811.6,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 1,
+        "odds": 638.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 2,
+        "odds": 295.0,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 3,
+        "odds": 767.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 4,
+        "odds": 965.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 5,
+        "odds": 852.3,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 6,
+        "odds": 13.6,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 7,
+        "odds": 820.2,
+        "is_popular": false
+      },
+      {
+        "frame_a": 7,
+        "frame_b": 8,
+        "odds": 1369.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 1,
+        "odds": 724.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 2,
+        "odds": 701.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 3,
+        "odds": 1099.5,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 4,
+        "odds": 166.4,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 5,
+        "odds": 467.7,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 6,
+        "odds": 1189.6,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 7,
+        "odds": 1023.3,
+        "is_popular": false
+      },
+      {
+        "frame_a": 8,
+        "frame_b": 8,
+        "odds": 901.5,
+        "is_popular": false
+      }
+    ]
+  },
+  "horses": [
+    {
+      "frame_no": 1,
+      "horse_no": 1,
+      "horse_name": "ミスティックトレイル",
+      "jockey": "山本聡哉",
+      "weight": 468,
+      "weight_diff": 9,
+      "win_odds": 51.5,
+      "place_odds_min": 18.6,
+      "place_odds_max": 28.1,
+      "is_popular": false,
+      "is_secondary": true,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 56.8,
+      "cnm": "斎藤厩舎",
+      "wt2": 477,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 1,
+      "horse_no": 2,
+      "horse_name": "コスモサンダー",
+      "jockey": "森泰斗",
+      "weight": 468,
+      "weight_diff": -4,
+      "win_odds": 140.9,
+      "place_odds_min": 39.2,
+      "place_odds_max": 87.4,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 56.1,
+      "cnm": "吉田厩舎",
+      "wt2": 475,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 2,
+      "horse_no": 3,
+      "horse_name": "ファーストライト",
+      "jockey": "本田正重",
+      "weight": 477,
+      "weight_diff": -7,
+      "win_odds": 11.8,
+      "place_odds_min": 4.9,
+      "place_odds_max": 6.7,
+      "is_popular": true,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "セ",
+      "age": 3,
+      "fwt": 54.1,
+      "cnm": "山本厩舎",
+      "wt2": 485,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 2,
+      "horse_no": 4,
+      "horse_name": "アビスクィーン",
+      "jockey": "町田直希",
+      "weight": 471,
+      "weight_diff": 9,
+      "win_odds": 143.9,
+      "place_odds_min": 42.2,
+      "place_odds_max": 83.0,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 56.6,
+      "cnm": "松本厩舎",
+      "wt2": 481,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 3,
+      "horse_no": 5,
+      "horse_name": "ベガサスワン",
+      "jockey": "笹川翼",
+      "weight": 451,
+      "weight_diff": -1,
+      "win_odds": 47.1,
+      "place_odds_min": 15.5,
+      "place_odds_max": 26.0,
+      "is_popular": true,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 55.3,
+      "cnm": "井上厩舎",
+      "wt2": 445,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 3,
+      "horse_no": 6,
+      "horse_name": "テンペストルーラー",
+      "jockey": "張田京",
+      "weight": 508,
+      "weight_diff": -7,
+      "win_odds": 102.6,
+      "place_odds_min": 40.3,
+      "place_odds_max": 55.8,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 55.5,
+      "cnm": "木村厩舎",
+      "wt2": 512,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 4,
+      "horse_no": 7,
+      "horse_name": "セレスティアル",
+      "jockey": "和田譲治",
+      "weight": 471,
+      "weight_diff": -5,
+      "win_odds": 149.5,
+      "place_odds_min": 46.6,
+      "place_odds_max": 75.8,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 6,
+      "fwt": 55.1,
+      "cnm": "林厩舎",
+      "wt2": 472,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 4,
+      "horse_no": 8,
+      "horse_name": "ロイヤルサテライト",
+      "jockey": "御神本訓史",
+      "weight": 494,
+      "weight_diff": 0,
+      "win_odds": 47.6,
+      "place_odds_min": 13.2,
+      "place_odds_max": 35.7,
+      "is_popular": false,
+      "is_secondary": true,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 56.9,
+      "cnm": "清水厩舎",
+      "wt2": 493,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 5,
+      "horse_no": 9,
+      "horse_name": "ウィンディゲイル",
+      "jockey": "矢野貴之",
+      "weight": 501,
+      "weight_diff": 7,
+      "win_odds": 122.9,
+      "place_odds_min": 49.8,
+      "place_odds_max": 87.2,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 4,
+      "fwt": 55.6,
+      "cnm": "山田厩舎",
+      "wt2": 496,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 5,
+      "horse_no": 10,
+      "horse_name": "エクリプスランナー",
+      "jockey": "吉原寛人",
+      "weight": 494,
+      "weight_diff": 8,
+      "win_odds": 174.3,
+      "place_odds_min": 52.7,
+      "place_odds_max": 99.3,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 6,
+      "fwt": 55.2,
+      "cnm": "佐藤厩舎",
+      "wt2": 489,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 6,
+      "horse_no": 11,
+      "horse_name": "ノクターンビート",
+      "jockey": "左海誠二",
+      "weight": 447,
+      "weight_diff": 1,
+      "win_odds": 114.5,
+      "place_odds_min": 33.5,
+      "place_odds_max": 63.8,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牝",
+      "age": 5,
+      "fwt": 54.0,
+      "cnm": "鈴木厩舎",
+      "wt2": 456,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 6,
+      "horse_no": 12,
+      "horse_name": "オーロラブライト",
+      "jockey": "野畑凌",
+      "weight": 511,
+      "weight_diff": 2,
+      "win_odds": 63.2,
+      "place_odds_min": 26.7,
+      "place_odds_max": 34.5,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 5,
+      "fwt": 56.7,
+      "cnm": "田中厩舎",
+      "wt2": 516,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 7,
+      "horse_no": 13,
+      "horse_name": "シルバーブレイズ",
+      "jockey": "張田昂",
+      "weight": 470,
+      "weight_diff": -8,
+      "win_odds": 33.5,
+      "place_odds_min": 11.6,
+      "place_odds_max": 24.5,
+      "is_popular": true,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 5,
+      "fwt": 57.5,
+      "cnm": "高橋厩舎",
+      "wt2": 475,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 7,
+      "horse_no": 14,
+      "horse_name": "ゴールデンディスク",
+      "jockey": "真島大輔",
+      "weight": 482,
+      "weight_diff": 2,
+      "win_odds": 179.4,
+      "place_odds_min": 68.7,
+      "place_odds_max": 127.6,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 5,
+      "fwt": 57.6,
+      "cnm": "渡辺厩舎",
+      "wt2": 479,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 8,
+      "horse_no": 15,
+      "horse_name": "クリムゾンレイヴン",
+      "jockey": "山中悠希",
+      "weight": 473,
+      "weight_diff": 8,
+      "win_odds": 55.3,
+      "place_odds_min": 17.7,
+      "place_odds_max": 29.5,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "セ",
+      "age": 3,
+      "fwt": 54.3,
+      "cnm": "伊藤厩舎",
+      "wt2": 477,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    },
+    {
+      "frame_no": 8,
+      "horse_no": 16,
+      "horse_name": "アクアマリンボーイ",
+      "jockey": "赤岡修次",
+      "weight": 519,
+      "weight_diff": 7,
+      "win_odds": 155.1,
+      "place_odds_min": 40.5,
+      "place_odds_max": 87.7,
+      "is_popular": false,
+      "is_secondary": false,
+      "is_scratched": 0,
+      "sex": "牡",
+      "age": 3,
+      "fwt": 55.1,
+      "cnm": "小林厩舎",
+      "wt2": 527,
+      "scratch_reason": null,
+      "jockey_changed": false,
+      "org_jockey_nm": null,
+      "new_jockey_nm": null,
+      "chg_reason_cd": null,
+      "org_genryokigo": null,
+      "new_genryokigo": null
+    }
+  ],
+  "frame_odds": [
+    {
+      "frame_a": 1,
+      "frame_b": 1,
+      "odds": 58.7,
+      "is_popular": true
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 2,
+      "odds": 290.1,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 3,
+      "odds": 108.5,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 4,
+      "odds": 241.1,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 5,
+      "odds": 82.5,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 6,
+      "odds": 132.5,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 7,
+      "odds": 258.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 1,
+      "frame_b": 8,
+      "odds": 273.8,
+      "is_popular": false
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 2,
+      "odds": 266.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 3,
+      "odds": 130.9,
+      "is_popular": false
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 4,
+      "odds": 54.8,
+      "is_popular": true
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 5,
+      "odds": 169.9,
+      "is_popular": false
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 6,
+      "odds": 29.0,
+      "is_popular": true
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 7,
+      "odds": 19.3,
+      "is_popular": true
+    },
+    {
+      "frame_a": 2,
+      "frame_b": 8,
+      "odds": 77.1,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 3,
+      "odds": 189.1,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 4,
+      "odds": 206.7,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 5,
+      "odds": 143.7,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 6,
+      "odds": 184.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 7,
+      "odds": 127.0,
+      "is_popular": false
+    },
+    {
+      "frame_a": 3,
+      "frame_b": 8,
+      "odds": 273.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 4,
+      "frame_b": 4,
+      "odds": 142.0,
+      "is_popular": false
+    },
+    {
+      "frame_a": 4,
+      "frame_b": 5,
+      "odds": 168.4,
+      "is_popular": false
+    },
+    {
+      "frame_a": 4,
+      "frame_b": 6,
+      "odds": 77.3,
+      "is_popular": false
+    },
+    {
+      "frame_a": 4,
+      "frame_b": 7,
+      "odds": 122.1,
+      "is_popular": false
+    },
+    {
+      "frame_a": 4,
+      "frame_b": 8,
+      "odds": 229.5,
+      "is_popular": false
+    },
+    {
+      "frame_a": 5,
+      "frame_b": 5,
+      "odds": 154.0,
+      "is_popular": false
+    },
+    {
+      "frame_a": 5,
+      "frame_b": 6,
+      "odds": 84.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 5,
+      "frame_b": 7,
+      "odds": 59.2,
+      "is_popular": true
+    },
+    {
+      "frame_a": 5,
+      "frame_b": 8,
+      "odds": 283.4,
+      "is_popular": false
+    },
+    {
+      "frame_a": 6,
+      "frame_b": 6,
+      "odds": 134.2,
+      "is_popular": false
+    },
+    {
+      "frame_a": 6,
+      "frame_b": 7,
+      "odds": 102.6,
+      "is_popular": false
+    },
+    {
+      "frame_a": 6,
+      "frame_b": 8,
+      "odds": 152.4,
+      "is_popular": false
+    },
+    {
+      "frame_a": 7,
+      "frame_b": 7,
+      "odds": 212.5,
+      "is_popular": false
+    },
+    {
+      "frame_a": 7,
+      "frame_b": 8,
+      "odds": 145.7,
+      "is_popular": false
+    },
+    {
+      "frame_a": 8,
+      "frame_b": 8,
+      "odds": 80.4,
+      "is_popular": false
+    }
+  ],
+  "umaren_matrix": [
+    {
+      "a": 1,
+      "b": 2,
+      "odds": 3262.3
+    },
+    {
+      "a": 1,
+      "b": 3,
+      "odds": 187.9
+    },
+    {
+      "a": 1,
+      "b": 4,
+      "odds": 2321.6
+    },
+    {
+      "a": 1,
+      "b": 5,
+      "odds": 928.2
+    },
+    {
+      "a": 1,
+      "b": 6,
+      "odds": 2322.4
+    },
+    {
+      "a": 1,
+      "b": 7,
+      "odds": 3717.8
+    },
+    {
+      "a": 1,
+      "b": 8,
+      "odds": 721.4
+    },
+    {
+      "a": 1,
+      "b": 9,
+      "odds": 1932.1
+    },
+    {
+      "a": 1,
+      "b": 10,
+      "odds": 3297.6
+    },
+    {
+      "a": 1,
+      "b": 11,
+      "odds": 1506.4
+    },
+    {
+      "a": 1,
+      "b": 12,
+      "odds": 870.2
+    },
+    {
+      "a": 1,
+      "b": 13,
+      "odds": 768.6
+    },
+    {
+      "a": 1,
+      "b": 14,
+      "odds": 3509.6
+    },
+    {
+      "a": 1,
+      "b": 15,
+      "odds": 1107.1
+    },
+    {
+      "a": 1,
+      "b": 16,
+      "odds": 3064.3
+    },
+    {
+      "a": 2,
+      "b": 3,
+      "odds": 745.2
+    },
+    {
+      "a": 2,
+      "b": 4,
+      "odds": 5534.2
+    },
+    {
+      "a": 2,
+      "b": 5,
+      "odds": 2188.8
+    },
+    {
+      "a": 2,
+      "b": 6,
+      "odds": 3877.9
+    },
+    {
+      "a": 2,
+      "b": 7,
+      "odds": 6896.5
+    },
+    {
+      "a": 2,
+      "b": 8,
+      "odds": 3319.0
+    },
+    {
+      "a": 2,
+      "b": 9,
+      "odds": 4693.7
+    },
+    {
+      "a": 2,
+      "b": 10,
+      "odds": 6615.0
+    },
+    {
+      "a": 2,
+      "b": 11,
+      "odds": 4762.5
+    },
+    {
+      "a": 2,
+      "b": 12,
+      "odds": 3833.2
+    },
+    {
+      "a": 2,
+      "b": 13,
+      "odds": 1956.1
+    },
+    {
+      "a": 2,
+      "b": 14,
+      "odds": 11351.9
+    },
+    {
+      "a": 2,
+      "b": 15,
+      "odds": 2964.4
+    },
+    {
+      "a": 2,
+      "b": 16,
+      "odds": 5934.7
+    },
+    {
+      "a": 3,
+      "b": 4,
+      "odds": 524.9
+    },
+    {
+      "a": 3,
+      "b": 5,
+      "odds": 201.5
+    },
+    {
+      "a": 3,
+      "b": 6,
+      "odds": 460.8
+    },
+    {
+      "a": 3,
+      "b": 7,
+      "odds": 695.5
+    },
+    {
+      "a": 3,
+      "b": 8,
+      "odds": 252.5
+    },
+    {
+      "a": 3,
+      "b": 9,
+      "odds": 642.4
+    },
+    {
+      "a": 3,
+      "b": 10,
+      "odds": 957.6
+    },
+    {
+      "a": 3,
+      "b": 11,
+      "odds": 669.2
+    },
+    {
+      "a": 3,
+      "b": 12,
+      "odds": 293.7
+    },
+    {
+      "a": 3,
+      "b": 13,
+      "odds": 115.0
+    },
+    {
+      "a": 3,
+      "b": 14,
+      "odds": 787.5
+    },
+    {
+      "a": 3,
+      "b": 15,
+      "odds": 299.2
+    },
+    {
+      "a": 3,
+      "b": 16,
+      "odds": 739.2
+    },
+    {
+      "a": 4,
+      "b": 5,
+      "odds": 2038.9
+    },
+    {
+      "a": 4,
+      "b": 6,
+      "odds": 6442.3
+    },
+    {
+      "a": 4,
+      "b": 7,
+      "odds": 6987.8
+    },
+    {
+      "a": 4,
+      "b": 8,
+      "odds": 2776.4
+    },
+    {
+      "a": 4,
+      "b": 9,
+      "odds": 4572.8
+    },
+    {
+      "a": 4,
+      "b": 10,
+      "odds": 12410.5
+    },
+    {
+      "a": 4,
+      "b": 11,
+      "odds": 7676.1
+    },
+    {
+      "a": 4,
+      "b": 12,
+      "odds": 3293.7
+    },
+    {
+      "a": 4,
+      "b": 13,
+      "odds": 1314.8
+    },
+    {
+      "a": 4,
+      "b": 14,
+      "odds": 7269.6
+    },
+    {
+      "a": 4,
+      "b": 15,
+      "odds": 2715.9
+    },
+    {
+      "a": 4,
+      "b": 16,
+      "odds": 9360.7
+    },
+    {
+      "a": 5,
+      "b": 6,
+      "odds": 1432.3
+    },
+    {
+      "a": 5,
+      "b": 7,
+      "odds": 3089.4
+    },
+    {
+      "a": 5,
+      "b": 8,
+      "odds": 886.8
+    },
+    {
+      "a": 5,
+      "b": 9,
+      "odds": 1969.7
+    },
+    {
+      "a": 5,
+      "b": 10,
+      "odds": 2593.3
+    },
+    {
+      "a": 5,
+      "b": 11,
+      "odds": 1662.4
+    },
+    {
+      "a": 5,
+      "b": 12,
+      "odds": 1380.8
+    },
+    {
+      "a": 5,
+      "b": 13,
+      "odds": 652.1
+    },
+    {
+      "a": 5,
+      "b": 14,
+      "odds": 2388.1
+    },
+    {
+      "a": 5,
+      "b": 15,
+      "odds": 1179.7
+    },
+    {
+      "a": 5,
+      "b": 16,
+      "odds": 2720.4
+    },
+    {
+      "a": 6,
+      "b": 7,
+      "odds": 4122.1
+    },
+    {
+      "a": 6,
+      "b": 8,
+      "odds": 1486.4
+    },
+    {
+      "a": 6,
+      "b": 9,
+      "odds": 4036.5
+    },
+    {
+      "a": 6,
+      "b": 10,
+      "odds": 4867.8
+    },
+    {
+      "a": 6,
+      "b": 11,
+      "odds": 5706.0
+    },
+    {
+      "a": 6,
+      "b": 12,
+      "odds": 2727.4
+    },
+    {
+      "a": 6,
+      "b": 13,
+      "odds": 1061.8
+    },
+    {
+      "a": 6,
+      "b": 14,
+      "odds": 5801.4
+    },
+    {
+      "a": 6,
+      "b": 15,
+      "odds": 1918.9
+    },
+    {
+      "a": 6,
+      "b": 16,
+      "odds": 5435.4
+    },
+    {
+      "a": 7,
+      "b": 8,
+      "odds": 3338.3
+    },
+    {
+      "a": 7,
+      "b": 9,
+      "odds": 6028.6
+    },
+    {
+      "a": 7,
+      "b": 10,
+      "odds": 10555.6
+    },
+    {
+      "a": 7,
+      "b": 11,
+      "odds": 4901.7
+    },
+    {
+      "a": 7,
+      "b": 12,
+      "odds": 3715.6
+    },
+    {
+      "a": 7,
+      "b": 13,
+      "odds": 1924.0
+    },
+    {
+      "a": 7,
+      "b": 14,
+      "odds": 12635.4
+    },
+    {
+      "a": 7,
+      "b": 15,
+      "odds": 3073.7
+    },
+    {
+      "a": 7,
+      "b": 16,
+      "odds": 6712.8
+    },
+    {
+      "a": 8,
+      "b": 9,
+      "odds": 2782.6
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "odds": 2869.5
+    },
+    {
+      "a": 8,
+      "b": 11,
+      "odds": 2692.2
+    },
+    {
+      "a": 8,
+      "b": 12,
+      "odds": 1359.2
+    },
+    {
+      "a": 8,
+      "b": 13,
+      "odds": 618.3
+    },
+    {
+      "a": 8,
+      "b": 14,
+      "odds": 2814.7
+    },
+    {
+      "a": 8,
+      "b": 15,
+      "odds": 781.6
+    },
+    {
+      "a": 8,
+      "b": 16,
+      "odds": 2599.9
+    },
+    {
+      "a": 9,
+      "b": 10,
+      "odds": 8711.1
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "odds": 5580.4
+    },
+    {
+      "a": 9,
+      "b": 12,
+      "odds": 2635.2
+    },
+    {
+      "a": 9,
+      "b": 13,
+      "odds": 1406.3
+    },
+    {
+      "a": 9,
+      "b": 14,
+      "odds": 8912.0
+    },
+    {
+      "a": 9,
+      "b": 15,
+      "odds": 1885.9
+    },
+    {
+      "a": 9,
+      "b": 16,
+      "odds": 8195.7
+    },
+    {
+      "a": 10,
+      "b": 11,
+      "odds": 8674.3
+    },
+    {
+      "a": 10,
+      "b": 12,
+      "odds": 3337.6
+    },
+    {
+      "a": 10,
+      "b": 13,
+      "odds": 2167.1
+    },
+    {
+      "a": 10,
+      "b": 14,
+      "odds": 13931.4
+    },
+    {
+      "a": 10,
+      "b": 15,
+      "odds": 2663.8
+    },
+    {
+      "a": 10,
+      "b": 16,
+      "odds": 9726.4
+    },
+    {
+      "a": 11,
+      "b": 12,
+      "odds": 2337.5
+    },
+    {
+      "a": 11,
+      "b": 13,
+      "odds": 1396.0
+    },
+    {
+      "a": 11,
+      "b": 14,
+      "odds": 6361.7
+    },
+    {
+      "a": 11,
+      "b": 15,
+      "odds": 2340.6
+    },
+    {
+      "a": 11,
+      "b": 16,
+      "odds": 7553.3
+    },
+    {
+      "a": 12,
+      "b": 13,
+      "odds": 632.6
+    },
+    {
+      "a": 12,
+      "b": 14,
+      "odds": 3769.3
+    },
+    {
+      "a": 12,
+      "b": 15,
+      "odds": 982.5
+    },
+    {
+      "a": 12,
+      "b": 16,
+      "odds": 3099.9
+    },
+    {
+      "a": 13,
+      "b": 14,
+      "odds": 2255.7
+    },
+    {
+      "a": 13,
+      "b": 15,
+      "odds": 478.7
+    },
+    {
+      "a": 13,
+      "b": 16,
+      "odds": 2118.3
+    },
+    {
+      "a": 14,
+      "b": 15,
+      "odds": 4642.8
+    },
+    {
+      "a": 14,
+      "b": 16,
+      "odds": 10756.0
+    },
+    {
+      "a": 15,
+      "b": 16,
+      "odds": 3563.1
+    }
+  ],
+  "umatan_matrix": [
+    {
+      "a": 1,
+      "b": 2,
+      "odds": 3353.9
+    },
+    {
+      "a": 1,
+      "b": 3,
+      "odds": 499.5
+    },
+    {
+      "a": 1,
+      "b": 4,
+      "odds": 6046.5
+    },
+    {
+      "a": 1,
+      "b": 5,
+      "odds": 1752.6
+    },
+    {
+      "a": 1,
+      "b": 6,
+      "odds": 2883.6
+    },
+    {
+      "a": 1,
+      "b": 7,
+      "odds": 4438.3
+    },
+    {
+      "a": 1,
+      "b": 8,
+      "odds": 2109.6
+    },
+    {
+      "a": 1,
+      "b": 9,
+      "odds": 4423.2
+    },
+    {
+      "a": 1,
+      "b": 10,
+      "odds": 5296.3
+    },
+    {
+      "a": 1,
+      "b": 11,
+      "odds": 4114.5
+    },
+    {
+      "a": 1,
+      "b": 12,
+      "odds": 1812.4
+    },
+    {
+      "a": 1,
+      "b": 13,
+      "odds": 902.5
+    },
+    {
+      "a": 1,
+      "b": 14,
+      "odds": 3885.6
+    },
+    {
+      "a": 1,
+      "b": 15,
+      "odds": 2459.8
+    },
+    {
+      "a": 1,
+      "b": 16,
+      "odds": 3988.5
+    },
+    {
+      "a": 2,
+      "b": 1,
+      "odds": 4569.2
+    },
+    {
+      "a": 2,
+      "b": 3,
+      "odds": 1422.3
+    },
+    {
+      "a": 2,
+      "b": 4,
+      "odds": 14676.8
+    },
+    {
+      "a": 2,
+      "b": 5,
+      "odds": 3968.5
+    },
+    {
+      "a": 2,
+      "b": 6,
+      "odds": 12212.7
+    },
+    {
+      "a": 2,
+      "b": 7,
+      "odds": 9587.8
+    },
+    {
+      "a": 2,
+      "b": 8,
+      "odds": 3625.5
+    },
+    {
+      "a": 2,
+      "b": 9,
+      "odds": 10085.2
+    },
+    {
+      "a": 2,
+      "b": 10,
+      "odds": 11294.2
+    },
+    {
+      "a": 2,
+      "b": 11,
+      "odds": 7190.6
+    },
+    {
+      "a": 2,
+      "b": 12,
+      "odds": 7207.7
+    },
+    {
+      "a": 2,
+      "b": 13,
+      "odds": 3465.0
+    },
+    {
+      "a": 2,
+      "b": 14,
+      "odds": 16027.5
+    },
+    {
+      "a": 2,
+      "b": 15,
+      "odds": 3650.1
+    },
+    {
+      "a": 2,
+      "b": 16,
+      "odds": 10339.9
+    },
+    {
+      "a": 3,
+      "b": 1,
+      "odds": 470.4
+    },
+    {
+      "a": 3,
+      "b": 2,
+      "odds": 1317.9
+    },
+    {
+      "a": 3,
+      "b": 4,
+      "odds": 1510.0
+    },
+    {
+      "a": 3,
+      "b": 5,
+      "odds": 384.4
+    },
+    {
+      "a": 3,
+      "b": 6,
+      "odds": 1033.4
+    },
+    {
+      "a": 3,
+      "b": 7,
+      "odds": 1455.7
+    },
+    {
+      "a": 3,
+      "b": 8,
+      "odds": 225.3
+    },
+    {
+      "a": 3,
+      "b": 9,
+      "odds": 622.8
+    },
+    {
+      "a": 3,
+      "b": 10,
+      "odds": 963.0
+    },
+    {
+      "a": 3,
+      "b": 11,
+      "odds": 1080.5
+    },
+    {
+      "a": 3,
+      "b": 12,
+      "odds": 447.5
+    },
+    {
+      "a": 3,
+      "b": 13,
+      "odds": 189.9
+    },
+    {
+      "a": 3,
+      "b": 14,
+      "odds": 1851.0
+    },
+    {
+      "a": 3,
+      "b": 15,
+      "odds": 484.2
+    },
+    {
+      "a": 3,
+      "b": 16,
+      "odds": 909.3
+    },
+    {
+      "a": 4,
+      "b": 1,
+      "odds": 6321.5
+    },
+    {
+      "a": 4,
+      "b": 2,
+      "odds": 8727.7
+    },
+    {
+      "a": 4,
+      "b": 3,
+      "odds": 870.6
+    },
+    {
+      "a": 4,
+      "b": 5,
+      "odds": 3895.1
+    },
+    {
+      "a": 4,
+      "b": 6,
+      "odds": 11381.1
+    },
+    {
+      "a": 4,
+      "b": 7,
+      "odds": 16243.1
+    },
+    {
+      "a": 4,
+      "b": 8,
+      "odds": 3129.7
+    },
+    {
+      "a": 4,
+      "b": 9,
+      "odds": 11502.3
+    },
+    {
+      "a": 4,
+      "b": 10,
+      "odds": 14514.2
+    },
+    {
+      "a": 4,
+      "b": 11,
+      "odds": 9472.4
+    },
+    {
+      "a": 4,
+      "b": 12,
+      "odds": 7758.9
+    },
+    {
+      "a": 4,
+      "b": 13,
+      "odds": 3164.6
+    },
+    {
+      "a": 4,
+      "b": 14,
+      "odds": 15194.9
+    },
+    {
+      "a": 4,
+      "b": 15,
+      "odds": 6177.6
+    },
+    {
+      "a": 4,
+      "b": 16,
+      "odds": 11002.2
+    },
+    {
+      "a": 5,
+      "b": 1,
+      "odds": 1337.4
+    },
+    {
+      "a": 5,
+      "b": 2,
+      "odds": 5338.3
+    },
+    {
+      "a": 5,
+      "b": 3,
+      "odds": 372.9
+    },
+    {
+      "a": 5,
+      "b": 4,
+      "odds": 2952.2
+    },
+    {
+      "a": 5,
+      "b": 6,
+      "odds": 3018.5
+    },
+    {
+      "a": 5,
+      "b": 7,
+      "odds": 4230.8
+    },
+    {
+      "a": 5,
+      "b": 8,
+      "odds": 1940.4
+    },
+    {
+      "a": 5,
+      "b": 9,
+      "odds": 3355.2
+    },
+    {
+      "a": 5,
+      "b": 10,
+      "odds": 5780.1
+    },
+    {
+      "a": 5,
+      "b": 11,
+      "odds": 2989.7
+    },
+    {
+      "a": 5,
+      "b": 12,
+      "odds": 1488.0
+    },
+    {
+      "a": 5,
+      "b": 13,
+      "odds": 1138.9
+    },
+    {
+      "a": 5,
+      "b": 14,
+      "odds": 5399.4
+    },
+    {
+      "a": 5,
+      "b": 15,
+      "odds": 1605.1
+    },
+    {
+      "a": 5,
+      "b": 16,
+      "odds": 4235.1
+    },
+    {
+      "a": 6,
+      "b": 1,
+      "odds": 3531.4
+    },
+    {
+      "a": 6,
+      "b": 2,
+      "odds": 7992.2
+    },
+    {
+      "a": 6,
+      "b": 3,
+      "odds": 765.9
+    },
+    {
+      "a": 6,
+      "b": 4,
+      "odds": 12019.5
+    },
+    {
+      "a": 6,
+      "b": 5,
+      "odds": 2442.8
+    },
+    {
+      "a": 6,
+      "b": 7,
+      "odds": 11259.6
+    },
+    {
+      "a": 6,
+      "b": 8,
+      "odds": 3099.0
+    },
+    {
+      "a": 6,
+      "b": 9,
+      "odds": 11191.3
+    },
+    {
+      "a": 6,
+      "b": 10,
+      "odds": 14877.6
+    },
+    {
+      "a": 6,
+      "b": 11,
+      "odds": 5568.2
+    },
+    {
+      "a": 6,
+      "b": 12,
+      "odds": 5432.2
+    },
+    {
+      "a": 6,
+      "b": 13,
+      "odds": 2826.9
+    },
+    {
+      "a": 6,
+      "b": 14,
+      "odds": 7393.3
+    },
+    {
+      "a": 6,
+      "b": 15,
+      "odds": 2511.4
+    },
+    {
+      "a": 6,
+      "b": 16,
+      "odds": 8652.6
+    },
+    {
+      "a": 7,
+      "b": 1,
+      "odds": 5522.4
+    },
+    {
+      "a": 7,
+      "b": 2,
+      "odds": 17350.7
+    },
+    {
+      "a": 7,
+      "b": 3,
+      "odds": 1320.9
+    },
+    {
+      "a": 7,
+      "b": 4,
+      "odds": 16743.6
+    },
+    {
+      "a": 7,
+      "b": 5,
+      "odds": 3732.9
+    },
+    {
+      "a": 7,
+      "b": 6,
+      "odds": 9789.1
+    },
+    {
+      "a": 7,
+      "b": 8,
+      "odds": 5760.6
+    },
+    {
+      "a": 7,
+      "b": 9,
+      "odds": 8813.7
+    },
+    {
+      "a": 7,
+      "b": 10,
+      "odds": 18570.6
+    },
+    {
+      "a": 7,
+      "b": 11,
+      "odds": 13331.7
+    },
+    {
+      "a": 7,
+      "b": 12,
+      "odds": 4736.7
+    },
+    {
+      "a": 7,
+      "b": 13,
+      "odds": 4447.6
+    },
+    {
+      "a": 7,
+      "b": 14,
+      "odds": 14261.5
+    },
+    {
+      "a": 7,
+      "b": 15,
+      "odds": 3469.1
+    },
+    {
+      "a": 7,
+      "b": 16,
+      "odds": 10679.5
+    },
+    {
+      "a": 8,
+      "b": 1,
+      "odds": 1937.0
+    },
+    {
+      "a": 8,
+      "b": 2,
+      "odds": 3133.2
+    },
+    {
+      "a": 8,
+      "b": 3,
+      "odds": 385.0
+    },
+    {
+      "a": 8,
+      "b": 4,
+      "odds": 3155.9
+    },
+    {
+      "a": 8,
+      "b": 5,
+      "odds": 1486.5
+    },
+    {
+      "a": 8,
+      "b": 6,
+      "odds": 3252.7
+    },
+    {
+      "a": 8,
+      "b": 7,
+      "odds": 3173.5
+    },
+    {
+      "a": 8,
+      "b": 9,
+      "odds": 4453.3
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "odds": 7270.5
+    },
+    {
+      "a": 8,
+      "b": 11,
+      "odds": 3853.8
+    },
+    {
+      "a": 8,
+      "b": 12,
+      "odds": 1611.6
+    },
+    {
+      "a": 8,
+      "b": 13,
+      "odds": 1169.4
+    },
+    {
+      "a": 8,
+      "b": 14,
+      "odds": 6976.1
+    },
+    {
+      "a": 8,
+      "b": 15,
+      "odds": 1431.0
+    },
+    {
+      "a": 8,
+      "b": 16,
+      "odds": 3362.8
+    },
+    {
+      "a": 9,
+      "b": 1,
+      "odds": 3404.5
+    },
+    {
+      "a": 9,
+      "b": 2,
+      "odds": 10221.7
+    },
+    {
+      "a": 9,
+      "b": 3,
+      "odds": 730.9
+    },
+    {
+      "a": 9,
+      "b": 4,
+      "odds": 7335.8
+    },
+    {
+      "a": 9,
+      "b": 5,
+      "odds": 2462.2
+    },
+    {
+      "a": 9,
+      "b": 6,
+      "odds": 7282.4
+    },
+    {
+      "a": 9,
+      "b": 7,
+      "odds": 12258.9
+    },
+    {
+      "a": 9,
+      "b": 8,
+      "odds": 4769.3
+    },
+    {
+      "a": 9,
+      "b": 10,
+      "odds": 15810.6
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "odds": 11999.3
+    },
+    {
+      "a": 9,
+      "b": 12,
+      "odds": 3741.1
+    },
+    {
+      "a": 9,
+      "b": 13,
+      "odds": 2574.4
+    },
+    {
+      "a": 9,
+      "b": 14,
+      "odds": 12282.2
+    },
+    {
+      "a": 9,
+      "b": 15,
+      "odds": 4347.1
+    },
+    {
+      "a": 9,
+      "b": 16,
+      "odds": 14953.6
+    },
+    {
+      "a": 10,
+      "b": 1,
+      "odds": 5563.1
+    },
+    {
+      "a": 10,
+      "b": 2,
+      "odds": 18857.4
+    },
+    {
+      "a": 10,
+      "b": 3,
+      "odds": 1410.2
+    },
+    {
+      "a": 10,
+      "b": 4,
+      "odds": 10596.1
+    },
+    {
+      "a": 10,
+      "b": 5,
+      "odds": 3834.3
+    },
+    {
+      "a": 10,
+      "b": 6,
+      "odds": 14767.7
+    },
+    {
+      "a": 10,
+      "b": 7,
+      "odds": 16085.8
+    },
+    {
+      "a": 10,
+      "b": 8,
+      "odds": 6516.1
+    },
+    {
+      "a": 10,
+      "b": 9,
+      "odds": 8742.4
+    },
+    {
+      "a": 10,
+      "b": 11,
+      "odds": 13764.3
+    },
+    {
+      "a": 10,
+      "b": 12,
+      "odds": 6915.4
+    },
+    {
+      "a": 10,
+      "b": 13,
+      "odds": 4414.3
+    },
+    {
+      "a": 10,
+      "b": 14,
+      "odds": 25559.4
+    },
+    {
+      "a": 10,
+      "b": 15,
+      "odds": 6457.4
+    },
+    {
+      "a": 10,
+      "b": 16,
+      "odds": 21766.8
+    },
+    {
+      "a": 11,
+      "b": 1,
+      "odds": 3050.7
+    },
+    {
+      "a": 11,
+      "b": 2,
+      "odds": 10142.2
+    },
+    {
+      "a": 11,
+      "b": 3,
+      "odds": 1041.9
+    },
+    {
+      "a": 11,
+      "b": 4,
+      "odds": 14318.2
+    },
+    {
+      "a": 11,
+      "b": 5,
+      "odds": 3191.1
+    },
+    {
+      "a": 11,
+      "b": 6,
+      "odds": 6786.8
+    },
+    {
+      "a": 11,
+      "b": 7,
+      "odds": 14794.3
+    },
+    {
+      "a": 11,
+      "b": 8,
+      "odds": 3705.3
+    },
+    {
+      "a": 11,
+      "b": 9,
+      "odds": 12246.8
+    },
+    {
+      "a": 11,
+      "b": 10,
+      "odds": 9794.0
+    },
+    {
+      "a": 11,
+      "b": 12,
+      "odds": 3218.9
+    },
+    {
+      "a": 11,
+      "b": 13,
+      "odds": 1842.7
+    },
+    {
+      "a": 11,
+      "b": 14,
+      "odds": 16326.4
+    },
+    {
+      "a": 11,
+      "b": 15,
+      "odds": 2734.1
+    },
+    {
+      "a": 11,
+      "b": 16,
+      "odds": 8147.6
+    },
+    {
+      "a": 12,
+      "b": 1,
+      "odds": 1793.0
+    },
+    {
+      "a": 12,
+      "b": 2,
+      "odds": 5471.6
+    },
+    {
+      "a": 12,
+      "b": 3,
+      "odds": 508.2
+    },
+    {
+      "a": 12,
+      "b": 4,
+      "odds": 5277.0
+    },
+    {
+      "a": 12,
+      "b": 5,
+      "odds": 1969.4
+    },
+    {
+      "a": 12,
+      "b": 6,
+      "odds": 2797.9
+    },
+    {
+      "a": 12,
+      "b": 7,
+      "odds": 8055.3
+    },
+    {
+      "a": 12,
+      "b": 8,
+      "odds": 2547.7
+    },
+    {
+      "a": 12,
+      "b": 9,
+      "odds": 6851.3
+    },
+    {
+      "a": 12,
+      "b": 10,
+      "odds": 8352.3
+    },
+    {
+      "a": 12,
+      "b": 11,
+      "odds": 4190.3
+    },
+    {
+      "a": 12,
+      "b": 13,
+      "odds": 985.1
+    },
+    {
+      "a": 12,
+      "b": 14,
+      "odds": 6602.8
+    },
+    {
+      "a": 12,
+      "b": 15,
+      "odds": 2891.3
+    },
+    {
+      "a": 12,
+      "b": 16,
+      "odds": 4480.0
+    },
+    {
+      "a": 13,
+      "b": 1,
+      "odds": 856.9
+    },
+    {
+      "a": 13,
+      "b": 2,
+      "odds": 4010.5
+    },
+    {
+      "a": 13,
+      "b": 3,
+      "odds": 232.2
+    },
+    {
+      "a": 13,
+      "b": 4,
+      "odds": 2777.0
+    },
+    {
+      "a": 13,
+      "b": 5,
+      "odds": 1306.3
+    },
+    {
+      "a": 13,
+      "b": 6,
+      "odds": 2077.5
+    },
+    {
+      "a": 13,
+      "b": 7,
+      "odds": 3343.5
+    },
+    {
+      "a": 13,
+      "b": 8,
+      "odds": 714.3
+    },
+    {
+      "a": 13,
+      "b": 9,
+      "odds": 2594.5
+    },
+    {
+      "a": 13,
+      "b": 10,
+      "odds": 2882.1
+    },
+    {
+      "a": 13,
+      "b": 11,
+      "odds": 2670.9
+    },
+    {
+      "a": 13,
+      "b": 12,
+      "odds": 1430.9
+    },
+    {
+      "a": 13,
+      "b": 14,
+      "odds": 4265.3
+    },
+    {
+      "a": 13,
+      "b": 15,
+      "odds": 1167.6
+    },
+    {
+      "a": 13,
+      "b": 16,
+      "odds": 2815.3
+    },
+    {
+      "a": 14,
+      "b": 1,
+      "odds": 5070.1
+    },
+    {
+      "a": 14,
+      "b": 2,
+      "odds": 14759.1
+    },
+    {
+      "a": 14,
+      "b": 3,
+      "odds": 1400.5
+    },
+    {
+      "a": 14,
+      "b": 4,
+      "odds": 14723.9
+    },
+    {
+      "a": 14,
+      "b": 5,
+      "odds": 6956.7
+    },
+    {
+      "a": 14,
+      "b": 6,
+      "odds": 16404.2
+    },
+    {
+      "a": 14,
+      "b": 7,
+      "odds": 18065.7
+    },
+    {
+      "a": 14,
+      "b": 8,
+      "odds": 7245.9
+    },
+    {
+      "a": 14,
+      "b": 9,
+      "odds": 11974.9
+    },
+    {
+      "a": 14,
+      "b": 10,
+      "odds": 14847.2
+    },
+    {
+      "a": 14,
+      "b": 11,
+      "odds": 15861.4
+    },
+    {
+      "a": 14,
+      "b": 12,
+      "odds": 7230.4
+    },
+    {
+      "a": 14,
+      "b": 13,
+      "odds": 3077.7
+    },
+    {
+      "a": 14,
+      "b": 15,
+      "odds": 7354.5
+    },
+    {
+      "a": 14,
+      "b": 16,
+      "odds": 17772.7
+    },
+    {
+      "a": 15,
+      "b": 1,
+      "odds": 1175.0
+    },
+    {
+      "a": 15,
+      "b": 2,
+      "odds": 3891.6
+    },
+    {
+      "a": 15,
+      "b": 3,
+      "odds": 520.4
+    },
+    {
+      "a": 15,
+      "b": 4,
+      "odds": 4166.7
+    },
+    {
+      "a": 15,
+      "b": 5,
+      "odds": 1423.0
+    },
+    {
+      "a": 15,
+      "b": 6,
+      "odds": 3376.8
+    },
+    {
+      "a": 15,
+      "b": 7,
+      "odds": 7402.1
+    },
+    {
+      "a": 15,
+      "b": 8,
+      "odds": 2116.3
+    },
+    {
+      "a": 15,
+      "b": 9,
+      "odds": 5619.1
+    },
+    {
+      "a": 15,
+      "b": 10,
+      "odds": 8361.5
+    },
+    {
+      "a": 15,
+      "b": 11,
+      "odds": 2886.5
+    },
+    {
+      "a": 15,
+      "b": 12,
+      "odds": 1478.7
+    },
+    {
+      "a": 15,
+      "b": 13,
+      "odds": 830.3
+    },
+    {
+      "a": 15,
+      "b": 14,
+      "odds": 8035.1
+    },
+    {
+      "a": 15,
+      "b": 16,
+      "odds": 4191.4
+    },
+    {
+      "a": 16,
+      "b": 1,
+      "odds": 5222.4
+    },
+    {
+      "a": 16,
+      "b": 2,
+      "odds": 17322.4
+    },
+    {
+      "a": 16,
+      "b": 3,
+      "odds": 1043.2
+    },
+    {
+      "a": 16,
+      "b": 4,
+      "odds": 19822.5
+    },
+    {
+      "a": 16,
+      "b": 5,
+      "odds": 4863.3
+    },
+    {
+      "a": 16,
+      "b": 6,
+      "odds": 11924.6
+    },
+    {
+      "a": 16,
+      "b": 7,
+      "odds": 20340.1
+    },
+    {
+      "a": 16,
+      "b": 8,
+      "odds": 5932.8
+    },
+    {
+      "a": 16,
+      "b": 9,
+      "odds": 16941.6
+    },
+    {
+      "a": 16,
+      "b": 10,
+      "odds": 12061.5
+    },
+    {
+      "a": 16,
+      "b": 11,
+      "odds": 8800.3
+    },
+    {
+      "a": 16,
+      "b": 12,
+      "odds": 8556.9
+    },
+    {
+      "a": 16,
+      "b": 13,
+      "odds": 3933.4
+    },
+    {
+      "a": 16,
+      "b": 14,
+      "odds": 12793.7
+    },
+    {
+      "a": 16,
+      "b": 15,
+      "odds": 6612.9
+    }
+  ],
+  "wide_matrix": [
+    {
+      "a": 1,
+      "b": 2,
+      "min": 704.9,
+      "max": 1756.5
+    },
+    {
+      "a": 1,
+      "b": 3,
+      "min": 44.3,
+      "max": 82.1
+    },
+    {
+      "a": 1,
+      "b": 4,
+      "min": 374.6,
+      "max": 1166.6
+    },
+    {
+      "a": 1,
+      "b": 5,
+      "min": 221.2,
+      "max": 474.0
+    },
+    {
+      "a": 1,
+      "b": 6,
+      "min": 439.6,
+      "max": 1138.5
+    },
+    {
+      "a": 1,
+      "b": 7,
+      "min": 1068.1,
+      "max": 1345.3
+    },
+    {
+      "a": 1,
+      "b": 8,
+      "min": 120.9,
+      "max": 259.9
+    },
+    {
+      "a": 1,
+      "b": 9,
+      "min": 462.3,
+      "max": 794.8
+    },
+    {
+      "a": 1,
+      "b": 10,
+      "min": 696.9,
+      "max": 1689.2
+    },
+    {
+      "a": 1,
+      "b": 11,
+      "min": 231.0,
+      "max": 738.2
+    },
+    {
+      "a": 1,
+      "b": 12,
+      "min": 131.7,
+      "max": 447.2
+    },
+    {
+      "a": 1,
+      "b": 13,
+      "min": 146.9,
+      "max": 420.4
+    },
+    {
+      "a": 1,
+      "b": 14,
+      "min": 531.9,
+      "max": 1662.4
+    },
+    {
+      "a": 1,
+      "b": 15,
+      "min": 281.3,
+      "max": 464.3
+    },
+    {
+      "a": 1,
+      "b": 16,
+      "min": 470.5,
+      "max": 1112.4
+    },
+    {
+      "a": 2,
+      "b": 3,
+      "min": 198.5,
+      "max": 273.8
+    },
+    {
+      "a": 2,
+      "b": 4,
+      "min": 967.4,
+      "max": 2223.6
+    },
+    {
+      "a": 2,
+      "b": 5,
+      "min": 340.7,
+      "max": 969.3
+    },
+    {
+      "a": 2,
+      "b": 6,
+      "min": 1063.8,
+      "max": 2005.4
+    },
+    {
+      "a": 2,
+      "b": 7,
+      "min": 1630.3,
+      "max": 2617.5
+    },
+    {
+      "a": 2,
+      "b": 8,
+      "min": 985.8,
+      "max": 1490.9
+    },
+    {
+      "a": 2,
+      "b": 9,
+      "min": 1190.8,
+      "max": 1708.6
+    },
+    {
+      "a": 2,
+      "b": 10,
+      "min": 1153.7,
+      "max": 3557.3
+    },
+    {
+      "a": 2,
+      "b": 11,
+      "min": 1393.3,
+      "max": 2464.1
+    },
+    {
+      "a": 2,
+      "b": 12,
+      "min": 998.2,
+      "max": 1621.0
+    },
+    {
+      "a": 2,
+      "b": 13,
+      "min": 323.0,
+      "max": 695.3
+    },
+    {
+      "a": 2,
+      "b": 14,
+      "min": 2859.2,
+      "max": 4477.5
+    },
+    {
+      "a": 2,
+      "b": 15,
+      "min": 587.0,
+      "max": 1426.2
+    },
+    {
+      "a": 2,
+      "b": 16,
+      "min": 1495.4,
+      "max": 2245.5
+    },
+    {
+      "a": 3,
+      "b": 4,
+      "min": 134.8,
+      "max": 229.5
+    },
+    {
+      "a": 3,
+      "b": 5,
+      "min": 39.4,
+      "max": 71.3
+    },
+    {
+      "a": 3,
+      "b": 6,
+      "min": 138.2,
+      "max": 207.9
+    },
+    {
+      "a": 3,
+      "b": 7,
+      "min": 148.9,
+      "max": 314.2
+    },
+    {
+      "a": 3,
+      "b": 8,
+      "min": 62.6,
+      "max": 129.8
+    },
+    {
+      "a": 3,
+      "b": 9,
+      "min": 158.8,
+      "max": 262.7
+    },
+    {
+      "a": 3,
+      "b": 10,
+      "min": 209.9,
+      "max": 423.1
+    },
+    {
+      "a": 3,
+      "b": 11,
+      "min": 144.4,
+      "max": 352.0
+    },
+    {
+      "a": 3,
+      "b": 12,
+      "min": 83.9,
+      "max": 122.6
+    },
+    {
+      "a": 3,
+      "b": 13,
+      "min": 23.1,
+      "max": 42.1
+    },
+    {
+      "a": 3,
+      "b": 14,
+      "min": 226.1,
+      "max": 321.0
+    },
+    {
+      "a": 3,
+      "b": 15,
+      "min": 62.0,
+      "max": 145.9
+    },
+    {
+      "a": 3,
+      "b": 16,
+      "min": 202.6,
+      "max": 348.4
+    },
+    {
+      "a": 4,
+      "b": 5,
+      "min": 322.9,
+      "max": 921.3
+    },
+    {
+      "a": 4,
+      "b": 6,
+      "min": 1236.4,
+      "max": 2866.1
+    },
+    {
+      "a": 4,
+      "b": 7,
+      "min": 1890.5,
+      "max": 3272.1
+    },
+    {
+      "a": 4,
+      "b": 8,
+      "min": 591.1,
+      "max": 1235.5
+    },
+    {
+      "a": 4,
+      "b": 9,
+      "min": 920.6,
+      "max": 1771.4
+    },
+    {
+      "a": 4,
+      "b": 10,
+      "min": 2916.1,
+      "max": 6030.5
+    },
+    {
+      "a": 4,
+      "b": 11,
+      "min": 1207.7,
+      "max": 2854.9
+    },
+    {
+      "a": 4,
+      "b": 12,
+      "min": 779.5,
+      "max": 1785.5
+    },
+    {
+      "a": 4,
+      "b": 13,
+      "min": 277.7,
+      "max": 547.8
+    },
+    {
+      "a": 4,
+      "b": 14,
+      "min": 2063.6,
+      "max": 3003.3
+    },
+    {
+      "a": 4,
+      "b": 15,
+      "min": 702.7,
+      "max": 1415.6
+    },
+    {
+      "a": 4,
+      "b": 16,
+      "min": 2424.9,
+      "max": 3517.7
+    },
+    {
+      "a": 5,
+      "b": 6,
+      "min": 411.0,
+      "max": 697.3
+    },
+    {
+      "a": 5,
+      "b": 7,
+      "min": 529.2,
+      "max": 1558.5
+    },
+    {
+      "a": 5,
+      "b": 8,
+      "min": 153.7,
+      "max": 373.8
+    },
+    {
+      "a": 5,
+      "b": 9,
+      "min": 365.1,
+      "max": 882.5
+    },
+    {
+      "a": 5,
+      "b": 10,
+      "min": 643.4,
+      "max": 1212.1
+    },
+    {
+      "a": 5,
+      "b": 11,
+      "min": 451.2,
+      "max": 784.9
+    },
+    {
+      "a": 5,
+      "b": 12,
+      "min": 287.8,
+      "max": 753.6
+    },
+    {
+      "a": 5,
+      "b": 13,
+      "min": 114.5,
+      "max": 292.8
+    },
+    {
+      "a": 5,
+      "b": 14,
+      "min": 465.9,
+      "max": 913.6
+    },
+    {
+      "a": 5,
+      "b": 15,
+      "min": 301.8,
+      "max": 422.2
+    },
+    {
+      "a": 5,
+      "b": 16,
+      "min": 753.8,
+      "max": 1417.9
+    },
+    {
+      "a": 6,
+      "b": 7,
+      "min": 1227.2,
+      "max": 1558.2
+    },
+    {
+      "a": 6,
+      "b": 8,
+      "min": 278.8,
+      "max": 619.4
+    },
+    {
+      "a": 6,
+      "b": 9,
+      "min": 1102.7,
+      "max": 1523.7
+    },
+    {
+      "a": 6,
+      "b": 10,
+      "min": 1398.6,
+      "max": 1721.5
+    },
+    {
+      "a": 6,
+      "b": 11,
+      "min": 1022.0,
+      "max": 2583.6
+    },
+    {
+      "a": 6,
+      "b": 12,
+      "min": 751.0,
+      "max": 999.4
+    },
+    {
+      "a": 6,
+      "b": 13,
+      "min": 162.5,
+      "max": 379.6
+    },
+    {
+      "a": 6,
+      "b": 14,
+      "min": 1622.3,
+      "max": 3014.0
+    },
+    {
+      "a": 6,
+      "b": 15,
+      "min": 360.4,
+      "max": 842.7
+    },
+    {
+      "a": 6,
+      "b": 16,
+      "min": 1053.9,
+      "max": 2526.1
+    },
+    {
+      "a": 7,
+      "b": 8,
+      "min": 597.0,
+      "max": 1509.8
+    },
+    {
+      "a": 7,
+      "b": 9,
+      "min": 1017.3,
+      "max": 2812.5
+    },
+    {
+      "a": 7,
+      "b": 10,
+      "min": 1951.3,
+      "max": 3984.1
+    },
+    {
+      "a": 7,
+      "b": 11,
+      "min": 1035.1,
+      "max": 1852.8
+    },
+    {
+      "a": 7,
+      "b": 12,
+      "min": 840.8,
+      "max": 1895.6
+    },
+    {
+      "a": 7,
+      "b": 13,
+      "min": 421.9,
+      "max": 999.2
+    },
+    {
+      "a": 7,
+      "b": 14,
+      "min": 2903.6,
+      "max": 6048.4
+    },
+    {
+      "a": 7,
+      "b": 15,
+      "min": 776.1,
+      "max": 1547.3
+    },
+    {
+      "a": 7,
+      "b": 16,
+      "min": 1590.4,
+      "max": 3399.8
+    },
+    {
+      "a": 8,
+      "b": 9,
+      "min": 561.5,
+      "max": 1129.5
+    },
+    {
+      "a": 8,
+      "b": 10,
+      "min": 756.7,
+      "max": 1148.6
+    },
+    {
+      "a": 8,
+      "b": 11,
+      "min": 496.1,
+      "max": 1263.5
+    },
+    {
+      "a": 8,
+      "b": 12,
+      "min": 297.8,
+      "max": 643.0
+    },
+    {
+      "a": 8,
+      "b": 13,
+      "min": 175.8,
+      "max": 287.2
+    },
+    {
+      "a": 8,
+      "b": 14,
+      "min": 646.9,
+      "max": 1401.0
+    },
+    {
+      "a": 8,
+      "b": 15,
+      "min": 141.0,
+      "max": 379.6
+    },
+    {
+      "a": 8,
+      "b": 16,
+      "min": 733.2,
+      "max": 1334.2
+    },
+    {
+      "a": 9,
+      "b": 10,
+      "min": 2389.5,
+      "max": 3839.5
+    },
+    {
+      "a": 9,
+      "b": 11,
+      "min": 1227.5,
+      "max": 1995.7
+    },
+    {
+      "a": 9,
+      "b": 12,
+      "min": 629.4,
+      "max": 1001.7
+    },
+    {
+      "a": 9,
+      "b": 13,
+      "min": 242.3,
+      "max": 699.0
+    },
+    {
+      "a": 9,
+      "b": 14,
+      "min": 2585.7,
+      "max": 4677.1
+    },
+    {
+      "a": 9,
+      "b": 15,
+      "min": 464.4,
+      "max": 938.5
+    },
+    {
+      "a": 9,
+      "b": 16,
+      "min": 2247.7,
+      "max": 3365.2
+    },
+    {
+      "a": 10,
+      "b": 11,
+      "min": 1978.1,
+      "max": 4105.8
+    },
+    {
+      "a": 10,
+      "b": 12,
+      "min": 669.8,
+      "max": 1708.6
+    },
+    {
+      "a": 10,
+      "b": 13,
+      "min": 536.3,
+      "max": 830.8
+    },
+    {
+      "a": 10,
+      "b": 14,
+      "min": 2394.1,
+      "max": 5275.5
+    },
+    {
+      "a": 10,
+      "b": 15,
+      "min": 634.2,
+      "max": 1446.6
+    },
+    {
+      "a": 10,
+      "b": 16,
+      "min": 1942.1,
+      "max": 3662.8
+    },
+    {
+      "a": 11,
+      "b": 12,
+      "min": 523.8,
+      "max": 1108.0
+    },
+    {
+      "a": 11,
+      "b": 13,
+      "min": 230.4,
+      "max": 726.3
+    },
+    {
+      "a": 11,
+      "b": 14,
+      "min": 1263.3,
+      "max": 2570.0
+    },
+    {
+      "a": 11,
+      "b": 15,
+      "min": 379.0,
+      "max": 1223.2
+    },
+    {
+      "a": 11,
+      "b": 16,
+      "min": 1137.3,
+      "max": 2817.3
+    },
+    {
+      "a": 12,
+      "b": 13,
+      "min": 141.3,
+      "max": 311.0
+    },
+    {
+      "a": 12,
+      "b": 14,
+      "min": 620.1,
+      "max": 1656.7
+    },
+    {
+      "a": 12,
+      "b": 15,
+      "min": 175.7,
+      "max": 526.7
+    },
+    {
+      "a": 12,
+      "b": 16,
+      "min": 668.5,
+      "max": 1608.7
+    },
+    {
+      "a": 13,
+      "b": 14,
+      "min": 497.3,
+      "max": 914.1
+    },
+    {
+      "a": 13,
+      "b": 15,
+      "min": 113.4,
+      "max": 223.4
+    },
+    {
+      "a": 13,
+      "b": 16,
+      "min": 622.4,
+      "max": 855.1
+    },
+    {
+      "a": 14,
+      "b": 15,
+      "min": 978.0,
+      "max": 1841.3
+    },
+    {
+      "a": 14,
+      "b": 16,
+      "min": 2395.5,
+      "max": 4336.0
+    },
+    {
+      "a": 15,
+      "b": 16,
+      "min": 673.4,
+      "max": 1924.3
+    }
+  ],
+  "umaren_popular": [
+    {
+      "rank": 1,
+      "a": 1,
+      "b": 12,
+      "odds": 12.2,
+      "is_popular": true
+    },
+    {
+      "rank": 2,
+      "a": 12,
+      "b": 13,
+      "odds": 11.5,
+      "is_popular": true
+    },
+    {
+      "rank": 3,
+      "a": 6,
+      "b": 15,
+      "odds": 20.2,
+      "is_popular": true
+    },
+    {
+      "rank": 4,
+      "a": 5,
+      "b": 6,
+      "odds": 33.9,
+      "is_popular": false
+    },
+    {
+      "rank": 5,
+      "a": 9,
+      "b": 12,
+      "odds": 31.9,
+      "is_popular": false
+    },
+    {
+      "rank": 6,
+      "a": 5,
+      "b": 8,
+      "odds": 24.0,
+      "is_popular": false
+    },
+    {
+      "rank": 7,
+      "a": 7,
+      "b": 13,
+      "odds": 30.1,
+      "is_popular": false
+    },
+    {
+      "rank": 8,
+      "a": 1,
+      "b": 3,
+      "odds": 68.0,
+      "is_popular": false
+    },
+    {
+      "rank": 9,
+      "a": 3,
+      "b": 14,
+      "odds": 50.5,
+      "is_popular": false
+    },
+    {
+      "rank": 10,
+      "a": 8,
+      "b": 15,
+      "odds": 77.0,
+      "is_popular": false
+    },
+    {
+      "rank": 11,
+      "a": 6,
+      "b": 12,
+      "odds": 44.5,
+      "is_popular": false
+    },
+    {
+      "rank": 12,
+      "a": 1,
+      "b": 6,
+      "odds": 98.0,
+      "is_popular": false
+    },
+    {
+      "rank": 13,
+      "a": 5,
+      "b": 15,
+      "odds": 83.0,
+      "is_popular": false
+    },
+    {
+      "rank": 14,
+      "a": 5,
+      "b": 12,
+      "odds": 71.1,
+      "is_popular": false
+    },
+    {
+      "rank": 15,
+      "a": 1,
+      "b": 13,
+      "odds": 66.5,
+      "is_popular": false
+    },
+    {
+      "rank": 16,
+      "a": 13,
+      "b": 15,
+      "odds": 86.2,
+      "is_popular": false
+    },
+    {
+      "rank": 17,
+      "a": 3,
+      "b": 5,
+      "odds": 89.9,
+      "is_popular": false
+    },
+    {
+      "rank": 18,
+      "a": 3,
+      "b": 13,
+      "odds": 123.5,
+      "is_popular": false
+    },
+    {
+      "rank": 19,
+      "a": 8,
+      "b": 13,
+      "odds": 91.7,
+      "is_popular": false
+    },
+    {
+      "rank": 20,
+      "a": 4,
+      "b": 13,
+      "odds": 47.3,
+      "is_popular": false
+    },
+    {
+      "rank": 21,
+      "a": 12,
+      "b": 15,
+      "odds": 121.3,
+      "is_popular": false
+    },
+    {
+      "rank": 22,
+      "a": 12,
+      "b": 14,
+      "odds": 60.7,
+      "is_popular": false
+    },
+    {
+      "rank": 23,
+      "a": 3,
+      "b": 15,
+      "odds": 67.5,
+      "is_popular": false
+    },
+    {
+      "rank": 24,
+      "a": 1,
+      "b": 5,
+      "odds": 142.2,
+      "is_popular": false
+    },
+    {
+      "rank": 25,
+      "a": 3,
+      "b": 12,
+      "odds": 105.7,
+      "is_popular": false
+    },
+    {
+      "rank": 26,
+      "a": 10,
+      "b": 14,
+      "odds": 96.7,
+      "is_popular": false
+    },
+    {
+      "rank": 27,
+      "a": 5,
+      "b": 13,
+      "odds": 73.9,
+      "is_popular": false
+    },
+    {
+      "rank": 28,
+      "a": 6,
+      "b": 8,
+      "odds": 200.6,
+      "is_popular": false
+    },
+    {
+      "rank": 29,
+      "a": 1,
+      "b": 2,
+      "odds": 135.7,
+      "is_popular": false
+    },
+    {
+      "rank": 30,
+      "a": 3,
+      "b": 6,
+      "odds": 236.2,
+      "is_popular": false
+    }
+  ],
+  "umatan_popular": [
+    {
+      "rank": 1,
+      "a": 1,
+      "b": 5,
+      "odds": 17.5,
+      "is_popular": true
+    },
+    {
+      "rank": 2,
+      "a": 8,
+      "b": 5,
+      "odds": 25.7,
+      "is_popular": true
+    },
+    {
+      "rank": 3,
+      "a": 2,
+      "b": 3,
+      "odds": 33.2,
+      "is_popular": true
+    },
+    {
+      "rank": 4,
+      "a": 8,
+      "b": 12,
+      "odds": 24.4,
+      "is_popular": false
+    },
+    {
+      "rank": 5,
+      "a": 9,
+      "b": 3,
+      "odds": 51.3,
+      "is_popular": false
+    },
+    {
+      "rank": 6,
+      "a": 2,
+      "b": 16,
+      "odds": 94.6,
+      "is_popular": false
+    },
+    {
+      "rank": 7,
+      "a": 11,
+      "b": 4,
+      "odds": 68.4,
+      "is_popular": false
+    },
+    {
+      "rank": 8,
+      "a": 13,
+      "b": 15,
+      "odds": 43.3,
+      "is_popular": false
+    },
+    {
+      "rank": 9,
+      "a": 1,
+      "b": 15,
+      "odds": 44.6,
+      "is_popular": false
+    },
+    {
+      "rank": 10,
+      "a": 3,
+      "b": 8,
+      "odds": 131.0,
+      "is_popular": false
+    },
+    {
+      "rank": 11,
+      "a": 8,
+      "b": 1,
+      "odds": 134.9,
+      "is_popular": false
+    },
+    {
+      "rank": 12,
+      "a": 5,
+      "b": 1,
+      "odds": 57.8,
+      "is_popular": false
+    },
+    {
+      "rank": 13,
+      "a": 8,
+      "b": 6,
+      "odds": 105.7,
+      "is_popular": false
+    },
+    {
+      "rank": 14,
+      "a": 4,
+      "b": 6,
+      "odds": 177.6,
+      "is_popular": false
+    },
+    {
+      "rank": 15,
+      "a": 13,
+      "b": 10,
+      "odds": 71.1,
+      "is_popular": false
+    },
+    {
+      "rank": 16,
+      "a": 12,
+      "b": 5,
+      "odds": 227.4,
+      "is_popular": false
+    },
+    {
+      "rank": 17,
+      "a": 12,
+      "b": 1,
+      "odds": 100.1,
+      "is_popular": false
+    },
+    {
+      "rank": 18,
+      "a": 3,
+      "b": 5,
+      "odds": 88.9,
+      "is_popular": false
+    },
+    {
+      "rank": 19,
+      "a": 6,
+      "b": 3,
+      "odds": 181.9,
+      "is_popular": false
+    },
+    {
+      "rank": 20,
+      "a": 13,
+      "b": 3,
+      "odds": 212.9,
+      "is_popular": false
+    },
+    {
+      "rank": 21,
+      "a": 3,
+      "b": 1,
+      "odds": 187.7,
+      "is_popular": false
+    },
+    {
+      "rank": 22,
+      "a": 14,
+      "b": 11,
+      "odds": 280.7,
+      "is_popular": false
+    },
+    {
+      "rank": 23,
+      "a": 3,
+      "b": 12,
+      "odds": 304.5,
+      "is_popular": false
+    },
+    {
+      "rank": 24,
+      "a": 11,
+      "b": 7,
+      "odds": 185.9,
+      "is_popular": false
+    },
+    {
+      "rank": 25,
+      "a": 13,
+      "b": 8,
+      "odds": 109.0,
+      "is_popular": false
+    },
+    {
+      "rank": 26,
+      "a": 15,
+      "b": 3,
+      "odds": 206.7,
+      "is_popular": false
+    },
+    {
+      "rank": 27,
+      "a": 6,
+      "b": 8,
+      "odds": 234.5,
+      "is_popular": false
+    },
+    {
+      "rank": 28,
+      "a": 8,
+      "b": 15,
+      "odds": 322.9,
+      "is_popular": false
+    },
+    {
+      "rank": 29,
+      "a": 12,
+      "b": 15,
+      "odds": 239.8,
+      "is_popular": false
+    },
+    {
+      "rank": 30,
+      "a": 12,
+      "b": 13,
+      "odds": 397.6,
+      "is_popular": false
+    }
+  ],
+  "trio_popular": [
+    {
+      "rank": 1,
+      "a": 6,
+      "b": 12,
+      "c": 13,
+      "odds": 13.2,
+      "is_popular": true
+    },
+    {
+      "rank": 2,
+      "a": 5,
+      "b": 8,
+      "c": 15,
+      "odds": 11.2,
+      "is_popular": true
+    },
+    {
+      "rank": 3,
+      "a": 1,
+      "b": 5,
+      "c": 13,
+      "odds": 24.8,
+      "is_popular": true
+    },
+    {
+      "rank": 4,
+      "a": 3,
+      "b": 5,
+      "c": 6,
+      "odds": 21.7,
+      "is_popular": false
+    },
+    {
+      "rank": 5,
+      "a": 1,
+      "b": 3,
+      "c": 12,
+      "odds": 41.6,
+      "is_popular": false
+    },
+    {
+      "rank": 6,
+      "a": 5,
+      "b": 12,
+      "c": 13,
+      "odds": 42.4,
+      "is_popular": false
+    },
+    {
+      "rank": 7,
+      "a": 5,
+      "b": 10,
+      "c": 13,
+      "odds": 60.8,
+      "is_popular": false
+    },
+    {
+      "rank": 8,
+      "a": 3,
+      "b": 6,
+      "c": 12,
+      "odds": 61.0,
+      "is_popular": false
+    },
+    {
+      "rank": 9,
+      "a": 1,
+      "b": 5,
+      "c": 8,
+      "odds": 25.8,
+      "is_popular": false
+    },
+    {
+      "rank": 10,
+      "a": 12,
+      "b": 13,
+      "c": 15,
+      "odds": 28.8,
+      "is_popular": false
+    },
+    {
+      "rank": 11,
+      "a": 4,
+      "b": 6,
+      "c": 8,
+      "odds": 49.4,
+      "is_popular": false
+    },
+    {
+      "rank": 12,
+      "a": 3,
+      "b": 5,
+      "c": 13,
+      "odds": 36.2,
+      "is_popular": false
+    },
+    {
+      "rank": 13,
+      "a": 1,
+      "b": 2,
+      "c": 12,
+      "odds": 36.0,
+      "is_popular": false
+    },
+    {
+      "rank": 14,
+      "a": 8,
+      "b": 11,
+      "c": 14,
+      "odds": 60.8,
+      "is_popular": false
+    },
+    {
+      "rank": 15,
+      "a": 3,
+      "b": 6,
+      "c": 8,
+      "odds": 54.7,
+      "is_popular": false
+    },
+    {
+      "rank": 16,
+      "a": 2,
+      "b": 3,
+      "c": 9,
+      "odds": 130.5,
+      "is_popular": false
+    },
+    {
+      "rank": 17,
+      "a": 3,
+      "b": 6,
+      "c": 13,
+      "odds": 138.7,
+      "is_popular": false
+    },
+    {
+      "rank": 18,
+      "a": 8,
+      "b": 12,
+      "c": 15,
+      "odds": 69.1,
+      "is_popular": false
+    },
+    {
+      "rank": 19,
+      "a": 8,
+      "b": 15,
+      "c": 16,
+      "odds": 151.9,
+      "is_popular": false
+    },
+    {
+      "rank": 20,
+      "a": 1,
+      "b": 6,
+      "c": 15,
+      "odds": 120.0,
+      "is_popular": false
+    },
+    {
+      "rank": 21,
+      "a": 5,
+      "b": 6,
+      "c": 12,
+      "odds": 146.7,
+      "is_popular": false
+    },
+    {
+      "rank": 22,
+      "a": 1,
+      "b": 8,
+      "c": 14,
+      "odds": 145.6,
+      "is_popular": false
+    },
+    {
+      "rank": 23,
+      "a": 8,
+      "b": 10,
+      "c": 11,
+      "odds": 72.5,
+      "is_popular": false
+    },
+    {
+      "rank": 24,
+      "a": 6,
+      "b": 12,
+      "c": 15,
+      "odds": 113.1,
+      "is_popular": false
+    },
+    {
+      "rank": 25,
+      "a": 3,
+      "b": 5,
+      "c": 15,
+      "odds": 130.0,
+      "is_popular": false
+    },
+    {
+      "rank": 26,
+      "a": 1,
+      "b": 13,
+      "c": 15,
+      "odds": 82.1,
+      "is_popular": false
+    },
+    {
+      "rank": 27,
+      "a": 1,
+      "b": 12,
+      "c": 15,
+      "odds": 116.2,
+      "is_popular": false
+    },
+    {
+      "rank": 28,
+      "a": 10,
+      "b": 11,
+      "c": 12,
+      "odds": 189.2,
+      "is_popular": false
+    },
+    {
+      "rank": 29,
+      "a": 5,
+      "b": 12,
+      "c": 15,
+      "odds": 138.3,
+      "is_popular": false
+    },
+    {
+      "rank": 30,
+      "a": 6,
+      "b": 7,
+      "c": 8,
+      "odds": 145.6,
+      "is_popular": false
+    }
+  ],
+  "trifecta_popular": [
+    {
+      "rank": 1,
+      "a": 15,
+      "b": 6,
+      "c": 13,
+      "odds": 13.5,
+      "is_popular": true
+    },
+    {
+      "rank": 2,
+      "a": 11,
+      "b": 9,
+      "c": 1,
+      "odds": 14.1,
+      "is_popular": true
+    },
+    {
+      "rank": 3,
+      "a": 8,
+      "b": 6,
+      "c": 1,
+      "odds": 44.3,
+      "is_popular": true
+    },
+    {
+      "rank": 4,
+      "a": 5,
+      "b": 13,
+      "c": 1,
+      "odds": 44.3,
+      "is_popular": false
+    },
+    {
+      "rank": 5,
+      "a": 8,
+      "b": 15,
+      "c": 3,
+      "odds": 33.9,
+      "is_popular": false
+    },
+    {
+      "rank": 6,
+      "a": 2,
+      "b": 1,
+      "c": 13,
+      "odds": 38.7,
+      "is_popular": false
+    },
+    {
+      "rank": 7,
+      "a": 13,
+      "b": 8,
+      "c": 6,
+      "odds": 52.9,
+      "is_popular": false
+    },
+    {
+      "rank": 8,
+      "a": 6,
+      "b": 1,
+      "c": 4,
+      "odds": 81.0,
+      "is_popular": false
+    },
+    {
+      "rank": 9,
+      "a": 7,
+      "b": 1,
+      "c": 4,
+      "odds": 42.4,
+      "is_popular": false
+    },
+    {
+      "rank": 10,
+      "a": 13,
+      "b": 6,
+      "c": 5,
+      "odds": 135.3,
+      "is_popular": false
+    },
+    {
+      "rank": 11,
+      "a": 12,
+      "b": 6,
+      "c": 13,
+      "odds": 119.5,
+      "is_popular": false
+    },
+    {
+      "rank": 12,
+      "a": 8,
+      "b": 3,
+      "c": 5,
+      "odds": 121.7,
+      "is_popular": false
+    },
+    {
+      "rank": 13,
+      "a": 12,
+      "b": 5,
+      "c": 1,
+      "odds": 54.5,
+      "is_popular": false
+    },
+    {
+      "rank": 14,
+      "a": 3,
+      "b": 15,
+      "c": 6,
+      "odds": 180.6,
+      "is_popular": false
+    },
+    {
+      "rank": 15,
+      "a": 15,
+      "b": 13,
+      "c": 6,
+      "odds": 131.6,
+      "is_popular": false
+    },
+    {
+      "rank": 16,
+      "a": 14,
+      "b": 9,
+      "c": 4,
+      "odds": 243.5,
+      "is_popular": false
+    },
+    {
+      "rank": 17,
+      "a": 13,
+      "b": 1,
+      "c": 8,
+      "odds": 233.9,
+      "is_popular": false
+    },
+    {
+      "rank": 18,
+      "a": 6,
+      "b": 13,
+      "c": 3,
+      "odds": 128.1,
+      "is_popular": false
+    },
+    {
+      "rank": 19,
+      "a": 6,
+      "b": 5,
+      "c": 1,
+      "odds": 276.4,
+      "is_popular": false
+    },
+    {
+      "rank": 20,
+      "a": 8,
+      "b": 15,
+      "c": 5,
+      "odds": 139.6,
+      "is_popular": false
+    },
+    {
+      "rank": 21,
+      "a": 12,
+      "b": 11,
+      "c": 13,
+      "odds": 205.0,
+      "is_popular": false
+    },
+    {
+      "rank": 22,
+      "a": 15,
+      "b": 5,
+      "c": 3,
+      "odds": 90.1,
+      "is_popular": false
+    },
+    {
+      "rank": 23,
+      "a": 16,
+      "b": 13,
+      "c": 10,
+      "odds": 186.1,
+      "is_popular": false
+    },
+    {
+      "rank": 24,
+      "a": 15,
+      "b": 2,
+      "c": 6,
+      "odds": 362.5,
+      "is_popular": false
+    },
+    {
+      "rank": 25,
+      "a": 6,
+      "b": 13,
+      "c": 1,
+      "odds": 177.1,
+      "is_popular": false
+    },
+    {
+      "rank": 26,
+      "a": 8,
+      "b": 13,
+      "c": 15,
+      "odds": 277.5,
+      "is_popular": false
+    },
+    {
+      "rank": 27,
+      "a": 1,
+      "b": 6,
+      "c": 3,
+      "odds": 225.0,
+      "is_popular": false
+    },
+    {
+      "rank": 28,
+      "a": 6,
+      "b": 15,
+      "c": 5,
+      "odds": 340.3,
+      "is_popular": false
+    },
+    {
+      "rank": 29,
+      "a": 15,
+      "b": 14,
+      "c": 4,
+      "odds": 244.0,
+      "is_popular": false
+    },
+    {
+      "rank": 30,
+      "a": 6,
+      "b": 12,
+      "c": 1,
+      "odds": 301.8,
+      "is_popular": false
+    }
+  ]
+}

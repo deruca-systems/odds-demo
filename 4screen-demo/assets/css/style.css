@@ -97,7 +97,6 @@ html {
   color: #ffffff;
   font-size: 0.5208333333vw;
   line-height: 1;
-  font-weight: 500;
 }
 html.single-screen {
   font-size: 1.0416666667vw;
@@ -908,28 +907,6 @@ body {
 screen2
 style
 ----------*/
-html {
-  color: #ffffff;
-  font-size: 0.5208333333vw;
-  line-height: 1;
-  font-weight: 500;
-}
-
-body {
-  margin: 0;
-  background: #0D1117;
-  font-family: "Yu Gothic UI", sans-serif;
-  font-weight: 600;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .screen {
   width: 96rem;
   height: 54rem;
@@ -1099,31 +1076,6 @@ body {
 screen3
 style
 ----------*/
-html {
-  color: #ffffff;
-  font-size: 0.5208333333vw;
-  line-height: 1;
-  font-weight: 500;
-}
-html.single-screen {
-  font-size: 1.0416666667vw;
-}
-
-body {
-  margin: 0;
-  background: #0D1117;
-  font-family: "Yu Gothic UI", sans-serif;
-  font-weight: 600;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .screen {
   width: 96rem;
   height: 54rem;
@@ -1927,28 +1879,6 @@ body {
 header
 style
 ----------*/
-html {
-  color: #ffffff;
-  font-size: 0.5208333333vw;
-  line-height: 1;
-  font-weight: 500;
-}
-
-body {
-  margin: 0;
-  background: #0D1117;
-  font-family: "Yu Gothic UI", sans-serif;
-  font-weight: 600;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .screen,
 .umaren-wide,
 .popular {
@@ -2170,34 +2100,9 @@ body {
 }
 
 /*----------
-race
+screen5
 style
 ----------*/
-html {
-  color: #ffffff;
-  font-size: 0.5208333333vw;
-  line-height: 1;
-  font-weight: 500;
-}
-html.single-screen {
-  font-size: 1.0416666667vw;
-}
-
-body {
-  margin: 0;
-  background: #0D1117;
-  font-family: "Yu Gothic UI", sans-serif;
-  font-weight: 600;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .race-container {
   width: 96rem;
   height: 54rem;
@@ -2262,13 +2167,12 @@ body {
 }
 .race-container .race-screen .race-record {
   display: grid;
-  grid-template-rows: repeat(5, 1fr);
-  height: 14rem;
   margin-bottom: 0.4rem;
 }
 .race-container .race-screen .race-record__row {
   display: grid;
   grid-template-columns: 2rem 2rem 14.2rem 5.2rem 7.5rem;
+  height: 2.8rem;
   border-bottom: 0.1rem solid #000000;
 }
 .race-container .race-screen .race-record__row:nth-child(even) {
@@ -2335,12 +2239,235 @@ body {
   font-family: "Segoe UI", sans-serif;
   font-size: 1.6rem;
   padding-right: 0.4rem;
+  white-space: nowrap;
 }
 .race-container .race-screen .race-record__jockey {
   display: flex;
   align-items: center;
   font-size: 1.6rem;
   padding-left: 0.4rem;
+}
+.race-container .race-screen .payout-board {
+  overflow: hidden;
+}
+.race-container .race-screen .payout-board.race-record3 .payout-board__column {
+  height: 34.4rem;
+}
+.race-container .race-screen .payout-board.race-record4 .payout-board__column {
+  height: 32.4rem;
+}
+.race-container .race-screen .payout-board__column {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 29.6rem;
+}
+.race-container .race-screen .payout-board__column.height-tight .payout-board__item {
+  max-height: 1.8rem;
+  height: 1.8rem;
+}
+.race-container .race-screen .payout-board__column.height-loose .payout-board__item {
+  max-height: 2rem;
+  height: 2rem;
+}
+.race-container .race-screen .payout-board__column--single-col {
+  flex-wrap: nowrap;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__type {
+  width: 5.1rem;
+  font-size: 1.6rem;
+  writing-mode: initial;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__item {
+  grid-template-columns: 11.6rem 1fr;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__price {
+  font-size: 1.8rem;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__price span {
+  font-size: 1.6rem;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__number--rank {
+  grid-template-columns: 7.8rem 1fr;
+  font-size: 1.8rem;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__number--rank .rank-flex span {
+  font-size: 1.6rem;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__number {
+  font-size: 1.8rem;
+  gap: 0.4rem;
+}
+.race-container .race-screen .payout-board__column--single-col .payout-board__number .number-hyphen {
+  font-size: 1.6rem;
+}
+.race-container .race-screen .payout-board__group {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+.race-container .race-screen .payout-board__type {
+  display: grid;
+  place-content: center;
+  width: 2.4rem;
+  color: #ffffff;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+.race-container .race-screen .payout-board__items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 13rem;
+  position: relative;
+}
+.race-container .race-screen .payout-board__items::after {
+  content: "";
+  width: 100%;
+  height: 0.1rem;
+  background-color: #395073;
+  position: absolute;
+  bottom: 0;
+}
+.race-container .race-screen .payout-board__item {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 4.2rem 1fr;
+  align-items: center;
+  max-height: 1.9rem;
+  height: 1.9rem;
+}
+.race-container .race-screen .payout-board__number {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.race-container .race-screen .payout-board__number .number-hyphen {
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+.race-container .race-screen .payout-board__number--rank {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+  text-align: end;
+}
+.race-container .race-screen .payout-board__number--rank .rank-flex {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 0.2rem;
+}
+.race-container .race-screen .payout-board__number--rank .rank-flex span {
+  font-family: "Yu Gothic UI", sans-serif;
+}
+.race-container .race-screen .payout-board__price {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  padding-right: 0.4rem;
+}
+.race-container .race-screen .payout-board__price span {
+  font-family: "Yu Gothic UI", sans-serif;
+}
+.race-container .race-screen .payout-board__footer {
+  display: grid;
+  grid-template-columns: 3.7rem 1fr;
+  height: 2.4rem;
+  border-bottom: 0.1rem solid #395073;
+  background-color: #26364E;
+  padding-right: 0.4rem;
+}
+.race-container .race-screen .payout-board__refund-label {
+  display: grid;
+  place-content: center;
+  color: #FF3333;
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+}
+.race-container .race-screen .payout-board__refund-flex {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1.6rem;
+}
+.race-container .race-screen .payout-board__refund {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+}
+.race-container .race-screen .payout-board__refund span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+}
+.race-container .race-screen .payout-board__group--single .payout-board__type {
+  background-color: #1A2380;
+}
+.race-container .race-screen .payout-board__group--single .payout-board__items {
+  background-color: #0A0E33;
+}
+.race-container .race-screen .payout-board__group--place .payout-board__type {
+  background-color: #005580;
+}
+.race-container .race-screen .payout-board__group--place .payout-board__items {
+  background-color: #002233;
+}
+.race-container .race-screen .payout-board__group--wakuren .payout-board__type {
+  background-color: #562D80;
+}
+.race-container .race-screen .payout-board__group--wakuren .payout-board__items {
+  background-color: #221133;
+}
+.race-container .race-screen .payout-board__group--wakutan .payout-board__type {
+  background-color: #802040;
+}
+.race-container .race-screen .payout-board__group--wakutan .payout-board__items {
+  background-color: #330B17;
+}
+.race-container .race-screen .payout-board__group--umaren .payout-board__type {
+  background-color: #801313;
+}
+.race-container .race-screen .payout-board__group--umaren .payout-board__items {
+  background-color: #330808;
+}
+.race-container .race-screen .payout-board__group--umatan .payout-board__type {
+  background-color: #80562D;
+}
+.race-container .race-screen .payout-board__group--umatan .payout-board__items {
+  background-color: #332212;
+}
+.race-container .race-screen .payout-board__group--wide .payout-board__type {
+  background-color: #807333;
+}
+.race-container .race-screen .payout-board__group--wide .payout-board__items {
+  background-color: #332E14;
+}
+.race-container .race-screen .payout-board__group--trio .payout-board__type {
+  background-color: #64802D;
+}
+.race-container .race-screen .payout-board__group--trio .payout-board__items {
+  background-color: #283312;
+}
+.race-container .race-screen .payout-board__group--trifecta .payout-board__type {
+  background-color: #398045;
+}
+.race-container .race-screen .payout-board__group--trifecta .payout-board__items {
+  background-color: #17331C;
 }
 .race-container .race-screen .race-payout {
   height: 32rem;
@@ -2632,28 +2759,297 @@ body {
   margin-left: -0.2rem;
 }
 .race-container .race-info {
+  padding: 0 0.8rem;
+}
+.race-container .race-info__inner {
   width: 100%;
   height: 3.4rem;
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  overflow: hidden;
 }
-.race-container .race-info p {
+.race-container .race-info__item {
   display: flex;
   align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
   color: #FFBF00;
   font-size: 1.2rem;
   line-height: 1;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
-.race-container .race-info p span {
+.race-container .race-info__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+.race-container .race-info__text span {
   font-family: "Segoe UI", sans-serif;
   letter-spacing: 0;
 }
 .race-container .race-info__icon {
   width: 1.2rem;
   height: 1.2rem;
+}
+
+/*----------
+screen6
+style
+----------*/
+.race-board {
+  --rb-row-alt: #2A3545;
+  --rb-race: #CCFF33;
+  --rb-muted: #94A3B8;
+  --rb-panel-head: #2a3038;
+  --rb-page-bg: #0f1318;
+  width: 96rem;
+  height: 54rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 1rem 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  align-content: start;
+}
+.race-board__col {
+  display: flex;
+  flex-direction: column;
+  height: 53rem;
+}
+.race-board__col--blue {
+  --rb-accent: #2563EB;
+  --rb-track-from: #2563EB1A;
+  --rb-track-border: #2563EB;
+  --rb-head-gradient: linear-gradient(90deg, rgba(37, 99, 235, 0.3) 0%, rgba(37, 99, 235, 0) 100%);
+  --rb-page: #60A5FA;
+}
+.race-board__col--orange {
+  --rb-accent: #FBBF24;
+  --rb-track-from: #D977061A;
+  --rb-track-border: #D97706;
+  --rb-head-gradient: linear-gradient(90deg, rgba(217, 119, 6, 0.3) 0%, rgba(217, 119, 6, 0) 100%);
+  --rb-page: #FBBF24;
+}
+.race-board__col--green {
+  --rb-accent: #10B981;
+  --rb-track-from: #10B9811A;
+  --rb-track-border: #10B981;
+  --rb-head-gradient: linear-gradient(90deg, rgba(16, 185, 129, 0.3) 0%, rgba(16, 185, 129, 0) 100%);
+  --rb-page: #34D399;
+}
+.race-board__track {
+  display: grid;
+  place-content: center;
+  height: 4.3rem;
+  font-size: 2.2rem;
+  color: #ffffff;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border-top: 0.3rem solid var(--rb-track-border);
+  background: var(--rb-track-from);
+}
+.race-board__panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #1C232E;
+  padding: 1.2rem 0.5rem 0;
+}
+.race-board__panel:first-of-type {
+  padding: 0.8rem 0.5rem 0;
+}
+.race-board__panel-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  height: 2.8rem;
+  background: var(--rb-head-gradient);
+  border-left: 0.3rem solid var(--rb-accent);
+  border-radius: 0.3rem 0 0 0.3rem;
+  padding: 0 1.4rem 0 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.race-board__panel-title {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.race-board__panel-page {
+  display: grid;
+  place-content: center;
+  width: 3.5rem;
+  height: 1.8rem;
+  border: 0.1rem solid rgba(255, 255, 255, 0.1019607843);
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0.4rem;
+}
+.race-board__panel-page span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.2rem;
+  color: var(--rb-page);
+}
+.race-board__panel-body {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  height: 11.9rem;
+}
+.race-board__panel-body.body-none {
+  grid-template-rows: 1fr;
+  place-items: center;
+}
+.race-board__panel-body.body-none span {
+  color: #94A3B8;
+  font-size: 1.6rem;
+}
+.race-board__row {
+  display: grid;
+  align-items: center;
+  padding-left: 0.3rem;
+}
+.race-board__row:nth-child(even) {
+  background: var(--rb-row-alt);
+}
+.race-board__row--time {
+  grid-template-columns: 1.9rem 1fr;
+  gap: 1.3rem;
+}
+.race-board__row--entry {
+  grid-template-columns: 1.9rem 3.5rem 2.4rem auto;
+  gap: 0.8rem;
+}
+.race-board__row--jockey {
+  grid-template-columns: 1.9rem 2.4rem auto;
+  gap: 0.8rem;
+}
+.race-board__race {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  color: var(--rb-race);
+  text-align: center;
+}
+.race-board__time-shift {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: "Segoe UI", sans-serif;
+}
+.race-board__time-old {
+  font-size: 1.4rem;
+  color: var(--rb-muted);
+  text-decoration: line-through;
+}
+.race-board__time-new {
+  font-size: 1.6rem;
+}
+.race-board__shift-mark {
+  width: 0.8rem;
+}
+.race-board__badge {
+  display: grid;
+  place-content: center;
+  width: 3.5rem;
+  height: 1.5rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+  border-radius: 0.3rem;
+  border: 0.1rem solid rgba(255, 255, 255, 0.0509803922);
+}
+.race-board__badge--cancel {
+  color: #ffffff;
+  background: #EF4444;
+}
+.race-board__badge--exclude {
+  color: #1C232E;
+  background: #EEFF44;
+}
+.race-board__horse-num {
+  display: grid;
+  place-content: center;
+  width: 2.4rem;
+  height: 1.5rem;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.1rem;
+  color: #f3f4f6;
+  letter-spacing: 0.05em;
+  background: #1E293B;
+  border-radius: 0.3rem;
+  border: 0.1rem solid rgba(255, 255, 255, 0.1490196078);
+}
+.race-board__horse-name {
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.race-board__jockey-change {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 10rem 0.8rem auto;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  margin-left: -0.2rem;
+  white-space: nowrap;
+}
+.race-board__jockey-new {
+  font-size: 1.2rem;
+}
+
+.closing-timer-board {
+  width: 96rem;
+  height: 54rem;
+  display: grid;
+  grid-template-rows: 8.6rem 1fr 8.6rem;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+}
+.closing-timer-board__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4rem;
+  background: linear-gradient(360deg, #1C2431 0%, #0D1117 100%);
+  font-size: 5.6rem;
+}
+.closing-timer-board__arrow {
+  width: 6.4rem;
+  height: 4.1rem;
+}
+.closing-timer-board__race {
+  font-family: "Segoe UI", sans-serif;
+}
+.closing-timer-board__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -2rem;
+}
+.closing-timer-board__label {
+  font-size: 6.4rem;
+}
+.closing-timer-board__minutes {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 38rem;
+  font-weight: 700;
+  color: #FFF200;
+  margin: 0 1.5rem 0 2.2rem;
+}
+.closing-timer-board__close {
+  color: #FFF200;
+  font-size: 8rem;
+}
+.closing-timer-board__foot {
+  display: grid;
+  place-items: center;
+  background: #C00000;
+  font-size: 4.8rem;
+}
+.closing-timer-board__foot.betting-closed {
+  background: linear-gradient(180deg, #1C2431 0%, #0D1117 100%);
 }
 
 /*# sourceMappingURL=style.css.map */

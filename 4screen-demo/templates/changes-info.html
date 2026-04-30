@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja" class="single-screen">
+<head>
+  <meta charset="UTF-8">
+  <title>変更情報</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- changes-info-phase6 (2026-04-30): race-board DOM を screen6.html 準拠に書き換え。
+       インライン style 廃止、race-board*/race-board__col--{color} クラス使用。 -->
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
+  <script src="../assets/js/common.js?v=20260430"></script>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="race-board">
+    <!-- col 0 -->
+    <div class="race-board__col race-board__col--blue" data-col-idx="0">
+      <div class="race-board__track" id="col0-track">---</div>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">発走時刻変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col0-time-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col0-time-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">出走取消・競走除外</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col0-scratch-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col0-scratch-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">騎手変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col0-jockey-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col0-jockey-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- col 1 -->
+    <div class="race-board__col race-board__col--orange" data-col-idx="1">
+      <div class="race-board__track" id="col1-track">---</div>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">発走時刻変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col1-time-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col1-time-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">出走取消・競走除外</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col1-scratch-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col1-scratch-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">騎手変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col1-jockey-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col1-jockey-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- col 2 -->
+    <div class="race-board__col race-board__col--green" data-col-idx="2">
+      <div class="race-board__track" id="col2-track">---</div>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">発走時刻変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col2-time-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col2-time-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">出走取消・競走除外</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col2-scratch-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col2-scratch-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">騎手変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col2-jockey-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col2-jockey-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var D = window.OddsDemo;
+  var POLL_INTERVAL_MS = 30000;
+  var WEEKDAY = ['日','月','火','水','木','金','土'];
+
+  // 曜日文字（display_date: YYYYMMDD）
+  function weekdayOf(yyyymmdd) {
+    if (!/^\d{8}$/.test(yyyymmdd || '')) return '';
+    var y = +yyyymmdd.substr(0,4), m = +yyyymmdd.substr(4,2)-1, d = +yyyymmdd.substr(6,2);
+    return WEEKDAY[new Date(y, m, d).getDay()];
+  }
+
+  // ISO 8601 → HH:MM
+  function isoToHhmm(iso) {
+    if (!iso) return '--:--';
+    var m = /T(\d{2}:\d{2})/.exec(String(iso));
+    return m ? m[1] : '--:--';
+  }
+
+  var PAGE_SIZE        = 6;
+  var PAGE_INTERVAL_MS = 8000;
+
+  // pageState[colIdx][section] = { items: [], buildRow: fn }
+  var SECTIONS = ['time', 'scratch', 'jockey'];
+  var pageState = [0, 1, 2].map(function() {
+    var s = {};
+    SECTIONS.forEach(function(k) { s[k] = { items: [], buildRow: null }; });
+    return s;
+  });
+
+  // 全セクション共通のページカウンタ（一斉切替）
+  var globalPage = 0;
+
+  function totalPages(items) {
+    return Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  }
+
+  function pageIndicator(effectivePage, items) {
+    var total = totalPages(items);
+    return total > 1 ? (effectivePage + 1) + '/' + total : '';
+  }
+
+  function renderSection(colIdx, section) {
+    var state    = pageState[colIdx][section];
+    var items    = state.items;
+    var buildRow = state.buildRow;
+    var bodyEl   = document.getElementById('col' + colIdx + '-' + section + '-body');
+    var pageEl   = document.getElementById('col' + colIdx + '-' + section + '-page');
+
+    if (!bodyEl) return;
+
+    if (!items.length) {
+      bodyEl.className = 'race-board__panel-body body-none';
+      bodyEl.innerHTML = '<span>変更情報はありません</span>';
+      if (pageEl) pageEl.textContent = '';
+      return;
+    }
+
+    var ep    = globalPage % totalPages(items);
+    var slice = items.slice(ep * PAGE_SIZE, (ep + 1) * PAGE_SIZE);
+    bodyEl.className = 'race-board__panel-body';
+    bodyEl.innerHTML = slice.map(buildRow).join('');
+    if (pageEl) pageEl.textContent = pageIndicator(ep, items);
+  }
+
+  function renderAll() {
+    [0, 1, 2].forEach(function(ci) {
+      SECTIONS.forEach(function(sec) { renderSection(ci, sec); });
+    });
+  }
+
+  function advancePage() {
+    var hasMulti = false;
+    [0, 1, 2].forEach(function(ci) {
+      SECTIONS.forEach(function(sec) {
+        if (totalPages(pageState[ci][sec].items) > 1) hasMulti = true;
+      });
+    });
+    if (!hasMulti) return;
+    globalPage++;
+    renderAll();
+  }
+
+  setInterval(advancePage, PAGE_INTERVAL_MS);
+
+  // 発走時刻変更行
+  function buildTimeRow(c) {
+    var d    = c.detail || {};
+    var oldT = isoToHhmm(d.org_post_time_iso) !== '--:--'
+               ? isoToHhmm(d.org_post_time_iso)
+               : (d.old_time || '--:--');
+    var newT = isoToHhmm(d.new_post_time_iso) !== '--:--'
+               ? isoToHhmm(d.new_post_time_iso)
+               : (d.new_time || '--:--');
+    return '<div class="race-board__row race-board__row--time">'
+         +   '<span class="race-board__race">' + (c.rr || '-') + 'R</span>'
+         +   '<div class="race-board__time-shift">'
+         +     '<span class="race-board__time-old">' + oldT + '</span>'
+         +     '<img class="race-board__shift-mark" src="../assets/images/race-board/shift-mark.svg" alt="">'
+         +     '<span class="race-board__time-new">' + newT + '</span>'
+         +   '</div>'
+         + '</div>';
+  }
+
+  // 出走取消・競走除外行
+  function buildScratchRow(c) {
+    var badgeCls = c.chg_type === 2 ? 'race-board__badge--cancel' : 'race-board__badge--exclude';
+    var badgeTxt = c.chg_type === 2 ? '取消' : '除外';
+    return '<div class="race-board__row race-board__row--entry">'
+         +   '<span class="race-board__race">' + (c.rr || '-') + 'R</span>'
+         +   '<span class="race-board__badge ' + badgeCls + '">' + badgeTxt + '</span>'
+         +   '<span class="race-board__horse-num">' + (c.horse_no != null ? c.horse_no : '-') + '</span>'
+         +   '<span class="race-board__horse-name">' + (c.horse_name || '') + '</span>'
+         + '</div>';
+  }
+
+  // 騎手変更行
+  function buildJockeyRow(c) {
+    var det    = c.detail || {};
+    var oldJ   = det.org_jockey_nm  || '-';
+    var newJ   = det.new_jockey_nm  || '未定';
+    var oldFwt = det.org_fwt != null ? ' ' + Number(det.org_fwt).toFixed(1) + 'kg' : '';
+    var newFwt = det.new_fwt != null ? ' ' + Number(det.new_fwt).toFixed(1) + 'kg' : '';
+    var oldGen = det.org_genryokigo || '';
+    var newGen = det.new_genryokigo || '';
+    return '<div class="race-board__row race-board__row--jockey">'
+         +   '<span class="race-board__race">' + (c.rr || '-') + 'R</span>'
+         +   '<span class="race-board__horse-num">' + (c.horse_no != null ? c.horse_no : '-') + '</span>'
+         +   '<div class="race-board__jockey-change">'
+         +     '<span class="race-board__jockey-old">' + oldGen + oldJ + oldFwt + '</span>'
+         +     '<img class="race-board__shift-mark" src="../assets/images/race-board/shift-mark.svg" alt="">'
+         +     '<span class="race-board__jockey-new">' + newGen + newJ + newFwt + '</span>'
+         +   '</div>'
+         + '</div>';
+  }
+
+  function renderColumn(colIdx, data) {
+    // トラック名
+    var trackEl = document.getElementById('col' + colIdx + '-track');
+    if (trackEl) {
+      var placeName = data.place_name || '';
+      var wk = weekdayOf(data.display_date || '');
+      trackEl.textContent = placeName + '競馬' + (wk ? '（' + wk + '）' : '');
+    }
+
+    var changes = (data && data.changes) || [];
+    var buckets = { time: [], scratch: [], jockey: [] };
+    changes.forEach(function(c) {
+      if      (c.chg_type === 4)                   buckets.time.push(c);
+      else if (c.chg_type === 2 || c.chg_type === 3) buckets.scratch.push(c);
+      else if (c.chg_type === 1)                   buckets.jockey.push(c);
+    });
+    ['time','scratch','jockey'].forEach(function(k) {
+      buckets[k].sort(function(a, b) { return (a.rr || 0) - (b.rr || 0); });
+    });
+
+    var map = { time: buildTimeRow, scratch: buildScratchRow, jockey: buildJockeyRow };
+    SECTIONS.forEach(function(sec) {
+      pageState[colIdx][sec].items    = buckets[sec];
+      pageState[colIdx][sec].buildRow = map[sec];
+    });
+    globalPage = 0;
+    renderAll();
+  }
+
+  var urls = [null, null, null];
+
+  async function pollColumn(colIdx) {
+    var url = urls[colIdx];
+    if (!url) return;
+    try {
+      var res = await D.fetchWithOffset(url);
+      if (res && res.data) renderColumn(colIdx, res.data);
+    } catch (_) {}
+  }
+
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'setChangesInfo') return;
+    var cols = e.data.columns || [];
+    urls = cols.slice(0, 3).map(function(c) { return c.url; });
+    while (urls.length < 3) urls.push(null);
+    urls.forEach(function(_, i) { pollColumn(i); });
+  });
+
+  setInterval(function() {
+    urls.forEach(function(_, i) { if (urls[i]) pollColumn(i); });
+  }, POLL_INTERVAL_MS);
+})();
+</script>
+
+</body>
+</html>

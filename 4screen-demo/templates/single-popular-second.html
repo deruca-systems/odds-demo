@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>人気順16-30 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
   <link rel="stylesheet" href="../assets/css/demo-helpers.css">
-  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20260422c"></script>
 </head>
 <body>
 
@@ -66,6 +66,7 @@
 (function() {
   window.OddsDemo.ensureCutinTemplate(); // カットインテンプレを先行取得（fire-and-forget）
   var D = window.OddsDemo;
+  var currentOrganizer = null;
   var dataUrl = null;
   var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
   var lastData = null;
@@ -95,7 +96,7 @@
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
       } else {
         var winClass = winCls[h.horse_no] || '';
-        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds)));
+        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', currentOrganizer)));
       }
       fragment.appendChild(row);
     });
@@ -126,7 +127,7 @@
       }
       row.appendChild(comb);
       var popular = entry && D.isTopPopular(entry.rank);
-      var odds = D.el('div', 'popular-table__odds' + (popular ? ' odds-popular' : ''), entry ? D.fmtOdds(entry.odds) : '0.0');
+      var odds = D.el('div', 'popular-table__odds' + (popular ? ' odds-popular' : ''), entry ? D.fmtOdds(entry.odds, 'exacta', currentOrganizer) : '0.0');
       row.appendChild(odds);
       fragment.appendChild(row);
     }
@@ -135,6 +136,7 @@
 
   function render(data) {
     var race = data.race || {};
+    currentOrganizer = (data && data.race) ? data.race.organizer_type : null;
     var horses = data.horses || [];
 
     lastData = data;
@@ -181,7 +183,9 @@
   window.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
-      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
+      //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
+      //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       startPolling();
     }
   });

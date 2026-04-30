@@ -1,0 +1,113 @@
+{
+  "server_time": "2026-04-21T14:12:44+09:00",
+  "monitor_id": 118,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:12:44+09:00",
+      "end_time": "2026-04-30T14:17:44+09:00",
+      "layout": "4split",
+      "display_pattern_id": 10,
+      "display_pattern_name": "4分割 全パターン一覧（NORMAL + A-H + 出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/entries-results-3r.html",
+          "races": [
+            {
+              "race_id": "NAR_49_01",
+              "race_key": "名古屋1R / NORMAL",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "results/20260430/NAR_49_01.json"
+            },
+            {
+              "race_id": "NAR_49_04",
+              "race_key": "名古屋4R / A",
+              "post_time_iso": "2026-04-30T14:45:44+09:00",
+              "data_source": "results/20260430/NAR_49_04.json"
+            },
+            {
+              "race_id": "NAR_49_07",
+              "race_key": "名古屋7R / B",
+              "post_time_iso": "2026-04-30T15:15:44+09:00",
+              "data_source": "results/20260430/NAR_49_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/entries-results-3r.html",
+          "races": [
+            {
+              "race_id": "NAR_49_10",
+              "race_key": "名古屋10R / C",
+              "post_time_iso": "2026-04-30T15:45:44+09:00",
+              "data_source": "results/20260430/NAR_49_10.json"
+            },
+            {
+              "race_id": "NAR_30_01",
+              "race_key": "門別1R / D",
+              "post_time_iso": "2026-04-30T16:15:44+09:00",
+              "data_source": "results/20260430/NAR_30_01.json"
+            },
+            {
+              "race_id": "NAR_30_04",
+              "race_key": "門別4R / E",
+              "post_time_iso": "2026-04-30T16:45:44+09:00",
+              "data_source": "results/20260430/NAR_30_04.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "template": "templates/entries-results-3r.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R / F",
+              "post_time_iso": "2026-04-30T17:15:44+09:00",
+              "data_source": "results/20260430/NAR_30_07.json"
+            },
+            {
+              "race_id": "NAR_30_10",
+              "race_key": "門別10R / G",
+              "post_time_iso": "2026-04-30T17:45:44+09:00",
+              "data_source": "results/20260430/NAR_30_10.json"
+            },
+            {
+              "race_id": "JRA_09_10",
+              "race_key": "阪神10R / H",
+              "post_time_iso": "2026-04-30T18:15:44+09:00",
+              "data_source": "results/20260430/JRA_09_10.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "template": "templates/entries-results-3r.html",
+          "races": [
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R / 出走表",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "results/20260430/NAR_45_01.json"
+            },
+            {
+              "race_id": "NAR_45_02",
+              "race_key": "船橋2R / 出走表",
+              "post_time_iso": "2026-04-30T14:45:44+09:00",
+              "data_source": "results/20260430/NAR_45_02.json"
+            },
+            {
+              "race_id": "NAR_45_03",
+              "race_key": "船橋3R / 出走表",
+              "post_time_iso": "2026-04-30T15:15:44+09:00",
+              "data_source": "results/20260430/NAR_45_03.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

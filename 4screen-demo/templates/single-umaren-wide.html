@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
   <link rel="stylesheet" href="../assets/css/demo-helpers.css">
-  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20260422c"></script>
 </head>
 <body>
 
@@ -47,6 +47,7 @@
 (function() {
   window.OddsDemo.ensureCutinTemplate(); // カットインテンプレを先行取得（fire-and-forget）
   var D = window.OddsDemo;
+  var currentOrganizer = null;
   var dataUrl = null;
   var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
   var pageTimer = null;
@@ -128,13 +129,13 @@
 
       var umaren = getPairOdds(umarenMap, axisHorse.horse_no, opp);
       var umarenCls = 'race-table__umaren' + (umaren && D.isUmarenUnpopular(umaren.odds) ? ' unpopular' : '');
-      row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOdds(umaren.odds) : '-'));
+      row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOdds(umaren.odds, 'quinella', currentOrganizer) : '-'));
 
       var wideCell = D.el('div', 'race-table__wide');
       var wide = getPairOdds(wideMap, axisHorse.horse_no, opp);
-      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.min) : '-'));
+      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.min, 'wide', currentOrganizer) : '-'));
       wideCell.appendChild(D.el('span', null, '-'));
-      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.max) : '-'));
+      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.max, 'wide', currentOrganizer) : '-'));
       row.appendChild(wideCell);
 
       return row;
@@ -218,6 +219,7 @@
 
   function render(data) {
     var race = data.race || {};
+    currentOrganizer = (data && data.race) ? data.race.organizer_type : null;
     var horses = data.horses || [];
 
     lastData = data;
@@ -273,7 +275,9 @@
   window.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
-      if (typeof e.data.baseOffset === 'number') serverOffsetMs = e.data.baseOffset;
+      // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
+      //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
+      //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       if (e.data.page) forcedPage = e.data.page;
       startPolling();
     }

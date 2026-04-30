@@ -1,0 +1,219 @@
+{
+  "server_time": "2026-04-30T14:00:06+09:00",
+  "race_id": "NAR_49_02",
+  "race_key": "名古屋2R",
+  "organizer_type": "NAR",
+  "place_cd": "49",
+  "place_name": "名古屋",
+  "rr": 2,
+  "display_date": "20260430",
+  "odds_status": 1,
+  "dead_heat_pattern": "NORMAL",
+  "entries": [
+    {
+      "rank": 1,
+      "frame_no": 1,
+      "horse_no": 1,
+      "horse_name": "ロードトレイル",
+      "jockey": "小沢大仁",
+      "genryokigo": null,
+      "time": "5:49.9",
+      "margin_name": null,
+      "frame_color_class": "number-white",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 2,
+      "frame_no": 2,
+      "horse_no": 2,
+      "horse_name": "フリートストリートダンサー",
+      "jockey": "丸山元気",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "クビ",
+      "frame_color_class": "number-black",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 3,
+      "frame_no": 3,
+      "horse_no": 3,
+      "horse_name": "エコロマーズ",
+      "jockey": "菊澤一樹",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "1/2",
+      "frame_color_class": "number-red",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 4,
+      "frame_no": 4,
+      "horse_no": 4,
+      "horse_name": "ハートホイップ",
+      "jockey": "黛弘人",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "1 1/2",
+      "frame_color_class": "number-blue",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 5,
+      "frame_no": 5,
+      "horse_no": 5,
+      "horse_name": "レオテミス",
+      "jockey": "石田拓郎",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "1 1/4",
+      "frame_color_class": "number-yellow",
+      "is_dead_heat": false,
+      "accident_type": null
+    }
+  ],
+  "payouts": {
+    "bet_order": [
+      "win",
+      "place",
+      "frame_quinella",
+      "frame_exacta",
+      "quinella",
+      "exacta",
+      "wide",
+      "trio",
+      "trifecta"
+    ],
+    "win": [
+      {
+        "combination": "1",
+        "combination_type": "wn",
+        "amount": 300,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "place": [
+      {
+        "combination": "1",
+        "combination_type": "pe",
+        "amount": 340,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "1着"
+      },
+      {
+        "combination": "2",
+        "combination_type": "pe",
+        "amount": 390,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "2着"
+      },
+      {
+        "combination": "3",
+        "combination_type": "pe",
+        "amount": 140,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "3着"
+      }
+    ],
+    "frame_quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "bq",
+        "amount": 1980,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "frame_exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "be",
+        "amount": 2150,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "qa",
+        "amount": 1720,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "ea",
+        "amount": 1310,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "wide": [
+      {
+        "combination": "1-2",
+        "combination_type": "wd",
+        "amount": 310,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "wd",
+        "amount": 500,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-4",
+        "combination_type": "wd",
+        "amount": 470,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trio": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "to",
+        "amount": 24500,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trifecta": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "ta",
+        "amount": 352790,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ]
+  },
+  "refund": {
+    "horse_no_bitmap": "000000000000000000",
+    "bracket_no_bitmap": "00000000",
+    "same_bracket_bitmap": null
+  }
+}

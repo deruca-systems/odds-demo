@@ -1,0 +1,41 @@
+{
+  "server_time": "2026-04-21T14:12:44+09:00",
+  "monitor_id": 123,
+  "display_date": "20260430",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-30T14:12:44+09:00",
+      "end_time": "2026-04-30T14:17:44+09:00",
+      "layout": "1screen",
+      "display_pattern_id": 12,
+      "display_pattern_name": "変更情報（3場並列）",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/changes-info.html",
+          "races": [
+            {
+              "race_id": "NAR_45",
+              "race_key": "船橋",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "changes/20260430/NAR_45.json"
+            },
+            {
+              "race_id": "NAR_49",
+              "race_key": "名古屋",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "changes/20260430/NAR_49.json"
+            },
+            {
+              "race_id": "NAR_41",
+              "race_key": "佐賀",
+              "post_time_iso": "2026-04-30T14:15:44+09:00",
+              "data_source": "changes/20260430/NAR_41.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
