@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>単勝・複勝・枠連 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/demo-helpers.css">
-  <script src="../assets/js/common.js?v=20260422c"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
+  <link rel="stylesheet" href="../assets/css/demo-helpers.css?v=20260430s3">
+  <script src="../assets/js/common.js?v=20260430s3"></script>
 </head>
 <body>
 
@@ -51,10 +51,13 @@
         <div class="frame-odds__head"><div>枠連</div></div>
         <div class="frame-odds__body" id="frameOddsBody"></div>
       </div>
-      <!-- H-03 (2026-04-19): 枠単ブロック（初期非表示、15秒ごとに枠連と自動切替） -->
-      <div class="frame-utan" id="frame-utan" style="display:none;">
-        <div class="frame-utan__head"><div>枠単</div></div>
-        <div class="frame-utan__wrapper" id="frameUtanWrapper"></div>
+      <!-- H-03 (2026-04-19): 枠単ブロック（初期非表示、15秒ごとに枠連と自動切替）
+           2026-04-30 session3 修正: クラス名を芥川 design.zip 準拠の `frame-umatan` に統一
+             （旧 `frame-utan` は style.css に対応 CSS が無く崩れの原因だったため）。
+           ID `frame-utan` / `frameUtanWrapper` は JS 参照のため変更しない。 -->
+      <div class="frame-umatan" id="frame-utan" style="display:none;">
+        <div class="frame-umatan__head"><div>枠単</div></div>
+        <div class="frame-umatan__wrapper" id="frameUtanWrapper"></div>
       </div>
     </div>
   </div>

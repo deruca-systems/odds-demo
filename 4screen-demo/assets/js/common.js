@@ -318,7 +318,9 @@ function computeFramePopular(frameOdds) {
 // 各 body は「frame 列（ヘッダー9セル）+ 4枠分の block（各9セル）」の5カラム grid。
 // block 内: label（軸枠）+ frame 1〜8 のオッズ 8セル = 9行。
 // utanData: race.frame_utan（8×8=64件の配列）
-// wrapperEl:  '.frame-utan__wrapper' 要素
+// wrapperEl:  '.frame-umatan__wrapper' 要素
+// 2026-04-30 session3 修正: クラス名を芥川 design.zip 準拠の `frame-umatan` に統一
+//   （旧 `frame-utan` は style.css に対応 CSS が無く崩れの原因だったため）。
 function renderFrameUtan(utanData, wrapperEl, organizer) {
   if (!wrapperEl) return;
   var matrix = {};
@@ -330,24 +332,24 @@ function renderFrameUtan(utanData, wrapperEl, organizer) {
 
   // 上段（1-4枠）・下段（5-8枠）の2 body
   [[1, 2, 3, 4], [5, 6, 7, 8]].forEach(function(frameGroup) {
-    var body = el('div', 'frame-utan__body');
+    var body = el('div', 'frame-umatan__body');
 
     // 列ヘッダー（frame 列）: 空セル + 1〜8
-    var frameRow = el('div', 'frame-utan__frame');
-    frameRow.appendChild(el('div', 'frame-utan__number'));
+    var frameRow = el('div', 'frame-umatan__frame');
+    frameRow.appendChild(el('div', 'frame-umatan__number'));
     for (var fb = 1; fb <= 8; fb++) {
-      frameRow.appendChild(el('div', 'frame-utan__number', fb));
+      frameRow.appendChild(el('div', 'frame-umatan__number', fb));
     }
     body.appendChild(frameRow);
 
     // 軸枠ごとの block
     frameGroup.forEach(function(fa) {
       var blockCls = FRAME_BLOCK_CLASS[fa] || '';
-      var block = el('div', 'frame-utan__block ' + blockCls);
-      block.appendChild(el('div', 'frame-utan__label', fa));
+      var block = el('div', 'frame-umatan__block ' + blockCls);
+      block.appendChild(el('div', 'frame-umatan__label', fa));
       for (var fb2 = 1; fb2 <= 8; fb2++) {
         var entry = matrix[fa + '-' + fb2];
-        var item = el('div', 'frame-utan__item');
+        var item = el('div', 'frame-umatan__item');
         if (entry) {
           item.textContent = fmtOdds(entry.odds, 'frame_exacta', organizer);
           if (entry.is_popular) item.classList.add('value-popular');
