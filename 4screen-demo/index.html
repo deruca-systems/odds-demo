@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>4画面JSONポーリングサンプル（親フレーム）</title>
 <meta name="viewport" content="width=1920">
+<!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
+<script src="assets/js/config.js"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
 <script src="assets/js/common.js"></script>
 <style>
@@ -140,7 +142,7 @@
   var SCHEDULE_POLL_SEC = 30;   // スケジュールJSONポーリング（秒、本番デフォルト）
   var ODDS_POLL_SEC     = 30;   // 子テンプレのオッズJSONポーリング（秒、本番デフォルト）
   var NEXT_RACE_DELAY_SEC = 60; // 発走時刻+N秒で次レース遷移（H-04 Phase 1 §1 合意値）
-  var FRAME_UMATAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
+  var FRAME_UTAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
   var SLOT_TICK_SEC     = 5;    // 時間帯切替の検査間隔（秒）- 1秒tickではなく5秒で十分
   var DISPLAY_TICK_SEC  = 1;    // 情報バー表示更新（秒）。サーバ負荷には関与しない。
 
@@ -148,7 +150,8 @@
   //   ?schedule_poll=5   スケジュールpoll秒（最優先）
   //   ?odds_poll=5       オッズpoll秒（最優先）
   //   ?next_race_sec=5   次レース遷移秒（最優先）
-  //   ?monitor=0101      端末番号
+  //   ?monitor=101       端末番号（INT、既定 101。path-date-folder 2026-04-20 で 0101→101）
+  //   ?date=20260420     開催日（YYYYMMDD、任意、未指定時は端末時刻の暦日）
   //   ?fast=1            デモ用モード: 短縮スケジュール版 + ポーリング10秒 + 次レース遷移5秒
   var USE_FAST = false;
   (function applyQuery() {
@@ -181,8 +184,29 @@
     return n ? document.getElementById('frame' + n) : null;
   }
 
-  var MONITOR_ID = (new URLSearchParams(location.search)).get('monitor') || '0101';
-  var SCHEDULE_URL = 'data/schedule_' + MONITOR_ID + (USE_FAST ? '_fast' : '') + '.json';
+  // path-date-folder (2026-04-20): v0.5 §1.5 準拠。
+  //   MONITOR_ID は INT（ゼロ埋めなし）。デフォルトは 101（旧 0101）。
+  //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
+  //   ?date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
+  var MONITOR_ID = (new URLSearchParams(location.search)).get('monitor') || '101';
+  // === BEGIN: TEMPORARY-MIGRATION-COMPAT (本番不要、後方互換用) ===
+  // 2026-04-30 session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
+  // path-date-folder 移行後の 3 桁形式（'101', '102'）に正規化する。
+  // 本番運用開始時（旧 URL の utilization が無くなった時点）にこのブロックを削除すること。
+  if (/^0\d{3}$/.test(MONITOR_ID)) MONITOR_ID = String(Number(MONITOR_ID));
+  // === END: TEMPORARY-MIGRATION-COMPAT ===
+  var DISPLAY_DATE = (function() {
+    var q = (new URLSearchParams(location.search)).get('date');
+    if (q && /^\d{8}$/.test(q)) return q;
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    return y + (m < 10 ? '0' : '') + m + (day < 10 ? '0' : '') + day;
+  })();
+  // url-config-separation (2026-04-20): URL 組み立ては DERUCA_CONFIG に委譲。
+  //   baseUrl 空文字（プロト）→ 相対パスそのまま。baseUrl 有り（本番）→ 絶対 URL 化。
+  var SCHEDULE_URL = DERUCA_CONFIG.buildScheduleUrl(DISPLAY_DATE, MONITOR_ID, USE_FAST);
 
   // 指示書09 T5-3: layout 値 → CSS クラス
   var LAYOUT_CLASS_MAP = {
@@ -201,61 +225,17 @@
     gridEl.classList.add(cls);
   }
 
-  // === BEGIN: TECH-VERIFICATION-ONLY ===
-  // 地方競馬ライブ映像 HLS ベースURL（指示書09 T5-1）
-  // 権利処理未完了。本番実装時は NAR との商用利用契約後に正式URLを設定すること。
-  //
-  // 2026-04-17 修正: パスを `/hls-live/keiba/_definst_/liveevent/` → `/keiba/nar/live/` に変更。
-  //   旧パスはサブプレイリスト（各品質）用で、マスタープレイリスト（EXT-X-STREAM-INF）は
-  //   新パス `/keiba/nar/live/` に存在する。旧パスを直接叩くと manifestLoadError で再生不可。
-  //   参考: simple.keiba-lv-st.jp が使用している URL = https://movie61auhrn2-3.keiba-racing.jp/keiba/nar/live/ooi_https.m3u8
-  var VIDEO_URL_BASE =
-    'https://movie61auhrn2-3.keiba-racing.jp/keiba/nar/live/';
-
-  var VENUE_CODE_MAP = {
-    'monbetsu':  'monbetsu',   // 門別（確認済）
-    'ooi':       'ooi',        // 大井（確認済）
-    'sonoda':    'sonoda',     // 園田（VOD URLから推測）
-    // 以下は推測。本番稼働前に実際のURLで検証必要
-    'obihiro':   'obihiro',
-    'morioka':   'morioka',
-    'mizusawa':  'mizusawa',
-    'urawa':     'urawa',
-    'funabashi': 'funabashi',
-    'kawasaki':  'kawasaki',
-    'kanazawa':  'kanazawa',
-    'kasamatsu': 'kasamatsu',
-    'nagoya':    'nagoya',
-    'himeji':    'himeji',
-    'kouchi':    'kouchi',
-    'saga':      'saga'
-  };
-
-  // 指示書09 T5-2: 動画URL組み立て
-  // video_source_override が指定されていればそれを優先（開発時の疎通確認用・デモ HLS 差替）。
-  // NAR 正式URLが権利処理未完了のため、開発時は公開 HLS テストストリームを充てる運用。
-  function buildVideoUrl(frame) {
-    if (frame.video_source_override) {
-      return frame.video_source_override;
-    }
-    var venueCode = VENUE_CODE_MAP[frame.venue_code];
-    if (!venueCode) {
-      console.error('Unknown venue_code:', frame.venue_code);
-      return null;
-    }
-    if (frame.quality_mode === 'fixed' && frame.quality_fixed) {
-      return VIDEO_URL_BASE + venueCode + frame.quality_fixed + '.m3u8';
-    }
-    // auto モード: マスタープレイリスト
-    return VIDEO_URL_BASE + venueCode + '_https.m3u8';
-  }
-  // === END: TECH-VERIFICATION-ONLY ===
+  // url-config-separation (2026-04-20): 動画 URL・場コード対応は assets/js/config.js に集約。
+  //   旧 VIDEO_URL_BASE / VENUE_CODE_MAP / buildVideoUrl は DERUCA_CONFIG.video.* と
+  //   DERUCA_CONFIG.buildVideoUrl() に移行（本ファイルからは削除）。
+  //   呼び出し側: applyVideoScreen 内で DERUCA_CONFIG.buildVideoUrl(cfg) を使用。
 
   // ---- 状態 ----
   // H-04 (2026-04-17): screens[] 構造対応のため状態を刷新。
   //   screenStates は slot 切替時に再構築され、各画面の独立 race 進行を管理する。
-  var serverOffset = 0;
-  var offsetFixed = false;           // serverOffset を最初の1回だけで確定させる
+  // server_time-fix-v3 (2026-04-20): serverOffset は HTTP Date+Age ヘッダから
+  //   毎 fetch 再計算し、全子 iframe へ broadcast する。offsetFixed は撤去。
+  var serverOffset = 0;              // HTTP Date+Age から毎fetch更新、子iframe に broadcast
   var currentSchedule = null;
   var currentSlotId = null;
   var screenStates = [];             // [{position, template, type, races, currentRaceIndex, currentRaceId, lastTransitionMs, iframeEl, videoConfig}, ...]
@@ -284,31 +264,61 @@
   }
 
   // ---- スケジュール取得 ----
-  // 指示書07: AbortController による 10秒タイムアウト追加。共通 fetchWithOffset とは別実装の
-  // 理由は、親は offsetFixed（初回のみ offset 確定）という固有ロジックが必要なため。
+  // server_time-fix-v3 (2026-04-20): HTTP Date + Age ヘッダから serverOffset を毎 fetch 再計算、
+  //   全子 iframe へ broadcast する中央集権型同期方式に刷新。
+  //   - { cache: 'no-cache' } でブラウザキャッシュ再検証を強制（If-None-Match 付与、304 応答可）
+  //   - ?t= クエリは撤去（CloudFront CachingOptimized のキャッシュキー同一性を享受）
+  //   - data.server_time は補正に使用しない（監査用途でフィールド自体は継続出力）
+  //   - Date 欠落時は serverOffset=0、Age 欠落時は Age=0 として扱う
   async function fetchSchedule() {
     var t0 = Date.now();
     var controller = new AbortController();
     var timer = setTimeout(function() { controller.abort(); }, 10000);
     try {
-      var res = await fetch(SCHEDULE_URL + '?t=' + t0, { signal: controller.signal });
+      var res = await fetch(SCHEDULE_URL, {
+        signal: controller.signal,
+        cache: 'no-cache'
+      });
       if (!res.ok) throw new Error('schedule HTTP ' + res.status);
       var data = await res.json();
       var t1 = Date.now();
       var clientTime = t0 + (t1 - t0) / 2;
-      // offset は「最初の1回だけ」固定する。
-      // 静的JSONではserver_timeが更新されないため、毎回再計算するとサーバ時刻が凍結する。
-      if (!offsetFixed && data.server_time) {
-        var srv = Date.parse(data.server_time);
-        if (!isNaN(srv)) {
-          serverOffset = srv - clientTime;
-          offsetFixed = true;
+
+      // HTTP Date + Age から serverOffset 算出（CloudFront キャッシュ経由でも正確）
+      var dateHeader = res.headers.get('Date');
+      if (dateHeader) {
+        var dateMs = Date.parse(dateHeader);
+        if (!isNaN(dateMs)) {
+          var ageSec = Number(res.headers.get('Age')) || 0;
+          var serverNow = dateMs + ageSec * 1000;
+          serverOffset = serverNow - clientTime;
+          // 全子 iframe に broadcast（定期更新）
+          broadcastServerOffsetToChildren();
         }
       }
+      // Date ヘッダ欠落時は serverOffset を更新しない（前回値 or 初期値 0 を維持）
       return data;
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  // server_time-fix-v3: 全子 iframe に serverOffset を通知
+  function broadcastServerOffsetToChildren() {
+    [1, 2, 3, 4].forEach(function(pos) {
+      var iframe = document.getElementById('frame' + pos);
+      if (!iframe || !iframe.contentWindow) return;
+      sendServerOffsetTo(iframe.contentWindow);
+    });
+  }
+
+  function sendServerOffsetTo(win) {
+    try {
+      win.postMessage({
+        type: 'setServerOffset',
+        offset: serverOffset
+      }, '*');
+    } catch (_) {}
   }
 
   // ---- screen iframe 反映（H-04 新構造） ----
@@ -374,14 +384,18 @@
         lastTransitionMs: 0,
         iframeEl: getIframeByPosition(screen.position),
         videoConfig: null,
+        // Phase 5 (2026-04-22): ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
+        //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
+        //   値あれば iframe の :root CSS 変数 --race-header-bg に #HEX を注入する。
+        back_color_code: screen.back_color_code || null,
         // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
         //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
         //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
-        //   hasFrameUmatan: 子 iframe からの通知で更新される枠単発売有無フラグ。
+        //   hasFrameUtan: 子 iframe からの通知で更新される枠単発売有無フラグ。
         //     発売なし時は checkFrameOddsPaging がスキップされ、枠連のみ表示される。
         frameOddsPage: 'uren',
         frameOddsPageTick: 0,
-        hasFrameUmatan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
+        hasFrameUtan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
       };
       if (state.type === 'video') {
         state.videoConfig = {
@@ -403,6 +417,19 @@
       applyVideoScreen(state);
       return;
     }
+    // 3R/6R-entries-results (phase2/4, 2026-04-21): display_pattern_id=10/11
+    //   1 iframe で 3 or 6 レース分を並列描画するため、専用ディスパッチャに分岐。
+    if (state.template === 'templates/entries-results-3r.html'
+     || state.template === 'templates/entries-results-6r.html') {
+      applyEntriesResultsScreen(state);
+      return;
+    }
+    // changes-info (phase5, 2026-04-22): display_pattern_id=12（変更情報）
+    //   1 iframe で 3 場分の changes JSON を並列描画する専用ディスパッチャ。
+    if (state.template === 'templates/changes-info.html') {
+      applyChangesInfoScreen(state);
+      return;
+    }
     state.currentRaceIndex = getInitialRaceIndex(state.races, correctedNow());
     if (state.currentRaceIndex >= 0) {
       state.currentRaceId = state.races[state.currentRaceIndex].race_id;
@@ -410,34 +437,126 @@
     applyOddsScreen(state);
   }
 
+  // 3R-entries-results-phase2 (2026-04-21): 3 レース分の data_source を子 iframe へ postMessage で送信。
+  //   既存の applyOddsScreen は 1 レース単位で動作するため、本関数で bundle 送信する。
+  //   子テンプレ (entries-results-3r.html) は受信後、各列で results → odds フォールバック fetch を行う。
+  function applyEntriesResultsScreen(state) {
+    var iframe = state.iframeEl;
+    if (!iframe) return;
+    var childQuery = buildChildQuery();
+    var templateChanged = iframe.getAttribute('data-template') !== state.template;
+    if (templateChanged) {
+      iframe.setAttribute('data-template', state.template);
+      iframe.removeAttribute('data-sig');
+      iframe.src = state.template + childQuery;
+      iframe.onload = (function(races) {
+        return function() {
+          sendEntriesResultsPayload(iframe, races);
+        };
+      })(state.races);
+    } else {
+      // iframe 再利用時（slot 切替で再割当など）は即時 postMessage
+      sendEntriesResultsPayload(iframe, state.races);
+    }
+  }
+
+  // changes-info-phase5 (2026-04-22): 3 場分の changes JSON 参照 URL を postMessage 送信。
+  //   race.data_source には `changes/{YYYYMMDD}/{ORG}_{PP}.json` を指定する想定。
+  function applyChangesInfoScreen(state) {
+    var iframe = state.iframeEl;
+    if (!iframe) return;
+    var childQuery = buildChildQuery();
+    var templateChanged = iframe.getAttribute('data-template') !== state.template;
+    if (templateChanged) {
+      iframe.setAttribute('data-template', state.template);
+      iframe.removeAttribute('data-sig');
+      iframe.src = state.template + childQuery;
+      iframe.onload = (function(races) {
+        return function() { sendChangesInfoPayload(iframe, races); };
+      })(state.races);
+    } else {
+      sendChangesInfoPayload(iframe, state.races);
+    }
+  }
+
+  function sendChangesInfoPayload(iframe, races) {
+    try {
+      iframe.contentWindow.postMessage({
+        type: 'setChangesInfo',
+        columns: (races || []).slice(0, 3).map(function(race) {
+          return {
+            race_id: race.race_id,
+            race_key: race.race_key,
+            url: DERUCA_CONFIG.resolveDataSource(race.data_source)
+          };
+        })
+      }, '*');
+    } catch (_) {}
+  }
+
+  function sendEntriesResultsPayload(iframe, races) {
+    try {
+      // 6R-entries-results-phase4 (2026-04-21): テンプレに応じて 3R / 6R を自動判定。
+      //   entries-results-6r.html なら 6 件まで送信、それ以外（3R テンプレ等）は 3 件まで。
+      var tmpl = iframe.getAttribute('data-template') || '';
+      var is6r = tmpl.indexOf('entries-results-6r') >= 0;
+      var limit = is6r ? 6 : 3;
+      var type  = is6r ? 'setEntriesResults6r' : 'setEntriesResults3r';
+      iframe.contentWindow.postMessage({
+        type: type,
+        races: (races || []).slice(0, limit).map(function(race) {
+          return {
+            race_id: race.race_id,
+            race_key: race.race_key,
+            post_time_iso: race.post_time_iso,
+            url: DERUCA_CONFIG.resolveDataSource(race.data_source)
+          };
+        })
+      }, '*');
+    } catch (_) {}
+  }
+
   // odds screen: template を iframe に読み込み、data_source を postMessage で通知
   function applyOddsScreen(state) {
     var iframe = state.iframeEl;
     if (!iframe) return;
     var race = state.currentRaceIndex >= 0 ? state.races[state.currentRaceIndex] : null;
-    var dataUrl = race ? '../' + race.data_source : null;
+    // url-config-separation (2026-04-20): data_source 解決は DERUCA_CONFIG に委譲。
+    var dataUrl = race ? DERUCA_CONFIG.resolveDataSource(race.data_source) : null;
     var childQuery = buildChildQuery();
     if (iframe.getAttribute('data-template') !== state.template) {
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(d) {
+      iframe.onload = (function(d, bg) {
         return function() {
+          // Phase 5: iframe の :root に背景色を注入（schedule 側で設定された場合）。
+          //   CSS 変数 + class 方式。class 'has-custom-bg' が付与された html 配下で
+          //   style.css の該当ルールが var(--race-header-bg) を採用する。
+          if (bg) {
+            try {
+              var d2 = iframe.contentDocument;
+              d2.documentElement.style.setProperty('--race-header-bg', '#' + bg);
+              d2.documentElement.classList.add('has-custom-bg');
+            } catch (_) {}
+          }
           if (!d) return;
           try {
             iframe.contentWindow.postMessage({
-              type: 'setDataUrl', url: d, baseOffset: serverOffset
+              type: 'setDataUrl', url: d
+              // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
             }, '*');
           } catch (_) {}
         };
-      })(dataUrl);
+      })(dataUrl, state.back_color_code);
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
       try {
         iframe.contentWindow.postMessage({
-          type: 'setDataUrl', url: dataUrl, baseOffset: serverOffset
+          type: 'setDataUrl', url: dataUrl
+          // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
         }, '*');
       } catch (_) {}
     }
@@ -449,11 +568,13 @@
     if (!iframe || state.currentRaceIndex < 0) return;
     var race = state.races[state.currentRaceIndex];
     if (!race) return;
-    var dataUrl = '../' + race.data_source;
+    // url-config-separation (2026-04-20): data_source 解決は DERUCA_CONFIG に委譲。
+    var dataUrl = DERUCA_CONFIG.resolveDataSource(race.data_source);
     iframe.setAttribute('data-source', dataUrl);
     try {
       iframe.contentWindow.postMessage({
-        type: 'setDataUrl', url: dataUrl, baseOffset: serverOffset
+        type: 'setDataUrl', url: dataUrl
+        // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
       }, '*');
     } catch (_) {}
   }
@@ -470,7 +591,7 @@
     var needsReconfig = iframe.getAttribute('data-sig') !== sig;
 
     var sendConfig = function() {
-      var videoSource = buildVideoUrl(cfg);
+      var videoSource = DERUCA_CONFIG.buildVideoUrl(cfg);
       if (!videoSource) return;
       try {
         iframe.contentWindow.postMessage({
@@ -525,11 +646,11 @@
     // H-03 (2026-04-19): レース切替時は枠連/枠単ページを初期値 'uren' に戻す
     //   iframe 側 DOM は継続使用（再ロードなし）のため、前レースの表示状態（utan）が
     //   残り得る。明示的に 'uren' へ戻して一貫性を確保。
-    //   hasFrameUmatan も初期値 true に戻す（新レースのデータ受信後に子からの通知で再判定）。
+    //   hasFrameUtan も初期値 true に戻す（新レースのデータ受信後に子からの通知で再判定）。
     if (state.template === 'templates/single-screen.html') {
       state.frameOddsPage = 'uren';
       state.frameOddsPageTick = 0;
-      state.hasFrameUmatan = true;
+      state.hasFrameUtan = true;
       notifyFrameOddsPage(state);
     }
   }
@@ -710,7 +831,7 @@
 
   // H-03 (2026-04-19): 枠連・枠単の自動ページング管理
   //   template === 'templates/single-screen.html' の screenState に対し、1秒tickで経過秒を加算し、
-  //   FRAME_UMATAN_PAGE_SEC（15秒）経過で 'uren'↔'utan' を切り替え iframe に postMessage 通知。
+  //   FRAME_UTAN_PAGE_SEC（15秒）経過で 'uren'↔'utan' を切り替え iframe に postMessage 通知。
   //   他 template は対象外（Tick数も進めない = 無駄処理回避）。
   function checkFrameOddsPaging() {
     screenStates.forEach(function(state) {
@@ -718,9 +839,9 @@
       if (state.template !== 'templates/single-screen.html') return;
       if (!state.iframeEl) return;
       // H-03 (2026-04-19 改訂): 枠単発売なしレースはページング停止
-      if (state.hasFrameUmatan === false) return;
+      if (state.hasFrameUtan === false) return;
       state.frameOddsPageTick = (state.frameOddsPageTick || 0) + 1;
-      if (state.frameOddsPageTick >= FRAME_UMATAN_PAGE_SEC) {
+      if (state.frameOddsPageTick >= FRAME_UTAN_PAGE_SEC) {
         state.frameOddsPageTick = 0;
         state.frameOddsPage = (state.frameOddsPage === 'uren') ? 'utan' : 'uren';
         notifyFrameOddsPage(state);
@@ -751,13 +872,20 @@
       childOffsets[d.url] = d.offset;
       return;
     }
+    // server_time-fix-v3 (2026-04-20): 子 common.js 起動直後のハンドシェイク要求に応答。
+    //   iframe.onload と <script> ロード完了のタイミング不一致を解消し、
+    //   全子 iframe が起動 1 秒以内に最新 serverOffset を受信できることを保証する。
+    if (d.type === 'requestServerOffset') {
+      sendServerOffsetTo(e.source);
+      return;
+    }
     // H-03 (2026-04-19 改訂): 子 single-screen.html から枠単発売有無の通知受信
     //   発売なし時はページング停止、強制的に枠連表示へ戻す
-    if (d.type === 'frameUmatanAvailability') {
+    if (d.type === 'frameUtanAvailability') {
       var state = findScreenStateBySource(e.source);
       if (!state) return;
-      state.hasFrameUmatan = !!d.available;
-      if (!state.hasFrameUmatan && state.frameOddsPage !== 'uren') {
+      state.hasFrameUtan = !!d.available;
+      if (!state.hasFrameUtan && state.frameOddsPage !== 'uren') {
         state.frameOddsPage = 'uren';
         state.frameOddsPageTick = 0;
         notifyFrameOddsPage(state);
