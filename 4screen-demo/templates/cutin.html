@@ -1,33 +1,37 @@
 <!--
   カットイン CUT-001（締切5分前） / CUT-002（発売終了）テンプレート
 
-  ■ このファイルの役割
+  ■ 役割
     各オッズ画面（single-*.html）の子iframe内に、起動時に 1回 fetch され
     `document.body` に DOM として差し込まれる。以後は JS（common.js）の
     showCutin() が id 属性を手掛かりに中身を書き換え、オーバーレイの
     表示／非表示を切り替える。
 
-  ■ 暫定版の扱い
-    本HTMLは芥川様（リンクスティップ）から正式版が到着次第、丸ごと差し替え
-    る前提の暫定実装。HTML一式はこのファイルのみ、CSSは demo-helpers.css に
-    集約しており、正式版到着後はこの2ファイルを差し替え／削除するだけで完了
-    するよう設計されている（JS側の変更は id 属性が維持されていれば不要）。
+  ■ 構造（2026-05-01 改修：芥川 design.zip screen6.html L803-835 由来の
+                       closing-timer-board 正式版に移植済）
+    - 外殻 .cutin-overlay (id=cutinOverlay) — フルスクリーン覆い + 中央配置
+                                            + is-hidden トグル制御。
+                                            プロト固有要件（複数iframe重畳）
+                                            のため demo-helpers.css に最小定義。
+    - 内側 .closing-timer-board — 芥川正式 96rem × 54rem 固定サイズ board。
+                                  CSS は assets/css/style.css L3003-3053。
+                                  改変禁止。
 
-  ■ 維持すべき id 属性（JS が DOM 操作のキーとして使用）
+  ■ 維持すべき id 属性（JS 連携キー）
     cutinOverlay  — オーバーレイ最外殻（is-hidden トグル対象）
-    cutin-venue   — 場名テキスト
-    cutin-race    — レース番号テキスト
-    cutin-body    — 中央コンテンツ（innerHTML を動的に書き換える）
-    cutin-footer  — フッターテキスト＋クラス切替
+    cutin-venue   — 場名テキスト (.closing-timer-board__track)
+    cutin-race    — レース番号テキスト (.closing-timer-board__race)
+    cutin-body    — body 領域（type 別に innerHTML 書換）
+    cutin-footer  — foot 領域（テキスト書換 + betting-closed クラス切替）
 -->
 <div class="cutin-overlay is-hidden" id="cutinOverlay">
-  <div class="cutin">
-    <div class="cutin__header">
-      <span class="cutin__venue" id="cutin-venue"></span>
-      <span class="cutin__chevron">≫</span>
-      <span class="cutin__race" id="cutin-race"></span>
+  <div class="closing-timer-board" aria-label="締切カウント表示">
+    <div class="closing-timer-board__head">
+      <span class="closing-timer-board__track" id="cutin-venue"></span>
+      <img class="closing-timer-board__arrow" src="../assets/images/closing-timer-board/ctb-arrow.svg" alt="">
+      <span class="closing-timer-board__race" id="cutin-race"></span>
     </div>
-    <div class="cutin__body" id="cutin-body"></div>
-    <div class="cutin__footer" id="cutin-footer"></div>
+    <div class="closing-timer-board__body" id="cutin-body"></div>
+    <div class="closing-timer-board__foot" id="cutin-footer"></div>
   </div>
 </div>

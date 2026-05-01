@@ -184,9 +184,16 @@ html.single-screen {
 }
 
 /*
- * カットイン CUT-001（締切5分前） / CUT-002（発売終了）
- * 暫定スタイル — スクリーンショット（Bパターン）からの再現。
- * 芥川様から正式HTML＋CSSが到着次第、このブロックは削除する。
+ * カットイン外殻オーバーレイ（CUT-001 / CUT-002 共通）
+ *
+ * 2026-05-01: 芥川 design.zip screen6.html L803-835 由来の
+ *             closing-timer-board 正式版へ移植完了（assets/css/style.css L3003-3053）。
+ *             プロト独自暫定スタイル（.cutin / .cutin__* 各種、85 行）は削除。
+ *
+ * 残置: .cutin-overlay のみ（フルスクリーン覆い + 中央配置 + is-hidden トグル）。
+ *      これはプロト固有要件で、各 single-*.html iframe 内で
+ *      closing-timer-board (96rem × 54rem 固定) を画面いっぱいに重ねる外殻として必要。
+ *      芥川様 screen6.html では board 単独表示のため overlay 概念が無い。
  */
 .cutin-overlay {
   position: fixed;
@@ -199,75 +206,6 @@ html.single-screen {
 }
 .cutin-overlay.is-hidden {
   display: none;
-}
-.cutin {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.cutin__header {
-  background: #0D1117;
-  border-bottom: 0.15rem solid #30363d;
-  padding: 1.5rem 2rem;
-  text-align: center;
-}
-.cutin__venue {
-  color: #58a6ff;
-  font-size: 3rem;
-  font-weight: bold;
-}
-.cutin__chevron {
-  color: #6e8ba8;
-  font-size: 2.5rem;
-  margin: 0 0.8rem;
-}
-.cutin__race {
-  color: #e6edf3;
-  font-size: 3rem;
-  font-weight: bold;
-}
-.cutin__body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0D1117;
-}
-/* CUT-001: 締切N分前 */
-.cutin__body--countdown {
-  gap: 1rem;
-}
-.cutin__body--countdown .cutin__label {
-  color: #e6edf3;
-  font-size: 4.5rem;
-  font-weight: bold;
-}
-.cutin__body--countdown .cutin__number {
-  color: #CEE069;
-  font-size: 14rem;
-  font-weight: bold;
-  font-family: "Segoe UI", sans-serif;
-  line-height: 1;
-}
-/* CUT-002: 発売終了 */
-.cutin__body--closed .cutin__message {
-  color: #CEE069;
-  font-size: 5rem;
-  font-weight: bold;
-}
-.cutin__footer {
-  padding: 1.2rem 2rem;
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #ffffff;
-}
-.cutin__footer--warning {
-  background: #CC0000;
-}
-.cutin__footer--thankyou {
-  background: #444444;
 }
 
 /*

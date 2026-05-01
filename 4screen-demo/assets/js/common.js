@@ -814,7 +814,9 @@ var cutinTemplateState = { loaded: false, loading: null };
 function ensureCutinTemplate() {
   if (cutinTemplateState.loaded) return Promise.resolve();
   if (cutinTemplateState.loading) return cutinTemplateState.loading;
-  cutinTemplateState.loading = fetch('./cutin.html')
+  // 2026-05-01: cutin.html 構造を芥川 closing-timer-board に移植。
+  //             テンプレ更新時の即時反映のため cache-bust を付与。
+  cutinTemplateState.loading = fetch('./cutin.html?v=20260501', { cache: 'no-store' })
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.text();
@@ -924,18 +926,21 @@ function showCutin(type, race, minutesLeft) {
   venueEl.textContent = race.place_name || '';
   raceEl.textContent  = (race.rr != null ? race.rr + 'R' : '');
 
+  // 2026-05-01: 芥川 design.zip screen6.html L803-835 由来の
+  //             closing-timer-board 正式版に移植。class 名・DOM 構造を芥川版に合わせる。
+  //             CSS は assets/css/style.css L3003-3053（芥川納品物、改変禁止）。
   if (type === 'countdown') {
-    body.className = 'cutin__body cutin__body--countdown';
+    body.className = 'closing-timer-board__body';
     body.innerHTML =
-      '<span class="cutin__label">締切</span>' +
-      '<span class="cutin__number">' + minutesLeft + '</span>' +
-      '<span class="cutin__label">分前</span>';
-    footer.className = 'cutin__footer cutin__footer--warning';
+      '<span class="closing-timer-board__label">締切</span>' +
+      '<span class="closing-timer-board__minutes">' + minutesLeft + '</span>' +
+      '<span class="closing-timer-board__label">分前</span>';
+    footer.className = 'closing-timer-board__foot';
     footer.textContent = 'お早めにご投票ください。';
   } else {
-    body.className = 'cutin__body cutin__body--closed';
-    body.innerHTML = '<span class="cutin__message">発売を締め切りました</span>';
-    footer.className = 'cutin__footer cutin__footer--thankyou';
+    body.className = 'closing-timer-board__body';
+    body.innerHTML = '<span class="closing-timer-board__close">発売を締め切りました</span>';
+    footer.className = 'closing-timer-board__foot betting-closed';
     footer.textContent = 'ご投票誠にありがとうございました';
   }
 
