@@ -11,6 +11,7 @@ odds-demo 用サンプルJSONジェネレータ
 import json
 import random
 from datetime import datetime, timezone, timedelta
+from itertools import permutations, combinations as itcombinations
 from pathlib import Path
 
 # path-date-folder (2026-04-20): v0.5 §1.5 ファイル配置規約に準拠し、
@@ -943,23 +944,26 @@ PAYOUT_COUNT_TABLE = {
     ("NORMAL", "quinella"): 1, ("NORMAL", "exacta"): 1,
     ("NORMAL", "wide"): 3, ("NORMAL", "trio"): 1, ("NORMAL", "trifecta"): 1,
 
-    # A: 単3 複3 枠連3 枠単6 馬連3 馬単3 ワイド3 三連複3 三連単6 = 計33 (+返還1=34)
+    # A: 単3 複3 枠連3 枠単6 馬連3 馬単6 ワイド3 三連複1 三連単6 = 計34 (定義書 v1.1 §4)
+    # 馬単: 1着3頭の順列 P(3,2)=6 / 三連複: 同着3頭の組合せ＝1 (JSON 仕様 §4.5.5.4)
     ("A", "win"): 3, ("A", "place"): 3,
     ("A", "frame_quinella"): 3, ("A", "frame_exacta"): 6,
-    ("A", "quinella"): 3, ("A", "exacta"): 3,
-    ("A", "wide"): 3, ("A", "trio"): 3, ("A", "trifecta"): 6,
+    ("A", "quinella"): 3, ("A", "exacta"): 6,
+    ("A", "wide"): 3, ("A", "trio"): 1, ("A", "trifecta"): 6,
 
-    # B: 単2 複5 枠連1 枠単2 馬連1 馬単1 ワイド7 三連複3 三連単6 = 計28 (+返還1=29)
+    # B: 単2 複5 枠連1 枠単2 馬連1 馬単2 ワイド7 三連複3 三連単6 = 計29 (定義書 v1.1 §4)
+    # 馬単: 1着2頭の順列 P(2,2)=2
     ("B", "win"): 2, ("B", "place"): 5,
     ("B", "frame_quinella"): 1, ("B", "frame_exacta"): 2,
-    ("B", "quinella"): 1, ("B", "exacta"): 1,
+    ("B", "quinella"): 1, ("B", "exacta"): 2,
     ("B", "wide"): 7, ("B", "trio"): 3, ("B", "trifecta"): 6,
 
-    # C: 単2 複4 枠連1 枠単2 馬連1 馬単1 ワイド5 三連複3 三連単3 = 計22 (+返還1=23)
+    # C: 単2 複4 枠連1 枠単2 馬連1 馬単2 ワイド5 三連複2 三連単4 = 計23 (定義書 v1.1 §4)
+    # 馬単: P(2,2)=2 / 三連複: C(2,2)×C(2,1)=2 / 三連単: P(2,2)×2=4
     ("C", "win"): 2, ("C", "place"): 4,
     ("C", "frame_quinella"): 1, ("C", "frame_exacta"): 2,
-    ("C", "quinella"): 1, ("C", "exacta"): 1,
-    ("C", "wide"): 5, ("C", "trio"): 3, ("C", "trifecta"): 3,
+    ("C", "quinella"): 1, ("C", "exacta"): 2,
+    ("C", "wide"): 5, ("C", "trio"): 2, ("C", "trifecta"): 4,
 
     # D: 単2 複3 枠連1 枠単2 馬連1 馬単2 ワイド3 三連複1 三連単2 = 計17 (+返還1=18)
     ("D", "win"): 2, ("D", "place"): 3,
@@ -973,23 +977,26 @@ PAYOUT_COUNT_TABLE = {
     ("E", "quinella"): 3, ("E", "exacta"): 3,
     ("E", "wide"): 6, ("E", "trio"): 3, ("E", "trifecta"): 6,
 
-    # F: 単1 複3 枠連2 枠単2 馬連3 馬単1 ワイド3 三連複1 三連単2 = 計18
+    # F: 単1 複3 枠連2 枠単2 馬連2 馬単2 ワイド3 三連複1 三連単2 = 計18 (定義書 v1.1 §4)
+    # 馬連: 1×2着2頭=2 / 馬単: 1×P(2,1)=2
     ("F", "win"): 1, ("F", "place"): 3,
     ("F", "frame_quinella"): 2, ("F", "frame_exacta"): 2,
-    ("F", "quinella"): 3, ("F", "exacta"): 1,
+    ("F", "quinella"): 2, ("F", "exacta"): 2,
     ("F", "wide"): 3, ("F", "trio"): 1, ("F", "trifecta"): 2,
 
-    # G: 単1 複5 枠連1 枠単1 馬連1 馬単1 ワイド6 三連複3 三連単3 = 計22 (+返還1=23)
+    # G: 単1 複5 枠連1 枠単1 馬連1 馬単1 ワイド7 三連複3 三連単3 = 計23 (定義書 v1.1 §4)
+    # ワイド: 1-2(1) + 1-3(1×3) + 2-3(1×3) = 7（3-3 は §4.5.5.3 により不的中、除外）
     ("G", "win"): 1, ("G", "place"): 5,
     ("G", "frame_quinella"): 1, ("G", "frame_exacta"): 1,
     ("G", "quinella"): 1, ("G", "exacta"): 1,
-    ("G", "wide"): 6, ("G", "trio"): 3, ("G", "trifecta"): 3,
+    ("G", "wide"): 7, ("G", "trio"): 3, ("G", "trifecta"): 3,
 
-    # H: 単1 複4 枠連1 枠単1 馬連1 馬単1 ワイド4 三連複2 三連単2 = 計17 (+返還1=18)
+    # H: 単1 複4 枠連1 枠単1 馬連1 馬単1 ワイド5 三連複2 三連単2 = 計18 (定義書 v1.1 §4)
+    # ワイド: 1-2(1) + 1-3(1×2) + 2-3(1×2) = 5（3-3 は §4.5.5.3 により不的中、除外）
     ("H", "win"): 1, ("H", "place"): 4,
     ("H", "frame_quinella"): 1, ("H", "frame_exacta"): 1,
     ("H", "quinella"): 1, ("H", "exacta"): 1,
-    ("H", "wide"): 4, ("H", "trio"): 2, ("H", "trifecta"): 2,
+    ("H", "wide"): 5, ("H", "trio"): 2, ("H", "trifecta"): 2,
 }
 
 BET_TYPE_TO_CODE = {
@@ -1107,26 +1114,197 @@ def gen_entries_for_pattern(organizer_type: str, pattern: str, seed: int) -> lis
     return entries
 
 
+def _build_wide_combinations(entries: list) -> list:
+    """JSON 構造仕様書 v0.6.2 §4.5.5.3 / 同着定義書 v1.1 §8 準拠の
+    ワイド的中組合せ列を生成。
+    - 1-2 / 1-3 / 2-3 着間の組合せ
+    - 同一着順内の組合せも的中（1-1, 2-2）
+    - ただし 3-3 は不的中（除外）
+    rank ∈ {1,2,3} 以外（H/B 等の rank=5 シフト馬）は対象外。
+    各組合せは (smaller_horse_no, larger_horse_no) でソート。"""
+    rank_horses = {1: [], 2: [], 3: []}
+    for e in entries:
+        r = e.get("rank")
+        if r in (1, 2, 3):
+            rank_horses[r].append(e["horse_no"])
+    for r in rank_horses:
+        rank_horses[r].sort()
+
+    combos = []
+    h1, h2, h3 = rank_horses[1], rank_horses[2], rank_horses[3]
+    # 1-1 同着組合せ
+    for i in range(len(h1)):
+        for j in range(i + 1, len(h1)):
+            combos.append((h1[i], h1[j]))
+    # 1-2 着間組合せ
+    for a in h1:
+        for b in h2:
+            combos.append((min(a, b), max(a, b)))
+    # 2-2 同着組合せ
+    for i in range(len(h2)):
+        for j in range(i + 1, len(h2)):
+            combos.append((h2[i], h2[j]))
+    # 1-3 着間組合せ
+    for a in h1:
+        for b in h3:
+            combos.append((min(a, b), max(a, b)))
+    # 2-3 着間組合せ
+    for a in h2:
+        for b in h3:
+            combos.append((min(a, b), max(a, b)))
+    # 3-3 同士は §4.5.5.3 により不的中、含めない
+    return combos
+
+
+def _rank_horses(entries: list) -> dict:
+    """rank ∈ {1,2,3} の馬番を rank 別に分類して昇順返す。"""
+    rh = {1: [], 2: [], 3: []}
+    for e in entries:
+        r = e.get("rank")
+        if r in (1, 2, 3):
+            rh[r].append(e["horse_no"])
+    for r in rh:
+        rh[r].sort()
+    return rh
+
+
+def _build_quinella_combinations(entries: list) -> list:
+    """馬連: 1着+2着の組合せ（順序なし）。
+    同着定義書 v1.1 §4 準拠の件数を満たす。
+    - 1着同士の同着組合せ（1着が2頭以上の場合: A/B/C/D）
+    - 1着 × 2着 のクロス（NORMAL/E/F/G/H）
+    各組合せは (smaller, larger) ソート。"""
+    rh = _rank_horses(entries)
+    h1, h2 = rh[1], rh[2]
+    combos = []
+    for a, b in itcombinations(h1, 2):
+        combos.append((a, b))
+    for a in h1:
+        for b in h2:
+            combos.append((min(a, b), max(a, b)))
+    return combos
+
+
+def _build_exacta_combinations(entries: list) -> list:
+    """馬単: 1着→2着（順序付き）。同着定義書 v1.1 §4 準拠。
+    - 1着同士の順列（1着が2頭以上の場合: A=P(3,2)=6 / B/C/D=P(2,2)=2）
+    - (1着, 2着) ordered cross（NORMAL/E/F/G/H）"""
+    rh = _rank_horses(entries)
+    h1, h2 = rh[1], rh[2]
+    combos = []
+    for a, b in permutations(h1, 2):
+        combos.append((a, b))
+    for a in h1:
+        for b in h2:
+            combos.append((a, b))
+    return combos
+
+
+def _build_trio_combinations(entries: list) -> list:
+    """三連複: 1着+2着+3着の組合せ（順序なし）。同着定義書 v1.1 §4 準拠。
+    着順シフトにより欠けた着順は別の着順から補充する。
+    - A (1着3頭): 同着3頭の組合せ = 1（JSON 仕様 §4.5.5.4）
+    - B/C/D (1着2頭+3着X頭): 1-1-3 = C(2,2)×X = X
+    - E (1着+2着3頭): 1-2-2 = C(3,2) = 3
+    - F (1着+2着2頭): 1-2-2 = 1
+    - NORMAL/G/H (1着+2着+3着X頭): 1×1×X = X
+    各組合せは sorted ascending tuple。"""
+    rh = _rank_horses(entries)
+    h1, h2, h3 = rh[1], rh[2], rh[3]
+    n1, n2, n3 = len(h1), len(h2), len(h3)
+    combos = []
+    if n1 == 3 and n2 == 0 and n3 == 0:
+        combos.append(tuple(sorted(h1)))
+    elif n1 == 2 and n2 == 0 and n3 >= 1:
+        for c in h3:
+            combos.append(tuple(sorted(h1 + [c])))
+    elif n1 == 1 and n2 == 3 and n3 == 0:
+        for pair in itcombinations(h2, 2):
+            combos.append(tuple(sorted([h1[0]] + list(pair))))
+    elif n1 == 1 and n2 == 2 and n3 == 0:
+        combos.append(tuple(sorted([h1[0]] + h2)))
+    elif n1 == 1 and n2 == 1 and n3 >= 1:
+        for c in h3:
+            combos.append(tuple(sorted([h1[0], h2[0], c])))
+    return combos
+
+
+def _build_trifecta_combinations(entries: list) -> list:
+    """三連単: 1着→2着→3着（順序付き）。同着定義書 v1.1 §4 準拠。
+    - A (1着3頭): 同着3頭の順列 = P(3,3) = 6（JSON 仕様 §4.5.5.4）
+    - B/C/D (1着2頭+3着X頭): P(2,2)×X
+    - E (1着+2着3頭): 1×P(3,2) = 6
+    - F (1着+2着2頭): 1×P(2,2) = 2
+    - NORMAL/G/H (1着+2着+3着X頭): 1×1×X
+    各組合せは順序を保持した tuple。"""
+    rh = _rank_horses(entries)
+    h1, h2, h3 = rh[1], rh[2], rh[3]
+    n1, n2, n3 = len(h1), len(h2), len(h3)
+    combos = []
+    if n1 == 3 and n2 == 0 and n3 == 0:
+        for perm in permutations(h1):
+            combos.append(perm)
+    elif n1 == 2 and n2 == 0 and n3 >= 1:
+        for a, b in permutations(h1, 2):
+            for c in h3:
+                combos.append((a, b, c))
+    elif n1 == 1 and n2 == 3 and n3 == 0:
+        for b, c in permutations(h2, 2):
+            combos.append((h1[0], b, c))
+    elif n1 == 1 and n2 == 2 and n3 == 0:
+        for b, c in permutations(h2, 2):
+            combos.append((h1[0], b, c))
+    elif n1 == 1 and n2 == 1 and n3 >= 1:
+        for c in h3:
+            combos.append((h1[0], h2[0], c))
+    return combos
+
+
 def _gen_combination(bet_type: str, idx: int, entries: list, rng) -> str:
-    """賭式別のダミー組合せ文字列を生成（馬番・枠番ベース）"""
+    """賭式別のダミー組合せ文字列を生成（馬番・枠番ベース）。
+    馬連 / 馬単 / ワイド / 三連複 / 三連単 は同着定義書 v1.1 §4 準拠の rank-aware builder を使用。"""
     horse_nos = sorted(set(e["horse_no"] for e in entries))
     frame_nos = sorted(set(e["frame_no"] for e in entries))
     if bet_type in ("win", "place"):
         return str(horse_nos[idx % len(horse_nos)])
     if bet_type in ("frame_quinella", "frame_exacta"):
+        # 注: 枠連/枠単 は厳密 rank-aware ではない（位置 rotation のまま）。
+        # 枠割により frame の dead-heat 取り扱いが変わるため、件数は spec と一致しているが
+        # 組合せ文字列は frame_assign 結果依存。今後の改修対象（CC完了報告 §5 参照）。
         if len(frame_nos) < 2:
             return f"{frame_nos[0]}-{frame_nos[0]}"
         a = frame_nos[idx % len(frame_nos)]
         b = frame_nos[(idx + 1) % len(frame_nos)]
         return f"{a}-{b}"
-    if bet_type in ("quinella", "exacta", "wide"):
-        a = horse_nos[idx % len(horse_nos)]
-        b = horse_nos[(idx + 1) % len(horse_nos)]
+    if bet_type == "wide":
+        combos = _build_wide_combinations(entries)
+        if not combos:
+            return ""
+        a, b = combos[idx % len(combos)]
         return f"{a}-{b}"
-    if bet_type in ("trio", "trifecta"):
-        a = horse_nos[idx % len(horse_nos)]
-        b = horse_nos[(idx + 1) % len(horse_nos)]
-        c = horse_nos[(idx + 2) % len(horse_nos)]
+    if bet_type == "quinella":
+        combos = _build_quinella_combinations(entries)
+        if not combos:
+            return ""
+        a, b = combos[idx % len(combos)]
+        return f"{a}-{b}"
+    if bet_type == "exacta":
+        combos = _build_exacta_combinations(entries)
+        if not combos:
+            return ""
+        a, b = combos[idx % len(combos)]
+        return f"{a}-{b}"
+    if bet_type == "trio":
+        combos = _build_trio_combinations(entries)
+        if not combos:
+            return ""
+        a, b, c = combos[idx % len(combos)]
+        return f"{a}-{b}-{c}"
+    if bet_type == "trifecta":
+        combos = _build_trifecta_combinations(entries)
+        if not combos:
+            return ""
+        a, b, c = combos[idx % len(combos)]
         return f"{a}-{b}-{c}"
     return ""
 
