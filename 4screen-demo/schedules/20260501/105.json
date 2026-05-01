@@ -1,12 +1,12 @@
 {
-  "server_time": "2026-05-01T10:24:09+09:00",
+  "server_time": "2026-05-01T12:24:51+09:00",
   "monitor_id": 105,
   "display_date": "20260501",
   "slots": [
     {
       "slot_id": "slot1",
-      "start_time": "2026-05-01T10:24:09+09:00",
-      "end_time": "2026-05-01T11:24:09+09:00",
+      "start_time": "2026-05-01T12:24:51+09:00",
+      "end_time": "2026-05-01T13:24:51+09:00",
       "layout": "4split",
       "display_pattern_id": 1,
       "display_pattern_name": "4分割標準",
@@ -25,13 +25,13 @@
             {
               "race_id": "NAR_45_01",
               "race_key": "船橋1R",
-              "post_time_iso": "2026-05-01T10:39:09+09:00",
+              "post_time_iso": "2026-05-01T12:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_01.json"
             },
             {
               "race_id": "NAR_45_02",
               "race_key": "船橋2R",
-              "post_time_iso": "2026-05-01T10:59:09+09:00",
+              "post_time_iso": "2026-05-01T12:59:51+09:00",
               "data_source": "odds/20260501/NAR_45_02.json"
             }
           ]
@@ -50,13 +50,13 @@
             {
               "race_id": "NAR_45_01",
               "race_key": "船橋1R",
-              "post_time_iso": "2026-05-01T10:39:09+09:00",
+              "post_time_iso": "2026-05-01T12:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_01.json"
             },
             {
               "race_id": "NAR_45_02",
               "race_key": "船橋2R",
-              "post_time_iso": "2026-05-01T10:59:09+09:00",
+              "post_time_iso": "2026-05-01T12:59:51+09:00",
               "data_source": "odds/20260501/NAR_45_02.json"
             }
           ]
@@ -75,13 +75,13 @@
             {
               "race_id": "NAR_45_01",
               "race_key": "船橋1R",
-              "post_time_iso": "2026-05-01T10:39:09+09:00",
+              "post_time_iso": "2026-05-01T12:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_01.json"
             },
             {
               "race_id": "NAR_45_02",
               "race_key": "船橋2R",
-              "post_time_iso": "2026-05-01T10:59:09+09:00",
+              "post_time_iso": "2026-05-01T12:59:51+09:00",
               "data_source": "odds/20260501/NAR_45_02.json"
             }
           ]
@@ -100,13 +100,13 @@
             {
               "race_id": "NAR_45_01",
               "race_key": "船橋1R",
-              "post_time_iso": "2026-05-01T10:39:09+09:00",
+              "post_time_iso": "2026-05-01T12:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_01.json"
             },
             {
               "race_id": "NAR_45_02",
               "race_key": "船橋2R",
-              "post_time_iso": "2026-05-01T10:59:09+09:00",
+              "post_time_iso": "2026-05-01T12:59:51+09:00",
               "data_source": "odds/20260501/NAR_45_02.json"
             }
           ]
@@ -115,8 +115,8 @@
     },
     {
       "slot_id": "slot2",
-      "start_time": "2026-05-01T11:24:09+09:00",
-      "end_time": "2026-05-01T13:24:09+09:00",
+      "start_time": "2026-05-01T13:24:51+09:00",
+      "end_time": "2026-05-01T15:24:51+09:00",
       "layout": "4split",
       "display_pattern_id": 2,
       "display_pattern_name": "4分割馬連馬単",
@@ -135,25 +135,25 @@
             {
               "race_id": "NAR_45_03",
               "race_key": "船橋3R",
-              "post_time_iso": "2026-05-01T11:39:09+09:00",
+              "post_time_iso": "2026-05-01T13:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_03.json"
             },
             {
               "race_id": "NAR_49_08",
               "race_key": "名古屋8R",
-              "post_time_iso": "2026-05-01T11:54:09+09:00",
+              "post_time_iso": "2026-05-01T13:54:51+09:00",
               "data_source": "odds/20260501/NAR_49_08.json"
             },
             {
               "race_id": "JRA_05_11",
               "race_key": "東京11R",
-              "post_time_iso": "2026-05-01T12:09:09+09:00",
+              "post_time_iso": "2026-05-01T14:09:51+09:00",
               "data_source": "odds/20260501/JRA_05_11.json"
             },
             {
               "race_id": "JRA_09_11",
               "race_key": "阪神11R",
-              "post_time_iso": "2026-05-01T12:39:09+09:00",
+              "post_time_iso": "2026-05-01T14:39:51+09:00",
               "data_source": "odds/20260501/JRA_09_11.json"
             }
           ]
@@ -172,25 +172,25 @@
             {
               "race_id": "NAR_45_03",
               "race_key": "船橋3R",
-              "post_time_iso": "2026-05-01T11:39:09+09:00",
+              "post_time_iso": "2026-05-01T13:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_03.json"
             },
             {
               "race_id": "NAR_49_08",
               "race_key": "名古屋8R",
-              "post_time_iso": "2026-05-01T11:54:09+09:00",
+              "post_time_iso": "2026-05-01T13:54:51+09:00",
               "data_source": "odds/20260501/NAR_49_08.json"
             },
             {
               "race_id": "JRA_05_11",
               "race_key": "東京11R",
-              "post_time_iso": "2026-05-01T12:09:09+09:00",
+              "post_time_iso": "2026-05-01T14:09:51+09:00",
               "data_source": "odds/20260501/JRA_05_11.json"
             },
             {
               "race_id": "JRA_09_11",
               "race_key": "阪神11R",
-              "post_time_iso": "2026-05-01T12:39:09+09:00",
+              "post_time_iso": "2026-05-01T14:39:51+09:00",
               "data_source": "odds/20260501/JRA_09_11.json"
             }
           ]
@@ -209,25 +209,25 @@
             {
               "race_id": "NAR_45_03",
               "race_key": "船橋3R",
-              "post_time_iso": "2026-05-01T11:39:09+09:00",
+              "post_time_iso": "2026-05-01T13:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_03.json"
             },
             {
               "race_id": "NAR_49_08",
               "race_key": "名古屋8R",
-              "post_time_iso": "2026-05-01T11:54:09+09:00",
+              "post_time_iso": "2026-05-01T13:54:51+09:00",
               "data_source": "odds/20260501/NAR_49_08.json"
             },
             {
               "race_id": "JRA_05_11",
               "race_key": "東京11R",
-              "post_time_iso": "2026-05-01T12:09:09+09:00",
+              "post_time_iso": "2026-05-01T14:09:51+09:00",
               "data_source": "odds/20260501/JRA_05_11.json"
             },
             {
               "race_id": "JRA_09_11",
               "race_key": "阪神11R",
-              "post_time_iso": "2026-05-01T12:39:09+09:00",
+              "post_time_iso": "2026-05-01T14:39:51+09:00",
               "data_source": "odds/20260501/JRA_09_11.json"
             }
           ]
@@ -246,25 +246,25 @@
             {
               "race_id": "NAR_45_03",
               "race_key": "船橋3R",
-              "post_time_iso": "2026-05-01T11:39:09+09:00",
+              "post_time_iso": "2026-05-01T13:39:51+09:00",
               "data_source": "odds/20260501/NAR_45_03.json"
             },
             {
               "race_id": "NAR_49_08",
               "race_key": "名古屋8R",
-              "post_time_iso": "2026-05-01T11:54:09+09:00",
+              "post_time_iso": "2026-05-01T13:54:51+09:00",
               "data_source": "odds/20260501/NAR_49_08.json"
             },
             {
               "race_id": "JRA_05_11",
               "race_key": "東京11R",
-              "post_time_iso": "2026-05-01T12:09:09+09:00",
+              "post_time_iso": "2026-05-01T14:09:51+09:00",
               "data_source": "odds/20260501/JRA_05_11.json"
             },
             {
               "race_id": "JRA_09_11",
               "race_key": "阪神11R",
-              "post_time_iso": "2026-05-01T12:39:09+09:00",
+              "post_time_iso": "2026-05-01T14:39:51+09:00",
               "data_source": "odds/20260501/JRA_09_11.json"
             }
           ]

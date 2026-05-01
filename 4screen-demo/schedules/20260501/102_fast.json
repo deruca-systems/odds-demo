@@ -1,12 +1,12 @@
 {
-  "server_time": "2026-05-01T10:24:09+09:00",
+  "server_time": "2026-05-01T12:24:51+09:00",
   "monitor_id": 102,
   "display_date": "20260501",
   "slots": [
     {
       "slot_id": "slot1",
-      "start_time": "2026-05-01T10:24:09+09:00",
-      "end_time": "2026-05-01T10:25:09+09:00",
+      "start_time": "2026-05-01T12:24:51+09:00",
+      "end_time": "2026-05-01T12:25:51+09:00",
       "layout": "lshape",
       "display_pattern_id": 3,
       "display_pattern_name": "L字+動画",
@@ -25,7 +25,7 @@
             {
               "race_id": "NAR_30_07",
               "race_key": "門別7R",
-              "post_time_iso": "2026-05-01T10:25:09+09:00",
+              "post_time_iso": "2026-05-01T12:25:51+09:00",
               "data_source": "odds/20260501/NAR_30_07.json"
             }
           ]
@@ -62,7 +62,7 @@
             {
               "race_id": "NAR_30_07",
               "race_key": "門別7R",
-              "post_time_iso": "2026-05-01T10:25:09+09:00",
+              "post_time_iso": "2026-05-01T12:25:51+09:00",
               "data_source": "odds/20260501/NAR_30_07.json"
             }
           ]
@@ -71,8 +71,8 @@
     },
     {
       "slot_id": "slot2",
-      "start_time": "2026-05-01T10:25:09+09:00",
-      "end_time": "2026-05-01T10:26:09+09:00",
+      "start_time": "2026-05-01T12:25:51+09:00",
+      "end_time": "2026-05-01T12:26:51+09:00",
       "layout": "1screen",
       "display_pattern_id": 4,
       "display_pattern_name": "1画面動画",
@@ -99,8 +99,8 @@
     },
     {
       "slot_id": "slot3",
-      "start_time": "2026-05-01T10:26:09+09:00",
-      "end_time": "2026-05-01T10:27:09+09:00",
+      "start_time": "2026-05-01T12:26:51+09:00",
+      "end_time": "2026-05-01T12:27:51+09:00",
       "layout": "4split",
       "display_pattern_id": 5,
       "display_pattern_name": "4分割右下動画",
@@ -119,7 +119,7 @@
             {
               "race_id": "NAR_30_07",
               "race_key": "門別7R",
-              "post_time_iso": "2026-05-01T10:25:09+09:00",
+              "post_time_iso": "2026-05-01T12:25:51+09:00",
               "data_source": "odds/20260501/NAR_30_07.json"
             }
           ]
@@ -138,7 +138,7 @@
             {
               "race_id": "NAR_30_07",
               "race_key": "門別7R",
-              "post_time_iso": "2026-05-01T10:25:09+09:00",
+              "post_time_iso": "2026-05-01T12:25:51+09:00",
               "data_source": "odds/20260501/NAR_30_07.json"
             }
           ]
@@ -157,7 +157,7 @@
             {
               "race_id": "NAR_30_07",
               "race_key": "門別7R",
-              "post_time_iso": "2026-05-01T10:25:09+09:00",
+              "post_time_iso": "2026-05-01T12:25:51+09:00",
               "data_source": "odds/20260501/NAR_30_07.json"
             }
           ]

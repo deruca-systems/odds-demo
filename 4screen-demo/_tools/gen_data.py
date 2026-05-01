@@ -1173,6 +1173,59 @@ def _rank_horses(entries: list) -> dict:
     return rh
 
 
+def _rank_frames(entries: list) -> dict:
+    """rank ∈ {1,2,3} の枠番を rank 別に分類して昇順返す（同枠重複は許容、後段で除去）。"""
+    rf = {1: [], 2: [], 3: []}
+    for e in entries:
+        r = e.get("rank")
+        if r in (1, 2, 3):
+            rf[r].append(e["frame_no"])
+    for r in rf:
+        rf[r].sort()
+    return rf
+
+
+def _dedup_keep_order(combos: list) -> list:
+    """tuple 列の並び順を保ったまま重複除去。"""
+    seen = set()
+    out = []
+    for c in combos:
+        if c not in seen:
+            seen.add(c)
+            out.append(c)
+    return out
+
+
+def _build_frame_quinella_combinations(entries: list) -> list:
+    """枠連: 1着枠と2着枠の組合せ（順序なし）。同着定義書 v1.1 §4 準拠。
+    馬連と同じ rank ベースのロジックを枠番に適用。
+    複数馬が同枠の場合、組合せが重複しうるため最後に重複除去（同枠連 X-X はそのまま 1 件）。
+    各組合せは (smaller, larger) ソート。"""
+    rf = _rank_frames(entries)
+    f1, f2 = rf[1], rf[2]
+    raw = []
+    for a, b in itcombinations(f1, 2):
+        raw.append((min(a, b), max(a, b)))
+    for a in f1:
+        for b in f2:
+            raw.append((min(a, b), max(a, b)))
+    return _dedup_keep_order(raw)
+
+
+def _build_frame_exacta_combinations(entries: list) -> list:
+    """枠単: 1着枠→2着枠（順序付き）。同着定義書 v1.1 §4 準拠。
+    馬単と同じ rank ベースのロジックを枠番に適用、同枠重複は除去。"""
+    rf = _rank_frames(entries)
+    f1, f2 = rf[1], rf[2]
+    raw = []
+    for a, b in permutations(f1, 2):
+        raw.append((a, b))
+    for a in f1:
+        for b in f2:
+            raw.append((a, b))
+    return _dedup_keep_order(raw)
+
+
 def _build_quinella_combinations(entries: list) -> list:
     """馬連: 1着+2着の組合せ（順序なし）。
     同着定義書 v1.1 §4 準拠の件数を満たす。
@@ -1272,14 +1325,18 @@ def _gen_combination(bet_type: str, idx: int, entries: list, rng) -> str:
     frame_nos = sorted(set(e["frame_no"] for e in entries))
     if bet_type in ("win", "place"):
         return str(horse_nos[idx % len(horse_nos)])
-    if bet_type in ("frame_quinella", "frame_exacta"):
-        # 注: 枠連/枠単 は厳密 rank-aware ではない（位置 rotation のまま）。
-        # 枠割により frame の dead-heat 取り扱いが変わるため、件数は spec と一致しているが
-        # 組合せ文字列は frame_assign 結果依存。今後の改修対象（CC完了報告 §5 参照）。
-        if len(frame_nos) < 2:
+    if bet_type == "frame_quinella":
+        combos = _build_frame_quinella_combinations(entries)
+        if not combos:
+            # フォールバック（理論上は発生しない）
             return f"{frame_nos[0]}-{frame_nos[0]}"
-        a = frame_nos[idx % len(frame_nos)]
-        b = frame_nos[(idx + 1) % len(frame_nos)]
+        a, b = combos[idx % len(combos)]
+        return f"{a}-{b}"
+    if bet_type == "frame_exacta":
+        combos = _build_frame_exacta_combinations(entries)
+        if not combos:
+            return f"{frame_nos[0]}-{frame_nos[0]}"
+        a, b = combos[idx % len(combos)]
         return f"{a}-{b}"
     if bet_type == "wide":
         combos = _build_wide_combinations(entries)

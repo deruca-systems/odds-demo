@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T10:24:09+09:00",
+  "server_time": "2026-05-01T12:24:51+09:00",
   "organizer_type": "NAR",
   "place_cd": "41",
   "place_name": "佐賀",
@@ -7,7 +7,7 @@
   "changes": [
     {
       "chg_seq": 1,
-      "chg_time": "2026-05-01T10:06:09+09:00",
+      "chg_time": "2026-05-01T12:06:51+09:00",
       "rr": 2,
       "chg_type": 1,
       "chg_type_name": "騎手変更",
@@ -22,7 +22,7 @@
     },
     {
       "chg_seq": 2,
-      "chg_time": "2026-05-01T10:39:09+09:00",
+      "chg_time": "2026-05-01T12:39:51+09:00",
       "rr": 3,
       "chg_type": 2,
       "chg_type_name": "出走取消",

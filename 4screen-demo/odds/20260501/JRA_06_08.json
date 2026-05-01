@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T10:24:09+09:00",
+  "server_time": "2026-05-01T12:24:51+09:00",
   "race": {
     "organizer_type": "JRA",
     "place_cd": "06",
@@ -9,10 +9,10 @@
     "race_class": "",
     "grade": null,
     "deadline_min": 28,
-    "deadline": "10:52",
-    "deadline_iso": "2026-05-01T10:52:09+09:00",
-    "post_time": "10:54",
-    "post_time_iso": "2026-05-01T10:54:09+09:00",
+    "deadline": "12:52",
+    "deadline_iso": "2026-05-01T12:52:51+09:00",
+    "post_time": "12:54",
+    "post_time_iso": "2026-05-01T12:54:51+09:00",
     "weather_cd": 4,
     "weather_label": "雨",
     "track_cd": 1,
