@@ -855,23 +855,28 @@ DISPLAY_PATTERN_NUMERIC_IDS = {
     "PAT-CHANGES-INFO":             (12, "変更情報"),
 }
 
+# 2026-05-01: column-major layout (P1=左上, P2=左下, P3=右上, P4=右下) への移行に伴い、
+#             4 分割 PAT の P2/P3 行を入替。プロジェクト当初の CRM 設計（手動画面切替の田の字
+#             1/3 上段・2/4 下段）と意味的に整合させ、馬連系を右上、人気順系を左下に配置。
+#             PAT-LSHAPE-VIDEO（L字）と PAT-1SCREEN-VIDEO（1画面）は影響外、PAT-3R-ENTRIES-RESULTS
+#             は monitor=117 専用ルート（gen_niigata_117.py）で別途構築。
 DISPLAY_PATTERN_MAP = {
     "PAT-4SPLIT-STD": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-screen.html"},
-            {"position": "P2", "template": "templates/single-umaren-wide.html"},
-            {"position": "P3", "template": "templates/single-popular.html"},
-            {"position": "P4", "template": "templates/single-popular-second.html"},
+            {"position": "P1", "template": "templates/single-screen.html"},          # 左上: 単複枠
+            {"position": "P2", "template": "templates/single-popular.html"},          # 左下: 人気順
+            {"position": "P3", "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド
+            {"position": "P4", "template": "templates/single-popular-second.html"},   # 右下: 人気順第二
         ],
     },
     "PAT-4SPLIT-UMATAN": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-umaren-first.html"},
-            {"position": "P2", "template": "templates/single-umaren-second.html"},
-            {"position": "P3", "template": "templates/single-umatan-first.html"},
-            {"position": "P4", "template": "templates/single-umatan-second.html"},
+            {"position": "P1", "template": "templates/single-umaren-first.html"},     # 左上: 馬連1
+            {"position": "P2", "template": "templates/single-umatan-first.html"},     # 左下: 馬単1
+            {"position": "P3", "template": "templates/single-umaren-second.html"},    # 右上: 馬連2
+            {"position": "P4", "template": "templates/single-umatan-second.html"},    # 右下: 馬単2
         ],
     },
     "PAT-LSHAPE-VIDEO": {
@@ -891,10 +896,10 @@ DISPLAY_PATTERN_MAP = {
     "PAT-4SPLIT-RIGHTBOTTOM-VIDEO": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-screen.html"},
-            {"position": "P2", "template": "templates/single-umaren-wide.html"},
-            {"position": "P3", "template": "templates/single-popular.html"},
-            {"position": "P4", "template": "templates/video-frame.html", "type": "video"},
+            {"position": "P1", "template": "templates/single-screen.html"},           # 左上: 単複枠
+            {"position": "P2", "template": "templates/single-popular.html"},          # 左下: 人気順
+            {"position": "P3", "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド
+            {"position": "P4", "template": "templates/video-frame.html", "type": "video"},  # 右下: 動画
         ],
     },
     # 3R-entries-results-phase2 (2026-04-21): 1画面内 3レース成績表示。

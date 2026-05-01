@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T09:41:31+09:00",
+  "server_time": "2026-05-01T10:24:09+09:00",
   "race_id": "NAR_30_11",
   "race_key": "門別11R",
   "organizer_type": "NAR",
@@ -17,7 +17,7 @@
       "horse_name": "ロードトレイル",
       "jockey": "小沢大仁",
       "genryokigo": null,
-      "time": "5:41.8",
+      "time": "5:34.3",
       "margin_name": null,
       "frame_color_class": "number-white",
       "is_dead_heat": false,
@@ -92,7 +92,7 @@
       {
         "combination": "1",
         "combination_type": "wn",
-        "amount": 950,
+        "amount": 870,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -102,7 +102,7 @@
       {
         "combination": "1",
         "combination_type": "pe",
-        "amount": 290,
+        "amount": 280,
         "is_special_pay": false,
         "is_void": false,
         "place_label": "1着"
@@ -110,7 +110,7 @@
       {
         "combination": "2",
         "combination_type": "pe",
-        "amount": 470,
+        "amount": 280,
         "is_special_pay": false,
         "is_void": false,
         "place_label": "2着"
@@ -118,7 +118,7 @@
       {
         "combination": "3",
         "combination_type": "pe",
-        "amount": 250,
+        "amount": 440,
         "is_special_pay": false,
         "is_void": false,
         "place_label": "3着"
@@ -126,7 +126,7 @@
       {
         "combination": "4",
         "combination_type": "pe",
-        "amount": 410,
+        "amount": 450,
         "is_special_pay": false,
         "is_void": false,
         "place_label": "3着"
@@ -134,7 +134,7 @@
       {
         "combination": "5",
         "combination_type": "pe",
-        "amount": 340,
+        "amount": 280,
         "is_special_pay": false,
         "is_void": false,
         "place_label": "3着"
@@ -144,7 +144,7 @@
       {
         "combination": "1-2",
         "combination_type": "bq",
-        "amount": 450,
+        "amount": 1530,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -154,7 +154,7 @@
       {
         "combination": "1-2",
         "combination_type": "be",
-        "amount": 2030,
+        "amount": 3390,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -164,7 +164,7 @@
       {
         "combination": "1-2",
         "combination_type": "qa",
-        "amount": 540,
+        "amount": 1240,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -174,7 +174,7 @@
       {
         "combination": "1-2",
         "combination_type": "ea",
-        "amount": 3080,
+        "amount": 3460,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -184,7 +184,7 @@
       {
         "combination": "1-2",
         "combination_type": "wd",
-        "amount": 400,
+        "amount": 580,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -192,7 +192,7 @@
       {
         "combination": "1-3",
         "combination_type": "wd",
-        "amount": 480,
+        "amount": 760,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -200,7 +200,7 @@
       {
         "combination": "1-4",
         "combination_type": "wd",
-        "amount": 710,
+        "amount": 480,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -208,7 +208,7 @@
       {
         "combination": "1-5",
         "combination_type": "wd",
-        "amount": 760,
+        "amount": 240,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -216,7 +216,7 @@
       {
         "combination": "2-3",
         "combination_type": "wd",
-        "amount": 740,
+        "amount": 660,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -224,7 +224,7 @@
       {
         "combination": "2-4",
         "combination_type": "wd",
-        "amount": 730,
+        "amount": 280,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -232,7 +232,7 @@
       {
         "combination": "2-5",
         "combination_type": "wd",
-        "amount": 630,
+        "amount": 660,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -242,7 +242,7 @@
       {
         "combination": "1-2-3",
         "combination_type": "to",
-        "amount": 2170,
+        "amount": 2620,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -250,7 +250,7 @@
       {
         "combination": "1-2-4",
         "combination_type": "to",
-        "amount": 9420,
+        "amount": 14180,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -258,7 +258,7 @@
       {
         "combination": "1-2-5",
         "combination_type": "to",
-        "amount": 25480,
+        "amount": 13700,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -268,7 +268,7 @@
       {
         "combination": "1-2-3",
         "combination_type": "ta",
-        "amount": 254080,
+        "amount": 54830,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -276,7 +276,7 @@
       {
         "combination": "1-2-4",
         "combination_type": "ta",
-        "amount": 399490,
+        "amount": 17390,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null
@@ -284,7 +284,7 @@
       {
         "combination": "1-2-5",
         "combination_type": "ta",
-        "amount": 65730,
+        "amount": 346750,
         "is_special_pay": false,
         "is_void": false,
         "place_label": null

@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T09:41:32+09:00",
+  "server_time": "2026-05-01T10:24:10+09:00",
   "race_id": "JRA_04_05",
   "race_key": "新潟5R",
   "organizer_type": "JRA",
@@ -296,8 +296,8 @@
     "bracket_no_bitmap": "00000000",
     "same_bracket_bitmap": null
   },
-  "post_time": "08:01",
-  "post_time_iso": "2026-05-01T08:01:32+09:00",
+  "post_time": "08:44",
+  "post_time_iso": "2026-05-01T08:44:10+09:00",
   "weather": "cloudy",
   "surface": "芝",
   "condition": "良",

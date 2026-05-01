@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T09:41:31+09:00",
+  "server_time": "2026-05-01T10:24:09+09:00",
   "organizer_type": "NAR",
   "place_cd": "45",
   "place_name": "船橋",
@@ -7,7 +7,7 @@
   "changes": [
     {
       "chg_seq": 1,
-      "chg_time": "2026-05-01T08:49:31+09:00",
+      "chg_time": "2026-05-01T09:32:09+09:00",
       "rr": 4,
       "chg_type": 2,
       "chg_type_name": "出走取消",

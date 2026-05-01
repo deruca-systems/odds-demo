@@ -1,5 +1,5 @@
 {
-  "server_time": "2026-05-01T09:41:31+09:00",
+  "server_time": "2026-05-01T10:24:09+09:00",
   "race": {
     "organizer_type": "NAR",
     "place_cd": "45",
@@ -9,10 +9,10 @@
     "race_class": "",
     "grade": null,
     "deadline_min": 6,
-    "deadline": "09:47",
-    "deadline_iso": "2026-05-01T09:47:31+09:00",
-    "post_time": "09:49",
-    "post_time_iso": "2026-05-01T09:49:31+09:00",
+    "deadline": "10:30",
+    "deadline_iso": "2026-05-01T10:30:09+09:00",
+    "post_time": "10:32",
+    "post_time_iso": "2026-05-01T10:32:09+09:00",
     "weather_cd": 2,
     "weather_label": "曇",
     "track_cd": 0,
