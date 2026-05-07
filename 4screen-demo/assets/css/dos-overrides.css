@@ -126,7 +126,7 @@ html.single-screen {
  * 注入された「その body の項目数 N」になるため、各行が 46rem/N の高さに
  * なり、単勝側（col grid の 1/10 行）と高さが揃わなくなる。
  *
- * デモでの単勝側との行高さ完全同期は demo-helpers.css 側の
+ * デモでの単勝側との行高さ完全同期は dos-overrides.css 側の
  * .race-table__col grid + body の grid-row span で実現済みのため、
  * 行自体には固定 height を与えず、body grid に従わせる必要がある。
  *   修正: row の height を auto にして body grid に従わせる。

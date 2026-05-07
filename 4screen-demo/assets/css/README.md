@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |---|---|
-| 対象 | `assets/css/style.css`（2659 行）/ `assets/css/demo-helpers.css`（375 行）|
+| 対象 | `assets/css/style.css`（2659 行）/ `assets/css/dos-overrides.css`（375 行）|
 | 作成日 | 2026-04-20（css-restructure-option-c 案C）|
 | 読者 | フロントエンド新メンバー（2026-05-01 着任予定）|
 | 目的 | CSS を変更する際の「どのファイル・どのセクションを触るか」を特定しやすくする |
@@ -16,7 +16,7 @@ CSS を修正するとき、以下の順序で該当箇所を特定する:
 1. 「どのテンプレートの表示を変えるか」を決める（例: 単勝複勝のオッズ値色）
 2. 本書の **§5 テンプレート × CSS セクション対応表** を引く
 3. 該当セクション（例: `SCREEN2 / 単勝複勝ブロック`）を `style.css` から検索
-4. 必要に応じて `demo-helpers.css` の同等セクションも確認
+4. 必要に応じて `dos-overrides.css` の同等セクションも確認
 
 ---
 
@@ -112,17 +112,17 @@ CSS を修正するとき、以下の順序で該当箇所を特定する:
 | テンプレート | 使用 CSS セクション |
 |---|---|
 | `single-screen.html` | SCREEN1（枠連）+ SCREEN2（単勝複勝）+ SCREEN3（枠単）+ HEADER |
-| `single-umaren-first.html` | SCREEN1/2/3 の `.screen` 共通部 + HEADER + `demo-helpers.css` |
+| `single-umaren-first.html` | SCREEN1/2/3 の `.screen` 共通部 + HEADER + `dos-overrides.css` |
 | `single-umaren-second.html` | 同上 |
-| `single-umaren-wide.html` | SCREEN1/2/3 の `.screen` 共通部 + HEADER + `demo-helpers.css`（L12以降）|
+| `single-umaren-wide.html` | SCREEN1/2/3 の `.screen` 共通部 + HEADER + `dos-overrides.css`（L12以降）|
 | `single-umatan-first.html` | 同上（馬単マトリクス） |
 | `single-umatan-second.html` | 同上 |
-| `single-popular.html` | SCREEN1/2/3 の `.popular` ルール + HEADER + `demo-helpers.css` |
+| `single-popular.html` | SCREEN1/2/3 の `.popular` ルール + HEADER + `dos-overrides.css` |
 | `single-popular-second.html` | 同上 |
-| `wide-popular.html` | SCREEN1/2/3 の `.popular` + HEADER + `demo-helpers.css` |
+| `wide-popular.html` | SCREEN1/2/3 の `.popular` + HEADER + `dos-overrides.css` |
 | `side-entries.html` | RACE + HEADER |
-| `video-frame.html` | `demo-helpers.css` のみ（video iframe 用）|
-| `cutin.html` | `demo-helpers.css` のみ（カットイン overlay）|
+| `video-frame.html` | `dos-overrides.css` のみ（video iframe 用）|
+| `cutin.html` | `dos-overrides.css` のみ（カットイン overlay）|
 | **`entries-results-3r.html`** | **RACE（`.race-container .race-screen .race-record/__payout/__table`）+ 新規 SCREEN3R セクション（style.css 末尾）**|
 
 ### §5.1 3R 出走成績テンプレの CSS 依存
@@ -146,15 +146,15 @@ CSS を修正するとき、以下の順序で該当箇所を特定する:
 
 ---
 
-## 6. demo-helpers.css の役割
+## 6. dos-overrides.css の役割
 
 | 項目 | 内容 |
 |---|---|
-| 行 | `demo-helpers.css` 375 行 |
+| 行 | `dos-overrides.css` 375 行 |
 | 役割 | 本家 `style.css` に一切手を入れずに追加するヘルパ CSS |
 | 主な内容 | `html.single-screen` font-size の vw/vh `min()` 対応（L12〜）、`.umaren-wide` の flex chain 改修、馬単テーブル用枠色、馬連ワイド組合せ表の軽微な調整 |
 
-**設計原則**: `style.css` の構造を保ったまま、テンプレ固有の微調整はここに追加する。新メンバーが変更する際は `demo-helpers.css` を優先（リスク低）。
+**設計原則**: `style.css` の構造を保ったまま、テンプレ固有の微調整はここに追加する。新メンバーが変更する際は `dos-overrides.css` を優先（リスク低）。
 
 ---
 
@@ -207,7 +207,7 @@ assets/css/
 │   └── variables.css          (色・サイズ変数抽出)
 ├── components/
 │   ├── race-header.css        (現 HEADER セクション、~246 行)
-│   └── cutin.css              (demo-helpers.css から分離)
+│   └── cutin.css              (dos-overrides.css から分離)
 └── patterns/
     ├── screen-main.css        (SCREEN2、~400 行)
     ├── screen-frame-odds.css  (SCREEN1、~400 行)

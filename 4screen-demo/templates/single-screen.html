@@ -5,7 +5,7 @@
   <title>単勝・複勝・枠連 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
-  <link rel="stylesheet" href="../assets/css/demo-helpers.css?v=20260430s3">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260430s3">
   <script src="../assets/js/common.js?v=20260430s3"></script>
 </head>
 <body>
@@ -111,7 +111,7 @@
 
       if (isScratched) {
         // 指示書08 v2: 単勝+複勝セルを結合した1セル「出走取消」/「競走除外」
-        // grid-column: span 2 で単勝・複勝領域を1セルで占有（demo-helpers.css）。
+        // grid-column: span 2 で単勝・複勝領域を1セルで占有（dos-overrides.css）。
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabel(h.is_scratched)));
       } else {
         var winClass = winCls[h.horse_no] || '';

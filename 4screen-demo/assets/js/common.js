@@ -466,7 +466,7 @@ function renderRaceHeader(doc, race, opts) {
       raceTime.classList.toggle('is-closing', !!(dl && dl.is_closing));
       // 芥川様 CSS (.race-time.start { background: #0D1117 }) に合わせて、発走時刻表示
       // （rtMode=pre = 「発走 HH:MM」）の時だけ .start クラスを付与。countdown/closed
-      // 時は外して既定背景（demo-helpers.css 側で data-mode=countdown/closed の赤グラデ）
+      // 時は外して既定背景（dos-overrides.css 側で data-mode=countdown/closed の赤グラデ）
       // に戻す。
       raceTime.classList.toggle('start', rtMode === 'pre');
     }
