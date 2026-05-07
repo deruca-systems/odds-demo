@@ -1,0 +1,130 @@
+{
+  "server_time": "2026-04-20T22:52:44+09:00",
+  "monitor_id": 102,
+  "display_date": "20260420",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-20T22:52:44+09:00",
+      "end_time": "2026-04-20T22:53:44+09:00",
+      "layout": "lshape",
+      "display_pattern_id": 3,
+      "display_pattern_name": "L字+動画",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/side-entries.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-20T22:53:44+09:00",
+              "data_source": "odds/20260420/NAR_30_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/video-frame.html",
+          "type": "video",
+          "venue_code": "urawa",
+          "quality_mode": "auto",
+          "quality_cap": 4,
+          "audio_muted": true,
+          "volume": 0.7,
+          "races": []
+        },
+        {
+          "position": "P3",
+          "template": "templates/wide-popular.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-20T22:53:44+09:00",
+              "data_source": "odds/20260420/NAR_30_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot2",
+      "start_time": "2026-04-20T22:53:44+09:00",
+      "end_time": "2026-04-20T22:54:44+09:00",
+      "layout": "1screen",
+      "display_pattern_id": 4,
+      "display_pattern_name": "1画面動画",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/video-frame.html",
+          "type": "video",
+          "venue_code": "urawa",
+          "quality_mode": "auto",
+          "quality_cap": 4,
+          "audio_muted": true,
+          "volume": 0.7,
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot3",
+      "start_time": "2026-04-20T22:54:44+09:00",
+      "end_time": "2026-04-20T22:55:44+09:00",
+      "layout": "4split",
+      "display_pattern_id": 5,
+      "display_pattern_name": "4分割右下動画",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/single-screen.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-20T22:53:44+09:00",
+              "data_source": "odds/20260420/NAR_30_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/single-umaren-wide.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-20T22:53:44+09:00",
+              "data_source": "odds/20260420/NAR_30_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "template": "templates/single-popular.html",
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-04-20T22:53:44+09:00",
+              "data_source": "odds/20260420/NAR_30_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "template": "templates/video-frame.html",
+          "type": "video",
+          "venue_code": "urawa",
+          "quality_mode": "auto",
+          "quality_cap": 4,
+          "audio_muted": true,
+          "volume": 0.7,
+          "races": []
+        }
+      ]
+    }
+  ]
+}

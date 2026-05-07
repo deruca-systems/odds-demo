@@ -1,0 +1,219 @@
+{
+  "server_time": "2026-04-20T22:52:44+09:00",
+  "monitor_id": 105,
+  "display_date": "20260420",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-04-20T22:52:44+09:00",
+      "end_time": "2026-04-20T23:52:44+09:00",
+      "layout": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "4分割標準",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/single-screen.html",
+          "races": [
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-04-20T23:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_01.json"
+            },
+            {
+              "race_id": "NAR_45_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-04-20T23:27:44+09:00",
+              "data_source": "odds/20260420/NAR_45_02.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/single-umaren-wide.html",
+          "races": [
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-04-20T23:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_01.json"
+            },
+            {
+              "race_id": "NAR_45_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-04-20T23:27:44+09:00",
+              "data_source": "odds/20260420/NAR_45_02.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "template": "templates/single-popular.html",
+          "races": [
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-04-20T23:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_01.json"
+            },
+            {
+              "race_id": "NAR_45_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-04-20T23:27:44+09:00",
+              "data_source": "odds/20260420/NAR_45_02.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "template": "templates/single-popular-second.html",
+          "races": [
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-04-20T23:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_01.json"
+            },
+            {
+              "race_id": "NAR_45_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-04-20T23:27:44+09:00",
+              "data_source": "odds/20260420/NAR_45_02.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot2",
+      "start_time": "2026-04-20T23:52:44+09:00",
+      "end_time": "2026-04-21T01:52:44+09:00",
+      "layout": "4split",
+      "display_pattern_id": 2,
+      "display_pattern_name": "4分割馬連馬単",
+      "screens": [
+        {
+          "position": "P1",
+          "template": "templates/single-umaren-first.html",
+          "races": [
+            {
+              "race_id": "NAR_45_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-04-21T00:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_03.json"
+            },
+            {
+              "race_id": "NAR_49_08",
+              "race_key": "名古屋8R",
+              "post_time_iso": "2026-04-21T00:22:44+09:00",
+              "data_source": "odds/20260420/NAR_49_08.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-04-21T00:37:44+09:00",
+              "data_source": "odds/20260420/JRA_05_11.json"
+            },
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-04-21T01:07:44+09:00",
+              "data_source": "odds/20260420/JRA_09_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "template": "templates/single-umaren-second.html",
+          "races": [
+            {
+              "race_id": "NAR_45_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-04-21T00:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_03.json"
+            },
+            {
+              "race_id": "NAR_49_08",
+              "race_key": "名古屋8R",
+              "post_time_iso": "2026-04-21T00:22:44+09:00",
+              "data_source": "odds/20260420/NAR_49_08.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-04-21T00:37:44+09:00",
+              "data_source": "odds/20260420/JRA_05_11.json"
+            },
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-04-21T01:07:44+09:00",
+              "data_source": "odds/20260420/JRA_09_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "template": "templates/single-umatan-first.html",
+          "races": [
+            {
+              "race_id": "NAR_45_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-04-21T00:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_03.json"
+            },
+            {
+              "race_id": "NAR_49_08",
+              "race_key": "名古屋8R",
+              "post_time_iso": "2026-04-21T00:22:44+09:00",
+              "data_source": "odds/20260420/NAR_49_08.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-04-21T00:37:44+09:00",
+              "data_source": "odds/20260420/JRA_05_11.json"
+            },
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-04-21T01:07:44+09:00",
+              "data_source": "odds/20260420/JRA_09_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "template": "templates/single-umatan-second.html",
+          "races": [
+            {
+              "race_id": "NAR_45_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-04-21T00:07:44+09:00",
+              "data_source": "odds/20260420/NAR_45_03.json"
+            },
+            {
+              "race_id": "NAR_49_08",
+              "race_key": "名古屋8R",
+              "post_time_iso": "2026-04-21T00:22:44+09:00",
+              "data_source": "odds/20260420/NAR_49_08.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-04-21T00:37:44+09:00",
+              "data_source": "odds/20260420/JRA_05_11.json"
+            },
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-04-21T01:07:44+09:00",
+              "data_source": "odds/20260420/JRA_09_11.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
