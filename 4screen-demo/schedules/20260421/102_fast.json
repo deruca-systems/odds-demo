@@ -7,7 +7,7 @@
       "slot_id": "slot1",
       "start_time": "2026-04-21T14:12:44+09:00",
       "end_time": "2026-04-21T14:13:44+09:00",
-      "layout": "lshape",
+      "layout": "3split",
       "display_pattern_id": 3,
       "display_pattern_name": "L字+動画",
       "screens": [

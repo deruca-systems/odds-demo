@@ -58,7 +58,7 @@
     patterns: {
       1: { name: '4分割標準',          layout: '4split'  },
       2: { name: '4分割馬連馬単',      layout: '4split'  },
-      3: { name: 'L字+動画',           layout: 'lshape'  },
+      3: { name: 'L字+動画',           layout: '3split'  },  // 2026-05-08: 'lshape' → '3split'（4split と同じ命名体系）。表示名「L字+動画」は維持
       4: { name: '1画面動画',          layout: '1screen' },
       5: { name: '4分割右下動画',      layout: '4split'  },
       // 3R-entries-results-phase2 (2026-04-21): 出走成績 3R 表示

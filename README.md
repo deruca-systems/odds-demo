@@ -1,30 +1,61 @@
 # odds-demo (Public Mirror)
 
-**DERUCA Odds System（D.O.S）** — 地方競馬オッズ表示システムのポーリングサンプル実装（公開ミラー）。
+**DERUCA Odds System（D.O.S）** — 競馬オッズ表示システムのフロントエンド プロトタイプ実装。
 
-本リポジトリは GitHub Pages で動作デモを公開するためのミラーです。  
-開発本体は private リポジトリで管理されています。
+本リポジトリは GitHub Pages で動作デモを公開するためのリポジトリです。
+仕様書類・設計資料は private リポジトリで管理しています。
 
-## デモURL
+## デモ URL
+
+配布データは 2026-05-01 のため、URL に `&date=20260501` を付与してアクセスしてください。
 
 | URL | 内容 |
 |---|---|
-| [4分割標準](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=0101&fast=1) | 単勝・複勝・枠連 / 馬連ワイド / 人気順 ×2 の4分割 |
-| [L字+動画](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=0102&fast=1) | L字レイアウトで出走表＋ライブ映像＋人気順 |
-| [複数場混在](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=0103&fast=1&next_race_sec=5) | 画面ごとに異なる場のレースを表示 |
-| [1レース固定](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=0104&fast=1) | 全画面同一レース（締切後も継続表示）|
+| [4 分割標準](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=101&date=20260501&fast=1) | 単複枠 / 人気順 / 馬連ワイド / 人気順第二 の 4 分割（PAT-4SPLIT-STD、column-major） |
+| [3 分割切替](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=102&date=20260501&fast=1) | 3 分割（出走表 + 動画 + 人気順）→ 1 画面 → 4 分割右下動画 のスロット遷移 |
+| [4 分割馬連馬単](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=105&date=20260501&fast=1) | 上段 = 馬連 1/2、下段 = 馬単 1/2 の row-grouped レイアウト |
+| [出走表 + 成績払戻](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=117&date=20260501&fast=1) | 新潟 1R-12R 比較ビュー（PAT-3R-ENTRIES-RESULTS、3R 出走成績） |
+| [全パターン showcase](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=118&date=20260501&fast=1) | 4 分割全パターン（NORMAL + 同着 A〜H + 出走表）の showcase |
+| [レース中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=106&date=20260501&fast=1) | レース中止時の表示 |
+| [開催中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=107&date=20260501&fast=1) | 開催中止時の表示 |
 
 ## 主な機能
 
-- 4分割 / L字 / 1画面 の複数レイアウト
-- 静的 JSON ポーリング方式（WebSocket 不使用）
-- 画面ごとに独立した発走時刻ベースの次レース自動遷移
-- 単勝・複勝 / 枠連 / 枠単（交互表示）/ 馬連・ワイド / 馬連・馬単マトリクス / 人気順 など複数テンプレート
-- 取消馬・発売中止レースのサンプルデータ含む
+- レイアウト: 4 分割 / 1 画面 / 3 分割
+- 静的 JSON 配信 + Fetch ポーリング方式（30 秒、`?fast=1` で 10 秒短縮）
+- 全 9 賭式対応: 単勝 / 複勝 / 枠連 / 枠単 / 馬連 / 馬単 / ワイド / 三連複 / 三連単
+- 馬連・馬単マトリクス表示（前半 1〜9 軸 / 後半 10 番以降軸の自動ローテ）
+- 人気順ランキング（馬連・馬単・三連複・三連単 を 1〜15 / 16〜30 で展開）
+- 出走表 + 競走成績 + 払戻金（screen5 準拠）
+- 変更情報画面（騎手変更 / 出走取消 / 競走除外 / 発走時刻変更）
+- カットイン: 締切 5 分前 / 締切（締切後次レース自動遷移）
+- 同着パターン: NORMAL + A〜H の 9 パターン対応
+- 取消馬・除外馬対応、レース中止・開催中止オーバーレイ
+- HTTP `Date` + `Age` ヘッダによる時刻補正（NTP 非同期端末でも発走時刻判定が正確）
+- 4K (3840×2160) と FHD (1920×1080) 両対応（rem ベース）
+
+## URL パラメータ
+
+| パラメータ | 例 | 用途 |
+|---|---|---|
+| `monitor` | `101` | モニター ID（`schedules/{date}/{monitor}.json` を取得） |
+| `date` | `20260501` | 開催日（未指定時は端末暦日） |
+| `fast` | `1` | ポーリング 30 秒 → 10 秒、レース遷移 60 秒 → 5 秒に短縮 |
+| `next_race_sec` | `5` | 次レース遷移秒の明示指定 |
 
 ## ディレクトリ
 
-`4screen-demo/` 配下にすべての動作ファイルを配置。
+`4screen-demo/` 配下にすべての動作ファイルを配置しています。
+
+```
+4screen-demo/
+├ index.html                親フレーム（スケジュール poll + iframe 管理 + 時刻補正）
+├ templates/                子テンプレ（オッズ・情報系・カットイン）
+├ assets/css/, assets/js/   スタイル・共通スクリプト
+├ assets/images/            アイコン・天候 SVG
+├ schedules/, odds/, results/, changes/   JSON 配信ファイル群
+└ _tools/gen_data.py        デモデータ再生成スクリプト
+```
 
 ## ライセンス
 

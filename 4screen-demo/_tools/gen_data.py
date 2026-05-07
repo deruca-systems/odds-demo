@@ -880,7 +880,7 @@ DISPLAY_PATTERN_MAP = {
         ],
     },
     "PAT-LSHAPE-VIDEO": {
-        "layout": "lshape",
+        "layout": "3split",  # 2026-05-08: 'lshape' → '3split' に変更（4split と同じ命名体系へ統一）
         "screens": [
             {"position": "P1", "template": "templates/side-entries.html"},
             {"position": "P2", "template": "templates/video-frame.html", "type": "video"},
@@ -1996,7 +1996,7 @@ def build_lshape_slot(slot_id: int, start_offset_min: int, end_offset_min: int,
                       rotation_sec: int,
                       video_source_override: str = None) -> dict:
     """
-    L字レイアウト（layout=lshape）のスロットを1レース分構築。
+    3 分割レイアウト（layout=3split、旧名 lshape）のスロットを1レース分構築。
     position 1 = side-entries.html（出走表）
     position 2 = video-frame.html（HLSライブ）
     position 3 = wide-popular.html（3カラム人気順）
@@ -2016,7 +2016,7 @@ def build_lshape_slot(slot_id: int, start_offset_min: int, end_offset_min: int,
         "slot_id": slot_id,
         "start_time": now_plus_min(start_offset_min),
         "end_time": now_plus_min(end_offset_min),
-        "layout": "lshape",
+        "layout": "3split",  # 2026-05-08: 'lshape' → '3split' に変更
         "race_rotation_seconds": rotation_sec,
         "races": [{
             "race_key": race_key,

@@ -93,19 +93,19 @@
    *     - cell2 は aspect-ratio: 16/9 で幅から高さ自動決定。常に 16:9 を保証。
    *     - cell3 は残り高さ。
    *   これでビューポートサイズが変わっても全 cell が比例拡縮する。 */
-  .grid.layout-lshape {
+  .grid.layout-3split {
     grid-template-columns: 20% 1fr;     /* 2026-04-17: 22%→20% に切り上げ（ユーザー要望） */
     grid-template-rows: auto 1fr;
   }
-  .grid.layout-lshape .cell-1 { grid-row: 1 / 3; grid-column: 1; }
-  .grid.layout-lshape .cell-2 {
+  .grid.layout-3split .cell-1 { grid-row: 1 / 3; grid-column: 1; }
+  .grid.layout-3split .cell-2 {
     grid-row: 1;
     grid-column: 2;
     aspect-ratio: 16 / 9;
     max-height: 100%;
   }
-  .grid.layout-lshape .cell-3 { grid-row: 2; grid-column: 2; }
-  .grid.layout-lshape .cell-4 { display: none; }
+  .grid.layout-3split .cell-3 { grid-row: 2; grid-column: 2; }
+  .grid.layout-3split .cell-4 { display: none; }
 
   .cell__badge {
     position: absolute; bottom: 0.1rem; right: 0.1rem;
@@ -218,10 +218,11 @@
   var SCHEDULE_URL = DERUCA_CONFIG.buildScheduleUrl(DISPLAY_DATE, MONITOR_ID, USE_FAST);
 
   // 指示書09 T5-3: layout 値 → CSS クラス
+  // 2026-05-08: layout 値 'lshape' → '3split' に変更（4split と同じ命名体系へ統一、4/27 池澤様協議分の反映）
   var LAYOUT_CLASS_MAP = {
     '4split':  'layout-4split',
     '1screen': 'layout-1screen',
-    'lshape':  'layout-lshape'
+    '3split':  'layout-3split'
   };
 
   function applyLayout(layoutValue) {

@@ -1,0 +1,361 @@
+{
+  "server_time": "2026-05-07T23:18:01+09:00",
+  "race_id": "NAR_49_04",
+  "race_key": "名古屋4R",
+  "organizer_type": "NAR",
+  "place_cd": "49",
+  "place_name": "名古屋",
+  "rr": 4,
+  "display_date": "20260507",
+  "odds_status": 1,
+  "dead_heat_pattern": "A",
+  "entries": [
+    {
+      "rank": 1,
+      "frame_no": 1,
+      "horse_no": 1,
+      "horse_name": "ロードトレイル",
+      "jockey": "小沢大仁",
+      "genryokigo": null,
+      "time": "5:61.3",
+      "margin_name": null,
+      "frame_color_class": "number-white",
+      "is_dead_heat": true,
+      "accident_type": null
+    },
+    {
+      "rank": 1,
+      "frame_no": 2,
+      "horse_no": 2,
+      "horse_name": "フリートストリートダンサー",
+      "jockey": "丸山元気",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "同着",
+      "frame_color_class": "number-black",
+      "is_dead_heat": true,
+      "accident_type": null
+    },
+    {
+      "rank": 1,
+      "frame_no": 3,
+      "horse_no": 3,
+      "horse_name": "エコロマーズ",
+      "jockey": "菊澤一樹",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "同着",
+      "frame_color_class": "number-red",
+      "is_dead_heat": true,
+      "accident_type": null
+    }
+  ],
+  "payouts": {
+    "bet_order": [
+      "win",
+      "place",
+      "frame_quinella",
+      "frame_exacta",
+      "quinella",
+      "exacta",
+      "wide",
+      "trio",
+      "trifecta"
+    ],
+    "win": [
+      {
+        "combination": "1",
+        "combination_type": "wn",
+        "amount": 600,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2",
+        "combination_type": "wn",
+        "amount": 430,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3",
+        "combination_type": "wn",
+        "amount": 330,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "place": [
+      {
+        "combination": "1",
+        "combination_type": "pe",
+        "amount": 350,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "1着"
+      },
+      {
+        "combination": "2",
+        "combination_type": "pe",
+        "amount": 140,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "1着"
+      },
+      {
+        "combination": "3",
+        "combination_type": "pe",
+        "amount": 360,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "1着"
+      }
+    ],
+    "frame_quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "bq",
+        "amount": 1110,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "bq",
+        "amount": 590,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "bq",
+        "amount": 1370,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "frame_exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "be",
+        "amount": 1870,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "be",
+        "amount": 880,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-1",
+        "combination_type": "be",
+        "amount": 1870,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "be",
+        "amount": 2490,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-1",
+        "combination_type": "be",
+        "amount": 1140,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-2",
+        "combination_type": "be",
+        "amount": 2540,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "qa",
+        "amount": 2600,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "qa",
+        "amount": 780,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "qa",
+        "amount": 1400,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "ea",
+        "amount": 4300,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "ea",
+        "amount": 4400,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-1",
+        "combination_type": "ea",
+        "amount": 3060,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "ea",
+        "amount": 3520,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-1",
+        "combination_type": "ea",
+        "amount": 2220,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-2",
+        "combination_type": "ea",
+        "amount": 4720,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "wide": [
+      {
+        "combination": "1-2",
+        "combination_type": "wd",
+        "amount": 400,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "wd",
+        "amount": 170,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "wd",
+        "amount": 780,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trio": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "to",
+        "amount": 20110,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trifecta": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "ta",
+        "amount": 55300,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3-2",
+        "combination_type": "ta",
+        "amount": 299840,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-1-3",
+        "combination_type": "ta",
+        "amount": 147440,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3-1",
+        "combination_type": "ta",
+        "amount": 123150,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-1-2",
+        "combination_type": "ta",
+        "amount": 14990,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "3-2-1",
+        "combination_type": "ta",
+        "amount": 39850,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ]
+  },
+  "refund": {
+    "horse_no_bitmap": "000000000000000000",
+    "bracket_no_bitmap": "00000000",
+    "same_bracket_bitmap": null
+  }
+}
