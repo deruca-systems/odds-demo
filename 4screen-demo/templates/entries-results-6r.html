@@ -24,16 +24,21 @@
       <div class="race-screen__col" data-col-idx="4" data-odds-status="0"></div>
       <div class="race-screen__col" data-col-idx="5" data-odds-status="0"></div>
     </div>
-    <!-- 右端: 減量記号凡例（芥川様 screen5.html 踏襲） -->
+    <!-- 右端: 減量記号凡例（申し送り仕様書 §8.5.1 準拠、2026-05-07 整合化）
+         JRA 公式 https://www.jra.go.jp/keiba/rules/ / NAR 公式 https://www.keiba.go.jp/Howtoread/theracecard.html
+         JRA-DB コード表2303（値=9 ◇ = 5年以上 or 101勝以上の女性騎手 2Kg減）
+         表示順: ★4 → ▲3 → △2 → ◇2 → ☆1（一般）→ △20 → ☆10（ばんえい） -->
     <!-- ※ `.race-info` 命名衝突の注意: 既存 ヘッダ天気ブロックと親スコープで分離される（assets/css/README.md 参照） -->
     <div class="race-info">
       <p>騎手に付く記号</p>
       <p><img class="race-info__icon" src="../assets/images/info/fill-star.svg" alt=""><span>4Kg</span>減</p>
-      <p><img class="race-info__icon" src="../assets/images/info/fill-triangle.svg" alt=""><span>2Kg</span>減</p>
+      <p><img class="race-info__icon" src="../assets/images/info/fill-triangle.svg" alt=""><span>3Kg</span>減</p>
       <p><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span>2Kg</span>減</p>
+      <p><img class="race-info__icon" src="../assets/images/info/diamond.svg" alt=""><span>2Kg</span>減</p>
       <p><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span>1Kg</span>減</p>
       <p>（ばんえいは</p>
-      <p><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span>20Kg</span>減）</p>
+      <p><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span>20Kg</span>減</p>
+      <p><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span>10Kg</span>減）</p>
     </div>
   </div>
 </div>
@@ -390,9 +395,11 @@
       }
 
       // 騎手名（減量記号アイコン付き、genryokigo があれば）
+      // 2026-05-07 整合化: ◇ (JRA-DB コード表2303 値=9 / NAR 公式: 2Kg減 女性騎手) を追加
+      // 申し送り仕様書 §8.5.1 / entries-results-3r.html と整合
       var jockeyIcon = '';
       if (h.genryokigo) {
-        var iconMap = { '★': 'fill-star', '▲': 'fill-triangle', '△': 'triangle', '☆': 'star' };
+        var iconMap = { '★': 'fill-star', '▲': 'fill-triangle', '△': 'triangle', '☆': 'star', '◇': 'diamond' };
         var iconName = iconMap[h.genryokigo] || '';
         if (iconName) {
           jockeyIcon = '<img class="jockey-icon" src="../assets/images/jockey/'
