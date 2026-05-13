@@ -7,17 +7,17 @@
 
 ## デモ URL
 
-配布データは 2026-05-01 のため、URL に `&date=20260501` を付与してアクセスしてください。
+配布データは 2026-05-01 のため、URL に `&display_date=20260501` を付与してアクセスしてください（後方互換として `&date=20260501` でも可）。
 
 | URL | 内容 |
 |---|---|
-| [4 分割標準](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=101&date=20260501&fast=1) | 単複枠 / 人気順 / 馬連ワイド / 人気順第二 の 4 分割（PAT-4SPLIT-STD、column-major） |
-| [3 分割切替](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=102&date=20260501&fast=1) | 3 分割（出走表 + 動画 + 人気順）→ 1 画面 → 4 分割右下動画 のスロット遷移 |
-| [4 分割馬連馬単](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=105&date=20260501&fast=1) | 上段 = 馬連 1/2、下段 = 馬単 1/2 の row-grouped レイアウト |
-| [出走表 + 成績払戻](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=117&date=20260501&fast=1) | 新潟 1R-12R 比較ビュー（PAT-3R-ENTRIES-RESULTS、3R 出走成績） |
-| [全パターン showcase](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=118&date=20260501&fast=1) | 4 分割全パターン（NORMAL + 同着 A〜H + 出走表）の showcase |
-| [レース中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=106&date=20260501&fast=1) | レース中止時の表示 |
-| [開催中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=107&date=20260501&fast=1) | 開催中止時の表示 |
+| [4 分割標準](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=101&display_date=20260501&fast=1) | 単複枠 / 人気順 / 馬連ワイド / 人気順第二 の 4 分割（PAT-4SPLIT-STD、column-major） |
+| [3 分割切替](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=102&display_date=20260501&fast=1) | 3 分割（出走表 + 動画 + 人気順）→ 1 画面 → 4 分割右下動画 のスロット遷移 |
+| [4 分割馬連馬単](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=105&display_date=20260501&fast=1) | 上段 = 馬連 1/2、下段 = 馬単 1/2 の row-grouped レイアウト |
+| [出走表 + 成績払戻](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=117&display_date=20260501&fast=1) | 新潟 1R-12R 比較ビュー（PAT-3R-ENTRIES-RESULTS、3R 出走成績） |
+| [全パターン showcase](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=118&display_date=20260501&fast=1) | 4 分割全パターン（NORMAL + 同着 A〜H + 出走表）の showcase |
+| [レース中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=106&display_date=20260501&fast=1) | レース中止時の表示 |
+| [開催中止](https://deruca-systems.github.io/odds-demo/4screen-demo/?monitor=107&display_date=20260501&fast=1) | 開催中止時の表示 |
 
 ## 主な機能
 

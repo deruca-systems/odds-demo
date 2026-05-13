@@ -160,7 +160,8 @@
   //   ?odds_poll=5       オッズpoll秒（最優先）
   //   ?next_race_sec=5   次レース遷移秒（最優先）
   //   ?monitor=101       端末番号（INT、既定 101。path-date-folder 2026-04-20 で 0101→101）
-  //   ?date=20260420     開催日（YYYYMMDD、任意、未指定時は端末時刻の暦日）
+  //   ?display_date=20260420 開催日（YYYYMMDD、任意、未指定時は端末時刻の暦日）
+  //                          後方互換: ?date=20260420 でも可（display_date 優先）
   //   ?fast=1            デモ用モード: 短縮スケジュール版 + ポーリング10秒 + 次レース遷移5秒
   var USE_FAST = false;
   (function applyQuery() {
@@ -196,7 +197,8 @@
   // path-date-folder (2026-04-20): v0.5 §1.5 準拠。
   //   MONITOR_ID は INT（ゼロ埋めなし）。デフォルトは 101（旧 0101）。
   //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
-  //   ?date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
+  //   ?display_date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
+  //   後方互換: ?date=YYYYMMDD でも可（display_date 優先）。
   var MONITOR_ID = (new URLSearchParams(location.search)).get('monitor') || '101';
   // === BEGIN: TEMPORARY-MIGRATION-COMPAT (本番不要、後方互換用) ===
   // 2026-04-30 session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
@@ -205,7 +207,8 @@
   if (/^0\d{3}$/.test(MONITOR_ID)) MONITOR_ID = String(Number(MONITOR_ID));
   // === END: TEMPORARY-MIGRATION-COMPAT ===
   var DISPLAY_DATE = (function() {
-    var q = (new URLSearchParams(location.search)).get('date');
+    var params = new URLSearchParams(location.search);
+    var q = params.get('display_date') || params.get('date');
     if (q && /^\d{8}$/.test(q)) return q;
     var d = new Date();
     var y = d.getFullYear();
