@@ -194,6 +194,60 @@
     return n ? document.getElementById('frame' + n) : null;
   }
 
+  // === BEGIN: v0.6.3 dual-read 後方互換 (2026-06-02) ===
+  // 内山さんCRM/バッチの v0.6.3 形式（slot.layout_pattern / screen.layout_section="01".."04" /
+  // screen.display_pattern_id のみ）と、プロト gen_data.py の旧形式（slot.layout /
+  // screen.position="P1".."P4" / screen.template 直指定）の両方を読めるようにする。
+  // 両データ源が混在してもよい。本番で内山さん形式へ一本化された後に簡素化可能。
+
+  // layout_section / position のどちらでも frame 番号(1..4)へ解決。
+  //   受理する値: "01".."04" / "1".."4" / "P1".."P4"（大小問わず）。
+  function sectionToFrameNum(v) {
+    if (v == null) return undefined;
+    var s = String(v).trim().toUpperCase();
+    if (POSITION_TO_FRAME_NUM[s]) return POSITION_TO_FRAME_NUM[s];   // P1..P4
+    var n = parseInt(s, 10);                                          // "01".."04" / "1".."4"
+    if (isFinite(n) && n >= 1 && n <= 4) return n;
+    return undefined;
+  }
+
+  // screen から正規化済み position("P1".."P4")を得る（layout_section 優先、無ければ position）。
+  //   以降の下流コード（getIframeByPosition / s.position==='P1' 等）は従来どおり "P1".."P4" で動く。
+  function resolveCanonicalPosition(screen) {
+    var raw = (screen.layout_section != null) ? screen.layout_section : screen.position;
+    var n = sectionToFrameNum(raw);
+    return n ? ('P' + n) : null;
+  }
+
+  // display_pattern_id → テンプレパス（内山さん形式で template が無い場合に使用）。
+  //   ★確認済: 1 = 単勝・複勝・枠連（1.json / 2026-06-02 STG 実機検証）。
+  //   ☆暫定: 他 id はプロト採番（D-6）。内山/堀井さんの DB 採番確定後に要照合（仕様§3.8 未確定）。
+  var DISPLAY_PATTERN_ID_TO_TEMPLATE = {
+    1:  'templates/single-screen.html',         // ★確認済
+    10: 'templates/entries-results-3r.html',    // ☆暫定（プロト採番 D-6）
+    11: 'templates/entries-results-6r.html',    // ☆暫定（プロト採番 D-6）
+    12: 'templates/changes-info.html'           // ☆暫定（プロト採番 D-6）
+  };
+  // display_pattern_name → テンプレ（id 未マップ時の二次フォールバック）。
+  var DISPLAY_PATTERN_NAME_TO_TEMPLATE = {
+    '単勝・複勝・枠連': 'templates/single-screen.html'
+  };
+
+  // screen からテンプレパスを解決（template 直指定 > id マップ > name マップ）。
+  function resolveTemplate(screen) {
+    if (screen.template) return screen.template;                      // 旧形式（プロト gen_data）
+    var byId = DISPLAY_PATTERN_ID_TO_TEMPLATE[screen.display_pattern_id];
+    if (byId) return byId;                                            // v0.6.3（id 既知）
+    var byName = DISPLAY_PATTERN_NAME_TO_TEMPLATE[screen.display_pattern_name];
+    if (byName) return byName;
+    // 未知 id: 画面が空白になるのを避け、既定で single-screen を出しつつ警告（silent 化しない）。
+    console.warn('[dual-read] display_pattern_id=' + screen.display_pattern_id +
+      ' ("' + (screen.display_pattern_name || '') + '") のテンプレ未定義。' +
+      'DISPLAY_PATTERN_ID_TO_TEMPLATE に追記してください。暫定で single-screen を表示します。');
+    return 'templates/single-screen.html';
+  }
+  // === END: v0.6.3 dual-read 後方互換 ===
+
   // path-date-folder (2026-04-20): v0.5 §1.5 準拠。
   //   MONITOR_ID は INT（ゼロ埋めなし）。デフォルトは 101（旧 0101）。
   //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
@@ -387,15 +441,18 @@
   function buildScreenStates(slot) {
     var screens = slot.screens || [];
     return screens.map(function(screen) {
+      // v0.6.3 dual-read: position/template を新旧両形式から解決（layout_section/display_pattern_id も可）
+      var canonicalPos = resolveCanonicalPosition(screen);
+      var resolvedTemplate = resolveTemplate(screen);
       var state = {
-        position: screen.position,
-        template: screen.template,
+        position: canonicalPos,
+        template: resolvedTemplate,
         type: screen.type || 'odds',
         races: screen.races || [],
         currentRaceIndex: -1,
         currentRaceId: null,
         lastTransitionMs: 0,
-        iframeEl: getIframeByPosition(screen.position),
+        iframeEl: getIframeByPosition(canonicalPos),
         videoConfig: null,
         // Phase 5 (2026-04-22): ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
         //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
@@ -712,7 +769,8 @@
       currentSlotIndex = slotIdx;
 
       // 指示書09 T5-3: slot.layout に応じて CSS クラスを切替
-      applyLayout(slot.layout);
+      // v0.6.3 dual-read: layout_pattern（新）優先、無ければ layout（旧）
+      applyLayout(slot.layout_pattern || slot.layout);
 
       // screenStates を再構築（slot 内では不変）
       screenStates = buildScreenStates(slot);

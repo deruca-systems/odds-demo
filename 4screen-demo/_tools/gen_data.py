@@ -1871,6 +1871,9 @@ def build_slot(
         "start_time": now_plus_min(start_offset_min),
         "end_time": now_plus_min(end_offset_min),
         "layout": pattern["layout"],
+        # v0.6.3 forward-compat (2026-06-02): 新名 layout_pattern を併記（旧 layout も残す）。
+        #   index.html は dual-read で layout_pattern || layout を解決する。
+        "layout_pattern": pattern["layout"],
         # display-pattern-id-numeric (2026-04-20): v0.5 §1.3.1 INT 化 + display_pattern_name 追加。
         #   引数 display_pattern_id は文字列 ID（内部可読性）、JSON 出力は INT + 表示名。
         "display_pattern_id": DISPLAY_PATTERN_NUMERIC_IDS[display_pattern_id][0],
