@@ -1,0 +1,14 @@
+# pre-commit 設定 — gen_data.py 変更時に payout_lint を自動実行
+# 有効化（初回のみ）:
+#   pip install pre-commit
+#   cd C:/Users/oikawa.masafumi/Documents/GitHub/odds-demo
+#   pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: payout-lint
+        name: payout_lint (9 賭式 rank-aware 検証, 同着定義書 v1.1 §4)
+        entry: python -X utf8 C:/Users/oikawa.masafumi/Documents/claude/output/tools/payout_lint.py
+        language: system
+        files: ^4screen-demo/_tools/gen_data\.py$
+        pass_filenames: false

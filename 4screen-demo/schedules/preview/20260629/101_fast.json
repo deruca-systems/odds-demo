@@ -1,0 +1,126 @@
+{
+  "server_time": "2026-06-29T16:54:25+09:00",
+  "monitor_id": 101,
+  "display_date": "20260629",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-06-29T16:54:25+09:00",
+      "end_time": "2026-06-29T17:04:25+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "49",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_49_02",
+              "race_key": "名古屋2R",
+              "post_time_iso": "2026-06-29T16:56:25+09:00",
+              "data_source": "odds/20260629/NAR_49_02.json"
+            },
+            {
+              "race_id": "NAR_49_07",
+              "race_key": "名古屋7R",
+              "post_time_iso": "2026-06-29T16:59:25+09:00",
+              "data_source": "odds/20260629/NAR_49_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "30",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_30_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-06-29T16:57:25+09:00",
+              "data_source": "odds/20260629/NAR_30_07.json"
+            },
+            {
+              "race_id": "NAR_45_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-06-29T17:00:25+09:00",
+              "data_source": "odds/20260629/NAR_45_01.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "06",
+          "organizer_type": "JRA",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_06_11",
+              "race_key": "中山11R",
+              "post_time_iso": "2026-06-29T16:58:25+09:00",
+              "data_source": "odds/20260629/JRA_06_11.json"
+            },
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-06-29T17:01:25+09:00",
+              "data_source": "odds/20260629/JRA_05_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/single-popular-second.html",
+          "place_cd": "09",
+          "organizer_type": "JRA",
+          "display_pattern_id": 42,
+          "display_pattern_name": "人気順②（16〜30位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_09_11",
+              "race_key": "阪神11R",
+              "post_time_iso": "2026-06-29T16:59:25+09:00",
+              "data_source": "odds/20260629/JRA_09_11.json"
+            },
+            {
+              "race_id": "NAR_49_09",
+              "race_key": "名古屋9R",
+              "post_time_iso": "2026-06-29T17:02:25+09:00",
+              "data_source": "odds/20260629/NAR_49_09.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

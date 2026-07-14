@@ -25,51 +25,25 @@ html.single-screen {
 /*
  * 天候ラベルの2文字対応（小雨 / 小雪）
  *
- * 芥川様CSS の .weather は width: 6.4rem 固定で 1文字ラベル前提。
- * 2文字ラベル（小雨/小雪）が来ると span が2行に折り返す（height=52px）。
- * 申し送り仕様書の天候アイコンには light-rain.svg / light-snow.svg が含まれており、
- * 2文字ラベルの表示が必要なケースは設計上存在する。
- *
- * 暫定対応:
- *   - span に white-space: nowrap を指定して折り返し抑止
- *   - .weather 自体の min-width を広げて 2文字がボックス内に収まるようにする
- *     （1文字時は justify-content: center のため中央寄せのまま自然な見た目）
+ * 新 style.css (2026-06-04 取込) では `.weather { width: auto; white-space: nowrap }` が
+ * 親要素に既設のため、span の wrap 抑止と width auto は不要。
+ * 残課題は「1文字時と2文字時で box 幅が変動する」点のみで、min-width 8.6rem を
+ * 与えて両者を視覚的に揃える。
  *
  * 恒久対応案（要・芥川様確認）:
- *   - style.css の .weather { width: 6.4rem } を適切な最小幅に緩める
- *   - または 2文字時のみサブクラスで幅調整
+ *   - style.css 側で .weather に min-width を追加してもらう
+ *   - 本ルールは追加されたら削除する
  */
 .screen .race-header .race-info .weather,
 .umaren-wide .race-header .race-info .weather,
 .popular .race-header .race-info .weather {
-  width: auto;
   min-width: 8.6rem;
-}
-.screen .race-header .race-info .weather span,
-.umaren-wide .race-header .race-info .weather span,
-.popular .race-header .race-info .weather span {
-  white-space: nowrap;
 }
 
 /*
- * 「前日発売」ラベルは芥川様CSSだと .popular 配下のみ定義されている。
- * .screen / .umaren-wide でも同じ見た目にするため、同スタイルを流用する。
- * 値は芥川様 .popular .race-header .previous-day と同一。
+ * 「前日発売」ラベル: 2026-06-04 取込の新 style.css L294-313 で `.screen` / `.umaren-wide` /
+ * `.popular` の3つに同一スタイルが定義されたため、本オーバーライドは redundant。削除済み。
  */
-.screen .race-header .previous-day,
-.umaren-wide .race-header .previous-day {
-  width: 9.9rem;
-  height: 2.7rem;
-  display: grid;
-  place-content: center;
-  color: #CEE069;
-  font-size: 2rem;
-  letter-spacing: 0.05em;
-  border: 0.1rem solid #1C1C1C;
-  border-radius: 0.4rem;
-  background: linear-gradient(113.33deg, #1F3352 27.64%, #0D1117 72.36%);
-  margin-right: 0.8rem;
-}
 
 /*
  * 馬連ワイドの 4列 × 上下2段 レイアウト用の列ラッパー。
@@ -206,6 +180,38 @@ html.single-screen {
 }
 .cutin-overlay.is-hidden {
   display: none;
+}
+/* CUT-001/002 用 closing-timer-board と CUT-003 用 cutin-signage の排他切替。
+   cutin-overlay.is-hidden で全体非表示、内側 .is-hidden で type 別切替。 */
+.cutin-overlay .closing-timer-board.is-hidden,
+.cutin-overlay .cutin-signage.is-hidden {
+  display: none;
+}
+
+/*
+ * CUT-003 サイネージカットイン (2026-06-04 追加)
+ * 要件定義書 v3.3 §3.2「SCR-CUT-003 (サイネージカットイン、締切後30秒程度) をオッズエリアに重畳表示」。
+ * 既存 cutin-overlay 内に closing-timer-board (CUT-001/002) と並列に配置し、is-hidden で排他切替。
+ * 寸法は closing-timer-board と同じ 96rem × 54rem (芥川 screen6 board に合わせる)。
+ * 画像は object-fit: contain でアスペクト比維持＋センター配置。16:9 ガイドライン準拠。
+ */
+.cutin-overlay .cutin-signage {
+  width: 96rem;
+  height: 54rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0D1117;
+  overflow: hidden;
+}
+.cutin-overlay .cutin-signage__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  background: #0D1117;
 }
 
 /*
@@ -368,3 +374,110 @@ html.single-screen {
   background-color: #581058;
   color: inherit;
 }
+
+/* ============================================================
+ * L字 (layout-3split) サブ部分の iframe 単独展開 — 2026-06-04 追加
+ *
+ * 芥川 screen7.html の `.message` テンプレ (96rem × 54rem, grid 3エリア:
+ * sidebar / main / bottom) は単一画面前提だが、本プロト 3-iframe 構成では
+ * 動画フレーム (cell-2 = video-frame.html) を中央に挟むため、
+ *   cell-1 (左) = `.message__sidebar` 単独
+ *   cell-3 (右下) = `.message__bottom` 単独
+ * の 2 つのサブ部分を個別 iframe で表示する。
+ *
+ * 識別: html 要素に `lshape-side` / `lshape-bottom` クラスを付与（テンプレ側）。
+ *   テンプレ側はこれ以外の inline <style> を持たない（旧版に存在した <style> ブロックは
+ *   2026-06-04 で本ファイルに移設）。
+ *
+ * font-size 注意: vw は iframe 自身のビューポート基準（親ウィンドウ基準ではない）。
+ *   cell-1 = 20vw_parent → iframe 内では 100vw_iframe
+ *   cell-3 = 80vw_parent × (100% - 16:9 ratio) → iframe 内では 100vw_iframe / 100vh_iframe
+ * ============================================================ */
+
+/* --- cell-1 (左袖、出走表): side-entries.html 用 ---
+ * 寸法計算:
+ *   芥川 .message__sidebar 幅 = 18.8rem。screen7 全体 (96rem) の 19.58% で、
+ *   layout-3split の cell-1 = 20vw_parent と概ね整合。
+ * font-size:
+ *   1rem = min(iframe幅 / 18.8rem, iframe高さ / 54rem)
+ *        = min(100vw / 18.8, 100vh / 54)
+ *        = min(5.319vw, 1.852vh)
+ *   FHD (cell-1=384×1080): min(20.42, 20.00) = 20.0 ✓
+ *   4K  (cell-1=768×2160): min(40.84, 40.00) = 40.0 ✓
+ */
+html.lshape-side {
+  font-size: min(5.319vw, 1.852vh);
+}
+
+/* --- cell-3 (右下、4賭式上位): wide-popular.html 用 ---
+ * 寸法計算:
+ *   芥川 .message__bottom 幅 = 76.8rem (= 80%)、高さ = 10.5rem (= 19.44%)。
+ *   cell-3 = 80vw_parent × 残り高（layout-3split で cell-2 が 16:9 を取った残り）。
+ * font-size:
+ *   1rem = min(iframe幅 / 76.8rem, iframe高さ / 10.5rem)
+ *        = min(100vw / 76.8, 100vh / 10.5)
+ *        = min(1.302vw, 9.524vh)
+ *   FHD (cell-3=1528×213, gap差し引き後): min(19.90, 20.29) = 19.9 ✓
+ *   4K  (cell-3=3056×425): min(39.79, 40.48) = 39.79 ✓
+ */
+html.lshape-bottom {
+  font-size: min(1.302vw, 9.524vh);
+}
+
+/* --- 共通: .wrapper を grid 解除して iframe 全面に展開 ---
+ * 芥川 .wrapper は 2×2 grid (4分割表示前提)。L字テンプレでは 1 子要素のみなので
+ * block 化して子を 100vw × 100vh で展開。
+ */
+html.lshape-side .wrapper,
+html.lshape-bottom .wrapper {
+  display: block;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* --- cell-1: .message を sidebar 専用化 ---
+ * 芥川 .message は 96rem × 54rem の grid(sidebar/main/bottom)。
+ * sidebar のみ展開するため block 化し、cell-1 全面に広げる。
+ * sidebar 自体の 18.8rem 固定幅も 100% に拡張。
+ * horse-table の row-height 計算は iframe 全高 (100vh) ベースに切替
+ *   （芥川版の calc(54rem - ...) は 96rem×54rem 想定の固定値）。
+ */
+html.lshape-side .message.sidebar-only {
+  width: 100%;
+  height: 100%;
+  display: block;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  grid-template-areas: none;
+  gap: 0;
+  overflow: hidden;
+}
+html.lshape-side .message.sidebar-only .message__sidebar {
+  width: 100%;
+  height: 100%;
+}
+html.lshape-side .message.sidebar-only .message__horse-table {
+  --horse-table-body-height: calc(100vh - 3.8rem - 0.4rem - 2.2rem);
+}
+
+/* --- cell-3: .message を bottom 専用化 ---
+ * 同様に block 化し、.message__bottom を iframe 全面に展開。
+ * 内部の 4 カラム grid (17rem 17rem 20.2rem 20.2rem) はそのまま rem 値で割当を継続。
+ */
+html.lshape-bottom .message.bottom-only {
+  width: 100%;
+  height: 100%;
+  display: block;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  grid-template-areas: none;
+  gap: 0;
+  overflow: hidden;
+}
+html.lshape-bottom .message.bottom-only .message__bottom {
+  width: 100%;
+  height: 100%;
+}
+

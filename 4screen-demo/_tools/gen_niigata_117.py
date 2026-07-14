@@ -87,17 +87,20 @@ REFUND_MANUAL = {
 
 def gen_one_result(rr: int, pattern: str, race_name: str, distance: int,
                     surface: str, condition: str, weather: str,
-                    post_offset_min: int) -> dict:
-    """1 レース分の結果 JSON を gen_data.gen_results_json 準拠で生成。"""
+                    post_offset_min: int,
+                    place_cd: str = "04", place_name: str = "新潟",
+                    org: str = "JRA", seed_base: int = 4000) -> dict:
+    """1 レース分の結果 JSON を gen_data.gen_results_json 準拠で生成。
+    2026-06-29: place_cd/place_name/org/seed_base を引数化（4K 4分割の2場目生成に流用）。"""
     race_spec = {
-        "organizer_type": "JRA",
-        "place_cd": "04",
-        "place_name": "新潟",
+        "organizer_type": org,
+        "place_cd": place_cd,
+        "place_name": place_name,
         "rr": rr,
-        "race_id": f"JRA_04_{rr:02d}",
-        "race_key": f"新潟{rr}R",
+        "race_id": f"{org}_{place_cd}_{rr:02d}",
+        "race_key": f"{place_name}{rr}R",
     }
-    seed = 4000 + rr
+    seed = seed_base + rr
     special = SPECIAL_PAY.get(rr)
     if special:
         data = gen.gen_results_json(race_spec, pattern, seed,
@@ -125,23 +128,26 @@ def gen_one_result(rr: int, pattern: str, race_name: str, distance: int,
 # ============================================================
 def gen_one_odds(rr: int, horses_n: int, post_offset_min: int,
                  race_name: str, scratched: dict = None,
-                 apprentice: dict = None) -> dict:
+                 apprentice: dict = None,
+                 place_cd: str = "04", place_name: str = "新潟",
+                 org: str = "JRA", seed_base: int = 4000) -> dict:
     """make_race を流用して出走表用 odds JSON を生成。
 
     apprentice: { horse_no: 減量記号 } で見習・女性騎手減量サンプルを注入。
                 記号は ★/▲/△/◇/☆ の 5 種 (JSON 仕様書 v0.6.2 §A.12 準拠)。
+    2026-06-29: place 引数化（4K 4分割の2場目生成に流用）。
     """
     return gen.make_race(
-        organizer_type="JRA",
-        place_cd="04",
-        place_name="新潟",
+        organizer_type=org,
+        place_cd=place_cd,
+        place_name=place_name,
         rr=rr,
         race_name=race_name,
         weather="sunny", weather_label="晴",
         surface="芝", condition="良", distance=2000, direction="左",
         post_time_offset_min=post_offset_min, horses_n=horses_n,
         name_pool=NIIGATA_NAMES, jockey_pool=gen.JOCKEYS_JRA,
-        seed=4000 + rr,
+        seed=seed_base + rr,
         scratched_horse_nos=(scratched or {}),
         apprentice_horse_nos=(apprentice or {}),
     )
@@ -150,16 +156,22 @@ def gen_one_odds(rr: int, horses_n: int, post_offset_min: int,
 # ============================================================
 # 117 schedule 構築
 # ============================================================
-def build_screen(position: str, races: list) -> dict:
-    """4-split の 1 panel（3 races）を構築。"""
+def build_screen(position: str, races: list, dp: int) -> dict:
+    """4-split の 1 panel（3 races）を構築。
+
+    dp: 新マスタ display_pattern_id（出走成績 固定範囲 51=1-3R/52=4-6R/53=7-9R/54=10-12R）。
+        2026-06-29 旧 id=10「3R出走成績」から per-screen 固定範囲 ID へ移行。
+    """
     return {
         "position": position,
         "layout_section": position,
         "template": "templates/entries-results-3r.html",
         "place_cd": "04",
         "organizer_type": "JRA",
-        "display_pattern_id": 10,
-        "display_pattern_name": "3R出走成績",
+        "display_pattern_id": dp,
+        "display_pattern_name": gen.DISPLAY_PATTERN_NAMES[dp],
+        "target_race_no": None,        # §3.5.4（出走成績は固定範囲エントリ自体で表現、対象R固定なし）
+        "target_date_offset": 0,       # §3.5.4（当日）
         "is_auto_extend": False,
         "back_color_code": None,
         "races": [
@@ -204,13 +216,16 @@ def build_117_schedule(monitor_id: int, fast: bool) -> dict:
             "start_time": NOW_ISO,
             "end_time": end_iso,
             "layout": "4split",
-            "display_pattern_id": 10,
-            "display_pattern_name": "3R出走成績比較",
+            "layout_pattern": "4split",
+            # per-screen 化（2026-06-29）: 各セルは出走成績 固定範囲（51-54）。slot 単位は
+            #   代表値（P1=51）を後方互換で残す（index.html は描画に使わない）。
+            "display_pattern_id": 51,
+            "display_pattern_name": gen.DISPLAY_PATTERN_NAMES[51],
             "screens": [
-                build_screen("P1", p1_races),
-                build_screen("P2", p2_races),
-                build_screen("P3", p3_races),
-                build_screen("P4", p4_races),
+                build_screen("P1", p1_races, 51),   # 1-3R
+                build_screen("P2", p2_races, 52),   # 4-6R
+                build_screen("P3", p3_races, 53),   # 7-9R
+                build_screen("P4", p4_races, 54),   # 10-12R
             ],
         }],
     }
@@ -227,36 +242,31 @@ def main():
     odds_dir.mkdir(parents=True, exist_ok=True)
     sched_dir.mkdir(parents=True, exist_ok=True)
 
-    # 結果 1R〜10R
-    for plan in RESULTS_PLAN:
-        rr = plan[0]
-        data = gen_one_result(*plan)
-        fname = f"JRA_04_{rr:02d}.json"
-        (results_dir / fname).write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-        print(f"wrote results/{TODAY}/{fname}: pattern={plan[1]} entries={len(data['entries'])}")
+    # 2026-06-29: 4K出走成績(screen8 4分割)用に 2 場分（新潟04 / 中京07）を生成。
+    #   1場あたり 結果1-10R + 出走表11-12R。117 比較ビューは従来どおり新潟(04)を使用。
+    def gen_venue(place_cd, place_name, org, seed_base):
+        for plan in RESULTS_PLAN:
+            rr = plan[0]
+            data = gen_one_result(*plan, place_cd=place_cd, place_name=place_name,
+                                  org=org, seed_base=seed_base)
+            fname = f"{org}_{place_cd}_{rr:02d}.json"
+            (results_dir / fname).write_text(
+                json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        # 11R(18頭、5記号全種: 3★/5▲/8△/12◇/15☆) / 12R(10頭、7番取消・2番◇)
+        odds_11 = gen_one_odds(11, 18, 20, f"{place_name}記念(オープン)",
+                               apprentice={3: '★', 5: '▲', 8: '△', 12: '◇', 15: '☆'},
+                               place_cd=place_cd, place_name=place_name, org=org, seed_base=seed_base)
+        (odds_dir / f"{org}_{place_cd}_11.json").write_text(
+            json.dumps(odds_11, ensure_ascii=False, indent=2), encoding="utf-8")
+        odds_12 = gen_one_odds(12, 10, 40, f"{place_name}特別(GIII)",
+                               scratched={7: 1}, apprentice={2: '◇'},
+                               place_cd=place_cd, place_name=place_name, org=org, seed_base=seed_base)
+        (odds_dir / f"{org}_{place_cd}_12.json").write_text(
+            json.dumps(odds_12, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"wrote {org}_{place_cd}（{place_name}）: results 1-10R + odds 11-12R")
 
-    # 出走表 11R (18頭) — 5 記号サンプル全種を含む
-    # 馬番 3=★ / 5=▲ / 8=△ / 12=◇ / 15=☆ で 5 記号すべて jockey 行内に表示
-    odds_11 = gen_one_odds(11, 18, post_offset_min=20,
-                            race_name="新潟記念ステークス(オープン)",
-                            apprentice={3: '★', 5: '▲', 8: '△',
-                                        12: '◇', 15: '☆'})
-    (odds_dir / "JRA_04_11.json").write_text(
-        json.dumps(odds_11, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    print(f"wrote odds/{TODAY}/JRA_04_11.json: 18頭出走表 (5記号サンプル: 3★/5▲/8△/12◇/15☆)")
-
-    # 出走表 12R (10頭、馬番7に出走取消、馬番2に ◇ 女性騎手サンプル)
-    odds_12 = gen_one_odds(12, 10, post_offset_min=40,
-                            race_name="関屋記念(GIII)",
-                            scratched={7: 1},
-                            apprentice={2: '◇'})
-    (odds_dir / "JRA_04_12.json").write_text(
-        json.dumps(odds_12, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    print(f"wrote odds/{TODAY}/JRA_04_12.json: 10頭出走表+出走取消(7番)+◇(2番)")
+    gen_venue("04", "新潟", "JRA", 4000)   # 1場目（117 比較ビューと共用）
+    gen_venue("07", "中京", "JRA", 7000)   # 2場目（4K 4分割の右列用）
 
     # 117 schedule
     sched = build_117_schedule(117, fast=False)

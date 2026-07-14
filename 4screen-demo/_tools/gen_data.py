@@ -10,6 +10,7 @@ odds-demo 用サンプルJSONジェネレータ
 """
 import json
 import random
+import sys
 from datetime import datetime, timezone, timedelta
 from itertools import permutations, combinations as itcombinations
 from pathlib import Path
@@ -28,6 +29,9 @@ JST = timezone(timedelta(hours=9))
 NOW = datetime.now(JST)
 NOW_ISO = NOW.strftime("%Y-%m-%dT%H:%M:%S+09:00")
 TODAY_YYYYMMDD = NOW.strftime("%Y%m%d")  # 日付フォルダ名・display_date 値の双方に使用
+# 2026-06-29: 前日発売（§3.5.4 target_date_offset=1）が参照する翌日分。
+#   翌日 odds を odds/{TOMORROW}/ に生成し、前日発売セルの data_source が参照する。
+TOMORROW_YYYYMMDD = (NOW + timedelta(days=1)).strftime("%Y%m%d")
 
 # --- field-rename-v0.5 (2026-04-20): 表示文字列 → v0.5 §4.3 INT コード変換 ---
 # v0.5 付録A.7〜A.10 の値体系に準拠。プロト RACE_DEFINITIONS は可読性重視で
@@ -500,7 +504,7 @@ def make_race(
     *,
     # field-rename-v0.5 (2026-04-20): v0.5 §4.3 命名に統一
     organizer_type: str,
-    place_cd: str,            # 場コード（例: "09"=阪神, "45"=船橋）
+    place_cd: str,            # 場コード（例: "09"=阪神, "19"=船橋）
     place_name: str,          # 場名（例: "阪神"）
     rr: int,                  # レース番号
     race_name: str,
@@ -515,7 +519,6 @@ def make_race(
     name_pool: list,
     jockey_pool: list,
     seed: int,
-    is_previous_day: bool = False,
     scratched_horse_nos: dict = None,
     odds_status: int = 0,             # H-01: 0=発売中 / 1=確定 / 2=レース中止 / 3=開催中止
     jockey_change_horse_no: int = None, # H-02
@@ -568,7 +571,9 @@ def make_race(
             "distance": distance,
             "course_direction": COURSE_DIRECTION_STR_TO_CD.get(direction, 1),
             "pn": horses_n,               # v0.5 §4.3 出走頭数（取消・除外含む予定頭数）
-            "is_previous_day": is_previous_day,
+            # 2026-06-29: is_previous_day を撤去（JSON v0.6.4 §3.5.4）。前日発売は schedule の
+            #   screen.target_date_offset で駆動。odds JSON に静的フラグは持たせない
+            #   （同一 odds が当日/前日 両文脈で参照されるため矛盾する）。
             "odds_status": odds_status,  # H-01 追加
             # H-03 (2026-04-19): 枠単オッズ。race オブジェクト内に配置（指示書準拠）。
             # 仕様改訂 (2026-04-19): 同枠組合せは2頭以上の枠のみ、発売なしは空配列。
@@ -657,16 +662,16 @@ RACE_DEFINITIONS = [
     # 船橋2R/3R: オッズ画面を十分見せるため「発走時刻 HH:MM」表示のまま slot1 を過ごす長めの余裕。
     #   fast モード slot1 = 5分 の範囲外なので、slot1 中はずっと pre モード（発走時刻表示）。
     # レース番号順と発走時刻順が一致するよう 1R < 2R < 3R で並べる。
-    ("odds_NAR_45_01.json", dict(
-        organizer_type="NAR", place_cd="45",
+    ("odds_NAR_19_01.json", dict(
+        organizer_type="NAR", place_cd="19",
         place_name="船橋", rr=1, race_name="サラ系3歳未勝利",
         weather="sunny", weather_label="晴",
         surface="ダ", condition="良", distance=1200, direction="左",
         post_time_offset_min=3, horses_n=8,
         name_pool=FUNABASHI_NAMES, jockey_pool=JOCKEYS_NAR, seed=101,
     )),
-    ("odds_NAR_45_02.json", dict(
-        organizer_type="NAR", place_cd="45",
+    ("odds_NAR_19_02.json", dict(
+        organizer_type="NAR", place_cd="19",
         place_name="船橋", rr=2, race_name="サラ系3歳新馬",
         weather="sunny", weather_label="晴",
         surface="ダ", condition="良", distance=1400, direction="左",
@@ -675,8 +680,8 @@ RACE_DEFINITIONS = [
         # H-02 (2026-04-17): 見習騎手サンプル（馬番4に減量記号 ★）
         apprentice_horse_nos={4: "★"},
     )),
-    ("odds_NAR_45_03.json", dict(
-        organizer_type="NAR", place_cd="45",
+    ("odds_NAR_19_03.json", dict(
+        organizer_type="NAR", place_cd="19",
         place_name="船橋", rr=3, race_name="サラ系3歳1勝クラス",
         weather="cloudy", weather_label="曇",
         surface="ダ", condition="稍重", distance=1600, direction="左",
@@ -686,8 +691,8 @@ RACE_DEFINITIONS = [
     # 指示書08: 取消馬デモ用 8頭レース（5番を出走取消）
     #   slot1 内で「既存4テンプレ（単勝複勝枠連 / 馬連ワイド / 人気1-15 / 人気16-30）」を
     #   取消馬入りで見せる。post_time は 1R(3分)と 2R(10分)の間に配置。
-    ("odds_NAR_45_04.json", dict(
-        organizer_type="NAR", place_cd="45",
+    ("odds_NAR_19_04.json", dict(
+        organizer_type="NAR", place_cd="19",
         place_name="船橋", rr=4, race_name="サラ系3歳500万下",
         weather="cloudy", weather_label="曇",
         surface="ダ", condition="良", distance=1200, direction="左",
@@ -696,16 +701,16 @@ RACE_DEFINITIONS = [
         scratched_horse_nos={5: 1},  # 5番: 出走取消
     )),
     # ---- slot 2: 午後の部 ----
-    ("odds_NAR_49_02.json", dict(
-        organizer_type="NAR", place_cd="49",
+    ("odds_NAR_24_02.json", dict(
+        organizer_type="NAR", place_cd="24",
         place_name="名古屋", rr=2, race_name="サラ系2歳新馬",
         weather="cloudy", weather_label="曇",
         surface="ダ", condition="稍重", distance=1200, direction="右",
         post_time_offset_min=60, horses_n=13,
         name_pool=NAGOYA_NAMES, jockey_pool=JOCKEYS_NAR, seed=202,
     )),
-    ("odds_NAR_49_07.json", dict(
-        organizer_type="NAR", place_cd="49",
+    ("odds_NAR_24_07.json", dict(
+        organizer_type="NAR", place_cd="24",
         place_name="名古屋", rr=7, race_name="サラ系2歳未勝利",
         weather="light-rain", weather_label="小雨",
         surface="ダ", condition="重", distance=1400, direction="右",
@@ -714,16 +719,16 @@ RACE_DEFINITIONS = [
         # H-02: 見習騎手サンプル（馬番7に減量記号 ▲）
         apprentice_horse_nos={7: "▲"},
     )),
-    ("odds_NAR_49_08.json", dict(
-        organizer_type="NAR", place_cd="49",
+    ("odds_NAR_24_08.json", dict(
+        organizer_type="NAR", place_cd="24",
         place_name="名古屋", rr=8, race_name="サラ系3歳オープン",
         weather="rain", weather_label="雨",
         surface="ダ", condition="不良", distance=1800, direction="右",
         post_time_offset_min=66, horses_n=16,
         name_pool=NAGOYA_NAMES, jockey_pool=JOCKEYS_NAR, seed=208,
     )),
-    ("odds_NAR_49_09.json", dict(
-        organizer_type="NAR", place_cd="49",
+    ("odds_NAR_24_09.json", dict(
+        organizer_type="NAR", place_cd="24",
         place_name="名古屋", rr=9, race_name="サラ系3歳2勝クラス",
         weather="rain", weather_label="雨",
         surface="ダ", condition="不良", distance=1200, direction="右",
@@ -732,11 +737,11 @@ RACE_DEFINITIONS = [
         # H-03 (2026-04-19): 枠単発売なしサンプル。single-screen.html のページング停止確認用
         has_frame_utan=False,
     )),
-    # ---- NAR_41 佐賀（changes-info デモ用: 騎手変更・出走取消を含む） ----
-    # changes-info 画面が参照する changes/{YYYYMMDD}/NAR_41.json を自動生成するためのテンプレート。
+    # ---- NAR_32 佐賀（changes-info デモ用: 騎手変更・出走取消を含む） ----
+    # changes-info 画面が参照する changes/{YYYYMMDD}/NAR_32.json を自動生成するためのテンプレート。
     # post_time は slot2 末尾〜slot3 前半に配置（offset 72〜78 分）。
-    ("odds_NAR_41_02.json", dict(
-        organizer_type="NAR", place_cd="41",
+    ("odds_NAR_32_02.json", dict(
+        organizer_type="NAR", place_cd="32",
         place_name="佐賀", rr=2, race_name="サラ系3歳未勝利",
         weather="sunny", weather_label="晴",
         surface="ダ", condition="良", distance=900, direction="右",
@@ -744,8 +749,8 @@ RACE_DEFINITIONS = [
         name_pool=SAGA_NAMES, jockey_pool=JOCKEYS_NAR, seed=4102,
         jockey_change_horse_no=3,  # 3番騎手変更（changes-info デモ用）
     )),
-    ("odds_NAR_41_03.json", dict(
-        organizer_type="NAR", place_cd="41",
+    ("odds_NAR_32_03.json", dict(
+        organizer_type="NAR", place_cd="32",
         place_name="佐賀", rr=3, race_name="サラ系3歳500万下",
         weather="sunny", weather_label="晴",
         surface="ダ", condition="稍重", distance=1400, direction="右",
@@ -753,8 +758,8 @@ RACE_DEFINITIONS = [
         name_pool=SAGA_NAMES, jockey_pool=JOCKEYS_NAR, seed=4103,
         scratched_horse_nos={7: 1},  # 7番出走取消（changes-info デモ用）
     )),
-    ("odds_NAR_41_06.json", dict(
-        organizer_type="NAR", place_cd="41",
+    ("odds_NAR_32_06.json", dict(
+        organizer_type="NAR", place_cd="32",
         place_name="佐賀", rr=6, race_name="サラ系3歳1勝クラス",
         weather="cloudy", weather_label="曇",
         surface="ダ", condition="良", distance=1200, direction="右",
@@ -769,7 +774,6 @@ RACE_DEFINITIONS = [
         surface="芝", condition="良", distance=2400, direction="左",
         post_time_offset_min=123, horses_n=18,
         name_pool=TOKYO_NAMES, jockey_pool=JOCKEYS_JRA, seed=311,
-        is_previous_day=True,
     )),
     ("odds_JRA_06_11.json", dict(
         organizer_type="JRA", place_cd="06",
@@ -796,11 +800,11 @@ RACE_DEFINITIONS = [
         jockey_change_horse_no=3,
     )),
     # 指示書09 T6: monitor_id=0102（L字+1画面デモ）用の門別7R
-    #   org=NAR、場コード=30（門別）。
+    #   org=NAR、場コード=36（門別）。
     #   2026-04-17: 18頭立てで side-entries/wide-popular のフル可変挙動を検証するため
     #   horses_n を 8→18 に拡張。--row-count: max(10, 18) = 18 行で縦分割される。
-    ("odds_NAR_30_07.json", dict(
-        organizer_type="NAR", place_cd="30",
+    ("odds_NAR_36_07.json", dict(
+        organizer_type="NAR", place_cd="36",
         place_name="門別", rr=7, race_name="サラ系3歳B2",
         weather="sunny", weather_label="晴",
         surface="ダ", condition="良", distance=1200, direction="右",
@@ -819,8 +823,8 @@ RACE_DEFINITIONS = [
         odds_status=2,  # レース中止
     )),
     # schedule_0107: 開催中止（odds_status=3）— 船橋5R（場全体中止想定）
-    ("odds_NAR_45_05.json", dict(
-        organizer_type="NAR", place_cd="45",
+    ("odds_NAR_19_05.json", dict(
+        organizer_type="NAR", place_cd="19",
         place_name="船橋", rr=5, race_name="船橋5R（開催中止想定）",
         weather="rain", weather_label="雨",
         surface="ダ", condition="不良", distance=1200, direction="左",
@@ -842,17 +846,68 @@ RACE_DEFINITIONS = [
 #   DB 側の正式 INT 値は v0.5 付録B 確定待ち、本暫定値（1〜5）は確定時に差替え可能。
 #   フロント側（index.html）は slot.screens[].template を直接使うため本マップ非依存。
 #   新メンバー参照用に assets/js/config.js にも同等の lookup を配置。
-DISPLAY_PATTERN_NUMERIC_IDS = {
-    "PAT-4SPLIT-STD":               (1, "4分割標準"),
-    "PAT-4SPLIT-UMATAN":            (2, "4分割馬連馬単"),
-    "PAT-LSHAPE-VIDEO":             (3, "L字+動画"),
-    "PAT-1SCREEN-VIDEO":            (4, "1画面動画"),
-    "PAT-4SPLIT-RIGHTBOTTOM-VIDEO": (5, "4分割右下動画"),
-    # 3R-entries-results-phase2 (2026-04-21): 出走成績 3R 表示追加
-    "PAT-3R-ENTRIES-RESULTS":       (10, "3R出走成績"),
-    # v0.6 追加（2026-04-22）: 仕様書 v0.6 §3.8 / 付録B 暫定採番。DB 正式値確定時に差替え
-    "PAT-6R-ENTRIES-RESULTS":       (11, "6R出走成績"),
-    "PAT-CHANGES-INFO":             (12, "変更情報"),
+# ========================================================================
+# display_pattern マスタ（display_patternマスタ整理一覧_20260623.md §1 確定版）
+# ========================================================================
+# 2026-06-29: display_pattern を「賭式グループ順の新ID」へ全面移行。
+#   旧プロト採番（slot 単位 composite 1〜5 / 10〜12）を廃止。
+#   JSON 仕様 v0.6.4 §3.5 準拠で **display_pattern は screen(セル)単位**。
+#   slot は layout_pattern（4split / 3split / 1screen）のみを持ち、各 screen の
+#   display_pattern_id は DISPLAY_PATTERN_MAP の各 screen の "dp" で明示する。
+#   L字は display_pattern から除外し layout_pattern=3split（左袖=100 / 右下=101 専用）。
+DISPLAY_PATTERN_NAMES = {
+    1:   "単勝・複勝・枠連・枠単",
+    10:  "馬連・ワイド（自動ページング）",
+    11:  "馬連・ワイド①（P1）",
+    12:  "馬連・ワイド②（P2）",
+    13:  "馬連・ワイド③（P3）",
+    20:  "馬連（自動ページング）",
+    21:  "馬連①",
+    22:  "馬連②",
+    30:  "馬単（自動ページング）",
+    31:  "馬単①",
+    32:  "馬単②",
+    40:  "人気順（自動ページング）",
+    41:  "人気順①（1〜15位）",
+    42:  "人気順②（16〜30位）",
+    50:  "出走成績（自動ページング）",
+    51:  "出走成績 1-3R",
+    52:  "出走成績 4-6R",
+    53:  "出走成績 7-9R",
+    54:  "出走成績 10-12R",
+    60:  "出走成績(4K用)（自動ページング）",
+    61:  "出走成績(4K用) 1-6R",
+    62:  "出走成績(4K用) 7-12R",
+    70:  "変更情報",
+    80:  "レース動画（地方競馬LIVE）",
+    90:  "JRA動画（ch1 全場中継）",
+    91:  "JRA動画（ch2 パドック中継）",
+    92:  "JRA動画（ch3 関東主場中継）",
+    93:  "JRA動画（ch4 関西主場中継）",
+    94:  "JRA動画（ch5 第3場中継）",
+    100: "L字 左袖（出走表）",
+    101: "L字 右下（人気・ワイド人気 4賭式）",
+}
+
+# 凍結スナップショット（118-124, 20260421 由来の手動メンテ schedule）の新ID移行用。
+#   これらは build_slot を通らず日付置換コピーのみのため、template を真として
+#   新マスタ代表ID（自動ページング/グループ先頭）を当てる。自動/固定の区別は JSON に
+#   無いので代表値へ寄せる（showcase 用途のため範囲固定は問わない）。
+TEMPLATE_TO_NEW_DP = {
+    "templates/single-screen.html":         1,
+    "templates/single-umaren-wide.html":    10,
+    "templates/single-umaren-first.html":   21,
+    "templates/single-umaren-second.html":  22,
+    "templates/single-umatan-first.html":   31,
+    "templates/single-umatan-second.html":  32,
+    "templates/single-popular.html":        41,
+    "templates/single-popular-second.html": 42,
+    "templates/entries-results-3r.html":    50,
+    "templates/entries-results-6r.html":    60,
+    "templates/changes-info.html":          70,
+    "templates/video-frame.html":           80,
+    "templates/side-entries.html":          100,
+    "templates/wide-popular.html":          101,
 }
 
 # 2026-05-01: column-major layout (P1=左上, P2=左下, P3=右上, P4=右下) への移行に伴い、
@@ -860,54 +915,83 @@ DISPLAY_PATTERN_NUMERIC_IDS = {
 #             1/3 上段・2/4 下段）と意味的に整合させ、馬連系を右上、人気順系を左下に配置。
 #             PAT-LSHAPE-VIDEO（L字）と PAT-1SCREEN-VIDEO（1画面）は影響外、PAT-3R-ENTRIES-RESULTS
 #             は monitor=117 専用ルート（gen_niigata_117.py）で別途構築。
+# 各 screen の "dp" = 新マスタ display_pattern_id（screen 単位、§1）。
+#   PAT-* キーは slot の layout を表す内部識別子として維持（layout 解決のみに使用）。
 DISPLAY_PATTERN_MAP = {
     "PAT-4SPLIT-STD": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-screen.html"},          # 左上: 単複枠
-            {"position": "P2", "template": "templates/single-popular.html"},          # 左下: 人気順
-            {"position": "P3", "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド
-            {"position": "P4", "template": "templates/single-popular-second.html"},   # 右下: 人気順第二
+            {"position": "P1", "dp": 1,  "template": "templates/single-screen.html"},          # 左上: 単複枠連枠単
+            {"position": "P2", "dp": 41, "template": "templates/single-popular.html"},          # 左下: 人気順①
+            {"position": "P3", "dp": 10, "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド(自動)
+            {"position": "P4", "dp": 42, "template": "templates/single-popular-second.html"},   # 右下: 人気順②
         ],
     },
     "PAT-4SPLIT-UMATAN": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-umaren-first.html"},     # 左上: 馬連1
-            {"position": "P2", "template": "templates/single-umatan-first.html"},     # 左下: 馬単1
-            {"position": "P3", "template": "templates/single-umaren-second.html"},    # 右上: 馬連2
-            {"position": "P4", "template": "templates/single-umatan-second.html"},    # 右下: 馬単2
+            {"position": "P1", "dp": 21, "template": "templates/single-umaren-first.html"},     # 左上: 馬連①
+            {"position": "P2", "dp": 31, "template": "templates/single-umatan-first.html"},     # 左下: 馬単①
+            {"position": "P3", "dp": 22, "template": "templates/single-umaren-second.html"},    # 右上: 馬連②
+            {"position": "P4", "dp": 32, "template": "templates/single-umatan-second.html"},    # 右下: 馬単②
         ],
     },
     "PAT-LSHAPE-VIDEO": {
-        "layout": "3split",  # 2026-05-08: 'lshape' → '3split' に変更（4split と同じ命名体系へ統一）
+        "layout": "3split",  # 2026-05-08: 'lshape' → '3split'。L字は layout_pattern で表現（id16 廃止）
         "screens": [
-            {"position": "P1", "template": "templates/side-entries.html"},
-            {"position": "P2", "template": "templates/video-frame.html", "type": "video"},
-            {"position": "P3", "template": "templates/wide-popular.html"},
+            {"position": "P1", "dp": 100, "template": "templates/side-entries.html"},                      # 左袖: L字左袖(出走表)
+            {"position": "P2", "dp": 80,  "template": "templates/video-frame.html", "type": "video"},      # 右上: 動画(NAR)
+            {"position": "P3", "dp": 101, "template": "templates/wide-popular.html"},                      # 右下: L字右下(4賭式)
         ],
     },
     "PAT-1SCREEN-VIDEO": {
         "layout": "1screen",
         "screens": [
-            {"position": "P1", "template": "templates/video-frame.html", "type": "video"},
+            {"position": "P1", "dp": 80, "template": "templates/video-frame.html", "type": "video"},
+        ],
+    },
+    # 2026-07-13: 1画面フルの単複枠（前日発売デモ用。芥川様 前日発売表示の協議）
+    "PAT-1SCREEN-SINGLE": {
+        "layout": "1screen",
+        "screens": [
+            {"position": "P1", "dp": 1, "template": "templates/single-screen.html"},
         ],
     },
     "PAT-4SPLIT-RIGHTBOTTOM-VIDEO": {
         "layout": "4split",
         "screens": [
-            {"position": "P1", "template": "templates/single-screen.html"},           # 左上: 単複枠
-            {"position": "P2", "template": "templates/single-popular.html"},          # 左下: 人気順
-            {"position": "P3", "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド
-            {"position": "P4", "template": "templates/video-frame.html", "type": "video"},  # 右下: 動画
+            {"position": "P1", "dp": 1,  "template": "templates/single-screen.html"},           # 左上: 単複枠連枠単
+            {"position": "P2", "dp": 41, "template": "templates/single-popular.html"},          # 左下: 人気順①
+            {"position": "P3", "dp": 10, "template": "templates/single-umaren-wide.html"},      # 右上: 馬連ワイド(自動)
+            {"position": "P4", "dp": 80, "template": "templates/video-frame.html", "type": "video"},  # 右下: 動画(NAR)
         ],
     },
-    # 3R-entries-results-phase2 (2026-04-21): 1画面内 3レース成績表示。
-    #   1列 (P1) のみ、子テンプレ側が 3 レース並列で render する。
+    # 出走成績 3R 表示。1列 (P1) のみ、子テンプレ側が 3 レース並列で render。
+    #   dp=50（出走成績 自動ページング）。固定範囲版(51-54)は Phase 2 で別エントリ化。
     "PAT-3R-ENTRIES-RESULTS": {
         "layout": "1screen",
         "screens": [
-            {"position": "P1", "template": "templates/entries-results-3r.html"},
+            {"position": "P1", "dp": 50, "template": "templates/entries-results-3r.html"},
+        ],
+    },
+    # 出走成績(4K用) 6R横並び（芥川様 screen8.html / html.screen-4k 準拠、Phase 2）。
+    #   1列(P1)に子テンプレが 6 レースを横並び render。範囲固定 61=1-6R / 62=7-12R。
+    "PAT-6R-ENTRIES-RESULTS-1": {   # dp=61 出走成績(4K用) 1-6R
+        "layout": "1screen",
+        "screens": [
+            {"position": "P1", "dp": 61, "template": "templates/entries-results-6r.html"},
+        ],
+    },
+    "PAT-6R-ENTRIES-RESULTS-2": {   # dp=62 出走成績(4K用) 7-12R
+        "layout": "1screen",
+        "screens": [
+            {"position": "P1", "dp": 62, "template": "templates/entries-results-6r.html"},
+        ],
+    },
+    "PAT-6R-ENTRIES-RESULTS-AUTO": {   # dp=60 出走成績(4K用) 自動ページング（1-6R→7-12R ループ）
+        "layout": "1screen",
+        "screens": [
+            {"position": "P1", "dp": 60, "template": "templates/entries-results-6r.html"},
         ],
     },
 }
@@ -1453,8 +1537,8 @@ def gen_results_json(race_spec: dict, pattern: str, seed: int,
                       special_pay_bet: str = None, special_pay_idx: int = -1) -> dict:
     """1 レース分の出走成績 JSON を生成。
 
-    race_spec: {"organizer_type":"NAR", "place_cd":"49", "place_name":"名古屋",
-                "rr":1, "race_id":"NAR_49_01", "race_key":"名古屋1R"}
+    race_spec: {"organizer_type":"NAR", "place_cd":"24", "place_name":"名古屋",
+                "rr":1, "race_id":"NAR_24_01", "race_key":"名古屋1R"}
     """
     entries = gen_entries_for_pattern(race_spec["organizer_type"], pattern, seed)
     # 自己整合性チェック
@@ -1480,7 +1564,7 @@ def gen_results_json(race_spec: dict, pattern: str, seed: int,
 def _venue_name(org: str, pp: str) -> str:
     table = {
         ("NAR", "03"): "帯広",   # Phase 3 (2026-04-21): ばんえい競馬
-        ("NAR", "30"): "門別", ("NAR", "45"): "船橋", ("NAR", "49"): "名古屋",
+        ("NAR", "36"): "門別", ("NAR", "19"): "船橋", ("NAR", "24"): "名古屋",
         ("JRA", "05"): "東京", ("JRA", "06"): "中山", ("JRA", "09"): "阪神",
     }
     return table.get((org, pp), "？")
@@ -1666,7 +1750,7 @@ def gen_banei_odds_json(rr: int, track_water_pct: float = 1.8,
             "track_cd": 0, "track_cond_cd": None,
             "track_water_pct": track_water_pct,
             "distance": 200, "course_direction": 0,
-            "pn": horse_count, "is_previous_day": False,
+            "pn": horse_count,
             "odds_status": 0,
             "frame_utan": frame_utan,
         },
@@ -1705,14 +1789,14 @@ def _race_spec_results_for_schedule(org: str, pp: str, rr: int) -> dict:
 
 # パターン × 3 レース（monitor_id 108〜116）の割当
 PATTERN_TO_RACES = {
-    "NORMAL": [("NAR", "49", 1), ("NAR", "49", 2), ("NAR", "49", 3)],
-    "A":      [("NAR", "49", 4), ("NAR", "49", 5), ("NAR", "49", 6)],
-    "B":      [("NAR", "49", 7), ("NAR", "49", 8), ("NAR", "49", 9)],
-    "C":      [("NAR", "49", 10), ("NAR", "49", 11), ("NAR", "49", 12)],
-    "D":      [("NAR", "30", 1), ("NAR", "30", 2), ("NAR", "30", 3)],
-    "E":      [("NAR", "30", 4), ("NAR", "30", 5), ("NAR", "30", 6)],
-    "F":      [("NAR", "30", 7), ("NAR", "30", 8), ("NAR", "30", 9)],
-    "G":      [("NAR", "30", 10), ("NAR", "30", 11), ("NAR", "30", 12)],
+    "NORMAL": [("NAR", "24", 1), ("NAR", "24", 2), ("NAR", "24", 3)],
+    "A":      [("NAR", "24", 4), ("NAR", "24", 5), ("NAR", "24", 6)],
+    "B":      [("NAR", "24", 7), ("NAR", "24", 8), ("NAR", "24", 9)],
+    "C":      [("NAR", "24", 10), ("NAR", "24", 11), ("NAR", "24", 12)],
+    "D":      [("NAR", "36", 1), ("NAR", "36", 2), ("NAR", "36", 3)],
+    "E":      [("NAR", "36", 4), ("NAR", "36", 5), ("NAR", "36", 6)],
+    "F":      [("NAR", "36", 7), ("NAR", "36", 8), ("NAR", "36", 9)],
+    "G":      [("NAR", "36", 10), ("NAR", "36", 11), ("NAR", "36", 12)],
     "H":      [("JRA", "09", 10), ("JRA", "09", 11), ("JRA", "09", 12)],
 }
 
@@ -1742,7 +1826,7 @@ def build_schedule_entries_results(monitor_id: int, fast: bool = False) -> dict:
 
 
 def _race_id_from_file(fname: str) -> str:
-    """'odds_NAR_45_01.json' → 'NAR_45_01'."""
+    """'odds_NAR_19_01.json' → 'NAR_19_01'."""
     return fname.replace("odds_", "").replace(".json", "")
 
 
@@ -1773,18 +1857,31 @@ def _race_key_from_odds(fname: str) -> str:
 
 def _race_spec(odds_file: str, post_offset_min: int) -> dict:
     """new 構造 (H-04) の race エントリを作る。
-    odds_file: 'odds_NAR_45_01.json'（旧命名の入力を許容、出力は v0.5 形式）
+    odds_file: 'odds_NAR_19_01.json'（旧命名の入力を許容、出力は v0.5 形式）
     post_offset_min: NOW からの発走時刻オフセット（分）
 
     path-date-folder (2026-04-20): data_source を v0.5 §1.5 形式に対応。
-        "data/odds_NAR_45_01.json" → "odds/{YYYYMMDD}/NAR_45_01.json"
+        "data/odds_NAR_19_01.json" → "odds/{YYYYMMDD}/NAR_19_01.json"
     """
-    odds_basename = odds_file.replace("odds_", "")  # "NAR_45_01.json"
+    odds_basename = odds_file.replace("odds_", "")  # "NAR_19_01.json"
     return {
         "race_id": _race_id_from_file(odds_file),
         "race_key": _race_key_from_odds(odds_file),
         "post_time_iso": now_plus_min(post_offset_min),
         "data_source": f"odds/{TODAY_YYYYMMDD}/{odds_basename}",
+    }
+
+
+def _race_spec_for_date(odds_file: str, date_yyyymmdd: str) -> dict:
+    """前日発売（§3.5.4 target_date_offset>=1）用の race エントリ。
+    data_source を任意日付フォルダ（翌日等）に向ける。post_time は翌日想定で 0 基準。
+    """
+    odds_basename = odds_file.replace("odds_", "")
+    return {
+        "race_id": _race_id_from_file(odds_file),
+        "race_key": _race_key_from_odds(odds_file),
+        "post_time_iso": now_plus_min(0),
+        "data_source": f"odds/{date_yyyymmdd}/{odds_basename}",
     }
 
 
@@ -1794,12 +1891,119 @@ def _video_config(venue_code: str, video_source_override: str = None) -> dict:
         "venue_code": venue_code,
         "quality_mode": "auto",
         "quality_cap": 4,
-        "audio_muted": True,
+        # 2026-07-14 方針: 音声はデフォルトで出力（表示端末は起動フラグで自動再生許可、
+        # ポリシー未許可ブラウザは video-frame.html がミュート開始へフォールバック）
+        "audio_muted": False,
         "volume": 0.7,
     }
     if video_source_override:
         cfg["video_source_override"] = video_source_override
     return cfg
+
+
+def gen_signage_images() -> list:
+    """サイネージ用デモ画像 (16:9 / 1920×1080) を PIL で 2 枚生成。
+
+    2026-05-08 D.O.S MTG 合意「S3 画像をフィット&センター表示、運用上 16:9 推奨」
+    を踏まえ、ガイドライン準拠のサンプル画像を 4screen-demo/signage/ 配下に出力する。
+
+    生成パス:
+        4screen-demo/signage/sample-1.png  (テーマ: 場外発売所お知らせ風)
+        4screen-demo/signage/sample-2.png  (テーマ: 締切後の留め置き画像風)
+
+    Returns:
+        生成した画像の URL パス（schedule JSON 用、`/signage/{name}` 形式）のリスト
+    """
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        print("[warn] PIL 未インストール、signage 画像生成スキップ")
+        return []
+
+    signage_dir = Path(__file__).resolve().parent.parent / "signage"
+    signage_dir.mkdir(parents=True, exist_ok=True)
+
+    def _build_image(path, title, subtitle, bg, accent):
+        img = Image.new("RGB", (1920, 1080), bg)
+        draw = ImageDraw.Draw(img)
+        # アクセント帯（左 80px、上下フル）
+        draw.rectangle([(0, 0), (80, 1080)], fill=accent)
+        # 右上の DEMO バッジ
+        draw.rectangle([(1680, 40), (1880, 110)], fill=accent)
+        # フォント取得（Windows 標準 Yu Gothic UI → 失敗時はデフォルト）
+        def _font(size, bold=False):
+            for fp in [
+                r"C:\Windows\Fonts\YuGothB.ttc",  # Bold
+                r"C:\Windows\Fonts\YuGothM.ttc",  # Medium
+                r"C:\Windows\Fonts\YuGothR.ttc",  # Regular
+                r"C:\Windows\Fonts\meiryo.ttc",
+            ]:
+                try:
+                    return ImageFont.truetype(fp, size)
+                except (OSError, IOError):
+                    continue
+            return ImageFont.load_default()
+
+        font_title    = _font(120, bold=True)
+        font_subtitle = _font(56)
+        font_badge    = _font(36, bold=True)
+        font_caption  = _font(32)
+
+        # DEMO バッジ
+        draw.text((1700, 50), "DEMO", fill="#1C1C1C", font=font_badge)
+        # 中央タイトル
+        bbox = draw.textbbox((0, 0), title, font=font_title)
+        tw = bbox[2] - bbox[0]; th = bbox[3] - bbox[1]
+        draw.text(((1920 - tw) / 2, (1080 - th) / 2 - 80), title, fill="#FFFFFF", font=font_title)
+        # サブタイトル
+        bbox = draw.textbbox((0, 0), subtitle, font=font_subtitle)
+        sw = bbox[2] - bbox[0]
+        draw.text(((1920 - sw) / 2, (1080 - th) / 2 + 80), subtitle, fill=accent, font=font_subtitle)
+        # 下部キャプション
+        cap = "4screen-demo signage sample — 1920×1080 / 16:9 / object-fit: contain"
+        draw.text((110, 1020), cap, fill="#888888", font=font_caption)
+        img.save(path, "PNG", optimize=True)
+
+    p1 = signage_dir / "sample-1.png"
+    p2 = signage_dir / "sample-2.png"
+    # sample-1.png: 安田記念告知のソース画像 (signage/source/yasuda_kinen_2026_source.webp)
+    # が存在すればそれを crop + letterbox して使用、なければ PIL 汎用画像で生成。
+    yasuda_src = signage_dir / "source" / "yasuda_kinen_2026_source.webp"
+    if yasuda_src.exists():
+        _build_yasuda_signage(yasuda_src, p1)
+        print(f"wrote signage/sample-1.png: 安田記念告知 (from {yasuda_src.name})")
+    else:
+        _build_image(p1, "DERUCA Odds System", "本日のオッズ表示はまもなく開始します", "#0D1117", "#CEE069")
+        print(f"wrote signage/sample-1.png: 1920×1080 PNG (PIL default)")
+    _build_image(p2, "発売終了のお知らせ", "ご来場誠にありがとうございました", "#1F3352", "#FF8000")
+    print(f"wrote signage/sample-2.png: 1920×1080 PNG")
+    # 親 index.html から /signage/{name} で fetch するので前方 / 始まりに揃える。
+    return ["/signage/sample-1.png", "/signage/sample-2.png"]
+
+
+def _build_yasuda_signage(src_path, dst_path):
+    """2026-06-04: 安田記念告知のサイネージ画像生成。
+
+    JRA 公式バナー (1200×500 webp) から緑ボタン「注目レース...」を crop で除去し、
+    1920×1080 PNG に letterbox 整形する。
+    元スクリプト: gen_signage_yasuda.py
+    """
+    from PIL import Image
+    src_img = Image.open(src_path).convert("RGB")
+    sw, sh = src_img.size
+    # 緑ボタン除去のため y=400 で crop (上から 400 行のみ残す)。
+    # 元 1200×500 → crop 1200×400 → scale 1920×640 → letterbox to 1920×1080。
+    crop_bottom_y = 400
+    out_w, out_h = 1920, 1080
+    cropped = src_img.crop((0, 0, sw, crop_bottom_y))
+    cw, ch = cropped.size
+    scale = out_w / cw
+    new_h = int(ch * scale)
+    scaled = cropped.resize((out_w, new_h), Image.LANCZOS)
+    canvas = Image.new("RGB", (out_w, out_h), (0, 0, 0))
+    paste_y = (out_h - new_h) // 2
+    canvas.paste(scaled, (0, paste_y))
+    canvas.save(dst_path, "PNG", optimize=True)
 
 
 def build_slot(
@@ -1809,6 +2013,8 @@ def build_slot(
     display_pattern_id: str,
     screen_races: dict,           # {position: [race_spec, ...]} ※ video screen は {} で可
     video_config_by_pos: dict = None,
+    signage_url: str = None,          # 2026-06-04: slot 単位のサイネージ画像 URL (CUT-003 用)
+    target_by_pos: dict = None,       # 2026-06-29: 前日/前売（§3.5.4）{pos:{target_race_no, target_date_offset}}
 ) -> dict:
     """H-04 Phase 2: `slot.screens[].races[]` 構造で slot を生成。
 
@@ -1824,19 +2030,29 @@ def build_slot(
         video_config_by_pos: {position: {venue_code, quality_mode, ...}}
     """
     pattern = DISPLAY_PATTERN_MAP[display_pattern_id]
-    pat_id_int = DISPLAY_PATTERN_NUMERIC_IDS[display_pattern_id][0]
-    pat_id_name = DISPLAY_PATTERN_NUMERIC_IDS[display_pattern_id][1]
     screens_out = []
     # v0.6 §3.5 準拠: 各 screen に DB `monitor_schedules_detail` のフィールドを出力。
     #   - layout_section (CHAR(2), P1/P2/P3/P4): position のエイリアス
     #   - place_cd / organizer_type: 先頭 race から推定（NULL 許容）
-    #   - display_pattern_id / display_pattern_name: slot 単位と同値（DB は screen 毎に
-    #     display_pattern_id_01..04 を持つが、プロト 1 slot = 1 pattern で統一）
+    #   - display_pattern_id / display_pattern_name: **screen(セル)単位**（新マスタ §1、
+    #     DB monitor_schedules_detail.display_pattern_id_01..04 に対応）。各 screen の
+    #     "dp"（新ID）から解決する。2026-06-29 per-screen 化（旧 slot 単位 composite 廃止）。
     #   - is_auto_extend: BIT NOT NULL、プロトでは false 固定
     #   - back_color_code: CHAR(6) NULL、プロトでは null 固定（124 は手動注入）
     #   C-CC-2（v0.6 → v0.7 解消）対応。
     for s in pattern["screens"]:
         pos = s["position"]
+        dp_id = s["dp"]
+        dp_name = DISPLAY_PATTERN_NAMES[dp_id]
+        # 2026-06-29: 対象レース固定 / 前日発売（§3.5.4）。既定 null / 0（＝従来動作）。
+        tgt = (target_by_pos or {}).get(pos, {})
+        t_race_no = tgt.get("target_race_no")
+        t_offset = tgt.get("target_date_offset", 0)
+        # §3.5.4 併用制約: target_date_offset>=1（前日発売）は target_race_no 固定必須。
+        assert not (t_offset >= 1 and t_race_no is None), (
+            f"build_slot {slot_id} {pos}: target_date_offset={t_offset}>=1 は "
+            f"target_race_no（1-12）固定必須（§3.5.4）。null は不可"
+        )
         races_for_screen = [] if s.get("type") == "video" else screen_races.get(pos, [])
         # 先頭 race の race_id から place_cd / organizer_type を推定
         first_race_id = races_for_screen[0].get("race_id") if races_for_screen else None
@@ -1853,20 +2069,25 @@ def build_slot(
             "template": s["template"],
             "place_cd": place_cd_val,              # v0.6 §3.5
             "organizer_type": organizer_type_val,  # v0.6 §3.5
-            "display_pattern_id": pat_id_int,      # v0.6 §3.5（slot と同値）
-            "display_pattern_name": pat_id_name,   # v0.6 §3.5
+            "display_pattern_id": dp_id,           # v0.6.4 §3.5（screen 単位、新マスタ §1）
+            "display_pattern_name": dp_name,       # v0.6.4 §3.5
+            "target_race_no": t_race_no,           # v0.6.4 §3.5.4（null=自動順送り / 1-12=固定）
+            "target_date_offset": t_offset,        # v0.6.4 §3.5.4（0=当日/前売 / 1=翌日=前日発売）
             "is_auto_extend": False,               # v0.6 §3.5 プロト既定値
             "back_color_code": None,               # v0.6 §3.5.3
         }
         if s.get("type") == "video":
             screen_entry["type"] = "video"
             if video_config_by_pos and pos in video_config_by_pos:
-                screen_entry.update(video_config_by_pos[pos])
+                # 2026-07-14: v0.6.5 §3.7 準拠のネスト形式（video_config オブジェクト）。
+                #   旧フラット形式（screen 直下に venue_code 等）は廃止。
+                #   index.html は dual-read（video_config || screen 直下）で後方互換。
+                screen_entry["video_config"] = video_config_by_pos[pos]
             screen_entry["races"] = []  # video は races[] を空配列固定（Phase 1 §9.3 案V1）
         else:
             screen_entry["races"] = races_for_screen
         screens_out.append(screen_entry)
-    return {
+    slot_out = {
         "slot_id": slot_id,
         "start_time": now_plus_min(start_offset_min),
         "end_time": now_plus_min(end_offset_min),
@@ -1874,12 +2095,20 @@ def build_slot(
         # v0.6.3 forward-compat (2026-06-02): 新名 layout_pattern を併記（旧 layout も残す）。
         #   index.html は dual-read で layout_pattern || layout を解決する。
         "layout_pattern": pattern["layout"],
-        # display-pattern-id-numeric (2026-04-20): v0.5 §1.3.1 INT 化 + display_pattern_name 追加。
-        #   引数 display_pattern_id は文字列 ID（内部可読性）、JSON 出力は INT + 表示名。
-        "display_pattern_id": DISPLAY_PATTERN_NUMERIC_IDS[display_pattern_id][0],
-        "display_pattern_name": DISPLAY_PATTERN_NUMERIC_IDS[display_pattern_id][1],
+        # 2026-06-29 per-screen 化: display_pattern は screen 単位（screens[].display_pattern_id）が
+        #   正。slot 単位の display_pattern_id は新マスタには無いが、後方互換のため代表値
+        #   （先頭=P1 screen の dp）を残す。index.html は描画に slot.display_pattern_id を使わない
+        #   （slot.layout_pattern + screen.display_pattern_id を参照）。
+        "display_pattern_id": pattern["screens"][0]["dp"],
+        "display_pattern_name": DISPLAY_PATTERN_NAMES[pattern["screens"][0]["dp"]],
         "screens": screens_out,
     }
+    # 2026-06-04: 要件定義書 v3.3 §3.2 SCR-CUT-003 サイネージカットイン用 URL。
+    #   CRM「画面編集」の「サイネージ画面」ドロップダウン相当 (時間帯ごとに 1 つ指定)。
+    #   None なら出力しない (キャッシュ汚染回避)。
+    if signage_url:
+        slot_out["signage_url"] = signage_url
+    return slot_out
 
 
 # ========================================================================
@@ -1917,18 +2146,18 @@ def build_schedule(fast: bool = False) -> dict:
         # ?next_race_sec=5 等と組合せて「遷移が見える」間隔に短縮する
         post = {
             # slot1（0〜5分、3レース）: 1分間隔
-            "odds_NAR_45_01.json": 2,
-            "odds_NAR_45_02.json": 3,
-            "odds_NAR_45_04.json": 4,
+            "odds_NAR_19_01.json": 2,
+            "odds_NAR_19_02.json": 3,
+            "odds_NAR_19_04.json": 4,
             # slot2（5〜15分、4レース）: 2分間隔
-            "odds_NAR_45_03.json": 6,
-            "odds_NAR_49_08.json": 8,
+            "odds_NAR_19_03.json": 6,
+            "odds_NAR_24_08.json": 8,
             "odds_JRA_05_11.json": 10,
             "odds_JRA_09_11.json": 12,
             # slot3（15〜30分、4レース）: 3分間隔
-            "odds_NAR_49_02.json": 16,
-            "odds_NAR_49_07.json": 19,
-            "odds_NAR_49_09.json": 22,
+            "odds_NAR_24_02.json": 16,
+            "odds_NAR_24_07.json": 19,
+            "odds_NAR_24_09.json": 22,
             "odds_JRA_06_11.json": 25,
         }
     else:
@@ -1938,45 +2167,51 @@ def build_schedule(fast: bool = False) -> dict:
         # 本番相当: 各レースの実 post_time_offset_min を使う
         # slot1 (0〜60分): 船橋1R(+3), 2R(+10), 4R(+15)
         post = {
-            "odds_NAR_45_01.json": 3,
-            "odds_NAR_45_02.json": 10,
-            "odds_NAR_45_04.json": 15,
+            "odds_NAR_19_01.json": 3,
+            "odds_NAR_19_02.json": 10,
+            "odds_NAR_19_04.json": 15,
             # slot2 (60〜120分): 船橋3R は時間外のため slot2 中に再配置（+70〜+100）
-            "odds_NAR_45_03.json": 70,
-            "odds_NAR_49_08.json": 80,
+            "odds_NAR_19_03.json": 70,
+            "odds_NAR_24_08.json": 80,
             "odds_JRA_05_11.json": 90,
             "odds_JRA_09_11.json": 100,
             # slot3 (120〜180分): 名古屋2R/7R/9R/中山11R
-            "odds_NAR_49_02.json": 130,
-            "odds_NAR_49_07.json": 140,
-            "odds_NAR_49_09.json": 150,
+            "odds_NAR_24_02.json": 130,
+            "odds_NAR_24_07.json": 140,
+            "odds_NAR_24_09.json": 150,
             "odds_JRA_06_11.json": 160,
         }
 
     # slot1: 船橋1R, 2R, 4R（4split-STD）
-    slot1_files = [("odds_NAR_45_01.json", post["odds_NAR_45_01.json"]),
-                   ("odds_NAR_45_02.json", post["odds_NAR_45_02.json"]),
-                   ("odds_NAR_45_04.json", post["odds_NAR_45_04.json"])]
+    slot1_files = [("odds_NAR_19_01.json", post["odds_NAR_19_01.json"]),
+                   ("odds_NAR_19_02.json", post["odds_NAR_19_02.json"]),
+                   ("odds_NAR_19_04.json", post["odds_NAR_19_04.json"])]
     slot1_races = _broadcast_races(slot1_files, ["P1", "P2", "P3", "P4"])
 
     # slot2: 船橋3R, 名古屋8R, 東京11R, 阪神11R（4split-UMATAN マトリクス）
-    slot2_files = [("odds_NAR_45_03.json", post["odds_NAR_45_03.json"]),
-                   ("odds_NAR_49_08.json", post["odds_NAR_49_08.json"]),
+    slot2_files = [("odds_NAR_19_03.json", post["odds_NAR_19_03.json"]),
+                   ("odds_NAR_24_08.json", post["odds_NAR_24_08.json"]),
                    ("odds_JRA_05_11.json", post["odds_JRA_05_11.json"]),
                    ("odds_JRA_09_11.json", post["odds_JRA_09_11.json"])]
     slot2_races = _broadcast_races(slot2_files, ["P1", "P2", "P3", "P4"])
 
     # slot3: 名古屋2R, 7R, 9R, 中山11R（4split-STD）
-    slot3_files = [("odds_NAR_49_02.json", post["odds_NAR_49_02.json"]),
-                   ("odds_NAR_49_07.json", post["odds_NAR_49_07.json"]),
-                   ("odds_NAR_49_09.json", post["odds_NAR_49_09.json"]),
+    slot3_files = [("odds_NAR_24_02.json", post["odds_NAR_24_02.json"]),
+                   ("odds_NAR_24_07.json", post["odds_NAR_24_07.json"]),
+                   ("odds_NAR_24_09.json", post["odds_NAR_24_09.json"]),
                    ("odds_JRA_06_11.json", post["odds_JRA_06_11.json"])]
     slot3_races = _broadcast_races(slot3_files, ["P1", "P2", "P3", "P4"])
 
+    # 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL (要件定義書 v3.3 §3.2)。
+    #   CRM「画面編集」の「サイネージ画面」ドロップダウン相当。時間帯ごとに 1 つ指定。
+    #   各 slot に異なる画像を設定し、CUT-002 → CUT-003 の切替動作を確認可能にする。
     slots = [
-        build_slot("slot1", s1_start, s1_end, "PAT-4SPLIT-STD", slot1_races),
-        build_slot("slot2", s2_start, s2_end, "PAT-4SPLIT-UMATAN", slot2_races),
-        build_slot("slot3", s3_start, s3_end, "PAT-4SPLIT-STD", slot3_races),
+        build_slot("slot1", s1_start, s1_end, "PAT-4SPLIT-STD", slot1_races,
+                   signage_url="/signage/sample-1.png"),
+        build_slot("slot2", s2_start, s2_end, "PAT-4SPLIT-UMATAN", slot2_races,
+                   signage_url="/signage/sample-2.png"),
+        build_slot("slot3", s3_start, s3_end, "PAT-4SPLIT-STD", slot3_races,
+                   signage_url="/signage/sample-1.png"),
     ]
     return {
         "server_time": NOW_ISO,
@@ -2146,7 +2381,7 @@ def build_schedule_0102(fast: bool = False) -> dict:
         post_offset = 10
 
     # 浦和ライブ（odds は 門別7R ダミーを流用。2026-04-19 に大井→浦和へ切替、浦和開催日のため）
-    race = _race_spec("odds_NAR_30_07.json", post_offset)
+    race = _race_spec("odds_NAR_36_07.json", post_offset)
 
     slots = [
         # slot1: L字
@@ -2189,14 +2424,14 @@ def build_schedule_0103(fast: bool = False) -> dict:
         post = {"P1": [30, 90], "P2": [45, 105], "P3": [60, 110], "P4": [75, 115]}
 
     screen_races = {
-        "P1": [_race_spec("odds_NAR_49_02.json", post["P1"][0]),
-               _race_spec("odds_NAR_49_07.json", post["P1"][1])],
-        "P2": [_race_spec("odds_NAR_30_07.json", post["P2"][0]),
-               _race_spec("odds_NAR_45_01.json", post["P2"][1])],
+        "P1": [_race_spec("odds_NAR_24_02.json", post["P1"][0]),
+               _race_spec("odds_NAR_24_07.json", post["P1"][1])],
+        "P2": [_race_spec("odds_NAR_36_07.json", post["P2"][0]),
+               _race_spec("odds_NAR_19_01.json", post["P2"][1])],
         "P3": [_race_spec("odds_JRA_06_11.json", post["P3"][0]),
                _race_spec("odds_JRA_05_11.json", post["P3"][1])],
         "P4": [_race_spec("odds_JRA_09_11.json", post["P4"][0]),
-               _race_spec("odds_NAR_49_09.json", post["P4"][1])],
+               _race_spec("odds_NAR_24_09.json", post["P4"][1])],
     }
 
     slots = [
@@ -2253,11 +2488,11 @@ def build_schedule_0105(fast: bool = False) -> dict:
         p2 = [75, 90, 105, 135]
 
     slot1_races = _broadcast_races(
-        [("odds_NAR_45_01.json", p1[0]), ("odds_NAR_45_02.json", p1[1])],
+        [("odds_NAR_19_01.json", p1[0]), ("odds_NAR_19_02.json", p1[1])],
         ["P1", "P2", "P3", "P4"],
     )
     slot2_races = _broadcast_races(
-        [("odds_NAR_45_03.json", p2[0]), ("odds_NAR_49_08.json", p2[1]),
+        [("odds_NAR_19_03.json", p2[0]), ("odds_NAR_24_08.json", p2[1]),
          ("odds_JRA_05_11.json", p2[2]), ("odds_JRA_09_11.json", p2[3])],
         ["P1", "P2", "P3", "P4"],
     )
@@ -2410,7 +2645,7 @@ def build_schedule_0107(fast: bool = False) -> dict:
         s1_start, s1_end = 0, 360
         post_offset = 40
 
-    race = _race_spec("odds_NAR_45_05.json", post_offset)
+    race = _race_spec("odds_NAR_19_05.json", post_offset)
     screen_races = {p: [race] for p in ["P1", "P2", "P3", "P4"]}
 
     slots = [
@@ -2420,6 +2655,120 @@ def build_schedule_0107(fast: bool = False) -> dict:
         "server_time": NOW_ISO,
         "monitor_id": 107,                  # path-date-folder: v0.5 §1.3.1 INT 化
         "display_date": TODAY_YYYYMMDD,     # path-date-folder: v0.5 §3.3 必須
+        "slots": slots,
+    }
+
+
+def build_schedule_0125(fast: bool = False) -> dict:
+    """schedule_0125: 前日・前売発売 ＋ venue_filters（発売対象レース絞込み）デモ。
+
+    JSON 仕様 v0.6.4 §3.5.4（target_race_no / target_date_offset）+ §3.13（venue_filters）。
+      P1 単複      : 当日通常（順送り）。venue_filters で 船橋 2-4R のみ発売 → 1R/5R は自動スキップ
+      P2 人気①    : 前売（当日 東京11R 固定。target_race_no=11 / offset=0）
+      P3 馬連ワイド : 前日発売（翌日 東京11R 固定。target_race_no=11 / offset=1 → 翌日 odds 参照）
+      P4 人気②    : 当日通常（P1 と同じ venue_filters 挙動）
+    """
+    s1_start, s1_end = (0, 5) if fast else (0, 360)
+    funabashi = [
+        _race_spec("odds_NAR_19_01.json", 10),
+        _race_spec("odds_NAR_19_02.json", 20),
+        _race_spec("odds_NAR_19_03.json", 30),
+        _race_spec("odds_NAR_19_04.json", 40),
+        _race_spec("odds_NAR_19_05.json", 50),
+    ]
+    tokyo_today    = [_race_spec("odds_JRA_05_11.json", 60)]
+    tokyo_tomorrow = [_race_spec_for_date("odds_JRA_05_11.json", TOMORROW_YYYYMMDD)]
+    screen_races = {
+        "P1": funabashi,
+        "P2": tokyo_today,
+        "P3": tokyo_tomorrow,
+        "P4": funabashi,
+    }
+    # §3.5.4: P3 は前日発売（offset=1）→ target_race_no 固定必須。P2 は当日特定R固定（前売）。
+    target_by_pos = {
+        "P1": {"target_race_no": None, "target_date_offset": 0},
+        "P2": {"target_race_no": 11,   "target_date_offset": 0},
+        "P3": {"target_race_no": 11,   "target_date_offset": 1},
+        "P4": {"target_race_no": None, "target_date_offset": 0},
+    }
+    slots = [
+        build_slot("slot1", s1_start, s1_end, "PAT-4SPLIT-STD",
+                   screen_races, target_by_pos=target_by_pos),
+    ]
+    return {
+        "server_time": NOW_ISO,
+        "monitor_id": 125,
+        "display_date": TODAY_YYYYMMDD,
+        # §3.13: 船橋(45) は 2-4R のみ発売、東京(05) は全レース発売。リストに無い場は非発売。
+        "venue_filters": [
+            {"place_cd": "19", "organizer_type": "NAR", "target_race_no_list": "2-4"},
+            {"place_cd": "05", "organizer_type": "JRA", "target_race_no_list": None},
+        ],
+        "slots": slots,
+    }
+
+
+def build_schedule_0129(fast: bool = False) -> dict:
+    """1画面フル 前日発売デモ（芥川様 前日発売表示の協議用）。
+    単複枠（single-screen）を翌日 東京11R 固定・target_date_offset=1 で全画面表示し、
+    ヘッダが「前日発売」表示に切り替わる様子を大きく見せる。
+    """
+    s1_start, s1_end = (0, 5) if fast else (0, 360)
+    tokyo_tomorrow = [_race_spec_for_date("odds_JRA_05_11.json", TOMORROW_YYYYMMDD)]
+    slots = [build_slot("slot1", s1_start, s1_end, "PAT-1SCREEN-SINGLE",
+                        {"P1": tokyo_tomorrow},
+                        target_by_pos={"P1": {"target_race_no": 11, "target_date_offset": 1}})]
+    return {
+        "server_time": NOW_ISO,
+        "monitor_id": 129,
+        "display_date": TODAY_YYYYMMDD,
+        "slots": slots,
+    }
+
+
+def build_schedule_4k_entries(monitor_id: int, pattern_key: str, race_nos: list,
+                              fast: bool = False) -> dict:
+    """4K出走成績（芥川様 screen8.html / entries-results-6r.html、html.screen-4k）。
+
+    新潟 JRA_04 の 1-12R（gen_niigata_117.py が results/odds を生成）を range 指定で
+    6R 横並び表示する。pattern_key=PAT-6R-ENTRIES-RESULTS-1(dp61=1-6R)/-2(dp62=7-12R)。
+    子テンプレが results→odds フォールバックするため、成績未確定Rは発走(出走表)表示になる。
+    """
+    s1_start, s1_end = (0, 5) if fast else (0, 480)
+    races = [_race_spec_results_for_schedule("JRA", "04", rr) for rr in race_nos]
+    screen_races = {"P1": races}
+    slots = [build_slot("slot1", s1_start, s1_end, pattern_key, screen_races)]
+    return {
+        "server_time": NOW_ISO,
+        "monitor_id": monitor_id,
+        "display_date": TODAY_YYYYMMDD,
+        "slots": slots,
+    }
+
+
+def build_schedule_4k_split(monitor_id: int, fast: bool = False) -> dict:
+    """4K出走成績 4分割（芥川 screen8.html 6/6最終版 §8.8、html.screen-4k）。
+
+    2場×(1-6R/7-12R) を 2×2 の4分割で表示（PL確認 2026-06-29）:
+      左上=1場目1-6R / 右上=2場目1-6R / 左下=1場目7-12R / 右下=2場目7-12R。
+    子テンプレ entries-results-6r.html が races[] を 6 件ずつ4ブロック(.six-race)に分割し、
+    各ブロックが 50vw×50vh で 2×2 配置される。races の並びが DOM ブロック順（=上記配置）。
+    データは gen_niigata_117.py が生成する 新潟(04)/中京(07) の 1-12R を流用。
+    """
+    s1_start, s1_end = (0, 5) if fast else (0, 480)
+    V1 = ("JRA", "04")  # 1場目: 新潟
+    V2 = ("JRA", "07")  # 2場目: 中京
+
+    def specs(v, rng):
+        return [_race_spec_results_for_schedule(v[0], v[1], rr) for rr in rng]
+
+    races = (specs(V1, range(1, 7)) + specs(V2, range(1, 7))      # 上段: 1-6R（左=新潟 / 右=中京）
+             + specs(V1, range(7, 13)) + specs(V2, range(7, 13)))  # 下段: 7-12R（左=新潟 / 右=中京）
+    slots = [build_slot("slot1", s1_start, s1_end, "PAT-6R-ENTRIES-RESULTS-AUTO", {"P1": races})]
+    return {
+        "server_time": NOW_ISO,
+        "monitor_id": monitor_id,
+        "display_date": TODAY_YYYYMMDD,
         "slots": slots,
     }
 
@@ -2455,7 +2804,7 @@ def main():
     # 各レースを書き出し（ファイル名から "odds_" を剥がして新配置へ）
     for fname, params in RACE_DEFINITIONS:
         data = make_race(**params)
-        new_fname = fname.replace("odds_", "")  # "NAR_45_01.json"
+        new_fname = fname.replace("odds_", "")  # "NAR_19_01.json"
         (odds_dir / new_fname).write_text(
             json.dumps(data, ensure_ascii=False, indent=2),
             encoding="utf-8"
@@ -2501,6 +2850,73 @@ def main():
     _write_schedule(107, False, build_schedule_0107(fast=False), "開催中止、通常")
     _write_schedule(107, True,  build_schedule_0107(fast=True),  "開催中止、短縮")
 
+    # 2026-06-29: monitor_id=125 前日・前売 + venue_filters デモ（§3.5.4 / §3.13）。
+    #   前日発売セル（P3, offset=1）が参照する翌日 odds を odds/{TOMORROW}/ に生成する。
+    #   翌日分は当日と同一生成規約（§7.1.1）。デモでは前日発売対象レース（東京11R）のみ出力。
+    tomorrow_odds_dir = ODDS_OUT_BASE / TOMORROW_YYYYMMDD
+    tomorrow_odds_dir.mkdir(parents=True, exist_ok=True)
+    PREV_DAY_SALE_FILES = ("odds_JRA_05_11.json",)
+    _race_def_by_file = dict(RACE_DEFINITIONS)
+    for fname in PREV_DAY_SALE_FILES:
+        params = _race_def_by_file.get(fname)
+        if not params:
+            print(f"[warn] 前日発売用 odds 定義が見つかりません: {fname}")
+            continue
+        data = make_race(**params)
+        new_fname = fname.replace("odds_", "")
+        (tomorrow_odds_dir / new_fname).write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        print(f"wrote odds/{TOMORROW_YYYYMMDD}/{new_fname}: 前日発売用（翌日分）")
+    _write_schedule(125, False, build_schedule_0125(fast=False), "前日・前売+venue_filters、通常")
+    _write_schedule(125, True,  build_schedule_0125(fast=True),  "前日・前売+venue_filters、短縮")
+
+    # 2026-07-13: monitor_id=129 1画面フル 前日発売デモ（芥川様協議用）
+    _write_schedule(129, False, build_schedule_0129(fast=False), "1画面フル前日発売、通常")
+    _write_schedule(129, True,  build_schedule_0129(fast=True),  "1画面フル前日発売、短縮")
+
+    # 2026-06-29 Phase 2: 4K出走成績（screen8 / entries-results-6r.html、html.screen-4k）。
+    #   126=1-6R固定(dp61) / 127=7-12R固定(dp62)。新潟 JRA_04（niigata117 生成）を流用。
+    _write_schedule(126, False, build_schedule_4k_entries(126, "PAT-6R-ENTRIES-RESULTS-1", list(range(1, 7))),  "4K出走成績 1-6R")
+    _write_schedule(126, True,  build_schedule_4k_entries(126, "PAT-6R-ENTRIES-RESULTS-1", list(range(1, 7)),  fast=True), "4K出走成績 1-6R 短縮")
+    _write_schedule(127, False, build_schedule_4k_entries(127, "PAT-6R-ENTRIES-RESULTS-2", list(range(7, 13))), "4K出走成績 7-12R")
+    _write_schedule(127, True,  build_schedule_4k_entries(127, "PAT-6R-ENTRIES-RESULTS-2", list(range(7, 13)), fast=True), "4K出走成績 7-12R 短縮")
+    # dp=60 4分割（screen8 6/6最終版）: 2場×(1-6R/7-12R) を 2×2 で表示
+    _write_schedule(128, False, build_schedule_4k_split(128), "4K出走成績 4分割(2場×1-12R)")
+    _write_schedule(128, True,  build_schedule_4k_split(128, fast=True), "4K出走成績 4分割 短縮")
+
+    # 2026-06-29 Phase 3: 手動切替・プレビュー経路のサンプル JSON（§3.12 / 2026-06-16 確定契約）。
+    #   通常と区別できるよう、プレビュー=複数場混在(0103)、手動切替=L字(0102) の別構成で出力。
+    def _dump(path, obj):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # プレビュー: schedules/preview/{date}/{monitor_id}.json（monitor_id ベース、§3.12.3）
+    prev_dir = SCHEDULES_OUT_BASE / "preview" / TODAY_YYYYMMDD
+    for p in prev_dir.glob("*.json") if prev_dir.exists() else []:
+        p.unlink()
+    for fast, suf in ((False, ""), (True, "_fast")):
+        sched = build_schedule_0103(fast=fast)   # 複数場混在（通常101と一目で別物）
+        sched["monitor_id"] = 101
+        _dump(prev_dir / f"101{suf}.json", sched)
+    print(f"wrote schedules/preview/{TODAY_YYYYMMDD}/101[_fast].json: プレビュー経路サンプル（複数場混在）")
+
+    # 手動切替: schedules/manual/{monitor_uuid}.json（日付フォルダなし＝内山設計書 v1.2 §3.1/§6.8.3 確定）。
+    #   monitor_uuid は CRM 発番の VARCHAR(36) UUID で大域一意のため日付フォルダを挟まない。
+    #   JSON では monitor_id の代わりに monitor_uuid をトップレベル識別子として出力（v1.2 §6.5、排他）。
+    SAMPLE_UUID = "demo-uuid-0001"
+    manual_sched = build_schedule_0102(fast=True)  # L字+動画（通常と一目で別物）
+    manual_sched.pop("monitor_id", None)
+    manual_sched["monitor_uuid"] = SAMPLE_UUID
+    _dump(SCHEDULES_OUT_BASE / "manual" / f"{SAMPLE_UUID}.json", manual_sched)
+    print(f"wrote schedules/manual/{SAMPLE_UUID}.json: 手動切替経路サンプル（L字、日付フォルダなし=v1.2）")
+
+    # 2026-06-04: サイネージ画像生成（CUT-003 SCR-CUT-003 用、各 slot の signage_url で参照）。
+    #   要件定義書 v3.3 §3.2「SCR-CUT-003（サイネージカットイン、締切後30秒程度）をオッズエリアに重畳表示」。
+    #   gen_signage_images() は signage/sample-{1,2}.png を生成。slot.signage_url は build_slot 内で
+    #   各 build_schedule_* 側から指定する（CRM の時間帯設定相当）。
+    signage_urls = gen_signage_images()
+
     # 3R-entries-results-phase2 (2026-04-21): monitor 108〜116（9 パターン × 3 レース）
     #   schedule JSON 生成
     for mid in sorted(MONITOR_TO_PATTERN.keys()):
@@ -2520,7 +2936,7 @@ def main():
         for (org, pp, rr) in races:
             race_spec = _race_spec_for_results(org, pp, rr)
             seed = (hash((org, pp, rr)) % 10000) + 1
-            # NORMAL パターンの最初のレース（NAR_49_01）に特払いサンプルを仕込む
+            # NORMAL パターンの最初のレース（NAR_24_01）に特払いサンプルを仕込む
             special_bet, special_idx = (None, -1)
             if pattern == "NORMAL" and rr == 1:
                 special_bet, special_idx = ("win", 0)   # 単勝 70円
@@ -2589,7 +3005,14 @@ def main():
                 src_path = source_dir / suffix
                 if not src_path.exists():
                     continue
-                data = json.loads(src_path.read_text(encoding="utf-8"))
+                raw = src_path.read_text(encoding="utf-8")
+                # 2026-07-14 place_cd 是正: 凍結スナップショット（20260421 由来）は旧ダミー
+                #   NAR 場コード（30門別/45船橋/49名古屋/41佐賀）のため、コピー時に正本の
+                #   コード表(105) 体系（36/19/24/32、DB v1.11 §12.places）へ書き換える。
+                for _old, _new in (("NAR_30", "NAR_36"), ("NAR_45", "NAR_19"),
+                                   ("NAR_49", "NAR_24"), ("NAR_41", "NAR_32")):
+                    raw = raw.replace(_old, _new)
+                data = json.loads(raw)
                 data["display_date"] = TODAY_YYYYMMDD
                 for slot in data.get("slots", []):
                     slot["start_time"] = slot["start_time"].replace(
@@ -2611,10 +3034,56 @@ def main():
                                 race["data_source"] = race["data_source"].replace(
                                     source_date, TODAY_YYYYMMDD
                                 )
+                    # 2026-06-29 display_pattern 新ID移行: 凍結スナップショットは旧 slot 単位 ID
+                    #   （または display_pattern_id 欠落）のため、template を真として per-screen
+                    #   新ID + layout_pattern を補完する。lint(display_pattern_lint.py)でゼロ化確認。
+                    for scr in slot.get("screens", []):
+                        new_dp = TEMPLATE_TO_NEW_DP.get(scr.get("template"))
+                        if new_dp is not None:
+                            scr["display_pattern_id"] = new_dp
+                            scr["display_pattern_name"] = DISPLAY_PATTERN_NAMES[new_dp]
+                        # 2026-06-29: 前日/前売（§3.5.4）の既定値を補完（凍結コピーは未保持）。
+                        if scr.get("type") != "video":
+                            scr.setdefault("target_race_no", None)
+                            scr.setdefault("target_date_offset", 0)
+                    if slot.get("screens"):
+                        first_dp = TEMPLATE_TO_NEW_DP.get(slot["screens"][0].get("template"))
+                        if first_dp is not None:
+                            slot["display_pattern_id"] = first_dp
+                            slot["display_pattern_name"] = DISPLAY_PATTERN_NAMES[first_dp]
+                    if "layout" in slot and "layout_pattern" not in slot:
+                        slot["layout_pattern"] = slot["layout"]
                 (schedules_dir / suffix).write_text(
                     json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
                 )
-        print(f"wrote schedules/{TODAY_YYYYMMDD}/: 117-124 copied from {source_date}")
+        print(f"wrote schedules/{TODAY_YYYYMMDD}/: 118-124 copied from {source_date}")
+
+    # 2026-06-04 (M-4 修正): monitor=117 (新潟 1R-12R 比較ビュー) を gen_niigata_117.py を呼出して生成。
+    #   従来は別途手動実行する運用だったが、忘れると preview で schedule 404 エラーが出続けるため
+    #   本体実行に統合。subprocess を使う (importlib 経由は gen_data.py を再 exec する循環構造で
+    #   不安定なため)。
+    import subprocess
+    _niigata_117 = Path(__file__).resolve().parent / "gen_niigata_117.py"
+    if _niigata_117.exists():
+        print()
+        print("[m=117] gen_niigata_117.py を呼出 (新潟1R-12R 比較ビュー)")
+        try:
+            _ret = subprocess.run(
+                [sys.executable, "-X", "utf8", str(_niigata_117)],
+                cwd=str(Path(__file__).resolve().parent.parent),
+                capture_output=True, text=True, encoding="utf-8", timeout=60
+            )
+            if _ret.returncode == 0:
+                # 子プロセスの主要出力を 1 段インデントで表示
+                for _line in (_ret.stdout or "").splitlines():
+                    print("  " + _line)
+            else:
+                print(f"[m=117] gen_niigata_117.py 失敗 (rc={_ret.returncode}):")
+                print(_ret.stderr or "(no stderr)")
+        except Exception as _e:
+            print(f"[m=117] subprocess 実行エラー: {_e}")
+    else:
+        print("[m=117] gen_niigata_117.py が見つからない、monitor=117 schedule を skip")
 
     # 通常版を返り値保持（下の print 用）
     sched = build_schedule(fast=False)

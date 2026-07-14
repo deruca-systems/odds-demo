@@ -43,26 +43,62 @@
     // ここでは参考値として保持する（将来的なテスト用途等）。
     paths: {
       schedule: 'schedules/{YYYYMMDD}/{monitor_id}{fastSuffix}.json',
+      // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
+      //   通常=monitor_id / プレビュー=monitor_id+preview=1 / 手動切替=monitor_uuid。
+      schedulePreview:      'schedules/preview/{YYYYMMDD}/{monitor_id}{fastSuffix}.json',
+      scheduleManual:       'schedules/manual/{YYYYMMDD}/{monitor_uuid}.json',  // v0.6.2（日付フォルダあり）
+      scheduleManualNoDate: 'schedules/manual/{monitor_uuid}.json',            // 内山設計書 v1.2（日付フォルダなし）
       odds:     'odds/{YYYYMMDD}/{ORG}_{PP}_{RR}.json',
       changes:  'changes/{YYYYMMDD}/{ORG}_{PP}.json'
     },
 
+    // 手動切替パスの日付フォルダ有無 = **なし**（内山様 スケジュールJSON出力プログラム設計書 v1.2
+    //   §3.1/§6.8.3 で確定。根拠: manual は monitor_uuid=VARCHAR(36) の CRM 発番 UUID 単位で大域一意
+    //   のため日付フォルダ不要。「manual/ 配下に日付フォルダは挟まない」と明記）。
+    //   プレビューは monitor_id 単位のため日付フォルダあり（v1.2 §6.8.2）。
+    //   将来仕様が変わった場合のみ true（日付フォルダあり）に切替。
+    manualScheduleHasDateFolder: false,
+
     // ------------------------------------------------------------
-    // display_pattern_id 参照マップ（v0.5 §1.3.1 INT → パターン情報）
+    // display_pattern_id 参照マップ（display_patternマスタ整理一覧_20260623.md §1）
     // ------------------------------------------------------------
-    // display-pattern-id-numeric (2026-04-20): v0.5 §1.3.1 で display_pattern_id は INT。
-    //   index.html の描画は slot.screens[].template を直接使うため本マップを参照しないが、
-    //   新メンバーのデバッグ・カスタムロジック実装時の参照用として保持。
-    //   DB 側 display_pattern_id 確定時（v0.5 付録B）は本マップを更新。
-    //   gen_data.py の DISPLAY_PATTERN_NUMERIC_IDS と同期。
+    // 2026-06-29: display_pattern は **screen(セル)単位** の新ID へ全面移行。
+    //   layout は slot.layout_pattern が持つため、本マップは display_pattern の
+    //   表示名参照（デバッグ用）に用途を限定する。index.html の描画は
+    //   screen.template（一次）/ DISPLAY_PATTERN_ID_TO_TEMPLATE（二次）で解決。
+    //   gen_data.py の DISPLAY_PATTERN_NAMES と同期。
     patterns: {
-      1: { name: '4分割標準',          layout: '4split'  },
-      2: { name: '4分割馬連馬単',      layout: '4split'  },
-      3: { name: 'L字+動画',           layout: '3split'  },  // 2026-05-08: 'lshape' → '3split'（4split と同じ命名体系）。表示名「L字+動画」は維持
-      4: { name: '1画面動画',          layout: '1screen' },
-      5: { name: '4分割右下動画',      layout: '4split'  },
-      // 3R-entries-results-phase2 (2026-04-21): 出走成績 3R 表示
-      10: { name: '3R出走成績',        layout: '1screen' }
+      1:   { name: '単勝・複勝・枠連・枠単' },
+      10:  { name: '馬連・ワイド（自動ページング）' },
+      11:  { name: '馬連・ワイド①（P1）' },
+      12:  { name: '馬連・ワイド②（P2）' },
+      13:  { name: '馬連・ワイド③（P3）' },
+      20:  { name: '馬連（自動ページング）' },
+      21:  { name: '馬連①' },
+      22:  { name: '馬連②' },
+      30:  { name: '馬単（自動ページング）' },
+      31:  { name: '馬単①' },
+      32:  { name: '馬単②' },
+      40:  { name: '人気順（自動ページング）' },
+      41:  { name: '人気順①（1〜15位）' },
+      42:  { name: '人気順②（16〜30位）' },
+      50:  { name: '出走成績（自動ページング）' },
+      51:  { name: '出走成績 1-3R' },
+      52:  { name: '出走成績 4-6R' },
+      53:  { name: '出走成績 7-9R' },
+      54:  { name: '出走成績 10-12R' },
+      60:  { name: '出走成績(4K用)（自動ページング）' },
+      61:  { name: '出走成績(4K用) 1-6R' },
+      62:  { name: '出走成績(4K用) 7-12R' },
+      70:  { name: '変更情報' },
+      80:  { name: 'レース動画（地方競馬LIVE）' },
+      90:  { name: 'JRA動画（ch1 全場中継）' },
+      91:  { name: 'JRA動画（ch2 パドック中継）' },
+      92:  { name: 'JRA動画（ch3 関東主場中継）' },
+      93:  { name: 'JRA動画（ch4 関西主場中継）' },
+      94:  { name: 'JRA動画（ch5 第3場中継）' },
+      100: { name: 'L字 左袖（出走表）' },
+      101: { name: 'L字 右下（人気・ワイド人気 4賭式）' }
     },
 
     // ------------------------------------------------------------
@@ -143,6 +179,33 @@
     return w.DERUCA_CONFIG.buildUrl(
       w.DERUCA_CONFIG.buildSchedulePath(displayDate, monitorId, fast)
     );
+  };
+
+  /**
+   * プレビュー用スケジュール URL（§3.12 / 2026-06-16 確定契約）。
+   *   ?monitor_id=…&preview=1 → schedules/preview/{date}/{monitor_id}.json
+   */
+  w.DERUCA_CONFIG.buildPreviewScheduleUrl = function(displayDate, monitorId, fast) {
+    var rel = w.DERUCA_CONFIG.paths.schedulePreview
+      .replace('{YYYYMMDD}', String(displayDate))
+      .replace('{monitor_id}', String(monitorId))
+      .replace('{fastSuffix}', fast ? '_fast' : '');
+    return w.DERUCA_CONFIG.buildUrl(rel);
+  };
+
+  /**
+   * 手動切替用スケジュール URL（§3.12 / 2026-06-16 確定契約）。
+   *   ?monitor_uuid=… → schedules/manual/.../{monitor_uuid}.json
+   *   日付フォルダ有無は manualScheduleHasDateFolder フラグで切替（版ズレ未確定）。
+   */
+  w.DERUCA_CONFIG.buildManualScheduleUrl = function(displayDate, monitorUuid) {
+    var tmpl = w.DERUCA_CONFIG.manualScheduleHasDateFolder
+      ? w.DERUCA_CONFIG.paths.scheduleManual
+      : w.DERUCA_CONFIG.paths.scheduleManualNoDate;
+    var rel = tmpl
+      .replace('{YYYYMMDD}', String(displayDate))
+      .replace('{monitor_uuid}', String(monitorUuid));
+    return w.DERUCA_CONFIG.buildUrl(rel);
   };
 
   /**

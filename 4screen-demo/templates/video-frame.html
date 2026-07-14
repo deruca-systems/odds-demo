@@ -51,6 +51,22 @@
       statusEl.classList.toggle('error', !!isError);
     }
 
+    /**
+     * 再生開始（Autoplay Policy フォールバック付き）。
+     * 音声ON（muted=false）での play() がポリシーによりブロックされた場合は
+     * ミュートに切り替えて再生を開始する（映像を止めないことを優先）。
+     * 表示端末は起動フラグで音声ON自動再生を許可する運用（2026-07-14 方針）。
+     */
+    function tryPlay() {
+      videoEl.play().catch(function() {
+        if (!videoEl.muted) {
+          videoEl.muted = true;
+          setStatus('自動再生ポリシーによりミュートで開始（音声は端末側フラグで許可）');
+          videoEl.play().catch(function(){});
+        }
+      });
+    }
+
     // === BEGIN: TECH-VERIFICATION-ONLY ===
     /**
      * 動画設定を適用する（親からの setVideoConfig 受信時に呼ばれる）。
@@ -61,7 +77,10 @@
       var videoSource = cfg.video_source;
       var qualityMode = cfg.quality_mode || 'auto';
       var qualityCap  = cfg.quality_cap != null ? Number(cfg.quality_cap) : null;
-      var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : true;
+      // 2026-07-14 方針: 音声はデフォルトで出力（未指定時 muted=false）。
+      //   表示端末は起動フラグ --autoplay-policy=no-user-gesture-required で許可する運用。
+      //   ポリシー未許可のブラウザでは tryPlay() がミュート開始へフォールバックする。
+      var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : false;
       var volume      = cfg.volume != null ? Number(cfg.volume) : 0.7;
 
       // audio / volume は常に反映
@@ -103,7 +122,7 @@
             hls.autoLevelCapping = qualityCap - 1;
           }
           setStatus('再生開始 ' + (videoSource.split('/').pop()));
-          videoEl.play().catch(function(){});
+          tryPlay();
         });
         hls.on(Hls.Events.ERROR, function(event, data) {
           console.error('[video-frame] hls error', data);
@@ -116,7 +135,7 @@
         videoEl.src = videoSource;
         videoEl.addEventListener('loadedmetadata', function() {
           setStatus('ネイティブHLS再生 ' + videoSource.split('/').pop());
-          videoEl.play().catch(function(){});
+          tryPlay();
         });
       } else {
         setStatus('HLS 非対応ブラウザ', true);

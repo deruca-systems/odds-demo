@@ -5,9 +5,10 @@
 <title>4画面JSONポーリングサンプル（親フレーム）</title>
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
-<script src="assets/js/config.js"></script>
+<!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
+<script src="assets/js/config.js?v=20260629d"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js"></script>
+<script src="assets/js/common.js?v=20260629c"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -15,6 +16,12 @@
     font-family: "Yu Gothic UI", sans-serif;
     overflow: hidden;
   }
+  /* 2026-06-04: 芥川 style.css L82 (html.single-screen) と同スケールを親フレームにも適用。
+   * これで .grid.layout-3split の gap や info-bar 等を「芥川と同じ rem 単位」で書け、
+   * 0.4rem (= screen7 .message gap) のような表記がそのまま比例拡縮する。
+   *   FHD: 1rem = 20px / 4K: 40px / 1280: 13.3px。
+   * 情報バー (1.5rem 等) は管理用オーバーレイで本番非表示のため副作用許容。 */
+  html { font-size: min(1.0416666667vw, 1.8518518518vh); }
   body { font-size: 0.75rem; }
 
   /* 情報バー（オーバーレイ、iframeの寸法には影響しない） */
@@ -96,6 +103,10 @@
   .grid.layout-3split {
     grid-template-columns: 20% 1fr;     /* 2026-04-17: 22%→20% に切り上げ（ユーザー要望） */
     grid-template-rows: auto 1fr;
+    /* 2026-06-04: 芥川 screen7.html style.css L3050 の .message { gap: 0.4rem } と整合。
+     *   親 html に同スケール (1rem = min(1.04vw, 1.85vh)) を適用したので 0.4rem で直接記述可能。
+     *   FHD で 8px、4K で 16px に比例拡縮。.grid background: #000 で黒い区切りとして表示。 */
+    gap: 0.4rem;
   }
   .grid.layout-3split .cell-1 { grid-row: 1 / 3; grid-column: 1; }
   .grid.layout-3split .cell-2 {
@@ -220,17 +231,54 @@
   }
 
   // display_pattern_id → テンプレパス（内山さん形式で template が無い場合に使用）。
-  //   ★確認済: 1 = 単勝・複勝・枠連（1.json / 2026-06-02 STG 実機検証）。
-  //   ☆暫定: 他 id はプロト採番（D-6）。内山/堀井さんの DB 採番確定後に要照合（仕様§3.8 未確定）。
+  //   2026-06-29: display_pattern マスタ整理（display_patternマスタ整理一覧_20260623.md §1）
+  //   に追従し、**screen 単位の新ID** へ全面移行。screen.display_pattern_id を引く。
+  //   ★確認済: 1 = 単勝・複勝・枠連・枠単（SCR-ODD-001、2026-06-02 STG 実機検証）。
   var DISPLAY_PATTERN_ID_TO_TEMPLATE = {
-    1:  'templates/single-screen.html',         // ★確認済
-    10: 'templates/entries-results-3r.html',    // ☆暫定（プロト採番 D-6）
-    11: 'templates/entries-results-6r.html',    // ☆暫定（プロト採番 D-6）
-    12: 'templates/changes-info.html'           // ☆暫定（プロト採番 D-6）
+    1:   'templates/single-screen.html',          // ★単勝・複勝・枠連・枠単（SCR-ODD-001）
+    // 馬連・ワイド（自動ページング/固定P1-P3）。テンプレ側でページ制御
+    10:  'templates/single-umaren-wide.html',
+    11:  'templates/single-umaren-wide.html',
+    12:  'templates/single-umaren-wide.html',
+    13:  'templates/single-umaren-wide.html',
+    // 馬連（マトリクス）
+    20:  'templates/single-umaren-first.html',
+    21:  'templates/single-umaren-first.html',
+    22:  'templates/single-umaren-second.html',
+    // 馬単（マトリクス）
+    30:  'templates/single-umatan-first.html',
+    31:  'templates/single-umatan-first.html',
+    32:  'templates/single-umatan-second.html',
+    // 人気順
+    40:  'templates/single-popular.html',
+    41:  'templates/single-popular.html',
+    42:  'templates/single-popular-second.html',
+    // 出走成績（3R 系: 自動ページング/固定範囲）
+    50:  'templates/entries-results-3r.html',
+    51:  'templates/entries-results-3r.html',
+    52:  'templates/entries-results-3r.html',
+    53:  'templates/entries-results-3r.html',
+    54:  'templates/entries-results-3r.html',
+    // 出走成績（4K 用 6R 系: 自動ページング/固定範囲）
+    60:  'templates/entries-results-6r.html',
+    61:  'templates/entries-results-6r.html',
+    62:  'templates/entries-results-6r.html',
+    // 変更情報
+    70:  'templates/changes-info.html',
+    // 動画（NAR=80 / JRA GCH ch1-5=90-94）。いずれも video-frame.html（ch/場は screen 側設定）
+    80:  'templates/video-frame.html',
+    90:  'templates/video-frame.html',
+    91:  'templates/video-frame.html',
+    92:  'templates/video-frame.html',
+    93:  'templates/video-frame.html',
+    94:  'templates/video-frame.html',
+    // L字(3split) 専用
+    100: 'templates/side-entries.html',           // 左袖（出走表）
+    101: 'templates/wide-popular.html'            // 右下（人気・ワイド人気 4賭式）
   };
   // display_pattern_name → テンプレ（id 未マップ時の二次フォールバック）。
   var DISPLAY_PATTERN_NAME_TO_TEMPLATE = {
-    '単勝・複勝・枠連': 'templates/single-screen.html'
+    '単勝・複勝・枠連・枠単': 'templates/single-screen.html'
   };
 
   // screen からテンプレパスを解決（template 直指定 > id マップ > name マップ）。
@@ -253,7 +301,16 @@
   //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
   //   ?display_date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
   //   後方互換: ?date=YYYYMMDD でも可（display_date 優先）。
-  var MONITOR_ID = (new URLSearchParams(location.search)).get('monitor') || '101';
+  // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
+  //   ブラウザは index.html 共通。取得 JSON のみクエリで出し分ける：
+  //     通常     ?monitor_id=…（後方互換 ?monitor=）        → schedules/{date}/{id}.json
+  //     プレビュー ?monitor_id=…&preview=1                   → schedules/preview/{date}/{id}.json
+  //     手動切替  ?monitor_uuid=…                            → schedules/manual/.../{uuid}.json
+  var _params = new URLSearchParams(location.search);
+  var MONITOR_UUID = _params.get('monitor_uuid') || null;
+  var IS_PREVIEW = (_params.get('preview') === '1' || _params.get('preview') === 'true');
+  var DISPLAY_MODE = MONITOR_UUID ? 'manual' : (IS_PREVIEW ? 'preview' : 'normal');
+  var MONITOR_ID = _params.get('monitor_id') || _params.get('monitor') || '101';
   // === BEGIN: TEMPORARY-MIGRATION-COMPAT (本番不要、後方互換用) ===
   // 2026-04-30 session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
   // path-date-folder 移行後の 3 桁形式（'101', '102'）に正規化する。
@@ -272,7 +329,14 @@
   })();
   // url-config-separation (2026-04-20): URL 組み立ては DERUCA_CONFIG に委譲。
   //   baseUrl 空文字（プロト）→ 相対パスそのまま。baseUrl 有り（本番）→ 絶対 URL 化。
-  var SCHEDULE_URL = DERUCA_CONFIG.buildScheduleUrl(DISPLAY_DATE, MONITOR_ID, USE_FAST);
+  var SCHEDULE_URL = (DISPLAY_MODE === 'manual')
+    ? DERUCA_CONFIG.buildManualScheduleUrl(DISPLAY_DATE, MONITOR_UUID)
+    : (DISPLAY_MODE === 'preview')
+      ? DERUCA_CONFIG.buildPreviewScheduleUrl(DISPLAY_DATE, MONITOR_ID, USE_FAST)
+      : DERUCA_CONFIG.buildScheduleUrl(DISPLAY_DATE, MONITOR_ID, USE_FAST);
+  if (DISPLAY_MODE !== 'normal') {
+    console.log('[routing] mode=' + DISPLAY_MODE + ' url=' + SCHEDULE_URL);
+  }
 
   // 指示書09 T5-3: layout 値 → CSS クラス
   // 2026-05-08: layout 値 'lshape' → '3split' に変更（4split と同じ命名体系へ統一、4/27 池澤様協議分の反映）
@@ -395,6 +459,9 @@
   function buildChildQuery() {
     var params = new URLSearchParams();
     params.set('poll', ODDS_POLL_SEC);
+    // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
+    //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
+    params.set('v', '20260629c');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -438,17 +505,85 @@
   }
 
   // H-04: slot.screens[] から screenStates を構築（slot 切替時に呼ばれる）
-  function buildScreenStates(slot) {
+  // 2026-06-29: venue_filters（§3.13）の target_race_no_list を rr の集合述語に変換。
+  //   null / '' / '1-12' → 全レース true。'7-12' 範囲、'10,11' 個別、'1,3,5-7' 混合に対応。
+  function makeRaceNoPredicate(listStr) {
+    if (listStr == null || listStr === '' || listStr === '1-12') return function() { return true; };
+    var allowed = {};
+    String(listStr).split(',').forEach(function(tok) {
+      tok = tok.trim();
+      if (!tok) return;
+      var m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        for (var n = Number(m[1]); n <= Number(m[2]); n++) allowed[n] = true;
+      } else if (/^\d+$/.test(tok)) {
+        allowed[Number(tok)] = true;
+      }
+    });
+    return function(rr) { return !!allowed[rr]; };
+  }
+
+  // race_id 'NAR_45_03' → {organizer_type, place_cd, rr}。失敗時 null。
+  function parseRaceId(raceId) {
+    if (!raceId || typeof raceId !== 'string') return null;
+    var p = raceId.split('_');
+    if (p.length < 3) return null;
+    var rr = parseInt(p[2], 10);
+    if (isNaN(rr)) return null;
+    return { organizer_type: p[0], place_cd: p[1], rr: rr };
+  }
+
+  // 2026-06-29: venue_filters（§3.13）で発売対象外レースを除外する。
+  //   venue_filters 省略/空配列 → 全発売（races そのまま）。
+  //   リストに無い開催場のレース → 除外（その売場では売らない）。
+  function applyVenueFilters(races, venueFilters) {
+    if (!venueFilters || !venueFilters.length) return races;
+    return races.filter(function(race) {
+      var info = parseRaceId(race.race_id);
+      if (!info) return true; // パース不能は安全側で残す
+      var vf = null;
+      for (var i = 0; i < venueFilters.length; i++) {
+        if (venueFilters[i].place_cd === info.place_cd
+         && venueFilters[i].organizer_type === info.organizer_type) { vf = venueFilters[i]; break; }
+      }
+      if (!vf) return false; // リスト外の場 → 非発売
+      return makeRaceNoPredicate(vf.target_race_no_list)(info.rr);
+    });
+  }
+
+  function buildScreenStates(slot, venueFilters) {
     var screens = slot.screens || [];
+    // 2026-06-04: slot.signage_url を screens[*] に伝播 (CRM の時間帯設定はスロット単位、
+    //   要件定義書 v3.3 §3.2 SCR-CUT-003)。screen 個別の signage_url が定義されていない場合のみ補完。
+    var slotSignageUrl = slot.signage_url || null;
     return screens.map(function(screen) {
       // v0.6.3 dual-read: position/template を新旧両形式から解決（layout_section/display_pattern_id も可）
       var canonicalPos = resolveCanonicalPosition(screen);
       var resolvedTemplate = resolveTemplate(screen);
+      // signage_url は screen 個別 > slot 全体 の優先順
+      if (!screen.signage_url && slotSignageUrl) {
+        screen.signage_url = slotSignageUrl;
+      }
+      // 2026-06-29: 対象レース固定 / 前日発売（§3.5.4）。null=自動順送り / 0=当日。
+      var targetRaceNo = (screen.target_race_no != null) ? screen.target_race_no : null;
+      var targetDateOffset = screen.target_date_offset || 0;
+      // venue_filters（§3.13）で発売対象外レースを除外。ただし対象レース固定セル
+      //   （target_race_no 指定）は運用者が明示選択した1レースなので絞込み対象外。
+      var rawRaces = screen.races || [];
+      var filteredRaces = (screen.type === 'video' || targetRaceNo != null)
+        ? rawRaces
+        : applyVenueFilters(rawRaces, venueFilters);
+      if (screen.type !== 'video' && targetRaceNo == null
+       && rawRaces.length && !filteredRaces.length) {
+        console.warn('[venue_filters] ' + canonicalPos + ' の発売対象レースが皆無 → 画面スキップ（§3.13.4）');
+      }
       var state = {
         position: canonicalPos,
         template: resolvedTemplate,
         type: screen.type || 'odds',
-        races: screen.races || [],
+        races: filteredRaces,
+        target_race_no: targetRaceNo,
+        target_date_offset: targetDateOffset,
         currentRaceIndex: -1,
         currentRaceId: null,
         lastTransitionMs: 0,
@@ -458,6 +593,9 @@
         //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
         //   値あれば iframe の :root CSS 変数 --race-header-bg に #HEX を注入する。
         back_color_code: screen.back_color_code || null,
+        // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot 単位の signage_url を
+        //   screens[*] へ伝播済 (buildScreenStates 直前に caller が注入)。
+        signage_url: screen.signage_url || null,
         // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
         //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
         //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
@@ -468,14 +606,19 @@
         hasFrameUtan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
       };
       if (state.type === 'video') {
+        // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
+        //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
+        //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
+        var vc = screen.video_config || screen;
         state.videoConfig = {
-          venue_code:             screen.venue_code,
-          quality_mode:           screen.quality_mode || 'auto',
-          quality_cap:            screen.quality_cap,
-          quality_fixed:          screen.quality_fixed,
-          audio_muted:            screen.audio_muted != null ? screen.audio_muted : true,
-          volume:                 screen.volume != null ? screen.volume : 0.7,
-          video_source_override:  screen.video_source_override
+          venue_code:             vc.venue_code,
+          quality_mode:           vc.quality_mode || 'auto',
+          quality_cap:            vc.quality_cap,
+          quality_fixed:          vc.quality_fixed,
+          // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
+          audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
+          volume:                 vc.volume != null ? vc.volume : 0.7,
+          video_source_override:  vc.video_source_override
         };
       }
       return state;
@@ -487,24 +630,40 @@
       applyVideoScreen(state);
       return;
     }
-    // 3R/6R-entries-results (phase2/4, 2026-04-21): display_pattern_id=10/11
+    // 3R/6R-entries-results: display_pattern_id 50-54（3R）/ 60-62（4K 6R）
     //   1 iframe で 3 or 6 レース分を並列描画するため、専用ディスパッチャに分岐。
     if (state.template === 'templates/entries-results-3r.html'
      || state.template === 'templates/entries-results-6r.html') {
       applyEntriesResultsScreen(state);
       return;
     }
-    // changes-info (phase5, 2026-04-22): display_pattern_id=12（変更情報）
+    // changes-info: display_pattern_id=70（変更情報）
     //   1 iframe で 3 場分の changes JSON を並列描画する専用ディスパッチャ。
     if (state.template === 'templates/changes-info.html') {
       applyChangesInfoScreen(state);
       return;
     }
-    state.currentRaceIndex = getInitialRaceIndex(state.races, correctedNow());
+    // 2026-06-29: 対象レース固定（§3.5.4）。target_race_no 指定時は順送りせず該当レースに固定。
+    if (state.target_race_no != null) {
+      state.currentRaceIndex = findRaceIndexByRaceNo(state.races, state.target_race_no);
+      if (state.currentRaceIndex < 0 && state.races.length) state.currentRaceIndex = 0; // 念のため
+    } else {
+      state.currentRaceIndex = getInitialRaceIndex(state.races, correctedNow());
+    }
     if (state.currentRaceIndex >= 0) {
       state.currentRaceId = state.races[state.currentRaceIndex].race_id;
     }
     applyOddsScreen(state);
+  }
+
+  // 2026-06-29: races[] から rr=target_race_no のレースを探す（§3.5.4 対象レース固定）。
+  function findRaceIndexByRaceNo(races, raceNo) {
+    if (!races) return -1;
+    for (var i = 0; i < races.length; i++) {
+      var info = parseRaceId(races[i].race_id);
+      if (info && info.rr === raceNo) return i;
+    }
+    return -1;
   }
 
   // 3R-entries-results-phase2 (2026-04-21): 3 レース分の data_source を子 iframe へ postMessage で送信。
@@ -570,7 +729,9 @@
       //   entries-results-6r.html なら 6 件まで送信、それ以外（3R テンプレ等）は 3 件まで。
       var tmpl = iframe.getAttribute('data-template') || '';
       var is6r = tmpl.indexOf('entries-results-6r') >= 0;
-      var limit = is6r ? 6 : 3;
+      // 6R(screen8 4分割) は最大 24 件送信（子が 6 件×最大4ブロック＝2×2 に描画。§8.8）。
+      //   dp=61/62（固定 6R）は 6 件＝1ブロック、4分割(2場×1-12R)は 24 件＝4ブロック。
+      var limit = is6r ? 24 : 3;
       var type  = is6r ? 'setEntriesResults6r' : 'setEntriesResults3r';
       iframe.contentWindow.postMessage({
         type: type,
@@ -593,12 +754,24 @@
     var race = state.currentRaceIndex >= 0 ? state.races[state.currentRaceIndex] : null;
     // url-config-separation (2026-04-20): data_source 解決は DERUCA_CONFIG に委譲。
     var dataUrl = race ? DERUCA_CONFIG.resolveDataSource(race.data_source) : null;
+    // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot.signage_url を解決して送信。
+    //   要件定義書 v3.3 §3.2「サイネージカットイン、締切後30秒程度をオッズエリアに重畳表示」。
+    var signageUrl = state.signage_url
+      ? DERUCA_CONFIG.resolveDataSource(state.signage_url)
+      : null;
+    // 2026-06-29: 前日発売/対象レース固定 context（§3.5.4）。子は target_date_offset>=1 で
+    //   ヘッダを「前日発売」モードに切替える（renderRaceHeader）。
+    var saleContext = {
+      type: 'setSaleContext',
+      target_race_no: state.target_race_no,
+      target_date_offset: state.target_date_offset || 0
+    };
     var childQuery = buildChildQuery();
     if (iframe.getAttribute('data-template') !== state.template) {
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(d, bg) {
+      iframe.onload = (function(d, bg, su, sc) {
         return function() {
           // Phase 5: iframe の :root に背景色を注入（schedule 側で設定された場合）。
           //   CSS 変数 + class 方式。class 'has-custom-bg' が付与された html 配下で
@@ -610,6 +783,16 @@
               d2.documentElement.classList.add('has-custom-bg');
             } catch (_) {}
           }
+          // 2026-06-04: signage_url 送信 (CUT-003 用、テンプレに依存しない共通 postMessage)
+          if (su) {
+            try {
+              iframe.contentWindow.postMessage({
+                type: 'setSignageUrl', url: su
+              }, '*');
+            } catch (_) {}
+          }
+          // 2026-06-29: sale context（前日発売/対象レース固定）を先に送る
+          try { iframe.contentWindow.postMessage(sc, '*'); } catch (_) {}
           if (!d) return;
           try {
             iframe.contentWindow.postMessage({
@@ -618,16 +801,23 @@
             }, '*');
           } catch (_) {}
         };
-      })(dataUrl, state.back_color_code);
+      })(dataUrl, state.back_color_code, signageUrl, saleContext);
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
       try {
+        iframe.contentWindow.postMessage(saleContext, '*'); // 2026-06-29: 前日発売 context 再送
         iframe.contentWindow.postMessage({
           type: 'setDataUrl', url: dataUrl
           // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
         }, '*');
+        // signage_url も同タイミングで再送 (slot 切替で URL 変化する可能性に対応)
+        if (signageUrl) {
+          iframe.contentWindow.postMessage({
+            type: 'setSignageUrl', url: signageUrl
+          }, '*');
+        }
       } catch (_) {}
     }
   }
@@ -669,7 +859,7 @@
           video_source: videoSource,
           quality_mode: cfg.quality_mode != null ? cfg.quality_mode : 'auto',
           quality_cap:  cfg.quality_cap  != null ? cfg.quality_cap  : 4,
-          audio_muted:  cfg.audio_muted  != null ? cfg.audio_muted  : true,
+          audio_muted:  cfg.audio_muted  != null ? cfg.audio_muted  : false,
           volume:       cfg.volume       != null ? cfg.volume       : 0.7
         }, '*');
       } catch (_) {}
@@ -694,6 +884,7 @@
     screenStates.forEach(function(state) {
       if (state.type === 'video') return;
       if (state.currentRaceIndex < 0) return;
+      if (state.target_race_no != null) return;  // 2026-06-29: 対象レース固定は順送りしない（§3.5.4）
       if (state.races.length <= 1) return;  // 1レース固定は遷移なし
       var currentRace = state.races[state.currentRaceIndex];
       if (!currentRace || !currentRace.post_time_iso) return;
@@ -772,8 +963,8 @@
       // v0.6.3 dual-read: layout_pattern（新）優先、無ければ layout（旧）
       applyLayout(slot.layout_pattern || slot.layout);
 
-      // screenStates を再構築（slot 内では不変）
-      screenStates = buildScreenStates(slot);
+      // screenStates を再構築（slot 内では不変）。venue_filters は schedule トップレベル（§3.13）。
+      screenStates = buildScreenStates(slot, schedule.venue_filters);
       screenStates.forEach(initializeScreen);
       clearUnusedFrames();
     }

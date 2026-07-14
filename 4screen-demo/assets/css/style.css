@@ -90,1792 +90,6 @@ meter {
 }
 
 /*----------
-screen1
-style
-----------*/
-html {
-  color: #ffffff;
-  font-size: 0.5208333333vw;
-  line-height: 1;
-}
-html.single-screen {
-  font-size: 1.0416666667vw;
-}
-
-body {
-  margin: 0;
-  background: #0D1117;
-  font-family: "Yu Gothic UI", sans-serif;
-  font-weight: 600;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.screen {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: top left;
-  --row-count: max(10, var(--horse-count));
-}
-.screen .race-main {
-  flex: 1;
-  display: grid;
-  gap: 1.1rem;
-  grid-template-columns: 62.5rem 30.8rem;
-}
-.screen .race-table {
-  display: flex;
-  flex-direction: column;
-}
-.screen .race-table__head {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
-  gap: 0.1rem;
-  height: 2.2rem;
-}
-.screen .race-table__head div {
-  display: grid;
-  place-content: center;
-  font-size: 1.4rem;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  border-right: 0.1rem solid #000000;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .race-table__head div.win {
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-}
-.screen .race-table__body {
-  flex: 1;
-  display: grid;
-  height: 100%;
-  grid-template-rows: repeat(var(--row-count), 1fr);
-}
-.screen .race-table__row {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
-  gap: 0.1rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .race-table__row.row-white .race-table__frame,
-.screen .race-table__row.row-white .race-table__number {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-black .race-table__frame,
-.screen .race-table__row.row-black .race-table__number {
-  background-color: #0D1117;
-}
-.screen .race-table__row.row-black .race-table__name {
-  background-color: #0D1117;
-}
-.screen .race-table__row.row-red .race-table__frame,
-.screen .race-table__row.row-red .race-table__number {
-  background-color: #C00000;
-}
-.screen .race-table__row.row-red .race-table__name {
-  background-color: #3C0000;
-}
-.screen .race-table__row.row-blue .race-table__frame,
-.screen .race-table__row.row-blue .race-table__number {
-  background-color: #0000DE;
-}
-.screen .race-table__row.row-blue .race-table__name {
-  background-color: #00003F;
-}
-.screen .race-table__row.row-yellow .race-table__frame,
-.screen .race-table__row.row-yellow .race-table__number {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-yellow .race-table__name {
-  background-color: #3C3C00;
-}
-.screen .race-table__row.row-green .race-table__frame,
-.screen .race-table__row.row-green .race-table__number {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-green .race-table__name {
-  background-color: #004700;
-}
-.screen .race-table__row.row-orange .race-table__frame,
-.screen .race-table__row.row-orange .race-table__number {
-  background-color: #FF8800;
-}
-.screen .race-table__row.row-orange .race-table__name {
-  background-color: #653600;
-}
-.screen .race-table__row.row-pink .race-table__frame,
-.screen .race-table__row.row-pink .race-table__number {
-  background-color: #F44BF4;
-}
-.screen .race-table__row.row-pink .race-table__name {
-  background-color: #581058;
-}
-.screen .race-table__row div {
-  border-right: 0.1rem solid #000000;
-}
-.screen .race-table__row:nth-child(even) .race-table__odds-win,
-.screen .race-table__row:nth-child(even) .race-table__odds-place,
-.screen .race-table__row:nth-child(even) .race-table__weight,
-.screen .race-table__row:nth-child(even) .race-table__jockey {
-  background-color: #26364E;
-}
-.screen .race-table {
-  /* 枠・馬番 */
-}
-.screen .race-table__frame, .screen .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.screen .race-table {
-  /* 馬名 */
-}
-.screen .race-table__name {
-  display: flex;
-  align-items: center;
-  padding-left: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  --name-count: max(9, var(--name-length));
-  font-size: min(2rem * 9 / var(--name-count), 2rem);
-  letter-spacing: 0.05em;
-}
-.screen .race-table {
-  /* 単勝 */
-}
-.screen .race-table__odds-win {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  padding-right: 0.4rem;
-}
-.screen .race-table__odds-win.win-popular {
-  color: #FF8000;
-}
-.screen .race-table__odds-win.win-secondary {
-  color: #00B2FF;
-}
-.screen .race-table {
-  /* 複勝 */
-}
-.screen .race-table__odds-place {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-content: center;
-}
-.screen .race-table__odds-place span {
-  font-size: 2.2rem;
-  text-align: right;
-  font-family: "Segoe UI", sans-serif;
-}
-.screen .race-table__odds-place span:first-child, .screen .race-table__odds-place span:last-child {
-  padding-right: 0.4rem;
-}
-.screen .race-table__odds-place span.place-popular {
-  color: #FF8000;
-}
-.screen .race-table {
-  /* 馬体重 */
-}
-.screen .race-table__weight {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.screen .race-table__weight span {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.screen .race-table__weight span.weight-long {
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-.screen .race-table__weight span.weight-diff {
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-.screen .race-table {
-  /* 騎手名 */
-}
-.screen .race-table__jockey {
-  display: flex;
-  align-items: center;
-  font-size: 2rem;
-  letter-spacing: 0.05em;
-  padding-left: 0.4rem;
-}
-.screen {
-  /* 枠連 */
-}
-.screen .frame-odds__head {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 2.2rem;
-  margin-bottom: 0.8rem;
-}
-.screen .frame-odds__head div {
-  display: grid;
-  place-content: center;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-}
-.screen .frame-odds__body {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.4rem;
-}
-.screen .frame-odds__col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-.screen .frame-odds__block {
-  height: fit-content;
-}
-.screen .frame-odds__block.block-white .frame-odds__label {
-  background: #FAFAFA;
-  color: #1C1C1C;
-}
-.screen .frame-odds__block.block-white .frame-odds__number {
-  background: #DFDFDF;
-  color: #1C1C1C;
-}
-.screen .frame-odds__block.block-black .frame-odds__label {
-  background: #0D1117;
-}
-.screen .frame-odds__block.block-black .frame-odds__number {
-  background: #0D1117;
-}
-.screen .frame-odds__block.block-red .frame-odds__label {
-  background: #C00000;
-}
-.screen .frame-odds__block.block-red .frame-odds__number {
-  background: #3C0000;
-}
-.screen .frame-odds__block.block-blue .frame-odds__label {
-  background: #0000DE;
-}
-.screen .frame-odds__block.block-blue .frame-odds__number {
-  background: #00003F;
-}
-.screen .frame-odds__block.block-yellow .frame-odds__label {
-  background: #E6E600;
-  color: #1C1C1C;
-}
-.screen .frame-odds__block.block-yellow .frame-odds__number {
-  background: #3C3C00;
-}
-.screen .frame-odds__block.block-green .frame-odds__label {
-  background: #00D900;
-  color: #1C1C1C;
-}
-.screen .frame-odds__block.block-green .frame-odds__number {
-  background: #004700;
-}
-.screen .frame-odds__block.block-orange .frame-odds__label {
-  background: #FF8800;
-}
-.screen .frame-odds__block.block-orange .frame-odds__number {
-  background: #653600;
-}
-.screen .frame-odds__block.block-pink .frame-odds__label {
-  background: #F44BF4;
-}
-.screen .frame-odds__block.block-pink .frame-odds__number {
-  background: #581058;
-}
-.screen .frame-odds__label {
-  display: grid;
-  place-content: center;
-  height: 2.6rem;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .frame-odds__item {
-  display: grid;
-  grid-template-columns: 3.2rem 6.8rem;
-  grid-auto-rows: 2.5rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .frame-odds__item:nth-child(odd) .frame-odds__value {
-  background-color: #26364E;
-}
-.screen .frame-odds__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  border-right: 0.1rem solid #000000;
-}
-.screen .frame-odds__value {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  padding-right: 0.4rem;
-  border-right: 0.1rem solid #000000;
-}
-.screen .frame-odds__value.value-popular {
-  color: #FF8000;
-}
-
-/* 馬連・ワイド */
-.umaren-wide {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: top right;
-  --row-count: max(10, var(--horse-count));
-}
-.umaren-wide .race-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-.umaren-wide .race-main__head {
-  display: grid;
-  place-content: center;
-  height: 2.2rem;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-}
-.umaren-wide .race-main .race-table {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.8rem;
-}
-.umaren-wide .race-main .race-table__body {
-  display: grid;
-  grid-template-rows: repeat(var(--row-count), 1fr);
-  height: 100%;
-  overflow: hidden;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__name {
-  background-color: #FAFAFA;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
-}
-.umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
-  background: #686868;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__name {
-  background-color: #C00000;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__number {
-  background-color: #3C0000;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__wide::before {
-  background: #C00000;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__name {
-  background-color: #0000DE;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__number {
-  background-color: #00003F;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__wide::before {
-  background: #0000DE;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__name {
-  background-color: #E6E600;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__number {
-  background-color: #3C3C00;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__wide::before {
-  background: #E6E600;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__name {
-  background-color: #00D900;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__number {
-  background-color: #004700;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__wide::before {
-  background: #00D900;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__name {
-  background-color: #FF8800;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__number {
-  background-color: #653600;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__wide::before {
-  background: #FF8800;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__name {
-  background-color: #F44BF4;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__number {
-  background-color: #581058;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__wide::before {
-  background: #F44BF4;
-}
-.umaren-wide .race-main .race-table__name {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  white-space: nowrap;
-  padding-left: 0.8rem;
-  border-bottom: 0.1rem solid #000000;
-  border-right: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__name span {
-  --name-count: max(9, var(--name-length));
-  font-size: min(19.2rem / var(--name-count), 1.6rem);
-  letter-spacing: 0.05em;
-}
-.umaren-wide .race-main .race-table__name span.name-number {
-  font-family: "Segoe UI", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-.umaren-wide .race-main .race-table__row {
-  display: grid;
-  grid-template-columns: 2.4rem 6.4rem 14.2rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__umaren, .umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__wide {
-  background-color: #26364E;
-}
-.umaren-wide .race-main .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__umaren {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-  padding-right: 0.4rem;
-}
-.umaren-wide .race-main .race-table__umaren.unpopular {
-  color: #00B2FF;
-}
-.umaren-wide .race-main .race-table__wide {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-content: center;
-  border-right: 0.1rem solid #000000;
-  position: relative;
-}
-.umaren-wide .race-main .race-table__wide::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0.2rem;
-  height: calc(100% + 0.1rem);
-  background: #FAFAFA;
-  z-index: 2;
-}
-.umaren-wide .race-main .race-table__wide span {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-align: right;
-}
-.umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
-  padding-right: 0.4rem;
-}
-
-/* 人気 */
-.popular {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: bottom left;
-  --row-count: max(10, var(--horse-count));
-}
-.popular.popular-second {
-  transform-origin: bottom right;
-}
-.popular .race-main {
-  flex: 1;
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: 29.6rem 13.7rem 13.7rem 17.4rem 17.4rem;
-}
-.popular .race-table {
-  display: flex;
-  flex-direction: column;
-}
-.popular .race-table__head {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
-  gap: 0.1rem;
-  height: 2.2rem;
-}
-.popular .race-table__head div {
-  display: grid;
-  place-content: center;
-  font-size: 1.4rem;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  border-right: 0.1rem solid #000000;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .race-table__head div.win {
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-}
-.popular .race-table__body {
-  flex: 1;
-  display: grid;
-  height: 100%;
-  grid-template-rows: repeat(var(--row-count), 1fr);
-}
-.popular .race-table__row {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
-  gap: 0.1rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .race-table__row.row-white .race-table__frame,
-.popular .race-table__row.row-white .race-table__number {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-black .race-table__frame,
-.popular .race-table__row.row-black .race-table__number {
-  background-color: #0D1117;
-}
-.popular .race-table__row.row-black .race-table__name {
-  background-color: #0D1117;
-}
-.popular .race-table__row.row-red .race-table__frame,
-.popular .race-table__row.row-red .race-table__number {
-  background-color: #C00000;
-}
-.popular .race-table__row.row-red .race-table__name {
-  background-color: #3C0000;
-}
-.popular .race-table__row.row-blue .race-table__frame,
-.popular .race-table__row.row-blue .race-table__number {
-  background-color: #0000DE;
-}
-.popular .race-table__row.row-blue .race-table__name {
-  background-color: #00003F;
-}
-.popular .race-table__row.row-yellow .race-table__frame,
-.popular .race-table__row.row-yellow .race-table__number {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-yellow .race-table__name {
-  background-color: #3C3C00;
-}
-.popular .race-table__row.row-green .race-table__frame,
-.popular .race-table__row.row-green .race-table__number {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-green .race-table__name {
-  background-color: #004700;
-}
-.popular .race-table__row.row-orange .race-table__frame,
-.popular .race-table__row.row-orange .race-table__number {
-  background-color: #FF8800;
-}
-.popular .race-table__row.row-orange .race-table__name {
-  background-color: #653600;
-}
-.popular .race-table__row.row-pink .race-table__frame,
-.popular .race-table__row.row-pink .race-table__number {
-  background-color: #F44BF4;
-}
-.popular .race-table__row.row-pink .race-table__name {
-  background-color: #581058;
-}
-.popular .race-table__row div {
-  border-right: 0.1rem solid #000000;
-}
-.popular .race-table__row:nth-child(even) .race-table__odds-win,
-.popular .race-table__row:nth-child(even) .race-table__odds-place,
-.popular .race-table__row:nth-child(even) .race-table__weight,
-.popular .race-table__row:nth-child(even) .race-table__jockey {
-  background-color: #26364E;
-}
-.popular .race-table {
-  /* 枠・馬番 */
-}
-.popular .race-table__frame, .popular .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.popular .race-table {
-  /* 馬名 */
-}
-.popular .race-table__name {
-  display: flex;
-  align-items: center;
-  padding-left: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  --name-count: max(9, var(--name-length));
-  font-size: min(2rem * 9 / var(--name-count), 2rem);
-  letter-spacing: 0.05em;
-}
-.popular .race-table {
-  /* 単勝 */
-}
-.popular .race-table__odds-win {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  padding-right: 0.4rem;
-}
-.popular .race-table__odds-win.win-popular {
-  color: #FF8000;
-}
-.popular .race-table__odds-win.win-secondary {
-  color: #00B2FF;
-}
-.popular .popular-table {
-  display: flex;
-  flex-direction: column;
-}
-.popular .popular-table__head {
-  display: grid;
-  place-content: center;
-  height: 2.2rem;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  margin-bottom: 0.8rem;
-  white-space: nowrap;
-}
-.popular .popular-table__body {
-  flex: 1;
-  display: grid;
-  grid-template-rows: repeat(15, 1fr);
-  position: relative;
-}
-.popular .popular-table__body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -0.2rem;
-  width: 0.2rem;
-  height: 100%;
-  background: #00D9FF;
-}
-.popular .popular-table__body.three-combination .popular-table__row {
-  grid-template-columns: 10.6rem 6.8rem;
-}
-.popular .popular-table__body.three-combination .popular-table__combination {
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-}
-.popular .popular-table__row {
-  display: grid;
-  grid-template-columns: 6.9rem 6.8rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .popular-table__row:nth-child(even) .popular-table__combination,
-.popular .popular-table__row:nth-child(even) .popular-table__odds {
-  background-color: #26364E;
-}
-.popular .popular-table__combination {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 0.2rem;
-  border-right: 0.1rem solid #000000;
-  margin: 0 0.4rem;
-}
-.popular .popular-table__combination span {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.popular .popular-table__combination span:first-child, .popular .popular-table__combination span:last-child {
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 0.2rem;
-}
-.popular .popular-table__combination span.number-white {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-black {
-  background-color: #0D1117;
-  border: 0.1rem solid #686868;
-}
-.popular .popular-table__combination span.number-red {
-  background-color: #C00000;
-}
-.popular .popular-table__combination span.number-blue {
-  background-color: #0000DE;
-}
-.popular .popular-table__combination span.number-yellow {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-green {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-orange {
-  background-color: #FF8800;
-}
-.popular .popular-table__combination span.number-pink {
-  background-color: #F44BF4;
-}
-.popular .popular-table__odds {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  border-right: 0.1rem solid #000000;
-  padding-right: 0.4rem;
-}
-.popular .popular-table__odds.odds-popular {
-  color: #FF8000;
-}
-
-/*----------
-screen2
-style
-----------*/
-.screen {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  --row-count: max(10, var(--horse-count));
-}
-.screen.screen-umaren .screen-main .screen-table__body {
-  grid-template-rows: repeat(var(--row-count), 1fr);
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-white {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-black {
-  background-color: #0D1117;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-red {
-  background-color: #3C0000;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-blue {
-  background-color: #00003F;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-yellow {
-  background-color: #3C3C00;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-green {
-  background-color: #004700;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-orange {
-  background-color: #653600;
-  color: inherit;
-}
-.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-pink {
-  background-color: #581058;
-  color: inherit;
-}
-.screen .screen-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-.screen .screen-main__head {
-  display: grid;
-  place-content: center;
-  height: 2.2rem;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-}
-.screen .screen-main .screen-table {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 1.2rem;
-}
-.screen .screen-main .screen-table__body {
-  display: grid;
-  grid-template-rows: repeat(calc(var(--row-count) + 1), 1fr);
-  height: 100%;
-  overflow: hidden;
-}
-.screen .screen-main .screen-table__body.body-white .screen-table__name {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.screen .screen-main .screen-table__body.body-red .screen-table__name {
-  background-color: #C00000;
-}
-.screen .screen-main .screen-table__body.body-blue .screen-table__name {
-  background-color: #0000DE;
-}
-.screen .screen-main .screen-table__body.body-yellow .screen-table__name {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.screen .screen-main .screen-table__body.body-green .screen-table__name {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.screen .screen-main .screen-table__body.body-orange .screen-table__name {
-  background-color: #FF8800;
-}
-.screen .screen-main .screen-table__body.body-pink .screen-table__name {
-  background-color: #F44BF4;
-}
-.screen .screen-main .screen-table__name {
-  display: grid;
-  place-content: center;
-  font-size: 1.6rem;
-  font-family: "Segoe UI", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0;
-  border-bottom: 0.1rem solid #000000;
-  border-right: 0.1rem solid #000000;
-  padding: 0;
-}
-.screen .screen-main .screen-table__row {
-  display: grid;
-  grid-template-columns: 2.4rem 7.022rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .screen-main .screen-table__row:nth-child(odd) .screen-table__odds {
-  background-color: #26364E;
-}
-.screen .screen-main .screen-table__row .screen-table__odds.odds-cross {
-  background-color: #677C9C;
-}
-.screen .screen-main .screen-table__row:nth-child(2) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(3) .screen-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
-}
-.screen .screen-main .screen-table__row:nth-child(6) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(7) .screen-table__number {
-  background-color: #3C0000;
-}
-.screen .screen-main .screen-table__row:nth-child(8) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(9) .screen-table__number {
-  background-color: #00003F;
-}
-.screen .screen-main .screen-table__row:nth-child(10) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(11) .screen-table__number {
-  background-color: #3C3C00;
-}
-.screen .screen-main .screen-table__row:nth-child(12) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(13) .screen-table__number {
-  background-color: #004700;
-}
-.screen .screen-main .screen-table__row:nth-child(14) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(15) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(16) .screen-table__number {
-  background-color: #653600;
-}
-.screen .screen-main .screen-table__row:nth-child(17) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(18) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(19) .screen-table__number {
-  background-color: #581058;
-}
-.screen .screen-main .screen-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-}
-.screen .screen-main .screen-table__odds {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-  padding-right: 0.4rem;
-}
-.screen .screen-main .screen-table__odds.odds-popular {
-  color: #FF8000;
-}
-.screen .screen-main .screen-table__odds.odds-unpopular {
-  color: #00B2FF;
-}
-
-/*----------
-screen3
-style
-----------*/
-.screen {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: top left;
-  --row-count: max(10, var(--horse-count));
-}
-.screen .race-main {
-  flex: 1;
-  display: grid;
-  gap: 1.1rem;
-  grid-template-columns: 62.5rem 30.8rem;
-}
-.screen .race-table {
-  display: flex;
-  flex-direction: column;
-}
-.screen .race-table__head {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
-  gap: 0.1rem;
-  height: 2.2rem;
-}
-.screen .race-table__head div {
-  display: grid;
-  place-content: center;
-  font-size: 1.4rem;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  border-right: 0.1rem solid #000000;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .race-table__head div.win {
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-}
-.screen .race-table__body {
-  flex: 1;
-  display: grid;
-  height: 100%;
-  grid-template-rows: repeat(var(--row-count), 1fr);
-}
-.screen .race-table__row {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
-  gap: 0.1rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .race-table__row.row-white .race-table__frame,
-.screen .race-table__row.row-white .race-table__number {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-black .race-table__frame,
-.screen .race-table__row.row-black .race-table__number {
-  background-color: #0D1117;
-}
-.screen .race-table__row.row-black .race-table__name {
-  background-color: #0D1117;
-}
-.screen .race-table__row.row-red .race-table__frame,
-.screen .race-table__row.row-red .race-table__number {
-  background-color: #C00000;
-}
-.screen .race-table__row.row-red .race-table__name {
-  background-color: #3C0000;
-}
-.screen .race-table__row.row-blue .race-table__frame,
-.screen .race-table__row.row-blue .race-table__number {
-  background-color: #0000DE;
-}
-.screen .race-table__row.row-blue .race-table__name {
-  background-color: #00003F;
-}
-.screen .race-table__row.row-yellow .race-table__frame,
-.screen .race-table__row.row-yellow .race-table__number {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-yellow .race-table__name {
-  background-color: #3C3C00;
-}
-.screen .race-table__row.row-green .race-table__frame,
-.screen .race-table__row.row-green .race-table__number {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.screen .race-table__row.row-green .race-table__name {
-  background-color: #004700;
-}
-.screen .race-table__row.row-orange .race-table__frame,
-.screen .race-table__row.row-orange .race-table__number {
-  background-color: #FF8800;
-}
-.screen .race-table__row.row-orange .race-table__name {
-  background-color: #653600;
-}
-.screen .race-table__row.row-pink .race-table__frame,
-.screen .race-table__row.row-pink .race-table__number {
-  background-color: #F44BF4;
-}
-.screen .race-table__row.row-pink .race-table__name {
-  background-color: #581058;
-}
-.screen .race-table__row div {
-  border-right: 0.1rem solid #000000;
-}
-.screen .race-table__row:nth-child(even) .race-table__odds-win,
-.screen .race-table__row:nth-child(even) .race-table__odds-place,
-.screen .race-table__row:nth-child(even) .race-table__weight,
-.screen .race-table__row:nth-child(even) .race-table__jockey {
-  background-color: #26364E;
-}
-.screen .race-table {
-  /* 枠・馬番 */
-}
-.screen .race-table__frame, .screen .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.screen .race-table {
-  /* 馬名 */
-}
-.screen .race-table__name {
-  display: flex;
-  align-items: center;
-  padding-left: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  --name-count: max(9, var(--name-length));
-  font-size: min(2rem * 9 / var(--name-count), 2rem);
-  letter-spacing: 0.05em;
-}
-.screen .race-table {
-  /* 単勝 */
-}
-.screen .race-table__odds-win {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  padding-right: 0.4rem;
-}
-.screen .race-table__odds-win.win-popular {
-  color: #FF8000;
-}
-.screen .race-table__odds-win.win-secondary {
-  color: #00B2FF;
-}
-.screen .race-table {
-  /* 複勝 */
-}
-.screen .race-table__odds-place {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-content: center;
-}
-.screen .race-table__odds-place span {
-  font-size: 2.2rem;
-  text-align: right;
-  font-family: "Segoe UI", sans-serif;
-}
-.screen .race-table__odds-place span:first-child, .screen .race-table__odds-place span:last-child {
-  padding-right: 0.4rem;
-}
-.screen .race-table__odds-place span.place-popular {
-  color: #FF8000;
-}
-.screen .race-table {
-  /* 馬体重 */
-}
-.screen .race-table__weight {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.screen .race-table__weight span {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.screen .race-table__weight span.weight-long {
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-.screen .race-table__weight span.weight-diff {
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-.screen .race-table {
-  /* 騎手名 */
-}
-.screen .race-table__jockey {
-  display: flex;
-  align-items: center;
-  font-size: 2rem;
-  letter-spacing: 0.05em;
-  padding-left: 0.4rem;
-}
-.screen {
-  /* 枠連 */
-}
-.screen .frame-umatan__head {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 2.2rem;
-  margin-bottom: 0.8rem;
-}
-.screen .frame-umatan__head div {
-  display: grid;
-  place-content: center;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-}
-.screen .frame-umatan__wrapper {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 0.8rem;
-  height: 46rem;
-}
-.screen .frame-umatan__body {
-  display: grid;
-  grid-template-columns: 2.4rem 6.7rem 6.7rem 6.7rem 6.7rem;
-  gap: 0.4rem;
-  height: 22.6rem;
-}
-.screen .frame-umatan__frame {
-  display: grid;
-  grid-template-rows: repeat(9, 1fr);
-}
-.screen .frame-umatan__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-  border-bottom: 0.1rem solid #000000;
-}
-.screen .frame-umatan__number:nth-child(2) {
-  background: #DFDFDF;
-  color: #1C1C1C;
-}
-.screen .frame-umatan__number:nth-child(3) {
-  background: #0D1117;
-}
-.screen .frame-umatan__number:nth-child(4) {
-  background: #3C0000;
-}
-.screen .frame-umatan__number:nth-child(5) {
-  background: #00003F;
-}
-.screen .frame-umatan__number:nth-child(6) {
-  background: #3C3C00;
-}
-.screen .frame-umatan__number:nth-child(7) {
-  background: #004700;
-}
-.screen .frame-umatan__number:nth-child(8) {
-  background: #653600;
-}
-.screen .frame-umatan__number:nth-child(9) {
-  background: #581058;
-}
-.screen .frame-umatan__block {
-  display: grid;
-  grid-template-rows: repeat(9, 1fr);
-}
-.screen .frame-umatan__block.block-white .frame-umatan__label {
-  background: #FAFAFA;
-  color: #1C1C1C;
-}
-.screen .frame-umatan__block.block-black .frame-umatan__label {
-  background: #0D1117;
-}
-.screen .frame-umatan__block.block-red .frame-umatan__label {
-  background: #C00000;
-}
-.screen .frame-umatan__block.block-blue .frame-umatan__label {
-  background: #0000DE;
-}
-.screen .frame-umatan__block.block-yellow .frame-umatan__label {
-  background: #E6E600;
-  color: #1C1C1C;
-}
-.screen .frame-umatan__block.block-green .frame-umatan__label {
-  background: #00D900;
-  color: #1C1C1C;
-}
-.screen .frame-umatan__block.block-orange .frame-umatan__label {
-  background: #FF8800;
-}
-.screen .frame-umatan__block.block-pink .frame-umatan__label {
-  background: #F44BF4;
-}
-.screen .frame-umatan__label {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-bottom: 0.1rem solid #000000;
-  border-right: 0.1rem solid #000000;
-}
-.screen .frame-umatan__item {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  padding-right: 0.4rem;
-  border-bottom: 0.1rem solid #000000;
-  border-right: 0.1rem solid #000000;
-}
-.screen .frame-umatan__item:nth-child(odd) {
-  background-color: #26364E;
-}
-.screen .frame-umatan__item.value-popular {
-  color: #FF8000;
-}
-
-/* 馬連・ワイド */
-.umaren-wide {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: top right;
-  --row-count: max(10, var(--horse-count));
-}
-.umaren-wide .race-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-.umaren-wide .race-main__head {
-  display: grid;
-  place-content: center;
-  height: 2.2rem;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-}
-.umaren-wide .race-main .race-table {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.8rem;
-}
-.umaren-wide .race-main .race-table__col {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.umaren-wide .race-main .race-table__body {
-  display: block;
-  height: auto;
-  overflow: hidden;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__name {
-  background-color: #FAFAFA;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-white .race-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
-}
-.umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
-  background: #686868;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__name {
-  background-color: #C00000;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__number {
-  background-color: #3C0000;
-}
-.umaren-wide .race-main .race-table__body.body-red .race-table__wide::before {
-  background: #C00000;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__name {
-  background-color: #0000DE;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__number {
-  background-color: #00003F;
-}
-.umaren-wide .race-main .race-table__body.body-blue .race-table__wide::before {
-  background: #0000DE;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__name {
-  background-color: #E6E600;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__number {
-  background-color: #3C3C00;
-}
-.umaren-wide .race-main .race-table__body.body-yellow .race-table__wide::before {
-  background: #E6E600;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__name {
-  background-color: #00D900;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__name span {
-  color: #1C1C1C;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__number {
-  background-color: #004700;
-}
-.umaren-wide .race-main .race-table__body.body-green .race-table__wide::before {
-  background: #00D900;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__name {
-  background-color: #FF8800;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__number {
-  background-color: #653600;
-}
-.umaren-wide .race-main .race-table__body.body-orange .race-table__wide::before {
-  background: #FF8800;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__name {
-  background-color: #F44BF4;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__number {
-  background-color: #581058;
-}
-.umaren-wide .race-main .race-table__body.body-pink .race-table__wide::before {
-  background: #F44BF4;
-}
-.umaren-wide .race-main .race-table__name {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  height: calc(46rem / var(--row-count));
-  white-space: nowrap;
-  padding-left: 0.8rem;
-  border-bottom: 0.1rem solid #000000;
-  border-right: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__name span {
-  --name-count: max(9, var(--name-length));
-  font-size: min(19.2rem / var(--name-count), 1.6rem);
-  letter-spacing: 0.05em;
-}
-.umaren-wide .race-main .race-table__name span.name-number {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-.umaren-wide .race-main .race-table__row {
-  display: grid;
-  grid-template-columns: 2.4rem 6.4rem 14.2rem;
-  height: calc(46rem / var(--row-count));
-  border-bottom: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__umaren, .umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__wide {
-  background-color: #26364E;
-}
-.umaren-wide .race-main .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-}
-.umaren-wide .race-main .race-table__umaren {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  border-right: 0.1rem solid #000000;
-  padding-right: 0.4rem;
-}
-.umaren-wide .race-main .race-table__umaren.unpopular {
-  color: #00B2FF;
-}
-.umaren-wide .race-main .race-table__wide {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-content: center;
-  border-right: 0.1rem solid #000000;
-  position: relative;
-}
-.umaren-wide .race-main .race-table__wide::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0.2rem;
-  height: calc(100% + 0.1rem);
-  background: #FAFAFA;
-  z-index: 2;
-}
-.umaren-wide .race-main .race-table__wide span {
-  font-family: "Segoe UI", sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-align: right;
-}
-.umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
-  padding-right: 0.4rem;
-}
-
-/* 人気 */
-.popular {
-  width: 96rem;
-  height: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  box-sizing: border-box;
-  padding: 0 0.8rem 0.8rem 0.8rem;
-  transform-origin: bottom left;
-  --row-count: max(10, var(--horse-count));
-}
-.popular.popular-second {
-  transform-origin: bottom right;
-}
-.popular .race-main {
-  flex: 1;
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: 29.6rem 13.7rem 13.7rem 17.4rem 17.4rem;
-}
-.popular .race-table {
-  display: flex;
-  flex-direction: column;
-}
-.popular .race-table__head {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
-  gap: 0.1rem;
-  height: 2.2rem;
-}
-.popular .race-table__head div {
-  display: grid;
-  place-content: center;
-  font-size: 1.4rem;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  border-right: 0.1rem solid #000000;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .race-table__head div.win {
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-}
-.popular .race-table__body {
-  flex: 1;
-  display: grid;
-  height: 100%;
-  grid-template-rows: repeat(var(--row-count), 1fr);
-}
-.popular .race-table__row {
-  display: grid;
-  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
-  gap: 0.1rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .race-table__row.row-white .race-table__frame,
-.popular .race-table__row.row-white .race-table__number {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-black .race-table__frame,
-.popular .race-table__row.row-black .race-table__number {
-  background-color: #0D1117;
-}
-.popular .race-table__row.row-black .race-table__name {
-  background-color: #0D1117;
-}
-.popular .race-table__row.row-red .race-table__frame,
-.popular .race-table__row.row-red .race-table__number {
-  background-color: #C00000;
-}
-.popular .race-table__row.row-red .race-table__name {
-  background-color: #3C0000;
-}
-.popular .race-table__row.row-blue .race-table__frame,
-.popular .race-table__row.row-blue .race-table__number {
-  background-color: #0000DE;
-}
-.popular .race-table__row.row-blue .race-table__name {
-  background-color: #00003F;
-}
-.popular .race-table__row.row-yellow .race-table__frame,
-.popular .race-table__row.row-yellow .race-table__number {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-yellow .race-table__name {
-  background-color: #3C3C00;
-}
-.popular .race-table__row.row-green .race-table__frame,
-.popular .race-table__row.row-green .race-table__number {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.popular .race-table__row.row-green .race-table__name {
-  background-color: #004700;
-}
-.popular .race-table__row.row-orange .race-table__frame,
-.popular .race-table__row.row-orange .race-table__number {
-  background-color: #FF8800;
-}
-.popular .race-table__row.row-orange .race-table__name {
-  background-color: #653600;
-}
-.popular .race-table__row.row-pink .race-table__frame,
-.popular .race-table__row.row-pink .race-table__number {
-  background-color: #F44BF4;
-}
-.popular .race-table__row.row-pink .race-table__name {
-  background-color: #581058;
-}
-.popular .race-table__row div {
-  border-right: 0.1rem solid #000000;
-}
-.popular .race-table__row:nth-child(even) .race-table__odds-win,
-.popular .race-table__row:nth-child(even) .race-table__odds-place,
-.popular .race-table__row:nth-child(even) .race-table__weight,
-.popular .race-table__row:nth-child(even) .race-table__jockey {
-  background-color: #26364E;
-}
-.popular .race-table {
-  /* 枠・馬番 */
-}
-.popular .race-table__frame, .popular .race-table__number {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.popular .race-table {
-  /* 馬名 */
-}
-.popular .race-table__name {
-  display: flex;
-  align-items: center;
-  padding-left: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  --name-count: max(9, var(--name-length));
-  font-size: min(2rem * 9 / var(--name-count), 2rem);
-  letter-spacing: 0.05em;
-}
-.popular .race-table {
-  /* 単勝 */
-}
-.popular .race-table__odds-win {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  padding-right: 0.4rem;
-}
-.popular .race-table__odds-win.win-popular {
-  color: #FF8000;
-}
-.popular .race-table__odds-win.win-secondary {
-  color: #00B2FF;
-}
-.popular .popular-table {
-  display: flex;
-  flex-direction: column;
-}
-.popular .popular-table__head {
-  display: grid;
-  place-content: center;
-  height: 2.2rem;
-  color: #CEE069;
-  font-size: 1.6rem;
-  letter-spacing: 0.05em;
-  background: linear-gradient(to bottom, #0D1117, #1C2431);
-  margin-bottom: 0.8rem;
-  white-space: nowrap;
-}
-.popular .popular-table__body {
-  flex: 1;
-  display: grid;
-  grid-template-rows: repeat(15, 1fr);
-  position: relative;
-}
-.popular .popular-table__body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -0.2rem;
-  width: 0.2rem;
-  height: 100%;
-  background: #00D9FF;
-}
-.popular .popular-table__body.three-combination .popular-table__row {
-  grid-template-columns: 10.6rem 6.8rem;
-}
-.popular .popular-table__body.three-combination .popular-table__combination {
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-}
-.popular .popular-table__row {
-  display: grid;
-  grid-template-columns: 6.9rem 6.8rem;
-  border-bottom: 0.1rem solid #000000;
-}
-.popular .popular-table__row:nth-child(even) .popular-table__combination,
-.popular .popular-table__row:nth-child(even) .popular-table__odds {
-  background-color: #26364E;
-}
-.popular .popular-table__combination {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 0.2rem;
-  border-right: 0.1rem solid #000000;
-  margin: 0 0.4rem;
-}
-.popular .popular-table__combination span {
-  display: grid;
-  place-content: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-}
-.popular .popular-table__combination span:first-child, .popular .popular-table__combination span:last-child {
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 0.2rem;
-}
-.popular .popular-table__combination span.number-white {
-  background-color: #FAFAFA;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-black {
-  background-color: #0D1117;
-  border: 0.1rem solid #686868;
-}
-.popular .popular-table__combination span.number-red {
-  background-color: #C00000;
-}
-.popular .popular-table__combination span.number-blue {
-  background-color: #0000DE;
-}
-.popular .popular-table__combination span.number-yellow {
-  background-color: #E6E600;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-green {
-  background-color: #00D900;
-  color: #1C1C1C;
-}
-.popular .popular-table__combination span.number-orange {
-  background-color: #FF8800;
-}
-.popular .popular-table__combination span.number-pink {
-  background-color: #F44BF4;
-}
-.popular .popular-table__odds {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 2.2rem;
-  border-right: 0.1rem solid #000000;
-  padding-right: 0.4rem;
-}
-.popular .popular-table__odds.odds-popular {
-  color: #FF8000;
-}
-
-/*----------
 header
 style
 ----------*/
@@ -2100,6 +314,1780 @@ style
 }
 
 /*----------
+horse / frame colors
+----------*/
+:root {
+  --color-red: #6b0000;
+  --color-red-dark: #360000;
+  --color-blue: #00008d;
+  --color-blue-dark: #010142;
+  --color-yellow: #818100;
+  --color-yellow-dark: #2c2c00;
+  --color-green: #007900;
+  --color-green-dark: #003100;
+  --color-orange: #c26700;
+  --color-orange-dark: #492700;
+  --color-pink: #c224c2;
+  --color-pink-dark: #4a024a;
+}
+
+/*----------
+screen1
+style
+----------*/
+html {
+  color: #ffffff;
+  font-size: 0.5208333333vw;
+  line-height: 1;
+}
+html.single-screen {
+  font-size: 1.0416666667vw;
+}
+
+body {
+  margin: 0;
+  background: #0D1117;
+  font-family: "Yu Gothic UI", sans-serif;
+  font-weight: 600;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.screen {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: top left;
+  --row-count: max(10, var(--horse-count));
+}
+.screen .race-main {
+  flex: 1;
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: 62.5rem 30.8rem;
+}
+.screen .race-table {
+  display: flex;
+  flex-direction: column;
+}
+.screen .race-table__head {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
+  gap: 0.1rem;
+  height: 2.2rem;
+}
+.screen .race-table__head div {
+  display: grid;
+  place-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .race-table__head div.win {
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+.screen .race-table__body {
+  flex: 1;
+  display: grid;
+  height: 100%;
+  grid-template-rows: repeat(var(--row-count), 1fr);
+}
+.screen .race-table__row {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
+  gap: 0.1rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .race-table__row.row-white .race-table__frame,
+.screen .race-table__row.row-white .race-table__number {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.screen .race-table__row.row-white .race-table__name {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen .race-table__row.row-black .race-table__frame,
+.screen .race-table__row.row-black .race-table__number {
+  background-color: #0D1117;
+}
+.screen .race-table__row.row-black .race-table__name {
+  background-color: #0D1117;
+}
+.screen .race-table__row.row-red .race-table__frame,
+.screen .race-table__row.row-red .race-table__number {
+  background-color: var(--color-red);
+}
+.screen .race-table__row.row-red .race-table__name {
+  background-color: var(--color-red-dark);
+}
+.screen .race-table__row.row-blue .race-table__frame,
+.screen .race-table__row.row-blue .race-table__number {
+  background-color: var(--color-blue);
+}
+.screen .race-table__row.row-blue .race-table__name {
+  background-color: var(--color-blue-dark);
+}
+.screen .race-table__row.row-yellow .race-table__frame,
+.screen .race-table__row.row-yellow .race-table__number {
+  background-color: var(--color-yellow);
+}
+.screen .race-table__row.row-yellow .race-table__name {
+  background-color: var(--color-yellow-dark);
+}
+.screen .race-table__row.row-green .race-table__frame,
+.screen .race-table__row.row-green .race-table__number {
+  background-color: var(--color-green);
+}
+.screen .race-table__row.row-green .race-table__name {
+  background-color: var(--color-green-dark);
+}
+.screen .race-table__row.row-orange .race-table__frame,
+.screen .race-table__row.row-orange .race-table__number {
+  background-color: var(--color-orange);
+}
+.screen .race-table__row.row-orange .race-table__name {
+  background-color: var(--color-orange-dark);
+}
+.screen .race-table__row.row-pink .race-table__frame,
+.screen .race-table__row.row-pink .race-table__number {
+  background-color: var(--color-pink);
+}
+.screen .race-table__row.row-pink .race-table__name {
+  background-color: var(--color-pink-dark);
+}
+.screen .race-table__row div {
+  border-right: 0.1rem solid #000000;
+}
+.screen .race-table__row:nth-child(even) .race-table__odds-win,
+.screen .race-table__row:nth-child(even) .race-table__odds-place,
+.screen .race-table__row:nth-child(even) .race-table__weight,
+.screen .race-table__row:nth-child(even) .race-table__jockey {
+  background-color: #26364E;
+}
+.screen .race-table {
+  /* 枠・馬番 */
+}
+.screen .race-table__frame, .screen .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.screen .race-table {
+  /* 馬名 */
+}
+.screen .race-table__name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length));
+  font-size: min(2rem * 9 / var(--name-count), 2rem);
+  letter-spacing: 0.05em;
+}
+.screen .race-table {
+  /* 単勝 */
+}
+.screen .race-table__odds-win {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+}
+.screen .race-table__odds-win.win-popular {
+  color: #FF8000;
+}
+.screen .race-table__odds-win.win-secondary {
+  color: #00B2FF;
+}
+.screen .race-table {
+  /* 複勝 */
+}
+.screen .race-table__odds-place {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-content: center;
+}
+.screen .race-table__odds-place span {
+  font-size: 2.2rem;
+  text-align: right;
+  font-family: "Segoe UI", sans-serif;
+}
+.screen .race-table__odds-place span:first-child, .screen .race-table__odds-place span:last-child {
+  padding-right: 0.4rem;
+}
+.screen .race-table__odds-place span.place-popular {
+  color: #FF8000;
+}
+.screen .race-table {
+  /* 馬体重 */
+}
+.screen .race-table__weight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.screen .race-table__weight span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.screen .race-table__weight span.weight-long {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.screen .race-table__weight span.weight-diff {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.screen .race-table {
+  /* 騎手名 */
+}
+.screen .race-table__jockey {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  padding-left: 0.4rem;
+}
+.screen {
+  /* 枠連 */
+}
+.screen .frame-odds__head {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 2.2rem;
+  margin-bottom: 0.8rem;
+}
+.screen .frame-odds__head div {
+  display: grid;
+  place-content: center;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+}
+.screen .frame-odds__body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+.screen .frame-odds__col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.screen .frame-odds__block {
+  height: fit-content;
+}
+.screen .frame-odds__block.block-white .frame-odds__label {
+  background: #FAFAFA;
+  color: #1C1C1C;
+}
+.screen .frame-odds__block.block-white .frame-odds__number {
+  background: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen .frame-odds__block.block-black .frame-odds__label {
+  background: #0D1117;
+}
+.screen .frame-odds__block.block-black .frame-odds__number {
+  background: #0D1117;
+}
+.screen .frame-odds__block.block-red .frame-odds__label {
+  background: var(--color-red);
+}
+.screen .frame-odds__block.block-red .frame-odds__number {
+  background: var(--color-red-dark);
+}
+.screen .frame-odds__block.block-blue .frame-odds__label {
+  background: var(--color-blue);
+}
+.screen .frame-odds__block.block-blue .frame-odds__number {
+  background: var(--color-blue-dark);
+}
+.screen .frame-odds__block.block-yellow .frame-odds__label {
+  background: var(--color-yellow);
+}
+.screen .frame-odds__block.block-yellow .frame-odds__number {
+  background: var(--color-yellow-dark);
+}
+.screen .frame-odds__block.block-green .frame-odds__label {
+  background: var(--color-green);
+}
+.screen .frame-odds__block.block-green .frame-odds__number {
+  background: var(--color-green-dark);
+}
+.screen .frame-odds__block.block-orange .frame-odds__label {
+  background: var(--color-orange);
+}
+.screen .frame-odds__block.block-orange .frame-odds__number {
+  background: var(--color-orange-dark);
+}
+.screen .frame-odds__block.block-pink .frame-odds__label {
+  background: var(--color-pink);
+}
+.screen .frame-odds__block.block-pink .frame-odds__number {
+  background: var(--color-pink-dark);
+}
+.screen .frame-odds__label {
+  display: grid;
+  place-content: center;
+  height: 2.6rem;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .frame-odds__item {
+  display: grid;
+  grid-template-columns: 3.2rem 6.8rem;
+  grid-auto-rows: 2.5rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .frame-odds__item:nth-child(odd) .frame-odds__value {
+  background-color: #26364E;
+}
+.screen .frame-odds__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  border-right: 0.1rem solid #000000;
+}
+.screen .frame-odds__value {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+  border-right: 0.1rem solid #000000;
+}
+.screen .frame-odds__value.value-popular {
+  color: #FF8000;
+}
+
+/* 馬連・ワイド */
+.umaren-wide {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: top right;
+  --row-count: max(10, var(--horse-count));
+}
+.umaren-wide .race-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.umaren-wide .race-main__head {
+  display: grid;
+  place-content: center;
+  height: 2.2rem;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+}
+.umaren-wide .race-main .race-table {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+.umaren-wide .race-main .race-table__body {
+  display: grid;
+  grid-template-rows: repeat(var(--row-count), 1fr);
+  height: 100%;
+  overflow: hidden;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__name {
+  background-color: #FAFAFA;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__name span {
+  color: #1C1C1C;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__number {
+  color: #1C1C1C;
+  background-color: #DFDFDF;
+}
+.umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
+  background: #686868;
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__name {
+  background-color: var(--color-red);
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__number {
+  background-color: var(--color-red-dark);
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__wide::before {
+  background: var(--color-red);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__name {
+  background-color: var(--color-blue);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__number {
+  background-color: var(--color-blue-dark);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__wide::before {
+  background: var(--color-blue);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__name {
+  background-color: var(--color-yellow);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__number {
+  background-color: var(--color-yellow-dark);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__wide::before {
+  background: var(--color-yellow);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__name {
+  background-color: var(--color-green);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__number {
+  background-color: var(--color-green-dark);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__wide::before {
+  background: var(--color-green);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__name {
+  background-color: var(--color-orange);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__number {
+  background-color: var(--color-orange-dark);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__wide::before {
+  background: var(--color-orange);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__name {
+  background-color: var(--color-pink);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__number {
+  background-color: var(--color-pink-dark);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__wide::before {
+  background: var(--color-pink);
+}
+.umaren-wide .race-main .race-table__name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  padding-left: 0.8rem;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__name span {
+  --name-count: max(9, var(--name-length));
+  font-size: min(19.2rem / var(--name-count), 1.6rem);
+  letter-spacing: 0.05em;
+}
+.umaren-wide .race-main .race-table__name span.name-number {
+  font-family: "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.umaren-wide .race-main .race-table__row {
+  display: grid;
+  grid-template-columns: 2.4rem 6.4rem 14.2rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__umaren, .umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__wide {
+  background-color: #26364E;
+}
+.umaren-wide .race-main .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__umaren {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.4rem;
+}
+.umaren-wide .race-main .race-table__umaren.unpopular {
+  color: #00B2FF;
+}
+.umaren-wide .race-main .race-table__wide {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-content: center;
+  border-right: 0.1rem solid #000000;
+  position: relative;
+}
+.umaren-wide .race-main .race-table__wide::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.2rem;
+  height: calc(100% + 0.1rem);
+  background: #FAFAFA;
+  z-index: 2;
+}
+.umaren-wide .race-main .race-table__wide span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: right;
+}
+.umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
+  padding-right: 0.4rem;
+}
+
+/* 人気 */
+.popular {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: bottom left;
+  --row-count: max(10, var(--horse-count));
+}
+.popular.popular-second {
+  transform-origin: bottom right;
+}
+.popular .race-main {
+  flex: 1;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 29.6rem 13.7rem 13.7rem 17.4rem 17.4rem;
+}
+.popular .race-table {
+  display: flex;
+  flex-direction: column;
+}
+.popular .race-table__head {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
+  gap: 0.1rem;
+  height: 2.2rem;
+}
+.popular .race-table__head div {
+  display: grid;
+  place-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .race-table__head div.win {
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+.popular .race-table__body {
+  flex: 1;
+  display: grid;
+  height: 100%;
+  grid-template-rows: repeat(var(--row-count), 1fr);
+}
+.popular .race-table__row {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
+  gap: 0.1rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .race-table__row.row-white .race-table__frame,
+.popular .race-table__row.row-white .race-table__number {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.popular .race-table__row.row-white .race-table__name {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.popular .race-table__row.row-black .race-table__frame,
+.popular .race-table__row.row-black .race-table__number {
+  background-color: #0D1117;
+}
+.popular .race-table__row.row-black .race-table__name {
+  background-color: #0D1117;
+}
+.popular .race-table__row.row-red .race-table__frame,
+.popular .race-table__row.row-red .race-table__number {
+  background-color: var(--color-red);
+}
+.popular .race-table__row.row-red .race-table__name {
+  background-color: var(--color-red-dark);
+}
+.popular .race-table__row.row-blue .race-table__frame,
+.popular .race-table__row.row-blue .race-table__number {
+  background-color: var(--color-blue);
+}
+.popular .race-table__row.row-blue .race-table__name {
+  background-color: var(--color-blue-dark);
+}
+.popular .race-table__row.row-yellow .race-table__frame,
+.popular .race-table__row.row-yellow .race-table__number {
+  background-color: var(--color-yellow);
+}
+.popular .race-table__row.row-yellow .race-table__name {
+  background-color: var(--color-yellow-dark);
+}
+.popular .race-table__row.row-green .race-table__frame,
+.popular .race-table__row.row-green .race-table__number {
+  background-color: var(--color-green);
+}
+.popular .race-table__row.row-green .race-table__name {
+  background-color: var(--color-green-dark);
+}
+.popular .race-table__row.row-orange .race-table__frame,
+.popular .race-table__row.row-orange .race-table__number {
+  background-color: var(--color-orange);
+}
+.popular .race-table__row.row-orange .race-table__name {
+  background-color: var(--color-orange-dark);
+}
+.popular .race-table__row.row-pink .race-table__frame,
+.popular .race-table__row.row-pink .race-table__number {
+  background-color: var(--color-pink);
+}
+.popular .race-table__row.row-pink .race-table__name {
+  background-color: var(--color-pink-dark);
+}
+.popular .race-table__row div {
+  border-right: 0.1rem solid #000000;
+}
+.popular .race-table__row:nth-child(even) .race-table__odds-win,
+.popular .race-table__row:nth-child(even) .race-table__odds-place,
+.popular .race-table__row:nth-child(even) .race-table__weight,
+.popular .race-table__row:nth-child(even) .race-table__jockey {
+  background-color: #26364E;
+}
+.popular .race-table {
+  /* 枠・馬番 */
+}
+.popular .race-table__frame, .popular .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.popular .race-table {
+  /* 馬名 */
+}
+.popular .race-table__name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length));
+  font-size: min(2rem * 9 / var(--name-count), 2rem);
+  letter-spacing: 0.05em;
+}
+.popular .race-table {
+  /* 単勝 */
+}
+.popular .race-table__odds-win {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+}
+.popular .race-table__odds-win.win-popular {
+  color: #FF8000;
+}
+.popular .race-table__odds-win.win-secondary {
+  color: #00B2FF;
+}
+.popular .popular-table {
+  display: flex;
+  flex-direction: column;
+}
+.popular .popular-table__head {
+  display: grid;
+  place-content: center;
+  height: 2.2rem;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  margin-bottom: 0.8rem;
+  white-space: nowrap;
+}
+.popular .popular-table__body {
+  flex: 1;
+  display: grid;
+  grid-template-rows: repeat(15, 1fr);
+  position: relative;
+}
+.popular .popular-table__body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -0.2rem;
+  width: 0.2rem;
+  height: 100%;
+  background: #00D9FF;
+}
+.popular .popular-table__body.three-combination .popular-table__row {
+  grid-template-columns: 10.6rem 6.8rem;
+}
+.popular .popular-table__body.three-combination .popular-table__combination {
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+}
+.popular .popular-table__row {
+  display: grid;
+  grid-template-columns: 6.9rem 6.8rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .popular-table__row:nth-child(even) .popular-table__combination,
+.popular .popular-table__row:nth-child(even) .popular-table__odds {
+  background-color: #26364E;
+}
+.popular .popular-table__combination {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.2rem;
+  border-right: 0.1rem solid #000000;
+  margin: 0 0.4rem;
+}
+.popular .popular-table__combination span {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.popular .popular-table__combination span:first-child, .popular .popular-table__combination span:last-child {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.2rem;
+}
+.popular .popular-table__combination span.number-white {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.popular .popular-table__combination span.number-black {
+  background-color: #0D1117;
+  border: 0.1rem solid #686868;
+}
+.popular .popular-table__combination span.number-red {
+  background-color: var(--color-red);
+}
+.popular .popular-table__combination span.number-blue {
+  background-color: var(--color-blue);
+}
+.popular .popular-table__combination span.number-yellow {
+  background-color: var(--color-yellow);
+}
+.popular .popular-table__combination span.number-green {
+  background-color: var(--color-green);
+}
+.popular .popular-table__combination span.number-orange {
+  background-color: var(--color-orange);
+}
+.popular .popular-table__combination span.number-pink {
+  background-color: var(--color-pink);
+}
+.popular .popular-table__odds {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.4rem;
+}
+.popular .popular-table__odds.odds-popular {
+  color: #FF8000;
+}
+
+/*----------
+screen2
+style
+----------*/
+.screen {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  --row-count: max(10, var(--horse-count));
+}
+.screen.screen-umaren .screen-main .screen-table__body {
+  grid-template-rows: repeat(var(--row-count), 1fr);
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-white {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-black {
+  background-color: #0D1117;
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-red {
+  background-color: var(--color-red-dark);
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-blue {
+  background-color: var(--color-blue-dark);
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-yellow {
+  background-color: var(--color-yellow-dark);
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-green {
+  background-color: var(--color-green-dark);
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-orange {
+  background-color: var(--color-orange-dark);
+  color: inherit;
+}
+.screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-pink {
+  background-color: var(--color-pink-dark);
+  color: inherit;
+}
+.screen .screen-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.screen .screen-main__head {
+  display: grid;
+  place-content: center;
+  height: 2.2rem;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+}
+.screen .screen-main .screen-table {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 1.2rem;
+}
+.screen .screen-main .screen-table__body {
+  display: grid;
+  grid-template-rows: repeat(calc(var(--row-count) + 1), 1fr);
+  height: 100%;
+  overflow: hidden;
+}
+.screen .screen-main .screen-table__body.body-white .screen-table__name {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.screen .screen-main .screen-table__body.body-red .screen-table__name {
+  background-color: var(--color-red);
+}
+.screen .screen-main .screen-table__body.body-blue .screen-table__name {
+  background-color: var(--color-blue);
+}
+.screen .screen-main .screen-table__body.body-yellow .screen-table__name {
+  background-color: var(--color-yellow);
+}
+.screen .screen-main .screen-table__body.body-green .screen-table__name {
+  background-color: var(--color-green);
+}
+.screen .screen-main .screen-table__body.body-orange .screen-table__name {
+  background-color: var(--color-orange);
+}
+.screen .screen-main .screen-table__body.body-pink .screen-table__name {
+  background-color: var(--color-pink);
+}
+.screen .screen-main .screen-table__name {
+  display: grid;
+  place-content: center;
+  font-size: 1.6rem;
+  font-family: "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+  padding: 0;
+}
+.screen .screen-main .screen-table__row {
+  display: grid;
+  grid-template-columns: 2.4rem 7.022rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .screen-main .screen-table__row:nth-child(odd) .screen-table__odds {
+  background-color: #26364E;
+}
+.screen .screen-main .screen-table__row .screen-table__odds.odds-cross {
+  background-color: #677C9C;
+}
+.screen .screen-main .screen-table__row:nth-child(2) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(3) .screen-table__number {
+  color: #1C1C1C;
+  background-color: #DFDFDF;
+}
+.screen .screen-main .screen-table__row:nth-child(6) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(7) .screen-table__number {
+  background-color: var(--color-red-dark);
+}
+.screen .screen-main .screen-table__row:nth-child(8) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(9) .screen-table__number {
+  background-color: var(--color-blue-dark);
+}
+.screen .screen-main .screen-table__row:nth-child(10) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(11) .screen-table__number {
+  background-color: var(--color-yellow-dark);
+}
+.screen .screen-main .screen-table__row:nth-child(12) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(13) .screen-table__number {
+  background-color: var(--color-green-dark);
+}
+.screen .screen-main .screen-table__row:nth-child(14) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(15) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(16) .screen-table__number {
+  background-color: var(--color-orange-dark);
+}
+.screen .screen-main .screen-table__row:nth-child(17) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(18) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(19) .screen-table__number {
+  background-color: var(--color-pink-dark);
+}
+.screen .screen-main .screen-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+}
+.screen .screen-main .screen-table__odds {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.4rem;
+}
+.screen .screen-main .screen-table__odds.odds-popular {
+  color: #FF8000;
+}
+.screen .screen-main .screen-table__odds.odds-unpopular {
+  color: #00B2FF;
+}
+
+/*----------
+screen3
+style
+----------*/
+.screen {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: top left;
+  --row-count: max(10, var(--horse-count));
+}
+.screen .race-main {
+  flex: 1;
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: 62.5rem 30.8rem;
+}
+.screen .race-table {
+  display: flex;
+  flex-direction: column;
+}
+.screen .race-table__head {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
+  gap: 0.1rem;
+  height: 2.2rem;
+}
+.screen .race-table__head div {
+  display: grid;
+  place-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .race-table__head div.win {
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+.screen .race-table__body {
+  flex: 1;
+  display: grid;
+  height: 100%;
+  grid-template-rows: repeat(var(--row-count), 1fr);
+}
+.screen .race-table__row {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 9.5rem 9.5rem;
+  gap: 0.1rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .race-table__row.row-white .race-table__frame,
+.screen .race-table__row.row-white .race-table__number {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.screen .race-table__row.row-white .race-table__name {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen .race-table__row.row-black .race-table__frame,
+.screen .race-table__row.row-black .race-table__number {
+  background-color: #0D1117;
+}
+.screen .race-table__row.row-black .race-table__name {
+  background-color: #0D1117;
+}
+.screen .race-table__row.row-red .race-table__frame,
+.screen .race-table__row.row-red .race-table__number {
+  background-color: var(--color-red);
+}
+.screen .race-table__row.row-red .race-table__name {
+  background-color: var(--color-red-dark);
+}
+.screen .race-table__row.row-blue .race-table__frame,
+.screen .race-table__row.row-blue .race-table__number {
+  background-color: var(--color-blue);
+}
+.screen .race-table__row.row-blue .race-table__name {
+  background-color: var(--color-blue-dark);
+}
+.screen .race-table__row.row-yellow .race-table__frame,
+.screen .race-table__row.row-yellow .race-table__number {
+  background-color: var(--color-yellow);
+}
+.screen .race-table__row.row-yellow .race-table__name {
+  background-color: var(--color-yellow-dark);
+}
+.screen .race-table__row.row-green .race-table__frame,
+.screen .race-table__row.row-green .race-table__number {
+  background-color: var(--color-green);
+}
+.screen .race-table__row.row-green .race-table__name {
+  background-color: var(--color-green-dark);
+}
+.screen .race-table__row.row-orange .race-table__frame,
+.screen .race-table__row.row-orange .race-table__number {
+  background-color: var(--color-orange);
+}
+.screen .race-table__row.row-orange .race-table__name {
+  background-color: var(--color-orange-dark);
+}
+.screen .race-table__row.row-pink .race-table__frame,
+.screen .race-table__row.row-pink .race-table__number {
+  background-color: var(--color-pink);
+}
+.screen .race-table__row.row-pink .race-table__name {
+  background-color: var(--color-pink-dark);
+}
+.screen .race-table__row div {
+  border-right: 0.1rem solid #000000;
+}
+.screen .race-table__row:nth-child(even) .race-table__odds-win,
+.screen .race-table__row:nth-child(even) .race-table__odds-place,
+.screen .race-table__row:nth-child(even) .race-table__weight,
+.screen .race-table__row:nth-child(even) .race-table__jockey {
+  background-color: #26364E;
+}
+.screen .race-table {
+  /* 枠・馬番 */
+}
+.screen .race-table__frame, .screen .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.screen .race-table {
+  /* 馬名 */
+}
+.screen .race-table__name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length));
+  font-size: min(2rem * 9 / var(--name-count), 2rem);
+  letter-spacing: 0.05em;
+}
+.screen .race-table {
+  /* 単勝 */
+}
+.screen .race-table__odds-win {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+}
+.screen .race-table__odds-win.win-popular {
+  color: #FF8000;
+}
+.screen .race-table__odds-win.win-secondary {
+  color: #00B2FF;
+}
+.screen .race-table {
+  /* 複勝 */
+}
+.screen .race-table__odds-place {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-content: center;
+}
+.screen .race-table__odds-place span {
+  font-size: 2.2rem;
+  text-align: right;
+  font-family: "Segoe UI", sans-serif;
+}
+.screen .race-table__odds-place span:first-child, .screen .race-table__odds-place span:last-child {
+  padding-right: 0.4rem;
+}
+.screen .race-table__odds-place span.place-popular {
+  color: #FF8000;
+}
+.screen .race-table {
+  /* 馬体重 */
+}
+.screen .race-table__weight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.screen .race-table__weight span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.screen .race-table__weight span.weight-long {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.screen .race-table__weight span.weight-diff {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.screen .race-table {
+  /* 騎手名 */
+}
+.screen .race-table__jockey {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  padding-left: 0.4rem;
+}
+.screen {
+  /* 枠連 */
+}
+.screen .frame-umatan__head {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 2.2rem;
+  margin-bottom: 0.8rem;
+}
+.screen .frame-umatan__head div {
+  display: grid;
+  place-content: center;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+}
+.screen .frame-umatan__wrapper {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.8rem;
+  height: 46rem;
+}
+.screen .frame-umatan__body {
+  display: grid;
+  grid-template-columns: 2.4rem 6.7rem 6.7rem 6.7rem 6.7rem;
+  gap: 0.4rem;
+  height: 22.6rem;
+}
+.screen .frame-umatan__frame {
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+}
+.screen .frame-umatan__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+}
+.screen .frame-umatan__number:nth-child(2) {
+  background: #DFDFDF;
+  color: #1C1C1C;
+}
+.screen .frame-umatan__number:nth-child(3) {
+  background: #0D1117;
+}
+.screen .frame-umatan__number:nth-child(4) {
+  background: var(--color-red-dark);
+}
+.screen .frame-umatan__number:nth-child(5) {
+  background: var(--color-blue-dark);
+}
+.screen .frame-umatan__number:nth-child(6) {
+  background: var(--color-yellow-dark);
+}
+.screen .frame-umatan__number:nth-child(7) {
+  background: var(--color-green-dark);
+}
+.screen .frame-umatan__number:nth-child(8) {
+  background: var(--color-orange-dark);
+}
+.screen .frame-umatan__number:nth-child(9) {
+  background: var(--color-pink-dark);
+}
+.screen .frame-umatan__block {
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+}
+.screen .frame-umatan__block.block-white .frame-umatan__label {
+  background: #FAFAFA;
+  color: #1C1C1C;
+}
+.screen .frame-umatan__block.block-black .frame-umatan__label {
+  background: #0D1117;
+}
+.screen .frame-umatan__block.block-red .frame-umatan__label {
+  background: var(--color-red);
+}
+.screen .frame-umatan__block.block-blue .frame-umatan__label {
+  background: var(--color-blue);
+}
+.screen .frame-umatan__block.block-yellow .frame-umatan__label {
+  background: var(--color-yellow);
+}
+.screen .frame-umatan__block.block-green .frame-umatan__label {
+  background: var(--color-green);
+}
+.screen .frame-umatan__block.block-orange .frame-umatan__label {
+  background: var(--color-orange);
+}
+.screen .frame-umatan__block.block-pink .frame-umatan__label {
+  background: var(--color-pink);
+}
+.screen .frame-umatan__label {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+}
+.screen .frame-umatan__item {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  padding-right: 0.4rem;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+}
+.screen .frame-umatan__item:nth-child(odd) {
+  background-color: #26364E;
+}
+.screen .frame-umatan__item.value-popular {
+  color: #FF8000;
+}
+
+/* 馬連・ワイド */
+.umaren-wide {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: top right;
+  --row-count: max(10, var(--horse-count));
+}
+.umaren-wide .race-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.umaren-wide .race-main__head {
+  display: grid;
+  place-content: center;
+  height: 2.2rem;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+}
+.umaren-wide .race-main .race-table {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+.umaren-wide .race-main .race-table__col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.umaren-wide .race-main .race-table__body {
+  display: block;
+  height: auto;
+  overflow: hidden;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__name {
+  background-color: #FAFAFA;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__name span {
+  color: #1C1C1C;
+}
+.umaren-wide .race-main .race-table__body.body-white .race-table__number {
+  color: #1C1C1C;
+  background-color: #DFDFDF;
+}
+.umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
+  background: #686868;
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__name {
+  background-color: var(--color-red);
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__number {
+  background-color: var(--color-red-dark);
+}
+.umaren-wide .race-main .race-table__body.body-red .race-table__wide::before {
+  background: var(--color-red);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__name {
+  background-color: var(--color-blue);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__number {
+  background-color: var(--color-blue-dark);
+}
+.umaren-wide .race-main .race-table__body.body-blue .race-table__wide::before {
+  background: var(--color-blue);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__name {
+  background-color: var(--color-yellow);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__number {
+  background-color: var(--color-yellow-dark);
+}
+.umaren-wide .race-main .race-table__body.body-yellow .race-table__wide::before {
+  background: var(--color-yellow);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__name {
+  background-color: var(--color-green);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__number {
+  background-color: var(--color-green-dark);
+}
+.umaren-wide .race-main .race-table__body.body-green .race-table__wide::before {
+  background: var(--color-green);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__name {
+  background-color: var(--color-orange);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__number {
+  background-color: var(--color-orange-dark);
+}
+.umaren-wide .race-main .race-table__body.body-orange .race-table__wide::before {
+  background: var(--color-orange);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__name {
+  background-color: var(--color-pink);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__number {
+  background-color: var(--color-pink-dark);
+}
+.umaren-wide .race-main .race-table__body.body-pink .race-table__wide::before {
+  background: var(--color-pink);
+}
+.umaren-wide .race-main .race-table__name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: calc(46rem / var(--row-count));
+  white-space: nowrap;
+  padding-left: 0.8rem;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__name span {
+  --name-count: max(9, var(--name-length));
+  font-size: min(19.2rem / var(--name-count), 1.6rem);
+  letter-spacing: 0.05em;
+}
+.umaren-wide .race-main .race-table__name span.name-number {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.umaren-wide .race-main .race-table__row {
+  display: grid;
+  grid-template-columns: 2.4rem 6.4rem 14.2rem;
+  height: calc(46rem / var(--row-count));
+  border-bottom: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__umaren, .umaren-wide .race-main .race-table__row:nth-child(odd) .race-table__wide {
+  background-color: #26364E;
+}
+.umaren-wide .race-main .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+}
+.umaren-wide .race-main .race-table__umaren {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.4rem;
+}
+.umaren-wide .race-main .race-table__umaren.unpopular {
+  color: #00B2FF;
+}
+.umaren-wide .race-main .race-table__wide {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-content: center;
+  border-right: 0.1rem solid #000000;
+  position: relative;
+}
+.umaren-wide .race-main .race-table__wide::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.2rem;
+  height: calc(100% + 0.1rem);
+  background: #FAFAFA;
+  z-index: 2;
+}
+.umaren-wide .race-main .race-table__wide span {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: right;
+}
+.umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
+  padding-right: 0.4rem;
+}
+
+/* 人気 */
+.popular {
+  width: 96rem;
+  height: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  padding: 0 0.8rem 0.8rem 0.8rem;
+  transform-origin: bottom left;
+  --row-count: max(10, var(--horse-count));
+}
+.popular.popular-second {
+  transform-origin: bottom right;
+}
+.popular .race-main {
+  flex: 1;
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 29.6rem 13.7rem 13.7rem 17.4rem 17.4rem;
+}
+.popular .race-table {
+  display: flex;
+  flex-direction: column;
+}
+.popular .race-table__head {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
+  gap: 0.1rem;
+  height: 2.2rem;
+}
+.popular .race-table__head div {
+  display: grid;
+  place-content: center;
+  font-size: 1.4rem;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .race-table__head div.win {
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+.popular .race-table__body {
+  flex: 1;
+  display: grid;
+  height: 100%;
+  grid-template-rows: repeat(var(--row-count), 1fr);
+}
+.popular .race-table__row {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem;
+  gap: 0.1rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .race-table__row.row-white .race-table__frame,
+.popular .race-table__row.row-white .race-table__number {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.popular .race-table__row.row-white .race-table__name {
+  background-color: #DFDFDF;
+  color: #1C1C1C;
+}
+.popular .race-table__row.row-black .race-table__frame,
+.popular .race-table__row.row-black .race-table__number {
+  background-color: #0D1117;
+}
+.popular .race-table__row.row-black .race-table__name {
+  background-color: #0D1117;
+}
+.popular .race-table__row.row-red .race-table__frame,
+.popular .race-table__row.row-red .race-table__number {
+  background-color: var(--color-red);
+}
+.popular .race-table__row.row-red .race-table__name {
+  background-color: var(--color-red-dark);
+}
+.popular .race-table__row.row-blue .race-table__frame,
+.popular .race-table__row.row-blue .race-table__number {
+  background-color: var(--color-blue);
+}
+.popular .race-table__row.row-blue .race-table__name {
+  background-color: var(--color-blue-dark);
+}
+.popular .race-table__row.row-yellow .race-table__frame,
+.popular .race-table__row.row-yellow .race-table__number {
+  background-color: var(--color-yellow);
+}
+.popular .race-table__row.row-yellow .race-table__name {
+  background-color: var(--color-yellow-dark);
+}
+.popular .race-table__row.row-green .race-table__frame,
+.popular .race-table__row.row-green .race-table__number {
+  background-color: var(--color-green);
+}
+.popular .race-table__row.row-green .race-table__name {
+  background-color: var(--color-green-dark);
+}
+.popular .race-table__row.row-orange .race-table__frame,
+.popular .race-table__row.row-orange .race-table__number {
+  background-color: var(--color-orange);
+}
+.popular .race-table__row.row-orange .race-table__name {
+  background-color: var(--color-orange-dark);
+}
+.popular .race-table__row.row-pink .race-table__frame,
+.popular .race-table__row.row-pink .race-table__number {
+  background-color: var(--color-pink);
+}
+.popular .race-table__row.row-pink .race-table__name {
+  background-color: var(--color-pink-dark);
+}
+.popular .race-table__row div {
+  border-right: 0.1rem solid #000000;
+}
+.popular .race-table__row:nth-child(even) .race-table__odds-win,
+.popular .race-table__row:nth-child(even) .race-table__odds-place,
+.popular .race-table__row:nth-child(even) .race-table__weight,
+.popular .race-table__row:nth-child(even) .race-table__jockey {
+  background-color: #26364E;
+}
+.popular .race-table {
+  /* 枠・馬番 */
+}
+.popular .race-table__frame, .popular .race-table__number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.popular .race-table {
+  /* 馬名 */
+}
+.popular .race-table__name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length));
+  font-size: min(2rem * 9 / var(--name-count), 2rem);
+  letter-spacing: 0.05em;
+}
+.popular .race-table {
+  /* 単勝 */
+}
+.popular .race-table__odds-win {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+}
+.popular .race-table__odds-win.win-popular {
+  color: #FF8000;
+}
+.popular .race-table__odds-win.win-secondary {
+  color: #00B2FF;
+}
+.popular .popular-table {
+  display: flex;
+  flex-direction: column;
+}
+.popular .popular-table__head {
+  display: grid;
+  place-content: center;
+  height: 2.2rem;
+  color: #CEE069;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(to bottom, #0D1117, #1C2431);
+  margin-bottom: 0.8rem;
+  white-space: nowrap;
+}
+.popular .popular-table__body {
+  flex: 1;
+  display: grid;
+  grid-template-rows: repeat(15, 1fr);
+  position: relative;
+}
+.popular .popular-table__body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -0.2rem;
+  width: 0.2rem;
+  height: 100%;
+  background: #00D9FF;
+}
+.popular .popular-table__body.three-combination .popular-table__row {
+  grid-template-columns: 10.6rem 6.8rem;
+}
+.popular .popular-table__body.three-combination .popular-table__combination {
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+}
+.popular .popular-table__row {
+  display: grid;
+  grid-template-columns: 6.9rem 6.8rem;
+  border-bottom: 0.1rem solid #000000;
+}
+.popular .popular-table__row:nth-child(even) .popular-table__combination,
+.popular .popular-table__row:nth-child(even) .popular-table__odds {
+  background-color: #26364E;
+}
+.popular .popular-table__combination {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.2rem;
+  border-right: 0.1rem solid #000000;
+  margin: 0 0.4rem;
+}
+.popular .popular-table__combination span {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.popular .popular-table__combination span:first-child, .popular .popular-table__combination span:last-child {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.2rem;
+}
+.popular .popular-table__combination span.number-white {
+  background-color: #FAFAFA;
+  color: #1C1C1C;
+}
+.popular .popular-table__combination span.number-black {
+  background-color: #0D1117;
+  border: 0.1rem solid #686868;
+}
+.popular .popular-table__combination span.number-red {
+  background-color: var(--color-red);
+}
+.popular .popular-table__combination span.number-blue {
+  background-color: var(--color-blue);
+}
+.popular .popular-table__combination span.number-yellow {
+  background-color: var(--color-yellow);
+}
+.popular .popular-table__combination span.number-green {
+  background-color: var(--color-green);
+}
+.popular .popular-table__combination span.number-orange {
+  background-color: var(--color-orange);
+}
+.popular .popular-table__combination span.number-pink {
+  background-color: var(--color-pink);
+}
+.popular .popular-table__odds {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.4rem;
+}
+.popular .popular-table__odds.odds-popular {
+  color: #FF8000;
+}
+
+/*----------
 screen5
 style
 ----------*/
@@ -2203,24 +2191,22 @@ style
   background-color: #0D1117;
 }
 .race-container .race-screen .race-record__number.number-red {
-  background-color: #C00000;
+  background-color: var(--color-red);
 }
 .race-container .race-screen .race-record__number.number-blue {
-  background-color: #0000DE;
+  background-color: var(--color-blue);
 }
 .race-container .race-screen .race-record__number.number-yellow {
-  color: #1C1C1C;
-  background-color: #E6E600;
+  background-color: var(--color-yellow);
 }
 .race-container .race-screen .race-record__number.number-green {
-  color: #1C1C1C;
-  background-color: #00D900;
+  background-color: var(--color-green);
 }
 .race-container .race-screen .race-record__number.number-orange {
-  background-color: #FF8800;
+  background-color: var(--color-orange);
 }
 .race-container .race-screen .race-record__number.number-pink {
-  background-color: #F44BF4;
+  background-color: var(--color-pink);
 }
 .race-container .race-screen .race-record__name {
   display: flex;
@@ -2231,6 +2217,7 @@ style
   text-overflow: ellipsis;
   --name-count: max(9, var(--name-length));
   font-size: min(1.6rem * 9 / var(--name-count), 1.6rem);
+  letter-spacing: 0.05em;
 }
 .race-container .race-screen .race-record__time {
   display: flex;
@@ -2622,42 +2609,40 @@ style
   background-color: #0D1117;
 }
 .race-container .race-screen .race-table__row.row-red .race-table__number {
-  background-color: #C00000;
+  background-color: var(--color-red);
 }
 .race-container .race-screen .race-table__row.row-red .race-table__name {
-  background-color: #3C0000;
+  background-color: var(--color-red-dark);
 }
 .race-container .race-screen .race-table__row.row-blue .race-table__number {
-  background-color: #0000DE;
+  background-color: var(--color-blue);
 }
 .race-container .race-screen .race-table__row.row-blue .race-table__name {
-  background-color: #00003F;
+  background-color: var(--color-blue-dark);
 }
 .race-container .race-screen .race-table__row.row-yellow .race-table__number {
-  background-color: #E6E600;
-  color: #1C1C1C;
+  background-color: var(--color-yellow);
 }
 .race-container .race-screen .race-table__row.row-yellow .race-table__name {
-  background-color: #3C3C00;
+  background-color: var(--color-yellow-dark);
 }
 .race-container .race-screen .race-table__row.row-green .race-table__number {
-  background-color: #00D900;
-  color: #1C1C1C;
+  background-color: var(--color-green);
 }
 .race-container .race-screen .race-table__row.row-green .race-table__name {
-  background-color: #004700;
+  background-color: var(--color-green-dark);
 }
 .race-container .race-screen .race-table__row.row-orange .race-table__number {
-  background-color: #FF8800;
+  background-color: var(--color-orange);
 }
 .race-container .race-screen .race-table__row.row-orange .race-table__name {
-  background-color: #653600;
+  background-color: var(--color-orange-dark);
 }
 .race-container .race-screen .race-table__row.row-pink .race-table__number {
-  background-color: #F44BF4;
+  background-color: var(--color-pink);
 }
 .race-container .race-screen .race-table__row.row-pink .race-table__name {
-  background-color: #581058;
+  background-color: var(--color-pink-dark);
 }
 .race-container .race-screen .race-table__row:nth-child(even) .race-table__weight,
 .race-container .race-screen .race-table__row:nth-child(even) .race-table__sex-age,
@@ -3045,11 +3030,1083 @@ style
 .closing-timer-board__foot {
   display: grid;
   place-items: center;
-  background: #C00000;
+  background: var(--color-red);
   font-size: 4.8rem;
 }
 .closing-timer-board__foot.betting-closed {
   background: linear-gradient(180deg, #1C2431 0%, #0D1117 100%);
+}
+
+/*----------
+screen7 — L字画面（マークアップ）
+----------*/
+.message {
+  width: 96rem;
+  height: 54rem;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 18.8rem 76.8rem;
+  grid-template-rows: 1fr 10.5rem;
+  grid-template-areas: "sidebar main" "sidebar bottom";
+  gap: 0.4rem;
+  overflow: hidden;
+}
+.message__sidebar {
+  width: 18.8rem;
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.message__race-head {
+  height: 3.8rem;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: linear-gradient(93.3deg, #1F6F43 45.95%, #0C5D31 54.05%);
+  border-bottom: 0.1rem solid #000000;
+  font-size: 2.6rem;
+  line-height: 1;
+  padding-left: 0.8rem;
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+}
+.message__race-head-number {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 3rem;
+}
+.message__race-head-number span {
+  font-size: 2rem;
+}
+.message__horse-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  --row-count: max(10, var(--horse-count, 18));
+  --horse-table-body-height: calc(54rem - 3.8rem - 0.4rem - 2.2rem);
+  --row-height: calc(var(--horse-table-body-height) / var(--row-count));
+}
+.message__horse-table-head {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 2.4rem 2.4rem minmax(0, 1fr) 3.4rem;
+  height: 2.2rem;
+}
+.message__horse-table-head div {
+  display: grid;
+  place-content: center;
+  color: #ffffff;
+  font-size: 1.4rem;
+  line-height: 1;
+  background: linear-gradient(to bottom, #0d1117, #1c2431);
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+  white-space: nowrap;
+}
+.message__horse-table-head div.win {
+  color: #cee069;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+}
+.message__horse-table-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  background-image: linear-gradient(to bottom, transparent 0, transparent var(--row-height), #26364e var(--row-height), #26364e calc(var(--row-height) * 2));
+  background-repeat: repeat-y;
+  background-size: 100% calc(var(--row-height) * 2);
+}
+.message__horse-table-group {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+}
+.message__horse-table-group.row-white .message__horse-frame,
+.message__horse-table-group.row-white .message__horse-number {
+  background-color: #fafafa;
+  color: #1c1c1c;
+}
+.message__horse-table-group.row-white .message__horse-name {
+  background-color: #dfdfdf;
+  color: #1c1c1c;
+}
+.message__horse-table-group.row-black .message__horse-frame,
+.message__horse-table-group.row-black .message__horse-number {
+  background-color: #0d1117;
+}
+.message__horse-table-group.row-black .message__horse-name {
+  background-color: #0d1117;
+}
+.message__horse-table-group.row-red .message__horse-frame,
+.message__horse-table-group.row-red .message__horse-number {
+  background-color: var(--color-red);
+}
+.message__horse-table-group.row-red .message__horse-name {
+  background-color: var(--color-red-dark);
+}
+.message__horse-table-group.row-blue .message__horse-frame,
+.message__horse-table-group.row-blue .message__horse-number {
+  background-color: var(--color-blue);
+}
+.message__horse-table-group.row-blue .message__horse-name {
+  background-color: var(--color-blue-dark);
+}
+.message__horse-table-group.row-yellow .message__horse-frame,
+.message__horse-table-group.row-yellow .message__horse-number {
+  background-color: var(--color-yellow);
+}
+.message__horse-table-group.row-yellow .message__horse-name {
+  background-color: var(--color-yellow-dark);
+}
+.message__horse-table-group.row-green .message__horse-frame,
+.message__horse-table-group.row-green .message__horse-number {
+  background-color: var(--color-green);
+}
+.message__horse-table-group.row-green .message__horse-name {
+  background-color: var(--color-green-dark);
+}
+.message__horse-table-group.row-orange .message__horse-frame,
+.message__horse-table-group.row-orange .message__horse-number {
+  background-color: var(--color-orange);
+}
+.message__horse-table-group.row-orange .message__horse-name {
+  background-color: var(--color-orange-dark);
+}
+.message__horse-table-group.row-pink .message__horse-frame,
+.message__horse-table-group.row-pink .message__horse-number {
+  background-color: var(--color-pink);
+}
+.message__horse-table-group.row-pink .message__horse-name {
+  background-color: var(--color-pink-dark);
+}
+.message__horse-table-group .message__horse-frame {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.8rem;
+  border-right: 0.1rem solid #000000;
+  border-bottom: 0.1rem solid #000000;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+.message__horse-table-group-rows {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-height: 0;
+  min-width: 0;
+}
+.message__horse-table-row {
+  flex: 0 0 var(--row-height);
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) 3.4rem;
+  min-height: 0;
+  border-bottom: 0.1rem solid #000000;
+}
+.message__horse-table-row > div {
+  border-right: 0.1rem solid #000000;
+}
+.message__horse-table-row .message__horse-number {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.8rem;
+}
+.message__horse-table-row .message__horse-name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length));
+  font-size: min(1.4rem * 9 / var(--name-count), 1.4rem);
+}
+.message__horse-table-row .message__horse-win {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.2rem;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  padding-right: 0.2rem;
+}
+.message__horse-table-row .message__horse-win.win-popular {
+  color: #ff8000;
+}
+.message__horse-table-row .message__horse-win.win-secondary {
+  color: #00b2ff;
+}
+.message__main {
+  width: 76.8rem;
+  grid-area: main;
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  background: #000000;
+}
+.message__main-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.message__bottom {
+  width: 76.8rem;
+  height: 10.5rem;
+  grid-area: bottom;
+  display: grid;
+  grid-template-columns: 17rem 17rem 20.2rem 20.2rem;
+  gap: 0.8rem;
+  min-height: 0;
+  overflow: hidden;
+}
+.message__bet-head {
+  display: grid;
+  place-items: center;
+  height: 2.2rem;
+  background: linear-gradient(360deg, #1C2431 0%, #0D1117 100%);
+  color: #CEE069;
+  font-size: 1.4rem;
+  white-space: nowrap;
+  border-bottom: 0.1rem solid #000000;
+  border-right: 0.1rem solid #000000;
+  margin-bottom: 0.3rem;
+}
+.message__bet-subcol {
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  min-height: 0;
+}
+.message__num {
+  display: grid;
+  place-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+  border-radius: 0.2rem;
+  font-size: 1.2rem;
+}
+.message__num.number-white {
+  background: #FAFAFA;
+  color: #1c1c1c;
+}
+.message__num.number-black {
+  background: #0D1117;
+  border: 0.1rem solid #686868;
+}
+.message__num.number-red {
+  background: var(--color-red);
+}
+.message__num.number-blue {
+  background: var(--color-blue);
+}
+.message__num.number-yellow {
+  background: var(--color-yellow);
+}
+.message__num.number-green {
+  background: var(--color-green);
+}
+.message__num.number-orange {
+  background: var(--color-orange);
+}
+.message__num.number-pink {
+  background: var(--color-pink);
+}
+.message__bet-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+  height: 8rem;
+}
+.message__bet-body--pair .message__bet-row {
+  grid-template-columns: minmax(0, 1fr) 4.4rem;
+}
+.message__bet-body--pair .message__bet-combo {
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.2rem;
+}
+.message__bet-body--triple .message__bet-row {
+  grid-template-columns: minmax(0, 1fr) 4.1rem;
+}
+.message__bet-body--triple .message__bet-combo {
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0.1rem;
+}
+.message__bet-row {
+  display: grid;
+  align-items: center;
+  min-height: 0;
+  border-bottom: 0.1rem solid #000000;
+}
+.message__bet-row:nth-child(even) .message__bet-combo,
+.message__bet-row:nth-child(even) .message__bet-odds {
+  background-color: #26364e;
+}
+.message__bet-combo {
+  display: grid;
+  align-items: center;
+  padding: 0 0.2rem;
+  border-right: 0.1rem solid #000000;
+}
+.message__bet-hyphen {
+  font-family: "Segoe UI", sans-serif;
+  width: 0.5rem;
+  font-size: 1.2rem;
+}
+.message__bet-odds {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  place-items: unset;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  border-right: 0.1rem solid #000000;
+  padding-right: 0.2rem;
+}
+.message__bet-odds--accent {
+  color: #ff8000;
+}
+
+/*----------
+screen8 — 6R横並び（1920×1080・rem 2倍）
+----------*/
+html.screen-4k {
+  font-size: 0.2604166667vw;
+}
+
+.six-race {
+  width: 192rem;
+  height: 108rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 0.8rem;
+}
+.six-race__cols {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+.six-race__col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.six-race__header {
+  flex: 0 0 auto;
+  display: flex;
+  height: 3.8rem;
+  border-bottom: 0.2rem solid #000000;
+  margin-bottom: 0.4rem;
+  background: linear-gradient(93.3deg, #1f6f43 45.95%, #0c5d31 54.05%);
+}
+.six-race__header-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 2.6rem;
+  line-height: 1;
+  padding-left: 0.8rem;
+  white-space: nowrap;
+}
+.six-race__race-number {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 3rem;
+}
+.six-race__race-number span {
+  font-size: 2rem;
+}
+.six-race__header-title {
+  display: grid;
+  place-content: center;
+  width: 12.8rem;
+  color: #CEE069;
+  font-size: 2.6rem;
+  line-height: 1;
+  background-color: #0D1117;
+  padding: 0 1.2rem;
+  white-space: nowrap;
+}
+.six-race__header-time {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  width: 16.8rem;
+  font-size: 2.6rem;
+  line-height: 1;
+  background-color: #0D1117;
+  white-space: nowrap;
+}
+.six-race__header-time .minute {
+  font-family: "Segoe UI", sans-serif;
+  color: #CEE069;
+  font-size: 3rem;
+}
+.six-race__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.six-race {
+  /* --- 競走成績 --- */
+}
+.six-race__record {
+  flex: 0 0 auto;
+  display: grid;
+  margin-bottom: 0.4rem;
+}
+.six-race__record-row {
+  display: grid;
+  grid-template-columns: 3.1rem 3.1rem 19rem 5.7rem;
+  height: 4rem;
+  border-bottom: 0.2rem solid #000000;
+}
+.six-race__record-row:nth-child(even) {
+  background-color: #26364E;
+}
+.six-race__record-row > div {
+  border-right: 0.2rem solid #000000;
+}
+.six-race__record-rank {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.six-race__record-num {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.six-race__record-num.num-white {
+  color: #1c1c1c;
+  background-color: #fafafa;
+}
+.six-race__record-num.num-black {
+  background-color: #0d1117;
+}
+.six-race__record-num.num-red {
+  background-color: var(--color-red);
+}
+.six-race__record-num.num-blue {
+  background-color: var(--color-blue);
+}
+.six-race__record-num.num-yellow {
+  background-color: var(--color-yellow);
+}
+.six-race__record-num.num-green {
+  background-color: var(--color-green);
+}
+.six-race__record-num.num-orange {
+  background-color: var(--color-orange);
+}
+.six-race__record-num.num-pink {
+  background-color: var(--color-pink);
+}
+.six-race__record-name {
+  display: flex;
+  align-items: center;
+  padding-left: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(9, var(--name-length, 9));
+  font-size: min(2.4rem * 9 / var(--name-count), 2.4rem);
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+.six-race__record-time {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.8rem;
+  padding-right: 0.4rem;
+  white-space: nowrap;
+}
+.six-race {
+  /* --- 払戻 --- */
+}
+.six-race__payout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.six-race__payout--single .six-race__payout-group {
+  min-height: 7.167rem;
+  flex-direction: row;
+}
+.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) {
+  max-height: 4.3rem;
+  height: 4.3rem;
+}
+.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-num,
+.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-price {
+  line-height: 2rem;
+}
+.six-race__payout--single .six-race__payout-type {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  width: 6.2rem;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  padding-left: 0.4rem;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+.six-race__payout--single .six-race__payout-items {
+  width: auto;
+  flex: 1;
+  padding: 0.4rem 0;
+}
+.six-race__payout--single .six-race__payout-item {
+  grid-template-columns: 9.8rem 14.9rem;
+  max-height: 3.067rem;
+  height: 3.067rem;
+}
+.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) {
+  grid-template-columns: 1fr;
+  max-height: 6.366rem;
+  height: 6.366rem;
+}
+.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-num {
+  width: 9.8rem;
+}
+.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-price {
+  width: 24.7rem;
+}
+.six-race__payout--single .six-race__payout-num {
+  padding-right: 0.4rem;
+  font-size: 2.8rem;
+}
+.six-race__payout--single .six-race__payout-price {
+  font-size: 2.8rem;
+}
+.six-race__payout--single .six-race__payout-price span {
+  font-size: 2.2rem;
+}
+.six-race__payout--grid .six-race__payout-stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0;
+}
+.six-race__payout--grid .six-race__payout-group {
+  flex: 1 1 auto;
+  width: 50%;
+  max-width: 50%;
+  min-height: 10rem;
+}
+.six-race__payout--grid .six-race__payout-stack.--pattern-E .six-race__payout-group {
+  min-height: 7rem;
+}
+.six-race__payout--grid .six-race__payout-group--win .six-race__payout-item {
+  max-height: 2rem;
+  height: 2rem;
+  grid-template-columns: 2rem 1fr;
+}
+.six-race__payout--grid .six-race__payout-group--win .six-race__payout-num {
+  display: inline;
+  font-size: 2rem;
+  text-align: left;
+  padding-right: 0;
+  padding-left: 0.4rem;
+}
+.six-race__payout--grid .six-race__payout-type {
+  width: 2.8rem;
+  font-size: 2rem;
+}
+.six-race__payout--grid .six-race__payout-items {
+  width: calc(100% - 2.8rem);
+  padding: 0.4rem 0;
+}
+.six-race__payout--grid .six-race__payout-item {
+  max-height: 4rem;
+  height: 4rem;
+}
+.six-race__payout--grid .six-race__payout-num--rank .rank-label {
+  justify-content: flex-start;
+  padding-left: 0;
+}
+.six-race__payout--grid .six-race__payout-num--rank .rank-label span {
+  font-size: 1.8rem;
+}
+.six-race__payout--grid .six-race__payout-num {
+  justify-content: flex-start;
+  gap: 0;
+  font-size: 2rem;
+  padding-right: 0;
+  padding-left: 0.4rem;
+}
+.six-race__payout--grid .six-race__payout-num .hyphen {
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  font-size: 2rem;
+}
+.six-race__payout--grid .six-race__payout-num--rank {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.8rem;
+}
+.six-race__payout--grid .six-race__payout-price {
+  font-size: 2rem;
+}
+.six-race__payout--grid .six-race__payout-price span {
+  font-size: 1.8rem;
+}
+.six-race__payout-stack {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.six-race__payout-group {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+.six-race__payout-group--win .six-race__payout-type {
+  background-color: #1a2380;
+}
+.six-race__payout-group--win .six-race__payout-items {
+  background-color: #0a0e33;
+}
+.six-race__payout-group--place .six-race__payout-type {
+  background-color: #005580;
+}
+.six-race__payout-group--place .six-race__payout-items {
+  background-color: #002233;
+}
+.six-race__payout-group--wakuren .six-race__payout-type {
+  background-color: #562d80;
+}
+.six-race__payout-group--wakuren .six-race__payout-items {
+  background-color: #221133;
+}
+.six-race__payout-group--wakutan .six-race__payout-type {
+  background-color: #802040;
+}
+.six-race__payout-group--wakutan .six-race__payout-items {
+  background-color: #330b17;
+}
+.six-race__payout-group--umaren .six-race__payout-type {
+  background-color: #801313;
+}
+.six-race__payout-group--umaren .six-race__payout-items {
+  background-color: #330808;
+}
+.six-race__payout-group--umatan .six-race__payout-type {
+  background-color: #80562d;
+}
+.six-race__payout-group--umatan .six-race__payout-items {
+  background-color: #332212;
+}
+.six-race__payout-group--wide .six-race__payout-type {
+  background-color: #807333;
+}
+.six-race__payout-group--wide .six-race__payout-items {
+  background-color: #332e14;
+}
+.six-race__payout-group--trio .six-race__payout-type {
+  background-color: #64802d;
+}
+.six-race__payout-group--trio .six-race__payout-items {
+  background-color: #283312;
+}
+.six-race__payout-group--trifecta .six-race__payout-type {
+  background-color: #398045;
+}
+.six-race__payout-group--trifecta .six-race__payout-items {
+  background-color: #17331c;
+}
+.six-race__payout-type {
+  display: grid;
+  place-content: center;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  flex-shrink: 0;
+}
+.six-race__payout-items {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+.six-race__payout-items::after {
+  content: "";
+  width: 100%;
+  height: 0.2rem;
+  background-color: #395073;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.six-race__payout-item {
+  flex: 1 1 auto;
+  display: grid;
+  align-items: center;
+  max-height: 3.2rem;
+  height: 3.2rem;
+}
+.six-race__payout-num {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  padding-right: 0.4rem;
+}
+.six-race__payout-num .hyphen {
+  font-size: 2.2rem;
+}
+.six-race__payout-num--rank {
+  display: grid;
+  grid-template-columns: 6.8rem 2.6rem;
+  justify-content: start;
+  font-size: 2.8rem;
+}
+.six-race__payout-num--rank .rank-label {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.2rem;
+  padding-left: 0.4rem;
+}
+.six-race__payout-num--rank .rank-label span {
+  font-family: "Yu Gothic UI", sans-serif;
+  font-size: 2.2rem;
+}
+.six-race__payout-num--rank .rank-num {
+  text-align: right;
+}
+.six-race__payout-price {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.2rem;
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 0.05em;
+  padding-right: 0.4rem;
+}
+.six-race__payout-price span {
+  font-family: "Yu Gothic UI", sans-serif;
+}
+.six-race__payout-footer {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 6.2rem 1fr;
+  height: 6.4rem;
+  border-bottom: 0.2rem solid #395073;
+  background-color: #26364E;
+  padding: 0.8rem 0;
+}
+.six-race__refund-label {
+  display: grid;
+  place-content: center;
+  color: #FF3333;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+}
+.six-race__refund-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1.6rem;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  padding-left: 0.4rem;
+}
+.six-race__refund-list div {
+  display: grid;
+  grid-template-columns: 1fr 2.4rem;
+  gap: 0.2rem;
+  width: 10.9rem;
+  height: 2.2rem;
+  white-space: nowrap;
+}
+.six-race__refund-list span {
+  display: grid;
+  place-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.six-race {
+  /* --- 枠付き馬番表（3R） --- */
+}
+.six-race__horse-table {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  --row-height: calc((97.8rem - 4rem) / var(--horse-count));
+}
+.six-race__horse-table-head {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 2.5rem 2.5rem 1fr;
+  height: 4rem;
+  background: linear-gradient(360deg, #1C2431 0%, #0D1117 100%);
+}
+.six-race__horse-table-head > div {
+  display: grid;
+  place-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  border-right: 0.2rem solid #000000;
+  border-bottom: 0.2rem solid #000000;
+}
+.six-race__horse-table-head--grid {
+  display: block;
+}
+.six-race__horse-table-head--grid div {
+  display: grid;
+  grid-template-columns: repeat(2, 12.85rem);
+}
+.six-race__horse-table-head--grid span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 2rem;
+}
+.six-race__horse-table-head--grid span:last-child {
+  border-left: 0.2rem solid #000000;
+}
+.six-race__horse-table-head--name {
+  border-bottom: 0.2rem solid #000000;
+}
+.six-race__horse-table-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.six-race__horse-group {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  flex: 0 0 auto;
+}
+.six-race__horse-group.row-white .six-race__horse-frame,
+.six-race__horse-group.row-white .six-race__horse-num {
+  background-color: #fafafa;
+  color: #1c1c1c;
+}
+.six-race__horse-group.row-white .six-race__horse-name {
+  background-color: #333333;
+}
+.six-race__horse-group.row-black .six-race__horse-frame,
+.six-race__horse-group.row-black .six-race__horse-num {
+  background-color: #0d1117;
+}
+.six-race__horse-group.row-black .six-race__horse-name {
+  background-color: #0d1117;
+}
+.six-race__horse-group.row-red .six-race__horse-frame,
+.six-race__horse-group.row-red .six-race__horse-num {
+  background-color: var(--color-red);
+}
+.six-race__horse-group.row-red .six-race__horse-name {
+  background-color: var(--color-red-dark);
+}
+.six-race__horse-group.row-blue .six-race__horse-frame,
+.six-race__horse-group.row-blue .six-race__horse-num {
+  background-color: var(--color-blue);
+}
+.six-race__horse-group.row-blue .six-race__horse-name {
+  background-color: var(--color-blue-dark);
+}
+.six-race__horse-group.row-yellow .six-race__horse-frame,
+.six-race__horse-group.row-yellow .six-race__horse-num {
+  background-color: var(--color-yellow);
+}
+.six-race__horse-group.row-yellow .six-race__horse-name {
+  background-color: var(--color-yellow-dark);
+}
+.six-race__horse-group.row-green .six-race__horse-frame,
+.six-race__horse-group.row-green .six-race__horse-num {
+  background-color: var(--color-green);
+}
+.six-race__horse-group.row-green .six-race__horse-name {
+  background-color: var(--color-green-dark);
+}
+.six-race__horse-group.row-orange .six-race__horse-frame,
+.six-race__horse-group.row-orange .six-race__horse-num {
+  background-color: var(--color-orange);
+}
+.six-race__horse-group.row-orange .six-race__horse-name {
+  background-color: var(--color-orange-dark);
+}
+.six-race__horse-group.row-pink .six-race__horse-frame,
+.six-race__horse-group.row-pink .six-race__horse-num {
+  background-color: var(--color-pink);
+}
+.six-race__horse-group.row-pink .six-race__horse-name {
+  background-color: var(--color-pink-dark);
+}
+.six-race__horse-frame {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  border-right: 0.2rem solid #000000;
+  border-bottom: 0.2rem solid #000000;
+  align-self: stretch;
+}
+.six-race__horse-rows {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.six-race__horse-row {
+  flex: 0 0 var(--row-height);
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  min-height: 0;
+  border-bottom: 0.2rem solid #000000;
+}
+.six-race__horse-row > div {
+  border-right: 0.2rem solid #000000;
+}
+.six-race__horse-num {
+  display: grid;
+  place-content: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.six-race__horse-detail {
+  display: grid;
+  grid-template-rows: 60% 40%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.six-race__horse-name {
+  display: flex;
+  align-items: center;
+  min-height: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  --name-count: max(13, var(--name-length, 13));
+  font-size: min(2.4rem * 13 / var(--name-count), 2.4rem);
+  line-height: 2rem;
+  letter-spacing: 0.05em;
+  border-bottom: 0.2rem solid #000000;
+  padding-left: 0.4rem;
+}
+.six-race__horse-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+.six-race__horse-weight {
+  display: grid;
+  grid-template-columns: 5.45rem 1fr;
+  align-content: center;
+  gap: 0.2rem;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+  border-right: 0.2rem solid #000000;
+}
+.six-race__horse-weight .diff {
+  font-size: 2rem;
+  text-align: left;
+}
+.six-race__horse-weight .diff_not-available {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 1.6rem;
+}
+.six-race__horse-weight .diff_not-available span {
+  font-size: 2rem;
+}
+.six-race__horse-jockey {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.six-race__horse-jockey .jockey-icon {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+.six-race {
+  /* --- フッター凡例（screen5 .race-info 相当） --- */
+}
+.six-race__legend-inner {
+  width: 100%;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  overflow: hidden;
+}
+.six-race__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  flex-shrink: 0;
+  color: #ffbf00;
+  font-size: 1.6rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.six-race__legend-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+.six-race__legend-text span {
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+.six-race__legend-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 /*# sourceMappingURL=style.css.map */

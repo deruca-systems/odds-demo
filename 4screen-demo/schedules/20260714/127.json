@@ -1,0 +1,69 @@
+{
+  "server_time": "2026-07-14T15:18:13+09:00",
+  "monitor_id": 127,
+  "display_date": "20260714",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-07-14T15:18:13+09:00",
+      "end_time": "2026-07-14T23:18:13+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 62,
+      "display_pattern_name": "出走成績(4K用) 7-12R",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/entries-results-6r.html",
+          "place_cd": "04",
+          "organizer_type": "JRA",
+          "display_pattern_id": 62,
+          "display_pattern_name": "出走成績(4K用) 7-12R",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_04_07",
+              "race_key": "？7R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_07.json"
+            },
+            {
+              "race_id": "JRA_04_08",
+              "race_key": "？8R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_08.json"
+            },
+            {
+              "race_id": "JRA_04_09",
+              "race_key": "？9R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_09.json"
+            },
+            {
+              "race_id": "JRA_04_10",
+              "race_key": "？10R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_10.json"
+            },
+            {
+              "race_id": "JRA_04_11",
+              "race_key": "？11R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_11.json"
+            },
+            {
+              "race_id": "JRA_04_12",
+              "race_key": "？12R",
+              "post_time_iso": "2026-07-14T15:18:13+09:00",
+              "data_source": "results/20260714/JRA_04_12.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

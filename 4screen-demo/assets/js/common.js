@@ -24,6 +24,10 @@ var POLL_INTERVAL_MS = 30000; // 子テンプレのポーリング間隔（?fast
 //   URLクエリ ?cutin_sec=N で個別上書き可（開発検証・仕様再評価用）。
 //   C-01 のポーリング切替とは独立制御（案1: 定数+URLクエリのみ、シンプル採用）。
 var CUTIN_DISPLAY_SEC = 10;             // カットイン表示秒数（正式仕様10秒、?cutin_sec=N で上書き可）
+// 2026-06-04: CUT-003 (サイネージカットイン) 表示秒数。要件定義書 v3.3 §3.2「締切後30秒程度」。
+//   CUT-002 (10秒) 終了直後に CUT-003 が発火し、本秒数だけ表示される。
+//   ?signage_cutin_sec=N で上書き可（開発検証用）。
+var SIGNAGE_CUTIN_DISPLAY_SEC = 30;
 var DEADLINE_BEFORE_POST_MIN = 2;       // 発走何分前を「投票締切」とするか（実業務）
 var DEADLINE_SAFETY_MARGIN_SEC = 30;    // 表示を実締切より何秒早めるか（URLクエリ ?safety_margin_sec=N で上書き可）
 var COUNTDOWN_START_MIN = 5;            // 表示締切何分前からカットイン CUT-001 を出すか
@@ -52,6 +56,12 @@ var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダ�
       var n = Number(q);
       if (isFinite(n) && n >= 1) CUTIN_DISPLAY_SEC = n;
     }
+    // 2026-06-04: CUT-003 (サイネージカットイン) 秒数の URL クエリ上書き
+    var sq = new URL(location.href).searchParams.get('signage_cutin_sec');
+    if (sq) {
+      var sn = Number(sq);
+      if (isFinite(sn) && sn >= 1) SIGNAGE_CUTIN_DISPLAY_SEC = sn;
+    }
   } catch (_) {}
 })();
 
@@ -72,9 +82,24 @@ var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダ�
 //   未受信時は null（初期値）。親が broadcast を送ってきた時点で数値化される。
 var _broadcastedServerOffset = null;
 
+// 2026-06-29: 前日発売/対象レース固定 context（§3.5.4）。親 index.html が
+//   setSaleContext で送る。target_date_offset>=1 のとき renderRaceHeader を
+//   「前日発売」モードに切替える（旧 odds JSON の is_previous_day は v0.6.4 で撤去）。
+var _saleContext = { target_race_no: null, target_date_offset: 0 };
+
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'setServerOffset') {
     _broadcastedServerOffset = e.data.offset;
+  }
+  if (e.data && e.data.type === 'setSaleContext') {
+    _saleContext.target_race_no = (e.data.target_race_no != null) ? e.data.target_race_no : null;
+    _saleContext.target_date_offset = e.data.target_date_offset || 0;
+  }
+  // 2026-06-04: 親からのサイネージ URL 受信 (CUT-003 用)。
+  //   各 SCR-ODD-* テンプレ共通で受信し cutinState.signage_url に保持。
+  //   checkCutin が CUT-002 終了後に本 URL で CUT-003 を発火する。
+  if (e.data && e.data.type === 'setSignageUrl') {
+    cutinState.signage_url = e.data.url || null;
   }
 });
 
@@ -98,11 +123,18 @@ function effectiveDeadlineMs(postMs) {
 }
 
 // ---- カットイン表示状態 ----
+// 2026-06-04: CUT-003 (signage) 追加に伴い拡張。
+//   - type: 'countdown' (CUT-001) / 'closed' (CUT-002) / 'signage' (CUT-003)
+//   - shownForRace: 同一レースで CUT-001/002 を重複発火しないためのキー
+//   - signage_url: 親から postMessage で受信した signage 画像 URL (CUT-003 用)
+//   - chainTimer: CUT-002 終了後に CUT-003 を発火させる setTimeout ハンドル
 var cutinState = {
   active: false,
-  type: null,         // 'countdown' or 'closed'
+  type: null,
   hideTimer: null,
-  shownForRace: null  // 同一レースで重複表示しないためのキー（"{venue}{race_no}_{type}"）
+  shownForRace: null,
+  signage_url: null,
+  chainTimer: null
 };
 
 // 枠番→クラス名マップ（1-8枠。9頭以上は 8枠 2頭入りルールで 1-8 に収まる）
@@ -383,7 +415,11 @@ function isUmarenUnpopular(odds) { return odds >= 1000; }
 function renderRaceHeader(doc, race, opts) {
   opts = opts || {};
   var mode = opts.mode || 'full';
-  if (race && race.is_previous_day) mode = 'previous-day';
+  // 2026-06-29: 前日発売は親からの sale context（target_date_offset>=1）で駆動（§3.5.4）。
+  //   opts.previousDay 明示指定も尊重（呼び出し側で上書き可能）。
+  if (opts.previousDay || (typeof _saleContext !== 'undefined' && _saleContext.target_date_offset >= 1)) {
+    mode = 'previous-day';
+  }
 
   // field-rename-v0.5 (2026-04-20): race.venue → race.place_name、race.race_no → race.rr
   setText(doc.querySelector('#hdr-venue'), race.place_name || '');
@@ -816,7 +852,7 @@ function ensureCutinTemplate() {
   if (cutinTemplateState.loading) return cutinTemplateState.loading;
   // 2026-05-01: cutin.html 構造を芥川 closing-timer-board に移植。
   //             テンプレ更新時の即時反映のため cache-bust を付与。
-  cutinTemplateState.loading = fetch('./cutin.html?v=20260501', { cache: 'no-store' })
+  cutinTemplateState.loading = fetch('./cutin.html?v=20260604e', { cache: 'no-store' })
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.text();
@@ -910,25 +946,61 @@ function checkCutin(race, correctedNowMs) {
 
 /**
  * カットインDOM書き換え＋表示。CUTIN_DISPLAY_SEC 経過後に自動非表示。
- * 正式版HTMLとの差し替えを想定し、id属性ベースでDOM操作する。
+ * 2026-06-04: type='signage' (CUT-003) 追加。表示時間は SIGNAGE_CUTIN_DISPLAY_SEC。
+ *
+ * 表示シーケンス (要件定義書 v3.3 §3.2 SCR-CUT-003 対応):
+ *   CUT-001 (5分前)    -> 10秒で自動非表示
+ *   CUT-002 (発売締切) -> 10秒で自動非表示 -> 即 CUT-003 へチェーン
+ *   CUT-003 (サイネージ) -> 30秒で自動非表示 -> 通常画面に復帰
  */
 function showCutin(type, race, minutesLeft) {
   var overlay = document.getElementById('cutinOverlay');
   if (!overlay) return;
 
+  var board   = document.getElementById('cutin-board');
   var venueEl = document.getElementById('cutin-venue');
   var raceEl  = document.getElementById('cutin-race');
   var body    = document.getElementById('cutin-body');
   var footer  = document.getElementById('cutin-footer');
-  if (!venueEl || !raceEl || !body || !footer) return;
+  var signageWrap = document.getElementById('cutin-signage');
+  var signageImg  = document.getElementById('cutin-signage-image');
+  if (!board || !venueEl || !raceEl || !body || !footer) return;
 
+  // 既存タイマーをクリア (発火連鎖時の暴発防止)
+  if (cutinState.hideTimer) { clearTimeout(cutinState.hideTimer); cutinState.hideTimer = null; }
+  if (cutinState.chainTimer) { clearTimeout(cutinState.chainTimer); cutinState.chainTimer = null; }
+
+  if (type === 'signage') {
+    // CUT-003: サイネージカットイン (オッズエリア重畳、画像のみ)
+    if (!signageWrap || !signageImg) return;
+    // 画像 URL は親から受信した signage_url を使う
+    if (!cutinState.signage_url) {
+      // signage_url 未設定なら CUT-003 を出さず通常画面に復帰
+      overlay.classList.add('is-hidden');
+      cutinState.active = false;
+      cutinState.type = null;
+      return;
+    }
+    signageImg.src = cutinState.signage_url;
+    board.classList.add('is-hidden');         // closing-timer-board を隠す
+    signageWrap.classList.remove('is-hidden'); // signage を表示
+    overlay.classList.remove('is-hidden');
+    cutinState.active = true;
+    cutinState.type = 'signage';
+    cutinState.hideTimer = setTimeout(function() {
+      overlay.classList.add('is-hidden');
+      signageWrap.classList.add('is-hidden');
+      cutinState.active = false;
+      cutinState.type = null;
+    }, SIGNAGE_CUTIN_DISPLAY_SEC * 1000);
+    return;
+  }
+
+  // CUT-001 / CUT-002: closing-timer-board (芥川 screen6 正式版)
   // field-rename-v0.5 (2026-04-20): race.venue → race.place_name、race.race_no → race.rr
   venueEl.textContent = race.place_name || '';
   raceEl.textContent  = (race.rr != null ? race.rr + 'R' : '');
 
-  // 2026-05-01: 芥川 design.zip screen6.html L803-835 由来の
-  //             closing-timer-board 正式版に移植。class 名・DOM 構造を芥川版に合わせる。
-  //             CSS は assets/css/style.css L3003-3053（芥川納品物、改変禁止）。
   if (type === 'countdown') {
     body.className = 'closing-timer-board__body';
     body.innerHTML =
@@ -944,14 +1016,25 @@ function showCutin(type, race, minutesLeft) {
     footer.textContent = 'ご投票誠にありがとうございました';
   }
 
+  // closing-timer-board を表示、signage を隠す
+  if (signageWrap) signageWrap.classList.add('is-hidden');
+  board.classList.remove('is-hidden');
   overlay.classList.remove('is-hidden');
   cutinState.active = true;
   cutinState.type = type;
 
-  if (cutinState.hideTimer) clearTimeout(cutinState.hideTimer);
   cutinState.hideTimer = setTimeout(function() {
-    overlay.classList.add('is-hidden');
-    cutinState.active = false;
+    // CUT-002 終了直後に CUT-003 (signage) を発火 (signage_url ありの場合)。
+    //   要件定義書 v3.3 §3.2: SCR-CUT-003 (サイネージカットイン、締切後30秒程度)
+    if (type === 'closed' && cutinState.signage_url) {
+      // overlay は閉じずにそのまま board → signage に切替 (連続感を維持)
+      showCutin('signage', race);
+    } else {
+      overlay.classList.add('is-hidden');
+      board.classList.add('is-hidden');
+      cutinState.active = false;
+      cutinState.type = null;
+    }
   }, CUTIN_DISPLAY_SEC * 1000);
 }
 

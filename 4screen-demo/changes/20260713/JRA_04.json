@@ -1,0 +1,21 @@
+{
+  "server_time": "2026-07-13T13:38:27+09:00",
+  "organizer_type": "JRA",
+  "place_cd": "04",
+  "place_name": "新潟",
+  "display_date": "20260713",
+  "changes": [
+    {
+      "chg_seq": 1,
+      "chg_time": "2026-07-13T13:18:29+09:00",
+      "rr": 12,
+      "chg_type": 2,
+      "chg_type_name": "出走取消",
+      "horse_no": 7,
+      "horse_name": "ユキグニロード",
+      "detail": {
+        "scratch_reason": "けいれんのため"
+      }
+    }
+  ]
+}

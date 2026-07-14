@@ -1,5 +1,5 @@
 <!--
-  カットイン CUT-001（締切5分前） / CUT-002（発売終了）テンプレート
+  カットイン CUT-001（締切5分前） / CUT-002（発売終了） / CUT-003（サイネージ）テンプレート
 
   ■ 役割
     各オッズ画面（single-*.html）の子iframe内に、起動時に 1回 fetch され
@@ -7,25 +7,31 @@
     showCutin() が id 属性を手掛かりに中身を書き換え、オーバーレイの
     表示／非表示を切り替える。
 
-  ■ 構造（2026-05-01 改修：芥川 design.zip screen6.html L803-835 由来の
-                       closing-timer-board 正式版に移植済）
+  ■ 構造
     - 外殻 .cutin-overlay (id=cutinOverlay) — フルスクリーン覆い + 中央配置
                                             + is-hidden トグル制御。
                                             プロト固有要件（複数iframe重畳）
                                             のため dos-overrides.css に最小定義。
-    - 内側 .closing-timer-board — 芥川正式 96rem × 54rem 固定サイズ board。
-                                  CSS は assets/css/style.css L3003-3053。
-                                  改変禁止。
+    - 内側 (排他切替):
+      A) .closing-timer-board — CUT-001/CUT-002 用 (芥川 screen6 正式 96rem × 54rem)。
+                                  is-hidden で表示制御。CSS は style.css L3003-3053（改変禁止）。
+      B) .cutin-signage        — CUT-003 サイネージカットイン用（2026-06-04 追加）。
+                                  is-hidden で表示制御。要件定義書 v3.3 §3.2「サイネージカットイン、
+                                  締切後30秒程度をオッズエリアに重畳表示」（SCR-CUT-003）対応。
+                                  オーバーレイ内に img を 100% フィット&センター。
 
   ■ 維持すべき id 属性（JS 連携キー）
-    cutinOverlay  — オーバーレイ最外殻（is-hidden トグル対象）
-    cutin-venue   — 場名テキスト (.closing-timer-board__track)
-    cutin-race    — レース番号テキスト (.closing-timer-board__race)
-    cutin-body    — body 領域（type 別に innerHTML 書換）
-    cutin-footer  — foot 領域（テキスト書換 + betting-closed クラス切替）
+    cutinOverlay   — オーバーレイ最外殻（is-hidden トグル対象）
+    cutin-board    — CUT-001/002 用 board ラッパー (is-hidden で切替)
+    cutin-venue    — 場名テキスト (.closing-timer-board__track)
+    cutin-race     — レース番号テキスト (.closing-timer-board__race)
+    cutin-body     — body 領域（type 別に innerHTML 書換）
+    cutin-footer   — foot 領域（テキスト書換 + betting-closed クラス切替）
+    cutin-signage  — CUT-003 サイネージ用ラッパー (is-hidden で切替)
+    cutin-signage-image — CUT-003 サイネージ画像 (src 注入)
 -->
 <div class="cutin-overlay is-hidden" id="cutinOverlay">
-  <div class="closing-timer-board" aria-label="締切カウント表示">
+  <div class="closing-timer-board is-hidden" id="cutin-board" aria-label="締切カウント表示">
     <div class="closing-timer-board__head">
       <span class="closing-timer-board__track" id="cutin-venue"></span>
       <img class="closing-timer-board__arrow" src="../assets/images/closing-timer-board/ctb-arrow.svg" alt="">
@@ -33,5 +39,8 @@
     </div>
     <div class="closing-timer-board__body" id="cutin-body"></div>
     <div class="closing-timer-board__foot" id="cutin-footer"></div>
+  </div>
+  <div class="cutin-signage is-hidden" id="cutin-signage" aria-label="サイネージカットイン">
+    <img class="cutin-signage__image" id="cutin-signage-image" src="" alt="サイネージ">
   </div>
 </div>
