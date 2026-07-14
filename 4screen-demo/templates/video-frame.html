@@ -30,7 +30,11 @@
       position: fixed; left: 0.5rem; bottom: 0.5rem;
       color: #888; font-size: min(0.7vw, 1.2vh); font-family: monospace;
       pointer-events: none;
+      /* 2026-07-14: デバッグ表示のため既定は非表示。親からの setVideoConfig の
+         debug=true（親 URL の ?debug=1）のときのみ .visible 付与で表示する。 */
+      display: none;
     }
+    .status.visible { display: block; }
     .status.error { color: #FF5252; }
   </style>
 </head>
@@ -101,6 +105,8 @@
       var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : false;
       var volume      = cfg.volume != null ? Number(cfg.volume) : 0.7;
       audioWanted = !audioMuted;
+      // デバッグ時のみステータス表示（親 URL の ?debug=1 を setVideoConfig 経由で受領）
+      if (statusEl) statusEl.classList.toggle('visible', !!cfg.debug);
 
       // audio / volume は常に反映
       videoEl.muted = audioMuted;

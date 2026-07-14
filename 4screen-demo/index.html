@@ -872,7 +872,10 @@
           quality_mode: cfg.quality_mode != null ? cfg.quality_mode : 'auto',
           quality_cap:  cfg.quality_cap  != null ? cfg.quality_cap  : 4,
           audio_muted:  cfg.audio_muted  != null ? cfg.audio_muted  : false,
-          volume:       cfg.volume       != null ? cfg.volume       : 0.7
+          volume:       cfg.volume       != null ? cfg.volume       : 0.7,
+          // 2026-07-14: video-frame の左下ステータス（デバッグ表示）の表示可否。
+          //   親 URL の ?debug=1 のときのみ true（情報バーと同一条件）。
+          debug:        !document.body.classList.contains('no-debug')
         }, '*');
       } catch (_) {}
     };
