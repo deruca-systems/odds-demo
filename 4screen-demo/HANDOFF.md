@@ -481,3 +481,8 @@ URL クエリ一覧は DEMO_GUIDE.md §2 参照。
 - 検証: payout_lint PASS／display_pattern_lint・prevday_venue_lint 20260714+manual 0 NG／grep 残存 0／プレビューで monitor=101（NAR_19_01=船橋）・118 正常表示。
 - 仕様書側は **JSON構造仕様書 v0.6.6**（2026-07-14、output/reports/ と docs/仕様書_specs/ に配置）で §3.5.1 video 判定・§3.7 video_config（dp80 実値／dp90-94 null／audio_muted=false）・付録A.2 (105)正本化・付録C #4 クローズを反映。
 - 20260713 以前の日付フォルダは旧ダミーコードのまま（凍結スナップショット扱い、dual-read と同様に触らない）。
+
+## 追記 2026-07-14 (4): 情報バーのデバッグ限定化・ジェスチャー音声復帰
+
+- 画面上部の情報バーは **`?debug=1` 指定時のみ表示**（お披露目 7/24・実稼働対応）。非指定時は右上の復帰ハンドルも出さない。H キーのトグルは常時有効（キーボード接続時の保守用）。
+- video-frame.html: ミュートフォールバック発動後、**動画フレーム内のクリック/キー入力で音声ON復帰**（`gestureUnmute`）。親ページのクリックでは user activation が iframe に伝播しないため、動画自体をクリックする必要がある。表示端末は起動フラグ運用のためこの経路は不要（一般ブラウザでの確認用）。
