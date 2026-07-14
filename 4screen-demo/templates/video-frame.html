@@ -44,6 +44,7 @@
     var statusEl = document.getElementById('status');
     var hls = null;
     var currentSource = null;
+    var audioWanted = false;  // 直近 config が音声ON（audio_muted=false）を要求しているか
 
     function setStatus(text, isError) {
       if (!statusEl) return;
@@ -61,11 +62,28 @@
       videoEl.play().catch(function() {
         if (!videoEl.muted) {
           videoEl.muted = true;
-          setStatus('自動再生ポリシーによりミュートで開始（音声は端末側フラグで許可）');
+          setStatus('自動再生ポリシーによりミュートで開始（動画クリックで音声ON）');
           videoEl.play().catch(function(){});
         }
       });
     }
+
+    /**
+     * ミュートフォールバック後の音声復帰。
+     * ユーザー操作（この iframe 内のクリック/キー入力）はブラウザの user activation を
+     * 発生させるため、音声ONが要求されている（audioWanted）のにミュート中なら解除する。
+     * ※親ページ側のクリックでは activation が iframe に伝播しないため、動画自体を
+     *   クリックしてもらう必要がある。表示端末は起動フラグで最初から音声ONのため不要。
+     */
+    function gestureUnmute() {
+      if (audioWanted && videoEl.muted) {
+        videoEl.muted = false;
+        videoEl.play().catch(function(){});
+        setStatus('ユーザー操作により音声ON');
+      }
+    }
+    window.addEventListener('pointerdown', gestureUnmute);
+    window.addEventListener('keydown', gestureUnmute);
 
     // === BEGIN: TECH-VERIFICATION-ONLY ===
     /**
@@ -82,6 +100,7 @@
       //   ポリシー未許可のブラウザでは tryPlay() がミュート開始へフォールバックする。
       var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : false;
       var volume      = cfg.volume != null ? Number(cfg.volume) : 0.7;
+      audioWanted = !audioMuted;
 
       // audio / volume は常に反映
       videoEl.muted = audioMuted;

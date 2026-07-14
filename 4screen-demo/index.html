@@ -58,6 +58,8 @@
 
   body.hide-bar .info-bar { display: none; }
   body:not(.hide-bar) .info-bar__reveal { display: none; }
+  /* ?debug 非指定（本番・お披露目）では復帰ハンドルも出さない（H キーのみでトグル） */
+  body.no-debug .info-bar__reveal { display: none; }
 
   .grid {
     position: absolute; inset: 0;
@@ -128,6 +130,16 @@
 </style>
 </head>
 <body>
+
+<script>
+// 情報バーはデバッグ用途のため、?debug=1（または true）指定時のみ表示する（2026-07-14、お披露目・実稼働対応）。
+// 非指定時も H キーでトグル可能（no-debug では右上の復帰ハンドルも出さない）。
+(function () {
+  if (!/[?&]debug=(1|true)\b/.test(location.search)) {
+    document.body.classList.add('hide-bar', 'no-debug');
+  }
+})();
+</script>
 
 <div class="info-bar">
   <span class="info-bar__title">4画面JSONポーリングサンプル</span>
