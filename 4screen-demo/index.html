@@ -7,8 +7,11 @@
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
 <!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
 <script src="assets/js/config.js?v=20260715d"></script>
+<!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
+     place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
+<script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260715c"></script>
+<script src="assets/js/common.js?v=20260716a"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -279,11 +282,13 @@
     70:  'templates/changes-info.html',
     // 動画（NAR=80 / JRA GCH ch1-5=90-94）。いずれも video-frame.html（ch/場は screen 側設定）
     80:  'templates/video-frame.html',
-    90:  'templates/video-frame.html',
-    91:  'templates/video-frame.html',
-    92:  'templates/video-frame.html',
-    93:  'templates/video-frame.html',
-    94:  'templates/video-frame.html',
+    // 2026-07-15: dp90-94（中央=JRA動画）は GCH 専用テンプレへ（池澤様 STG 実装の取り込み。
+    //   ch は dp に内包（90=ch1…94=ch5）、video_config は null（JSON 仕様 v0.6.6 §3.5.1/§3.7））
+    90:  'templates/gch-video-frame.html',
+    91:  'templates/gch-video-frame.html',
+    92:  'templates/gch-video-frame.html',
+    93:  'templates/gch-video-frame.html',
+    94:  'templates/gch-video-frame.html',
     // L字(3split) 専用
     100: 'templates/side-entries.html',           // 左袖（出走表）
     101: 'templates/wide-popular.html'            // 右下（人気・ワイド人気 4賭式）
@@ -473,7 +478,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260629c');
+    params.set('v', '20260716a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -618,20 +623,35 @@
         hasFrameUtan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
       };
       if (state.type === 'video') {
-        // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
-        //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
-        //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
-        var vc = screen.video_config || screen;
-        state.videoConfig = {
-          venue_code:             vc.venue_code,
-          quality_mode:           vc.quality_mode || 'auto',
-          quality_cap:            vc.quality_cap,
-          quality_fixed:          vc.quality_fixed,
-          // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
-          audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
-          volume:                 vc.volume != null ? vc.volume : 0.7,
-          video_source_override:  vc.video_source_override
-        };
+        state.displayPatternId = screen.display_pattern_id;
+        if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(screen.display_pattern_id)) {
+          // 2026-07-15: 中央（GCH、dp90-94）。池澤様 STG 実装の取り込み。
+          //   ch=dp-89 を DosVideoDisplay.greenConfig が導出（video_config は null 前提）。
+          //   audio_muted 未指定時は音声デフォルト出力方針（2026-07-14）に合わせ false。
+          var gcfg = DosVideoDisplay.greenConfig(screen);
+          var gvc = screen.video_config || {};
+          if (gvc.audio_muted == null) gcfg.audio_muted = false;
+          state.videoConfig = gcfg;
+        } else {
+          // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
+          //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
+          //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
+          var vc = screen.video_config || screen;
+          // 2026-07-15: venue_code 未供給（内山様バッチ実装前）の間は、cell の place_cd
+          //   (コード表105) からフロントで自己解決する（池澤様 DosVideoDisplay.narConfig）。
+          var narFallback = (!vc.venue_code && window.DosVideoDisplay)
+            ? DosVideoDisplay.narConfig(screen) : null;
+          state.videoConfig = {
+            venue_code:             vc.venue_code || (narFallback && narFallback.venue_code),
+            quality_mode:           vc.quality_mode || 'auto',
+            quality_cap:            vc.quality_cap,
+            quality_fixed:          vc.quality_fixed,
+            // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
+            audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
+            volume:                 vc.volume != null ? vc.volume : 0.7,
+            video_source_override:  vc.video_source_override
+          };
+        }
       }
       return state;
     });
@@ -854,11 +874,17 @@
   // ---- video screen（指示書09 T5-4 互換） ----
   // === BEGIN: TECH-VERIFICATION-ONLY ===
   function applyVideoScreen(state) {
+    // 2026-07-15: 中央（GCH、dp90-94）は専用経路へ（池澤様 STG 実装の取り込み）
+    if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(state.displayPatternId)) {
+      applyGreenChannelScreen(state);
+      return;
+    }
     var iframe = state.iframeEl;
     if (!iframe) return;
     var cfg = state.videoConfig || {};
     var videoTemplate = state.template;
-    var sig = 'video|' + (cfg.venue_code || '') + '|' + (cfg.quality_mode || 'auto') + '|' + (cfg.quality_fixed || '') + '|' + (cfg.video_source_override || '');
+    var sig = 'video|' + (cfg.venue_code || '') + '|' + (cfg.quality_mode || 'auto') + '|' + (cfg.quality_fixed || '') + '|' + (cfg.video_source_override || '')
+            + '|' + cfg.audio_muted + '|' + cfg.volume;  // 2026-07-15: 音声設定変更でも再送（池澤様実装より）
     var needsReload = iframe.getAttribute('data-template') !== videoTemplate;
     var needsReconfig = iframe.getAttribute('data-sig') !== sig;
 
@@ -887,6 +913,49 @@
       iframe.src = videoTemplate;
       iframe.onload = sendConfig;
     } else if (needsReconfig) {
+      iframe.setAttribute('data-sig', sig);
+      sendConfig();
+    }
+  }
+
+  // 2026-07-15: 中央（GCH、dp90-94）用。池澤様 STG 実装（7/15）をそのまま取り込み。
+  //   gch-video-frame.html + assets/js/gch-video-frame.js / video-display.js とセット。
+  //   postMessage 形式 setGreenChannelConfig（channel/audio_muted/volume）は池澤実装の契約。
+  function applyGreenChannelScreen(state) {
+    var iframe = state.iframeEl;
+    if (!iframe) return;
+    var template = 'templates/gch-video-frame.html';
+    var cfg = state.videoConfig || {};
+    var sig = 'green|' + cfg.channel + '|' + cfg.audio_muted + '|' + cfg.volume;
+    var templateChanged = iframe.getAttribute('data-template') !== template;
+    var sigChanged = iframe.getAttribute('data-sig') !== sig;
+    var sendConfig = function() {
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'setGreenChannelConfig',
+          channel: cfg.channel,
+          audio_muted: cfg.audio_muted,
+          volume: cfg.volume
+        }, '*');
+      } catch (_) {}
+    };
+    var onload = function() {
+      if (iframe.getAttribute('data-template') === template
+       && iframe.getAttribute('data-sig') === sig) {
+        sendConfig();
+      }
+      if (iframe.onload === onload) iframe.onload = null;
+    };
+
+    iframe.removeAttribute('data-source');
+    if (templateChanged || sigChanged) {
+      iframe.onload = onload;
+    }
+    if (templateChanged) {
+      iframe.setAttribute('data-template', template);
+      iframe.setAttribute('data-sig', sig);
+      iframe.src = template;
+    } else if (sigChanged) {
       iframe.setAttribute('data-sig', sig);
       sendConfig();
     }

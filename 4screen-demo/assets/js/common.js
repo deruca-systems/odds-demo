@@ -217,12 +217,13 @@ function fmtOdds(v, betType, organizer) {
 }
 
 // 馬体重の表示（馬体重特殊値仕様書 v1.0 §4.5 準拠、2026-07-15 表示文字列確定）
-//   null/undefined = 計量前（電文未着。前日発売・当日計量前で正規に発生）→ '--'
-//   0    = 出走取消（行の抑制は is_scratched 側で行う）→ '--'
+//   null/undefined = 計量前（電文未着。前日発売・当日計量前で正規に発生）→ 空欄
+//                    （地全協 keiba.go.jp 出馬表と同じ「未計量は何も出さない」流儀。及川決定 2026-07-15）
+//   0    = 出走取消（行の抑制は is_scratched 側で行う）→ 空欄
 //   9999 = 計量不能（最終値）→ '計不'
 //   それ以外 = 実体重をそのまま表示
 function fmtWeight(weight) {
-  if (weight === null || weight === undefined || weight === 0) return '--';
+  if (weight === null || weight === undefined || weight === 0) return '';
   if (weight === 9999) return '計不';
   return String(weight);
 }
