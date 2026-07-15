@@ -779,6 +779,46 @@
     } catch (_) {}
   }
 
+  // 2026-07-15: CRM 背景色（back_color_code）→ 芥川ヘッダー色クラスの対応表。
+  //   表示は style.css の .race-header.header-*（グラデーション 2 値）をそのまま流用する
+  //   （単色ベタ塗りはしない＝芥川デザイン準拠。堀井様依頼_back_color芥川パレット10色化_20260715）。
+  //   前半 10 件: 新パレット（back_color マスタ 10 色化後の HEX＝芥川グラデーション開始色）
+  //   後半 8 件: 旧シード値（STG 実値 2026-07-15 SELECT 確認）の互換。マスタ更新の前後どちらでも動く。
+  var BACK_COLOR_TO_HEADER_CLASS = {
+    '4A4F57': 'header-gray',       '1C3FAA': 'header-blue',
+    '8F4A00': 'header-orange',     '1F6F43': 'header-green',
+    '7A1E2D': 'header-red',        '8A7A00': 'header-yellow',
+    '3A6EA5': 'header-light_blue', '6B2F6B': 'header-purple',
+    '006D6F': 'header-teal',       '007C91': 'header-deep_cyan',
+    // 旧シード互換（A黒/B青/C茶/D緑/E赤茶/F黄緑/Gﾃﾞｨｰﾌﾟﾋﾟﾝｸ→水色/Hﾃﾞｨｰﾌﾟﾊﾟｰﾌﾟﾙ→紫）
+    '000000': 'header-gray',       '0000FF': 'header-blue',
+    '8B4513': 'header-orange',     '008000': 'header-green',
+    'A52A2A': 'header-red',        '9ACD32': 'header-yellow',
+    'FF1493': 'header-light_blue', '673AB7': 'header-purple'
+  };
+
+  // back_color_code を iframe 内 .race-header の芥川クラス付け替えで適用する。
+  //   Phase 5 (2026-04-22) の CSS 変数注入方式は受け側 CSS が未実装のまま機能していなかった
+  //   ため本方式へ置換（2026-07-15）。.race-header を持たないテンプレ（出走成績・L字袖・
+  //   変更情報）は従来どおり対象外。
+  function applyHeaderColor(iframe, bg) {
+    if (!bg) return;
+    try {
+      var doc = iframe.contentDocument;
+      var hdr = doc && doc.querySelector('.race-header');
+      if (!hdr) return;
+      var cls = BACK_COLOR_TO_HEADER_CLASS[String(bg).toUpperCase()];
+      if (!cls) {
+        console.warn('[back_color] 芥川パレット対応表に無い back_color_code:', bg);
+        return;
+      }
+      Array.prototype.slice.call(hdr.classList).forEach(function(c) {
+        if (/^header-[a-z_]+$/.test(c)) hdr.classList.remove(c);
+      });
+      hdr.classList.add(cls);
+    } catch (_) {}
+  }
+
   // odds screen: template を iframe に読み込み、data_source を postMessage で通知
   function applyOddsScreen(state) {
     var iframe = state.iframeEl;
@@ -805,16 +845,10 @@
       iframe.src = state.template + childQuery;
       iframe.onload = (function(d, bg, su, sc) {
         return function() {
-          // Phase 5: iframe の :root に背景色を注入（schedule 側で設定された場合）。
-          //   CSS 変数 + class 方式。class 'has-custom-bg' が付与された html 配下で
-          //   style.css の該当ルールが var(--race-header-bg) を採用する。
-          if (bg) {
-            try {
-              var d2 = iframe.contentDocument;
-              d2.documentElement.style.setProperty('--race-header-bg', '#' + bg);
-              d2.documentElement.classList.add('has-custom-bg');
-            } catch (_) {}
-          }
+          // 2026-07-15: CRM 背景色を芥川ヘッダークラス付け替えで適用（applyHeaderColor 参照）。
+          //   旧 Phase 5 の CSS 変数注入（--race-header-bg / has-custom-bg）は受け側 CSS
+          //   未実装で機能していなかったため廃止。
+          applyHeaderColor(iframe, bg);
           // 2026-06-04: signage_url 送信 (CUT-003 用、テンプレに依存しない共通 postMessage)
           if (su) {
             try {
@@ -838,6 +872,8 @@
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
+      // 2026-07-15: slot 切替で同一テンプレのまま背景色だけ変わるケースに対応（iframe 非リロード経路）
+      applyHeaderColor(iframe, state.back_color_code);
       try {
         iframe.contentWindow.postMessage(saleContext, '*'); // 2026-06-29: 前日発売 context 再送
         iframe.contentWindow.postMessage({
