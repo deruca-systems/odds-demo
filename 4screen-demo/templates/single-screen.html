@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260604e">
-  <script src="../assets/js/common.js?v=20260629a"></script>
+  <script src="../assets/js/common.js?v=20260715a"></script>
 </head>
 <body>
 
@@ -126,10 +126,12 @@
       }
 
       var weight = D.el('div', 'race-table__weight');
-      var wVal = D.el('span', null, h.weight);
-      if (String(h.weight).length >= 4) wVal.classList.add('weight-long');
+      // 2026-07-15: 特殊値・計量前（null）対応（馬体重特殊値仕様書 §4.5、D.fmtWeight/fmtWeightDiff）
+      var wTxt = D.fmtWeight(h.weight);
+      var wVal = D.el('span', null, wTxt);
+      if (/^\d{4,}$/.test(wTxt)) wVal.classList.add('weight-long');
       weight.appendChild(wVal);
-      weight.appendChild(D.el('span', 'weight-diff', D.fmtWeightDiff(h.weight_diff)));
+      weight.appendChild(D.el('span', 'weight-diff', D.fmtWeightDiff(h.weight_diff, h.wt2, h.weight)));
       row.appendChild(weight);
 
       row.appendChild(D.el('div', 'race-table__jockey', D.truncateJockey(h.jockey)));

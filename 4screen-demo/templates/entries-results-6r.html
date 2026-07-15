@@ -13,7 +13,7 @@
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260604e">
-  <script src="../assets/js/common.js?v=20260629a"></script>
+  <script src="../assets/js/common.js?v=20260715a"></script>
 </head>
 <body>
 
@@ -163,8 +163,13 @@
   }
 
   // ---- 出走表 ----
-  function formatWeightDiff(diff) {
-    if (diff == null) return '<span class="diff_not-available">(計不)</span>';
+  // 2026-07-15: 特殊値・計量前対応（馬体重特殊値仕様書 §4.5）。
+  //   「(計不)」は weight=9999 専用表示のため、diff=null（計量前等）では空にする
+  function formatWeightDiff(diff, wt2, weight) {
+    if (weight == null || weight === 0 || weight === 9999) return '';
+    if (wt2 === 0) return '<span class="diff">(初)</span>';
+    if (wt2 === 9999) return '<span class="diff">(前計不)</span>';
+    if (diff == null) return '';
     return '<span class="diff">(' + (diff > 0 ? '+' : '') + diff + ')</span>';
   }
   function buildHorseTable(horses) {
@@ -197,7 +202,7 @@
           var icon = (h.genryokigo && GENRYO_ICON[h.genryokigo])
             ? '<img class="jockey-icon" src="../assets/images/jockey/' + GENRYO_ICON[h.genryokigo] + '.svg" alt="">' : '';
           html += '<div class="six-race__horse-meta">'
-                +   '<div class="six-race__horse-weight">' + (h.weight != null ? esc(h.weight) : '--') + formatWeightDiff(h.weight_diff) + '</div>'
+                +   '<div class="six-race__horse-weight">' + D.fmtWeight(h.weight) + formatWeightDiff(h.weight_diff, h.wt2, h.weight) + '</div>'
                 +   '<div class="six-race__horse-jockey">' + icon + esc(h.jockey) + '</div></div>';
         }
         html += '</div></div>';

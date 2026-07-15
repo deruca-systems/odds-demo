@@ -216,12 +216,29 @@ function fmtOdds(v, betType, organizer) {
   return Number(v).toFixed(1);
 }
 
-function fmtWeightDiff(diff) {
-  if (diff === null || diff === undefined) return '(0)';
+// 馬体重の表示（馬体重特殊値仕様書 v1.0 §4.5 準拠、2026-07-15 表示文字列確定）
+//   null/undefined = 計量前（電文未着。前日発売・当日計量前で正規に発生）→ '--'
+//   0    = 出走取消（行の抑制は is_scratched 側で行う）→ '--'
+//   9999 = 計量不能（最終値）→ '計不'
+//   それ以外 = 実体重をそのまま表示
+function fmtWeight(weight) {
+  if (weight === null || weight === undefined || weight === 0) return '--';
+  if (weight === 9999) return '計不';
+  return String(weight);
+}
+
+// 馬体重増減の表示（同 §4.5）。第2・第3引数は省略可（旧呼び出し互換）。
+//   weight が計量前/取消/計不 → 増減欄は空（誤って '(0)' や '(計不)' を出さない）
+//   wt2=0 → '(初)'、wt2=9999 → '(前計不)'
+//   diff が null（上記以外＝算出不能）→ 空
+function fmtWeightDiff(diff, wt2, weight) {
+  if (weight === null || weight === undefined || weight === 0 || weight === 9999) return '';
+  if (wt2 === 0) return '(初)';
+  if (wt2 === 9999) return '(前計不)';
+  if (diff === null || diff === undefined) return '';
   if (typeof diff === 'string') return '(' + diff + ')';
   if (diff > 0) return '(+' + diff + ')';
-  if (diff < 0) return '(' + diff + ')';
-  return '(0)';
+  return '(' + diff + ')';
 }
 
 function frameClassOf(frameNo, kind) {
@@ -1048,6 +1065,7 @@ window.OddsDemo = {
   FRAME_NUMBER_CLASS: FRAME_NUMBER_CLASS,
   WEATHER_ICON: WEATHER_ICON,
   fmtOdds: fmtOdds,
+  fmtWeight: fmtWeight,
   fmtWeightDiff: fmtWeightDiff,
   frameClassOf: frameClassOf,
   frameOfHorse: frameOfHorse,
