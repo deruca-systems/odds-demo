@@ -478,7 +478,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260716d');
+    params.set('v', '20260716e');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -776,13 +776,16 @@
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig');
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(races) {
+      iframe.onload = (function(races, bg) {
         return function() {
+          // 2026-07-15: 出走成績ヘッダーにも CRM 背景色を適用（CSS 変数方式）
+          applyHeaderColor(iframe, bg);
           sendEntriesResultsPayload(iframe, races);
         };
-      })(racesToShow);
+      })(racesToShow, state.back_color_code);
     } else {
       // iframe 再利用時（slot 切替で再割当など）は即時 postMessage
+      applyHeaderColor(iframe, state.back_color_code);
       sendEntriesResultsPayload(iframe, racesToShow);
     }
   }
@@ -863,25 +866,50 @@
     'FF1493': 'header-light_blue', '673AB7': 'header-purple'
   };
 
-  // back_color_code を iframe 内 .race-header の芥川クラス付け替えで適用する。
-  //   Phase 5 (2026-04-22) の CSS 変数注入方式は受け側 CSS が未実装のまま機能していなかった
-  //   ため本方式へ置換（2026-07-15）。.race-header を持たないテンプレ（出走成績・L字袖・
-  //   変更情報）は従来どおり対象外。
+  // 芥川 style.css の .race-header.header-* グラデーション定義の写し（93.3deg / 45.95%→54.05%）。
+  //   出走成績（3r/6r）のヘッダーは .race-header と別構造かつ描画ごとに再生成されるため、
+  //   クラス付け替えではなく CSS 変数（--custom-header-grad）＋dos-overrides.css の受けルールで適用する。
+  //   ※出典は style.css（芥川様アセット・改変禁止）。芥川様側で色定義が更新された場合はここも追従すること。
+  var HEADER_GRADS = {
+    'header-gray':       ['#4A4F57', '#303C50'],
+    'header-blue':       ['#1C3FAA', '#001D76'],
+    'header-orange':     ['#8F4A00', '#653400'],
+    'header-green':      ['#1F6F43', '#0C5D31'],
+    'header-red':        ['#7A1E2D', '#620514'],
+    'header-yellow':     ['#8A7A00', '#5D5200'],
+    'header-light_blue': ['#3A6EA5', '#0A427E'],
+    'header-purple':     ['#6B2F6B', '#5E075E'],
+    'header-teal':       ['#006D6F', '#005253'],
+    'header-deep_cyan':  ['#007C91', '#005665']
+  };
+
+  // back_color_code を iframe 内ヘッダーに適用する。
+  //   ① .race-header を持つテンプレ（単勝系・人気順系・マトリクス系・L字右下）: 芥川クラス付け替え
+  //   ② 出走成績（3r/6r）: CSS 変数＋has-custom-hdr（2026-07-15 即適用・及川決定）
+  //   Phase 5 (2026-04-22) の旧 CSS 変数注入方式は受け側 CSS 未実装で機能していなかったため置換。
   function applyHeaderColor(iframe, bg) {
     if (!bg) return;
     try {
       var doc = iframe.contentDocument;
-      var hdr = doc && doc.querySelector('.race-header');
-      if (!hdr) return;
+      if (!doc) return;
       var cls = BACK_COLOR_TO_HEADER_CLASS[String(bg).toUpperCase()];
       if (!cls) {
         console.warn('[back_color] 芥川パレット対応表に無い back_color_code:', bg);
         return;
       }
-      Array.prototype.slice.call(hdr.classList).forEach(function(c) {
-        if (/^header-[a-z_]+$/.test(c)) hdr.classList.remove(c);
-      });
-      hdr.classList.add(cls);
+      var hdr = doc.querySelector('.race-header');
+      if (hdr) {
+        Array.prototype.slice.call(hdr.classList).forEach(function(c) {
+          if (/^header-[a-z_]+$/.test(c)) hdr.classList.remove(c);
+        });
+        hdr.classList.add(cls);
+      }
+      var g = HEADER_GRADS[cls];
+      if (g) {
+        doc.documentElement.style.setProperty('--custom-header-grad',
+          'linear-gradient(93.3deg, ' + g[0] + ' 45.95%, ' + g[1] + ' 54.05%)');
+        doc.documentElement.classList.add('has-custom-hdr');
+      }
     } catch (_) {}
   }
 

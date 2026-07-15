@@ -481,3 +481,15 @@ html.lshape-bottom .message.bottom-only .message__bottom {
   height: 100%;
 }
 
+
+/* ==========================================================================
+ * 2026-07-15: 出走成績（3r/6r）ヘッダーへの CRM 背景色適用（及川決定・即適用）
+ *   親 index.html の applyHeaderColor が iframe <html> に class 'has-custom-hdr' と
+ *   CSS 変数 --custom-header-grad（芥川グラデーション 2 値）を注入する。
+ *   .race-header 系はクラス付け替え（style.css の定義を直接使用）だが、
+ *   出走成績のヘッダーは描画ごとに再生成されるため変数方式で受ける。
+ * ========================================================================== */
+html.has-custom-hdr .race-screen__header,
+html.has-custom-hdr .six-race__header {
+  background: var(--custom-header-grad) !important;
+}
