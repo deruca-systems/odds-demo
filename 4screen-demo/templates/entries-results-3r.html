@@ -8,7 +8,7 @@
        芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260716c"></script>
+  <script src="../assets/js/common.js?v=20260716d"></script>
 </head>
 <body>
 
@@ -167,7 +167,9 @@
             + '<div class="race-record__name" style="--name-length: ' + (e.horse_name || '').length + ';">'
             +   (e.horse_name || '') + '</div>'
             + '<div class="race-record__time">' + renderMarginOrTime(e) + '</div>'
-            + '<div class="race-record__jockey">' + (e.jockey || '') + '</div>'
+            // 2026-07-15: 騎手名は略称不可・切り捨てで統一（5/18 議事録 §1.3、README 確認事項C）。
+            //   single-screen.html と同じ D.truncateJockey を通す。未適用だと5文字姓名が2行に折り返す。
+            + '<div class="race-record__jockey">' + D.truncateJockey(e.jockey) + '</div>'
             + '</div>';
     });
     html += '</div>';
@@ -404,8 +406,9 @@
                      + iconName + '.svg" alt="">';
         }
       }
+      // 2026-07-15: 出走表モードの騎手名も切り捨てで統一（single-screen.html と同一方式）。
       html += '<div class="race-table__jockey">' + jockeyIcon
-            + (h.jockey || '') + '</div>'
+            + D.truncateJockey(h.jockey) + '</div>'
             + '</div>';
     });
     html += '</div></div>';
