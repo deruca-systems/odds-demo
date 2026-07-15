@@ -425,7 +425,9 @@
     // 1. 成績モード試行（results JSON）
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
-      if (res && res.data && Array.isArray(res.data.entries)) {
+      // 2026-07-15: バッチはレース確定前から entries 空の results JSON を生成する（STG 名古屋5R で確認）。
+      //   空のまま成績モードに入るとヘッダーのみの空表示になるため、entries が入るまで出走表モードを継続する。
+      if (res && res.data && Array.isArray(res.data.entries) && res.data.entries.length > 0) {
         renderResultsMode(colIdx, res.data);
         return;
       }

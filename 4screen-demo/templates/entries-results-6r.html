@@ -266,7 +266,8 @@
     if (!urls) return;
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
-      if (res && res.data && Array.isArray(res.data.entries)) { renderResultsMode(idx, res.data); return; }
+      // 2026-07-15: 確定前の空 results（entries=[]）では成績モードに入らない（3r と同旨）
+      if (res && res.data && Array.isArray(res.data.entries) && res.data.entries.length > 0) { renderResultsMode(idx, res.data); return; }
     } catch (e) { /* 404 → 出走表へ */ }
     try {
       var res2 = await D.fetchWithOffset(urls.oddsUrl);
