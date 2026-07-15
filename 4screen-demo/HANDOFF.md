@@ -503,3 +503,10 @@ URL クエリ一覧は DEMO_GUIDE.md §2 参照。
 - slot 切替で同一テンプレのまま色だけ変わる経路（data-source-only 更新）にも適用を追加。
 - .race-header を持たないテンプレ（出走成績・side-entries・wide-popular・changes-info）は従来どおり対象外。対応する場合は芥川様デザイン相談。
 - 検証: ローカルで新旧混在 4 色（blue/orange/green/light_blue）、STG 実データ（monitor 8: B青/D緑）で適用確認済み。CRM の色名は A〜J場の 10 スロット化を堀井様へ依頼中（正本対照表は依頼書参照）。
+
+## 追記 2026-07-15 (3): STG 実データ検証で発覚した 2 件の修正（成績切替・枠連なし）
+
+- **出走成績の成績モード切替不全**: entries-results-3r/6r は親から results/ パスが来る前提だったが、内山バッチの data_source は常に odds/（設計書 v1.5）→ results 試行が実際は odds を読み永遠に出走表モード。**どちらの形式でも results/odds 両 URL を導出**するよう修正（プロトの results/ 渡しとも両立）。STG 浦和1R・名古屋1R で成績モード表示を確認。
+- **枠連発売なし時の枠番表示**: frame_odds 空（8頭未満）でも枠番 1〜8 のラベルだけ描画されていた → single-screen でブロックごと非表示に。枠連↔枠単ローテの 'uren' 復帰メッセージで空ブロックが再表示されないよう dataset.frameOddsAvailable でガード。
+- 既知の表示課題（未対応・判断待ち）: ヘッダーの race_class「普通」表示。値は JSON 仕様 §4.4 どおり（cscnm.race_type_cd=競走種類）でバッチ正常。地全協 HP はクラス条件（例「Ｃ３六 七」）を表示しており、対応案は (a) フロントで「普通」のみ非表示 (b) クラス条件フィールドの JSON 追加（内山改修＋仕様改訂）。
+- 子テンプレのキャッシュバスター v=20260716b。
