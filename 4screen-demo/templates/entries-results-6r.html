@@ -280,7 +280,10 @@
       var races = (e.data.races || []).slice(0, COLS_PER_BLOCK * MAX_BLOCKS); // 最大24
       buildBlocks(races.length);
       raceUrls = races.map(function(r) {
-        return { resultsUrl: r.url, oddsUrl: (r.url || '').replace('/results/', '/odds/') };
+        // 2026-07-15: data_source が odds/ 形式（内山バッチ）でも results を試せるよう双方向導出
+        var base = r.url || '';
+        return { resultsUrl: base.replace('/odds/', '/results/'),
+                 oddsUrl: base.replace('/results/', '/odds/') };
       });
       raceUrls.forEach(function(_, i) { pollRaceColumn(i); });
     }

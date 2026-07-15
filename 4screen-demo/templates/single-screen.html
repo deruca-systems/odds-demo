@@ -140,9 +140,18 @@
     body.replaceChildren(horseFragment);
 
     // 枠連ブロック
+    // 2026-07-15: 枠連発売なし（frame_odds 空＝8頭未満等）のときはブロックごと非表示にする。
+    //   従来は枠番 1〜8 のラベルだけが並んで表示されていた（STG 実データ 名古屋3R 7頭で顕在化）。
+    var frameOddsData = data.frame_odds || [];
+    var urenWrap = document.getElementById('frame-uren');
+    if (urenWrap) {
+      urenWrap.style.display = frameOddsData.length ? '' : 'none';
+      // frameOddsPage（枠連↔枠単ローテ）ハンドラが display を上書きするため、発売有無を保持
+      urenWrap.dataset.frameOddsAvailable = frameOddsData.length ? '1' : '0';
+    }
     var frameOddsMap = {};
-    (data.frame_odds || []).forEach(function(e) { frameOddsMap[e.frame_a + '-' + e.frame_b] = e; });
-    var popularKeys = D.computeFramePopular(data.frame_odds || []);
+    frameOddsData.forEach(function(e) { frameOddsMap[e.frame_a + '-' + e.frame_b] = e; });
+    var popularKeys = D.computeFramePopular(frameOddsData);
 
     var foBody = document.getElementById('frameOddsBody');
     var foFragment = document.createDocumentFragment();
@@ -235,7 +244,9 @@
       var utanEl = document.getElementById('frame-utan');
       if (!urenEl || !utanEl) return;
       var showUtan = (d.page === 'utan');
-      urenEl.style.display = showUtan ? 'none' : '';
+      // 2026-07-15: 枠連発売なし（frame_odds 空）のときは 'uren' 指示でも表示しない
+      var urenAvailable = urenEl.dataset.frameOddsAvailable !== '0';
+      urenEl.style.display = (showUtan || !urenAvailable) ? 'none' : '';
       utanEl.style.display = showUtan ? '' : 'none';
     }
   });

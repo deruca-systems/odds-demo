@@ -452,10 +452,11 @@
       var races = e.data.races || [];
       // 各レースの URL を組立: results → odds のフォールバック URL も作る
       raceUrls = races.slice(0, 3).map(function(r) {
-        var resultsUrl = r.url;
-        // odds フォールバック URL: "/results/" → "/odds/"
-        var oddsUrl = (resultsUrl || '').replace('/results/', '/odds/');
-        return { resultsUrl: resultsUrl, oddsUrl: oddsUrl };
+        // 2026-07-15: 内山バッチの data_source は常に odds/ 形式（設計書 v1.5）のため、
+        //   どちらの形式が来ても results/odds 両 URL を導出する（プロトの results/ 渡しとも両立）。
+        var base = r.url || '';
+        return { resultsUrl: base.replace('/odds/', '/results/'),
+                 oddsUrl: base.replace('/results/', '/odds/') };
       });
       // 初回即時 fetch
       raceUrls.forEach(function(_, i) { pollRaceColumn(i); });
