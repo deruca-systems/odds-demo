@@ -525,3 +525,10 @@ URL クエリ一覧は DEMO_GUIDE.md §2 参照。
 - 空生成がバッチの意図（骨組み先行 PUT）か否かは resultJSON 出力プログラム設計書 v1.0 の生成タイミング規定と突合のうえ、必要なら内山様へ確認（フロント防御済みのため実害はない）。
 - 既知の設計判断待ち: **出走成績（3r/6r）のヘッダー（race-screen__header / six-race__header）は芥川テンプレの固定配色**で、CRM 背景色の適用対象外（適用対象は .race-header を持つ単勝系・人気順系・マトリクス系のみ）。成績画面にも CRM 色を適用するかは芥川様デザイン確認事項。
 - 子テンプレキャッシュバスター v=20260716d。
+
+## 追記 2026-07-15 (6): 出走成績ヘッダーにも CRM 背景色を適用（即適用・及川決定）
+
+- 3r/6r の成績ヘッダー（race-screen__header / six-race__header）は描画ごとに再生成されるため、親 applyHeaderColor が iframe <html> に **has-custom-hdr ＋ CSS 変数 --custom-header-grad（芥川グラデ 2 値）** を注入し、dos-overrides.css の受けルールで適用する方式（.race-header 系のクラス付け替えと併存）。
+- HEADER_GRADS（index.html）は style.css の header-* 定義の写し。**芥川様がパレットを更新したら追従が必要**。
+- STG 実データで 4 面（単勝系×2・出走成績×2）とも CRM 設定色の芥川グラデ表示を確認。schedule JSON の back_color_code はプレビュー再生成までは旧 HEX のまま流れてくるが、旧 HEX 互換マッピングで同じ芥川色に解決される。
+- dos-overrides.css v=20260716a／子テンプレ v=20260716e。
