@@ -486,3 +486,12 @@ URL クエリ一覧は DEMO_GUIDE.md §2 参照。
 
 - 画面上部の情報バーは **`?debug=1` 指定時のみ表示**（お披露目 7/24・実稼働対応）。非指定時は右上の復帰ハンドルも出さない。H キーのトグルは常時有効（キーボード接続時の保守用）。
 - video-frame.html: ミュートフォールバック発動後、**動画フレーム内のクリック/キー入力で音声ON復帰**（`gestureUnmute`）。親ページのクリックでは user activation が iframe に伝播しないため、動画自体をクリックする必要がある。表示端末は起動フラグ運用のためこの経路は不要（一般ブラウザでの確認用）。
+
+## 追記 2026-07-15: 池澤様 GCH 実装のマージ・馬体重特殊値表示・STG 同期
+
+- **池澤様 STG 実装（7/15 11:30）を main へマージ**（本人承認 13:36）: 新規 4 ファイル（templates/gch-video-frame.html、assets/js/video-display.js・gch-video-frame.js、assets/css/gch-video-frame.css）＋ index.html の GCH 分岐（dp90-94→gch テンプレ、applyGreenChannelScreen、setGreenChannelConfig 契約）。
+- **DosVideoDisplay.narConfig**: video_config.venue_code 未供給時に cell の place_cd（コード表(105)）から venue_code をフロント自己解決（内山バッチ対応前の暫定経路）。JSON に venue_code があればそちら優先。
+- 音声デフォルトは 2026-07-14 方針（audio_muted=false）に統一（池澤版デフォルト muted から変更、明示指定は従来どおり優先）。
+- **馬体重特殊値表示（馬体重特殊値仕様書 v1.0 §4.5）**: common.js に fmtWeight/fmtWeightDiff(diff, wt2, weight) を実装。null（計量前・地全協流儀）/0（取消）→ 空欄、9999→計不、wt2=0→(初)、wt2=9999→(前計不)。旧実装の null→'(0)'／'(計不)' 誤表示を修正（single-screen / entries-results-3r / 6r）。
+- common.js キャッシュバスターは **v=20260716a**。仕様面の残: 馬体重特殊値仕様書 v1.1（null=計量前の追認）と JSON 構造仕様書への weight/wt2 nullable 追記は PL 判断待ち。
+- 運用合意: **フロント改修のベースは GitHub main を正**とする（池澤様同意 7/15）。STG は 45 ファイル同期済み（invalidation I9FBE65CZ8ANCOHKN1LZ36UREU）。
