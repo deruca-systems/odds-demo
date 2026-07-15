@@ -489,7 +489,12 @@ html.lshape-bottom .message.bottom-only .message__bottom {
  *   .race-header 系はクラス付け替え（style.css の定義を直接使用）だが、
  *   出走成績のヘッダーは描画ごとに再生成されるため変数方式で受ける。
  * ========================================================================== */
-html.has-custom-hdr .race-screen__header,
+/* 2026-07-15 修正: 3r は芥川既定（style.css）どおり「場名＋レース番号」
+ *   （.race-screen__header-name）のみに着色する。ヘッダー全体に塗ると
+ *   発走時刻／競走成績の部分まで色が付き既定デザインから逸脱するため。
+ *   6r は芥川既定がヘッダー全体グラデのためコンテナに適用（-title の
+ *   背景は子要素側の background-color が優先されるので影響なし）。 */
+html.has-custom-hdr .race-screen__header-name,
 html.has-custom-hdr .six-race__header {
   background: var(--custom-header-grad) !important;
 }
