@@ -495,3 +495,11 @@ URL クエリ一覧は DEMO_GUIDE.md §2 参照。
 - **馬体重特殊値表示（馬体重特殊値仕様書 v1.0 §4.5）**: common.js に fmtWeight/fmtWeightDiff(diff, wt2, weight) を実装。null（計量前・地全協流儀）/0（取消）→ 空欄、9999→計不、wt2=0→(初)、wt2=9999→(前計不)。旧実装の null→'(0)'／'(計不)' 誤表示を修正（single-screen / entries-results-3r / 6r）。
 - common.js キャッシュバスターは **v=20260716a**。仕様面の残: 馬体重特殊値仕様書 v1.1（null=計量前の追認）と JSON 構造仕様書への weight/wt2 nullable 追記は PL 判断待ち。
 - 運用合意: **フロント改修のベースは GitHub main を正**とする（池澤様同意 7/15）。STG は 45 ファイル同期済み（invalidation I9FBE65CZ8ANCOHKN1LZ36UREU）。
+
+## 追記 2026-07-15 (2): CRM 背景色を芥川ヘッダークラスで適用（back_color 10 色化と対）
+
+- CRM 背景色が反映されない事象の原因は **Phase 5（4/22）の CSS 変数注入に対する受け側 CSS が一度も実装されていなかった**こと（git 全履歴で確認）。単色ベタ塗りではなく **back_color_code → style.css の .race-header.header-\*（芥川グラデーション）へのクラス付け替え**方式で実装し直した（index.html: BACK_COLOR_TO_HEADER_CLASS / applyHeaderColor）。
+- マッピングは新パレット 10 値（芥川グラデ開始色）＋旧シード 8 実値（STG DB SELECT 確認、G ピンク→水色再定義）の両対応。マスタ更新（堀井様依頼_back_color芥川パレット10色化_20260715）の前後どちらでも動く。
+- slot 切替で同一テンプレのまま色だけ変わる経路（data-source-only 更新）にも適用を追加。
+- .race-header を持たないテンプレ（出走成績・side-entries・wide-popular・changes-info）は従来どおり対象外。対応する場合は芥川様デザイン相談。
+- 検証: ローカルで新旧混在 4 色（blue/orange/green/light_blue）、STG 実データ（monitor 8: B青/D緑）で適用確認済み。CRM の色名は A〜J場の 10 スロット化を堀井様へ依頼中（正本対照表は依頼書参照）。
