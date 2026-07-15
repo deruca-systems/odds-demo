@@ -443,7 +443,11 @@ function renderRaceHeader(doc, race, opts) {
   setText(doc.querySelector('#hdr-venue'), race.place_name || '');
   setRaceNumber(doc.querySelector('#hdr-race'), race.rr);
   setText(doc.querySelector('#hdr-raceName'), race.race_name || '');
-  setText(doc.querySelector('#hdr-raceClass'), race.race_class || '');
+  // 2026-07-15: race_class は競走種類（普通/特別/準重賞/重賞、JSON 仕様 §4.4）。
+  //   地全協 keiba.go.jp の当日メニューと同様「普通」は表示しない（特別・準重賞・重賞のみ表示）。
+  //   及川決定 2026-07-15（クラス条件「Ｃ３六 七」等の表示は JSON にフィールドが無いため別途判断）。
+  var raceClass = race.race_class || '';
+  setText(doc.querySelector('#hdr-raceClass'), raceClass === '普通' ? '' : raceClass);
 
   var raceInfo = doc.querySelector('.race-info');
   var prevDay = doc.querySelector('.previous-day');

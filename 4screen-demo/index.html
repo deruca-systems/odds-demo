@@ -11,7 +11,7 @@
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260716a"></script>
+<script src="assets/js/common.js?v=20260716c"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -478,7 +478,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260716b');
+    params.set('v', '20260716c');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -598,6 +598,12 @@
         position: canonicalPos,
         template: resolvedTemplate,
         type: screen.type || 'odds',
+        // 2026-07-15: 出走成績の固定範囲/自動ページング判定等で全画面種別が dp を参照する
+        displayPatternId: screen.display_pattern_id,
+        // 2026-07-15: dp50（出走成績 自動ページング）のページ状態
+        entriesPages: null,
+        entriesPageIndex: 0,
+        entriesPageTick: 0,
         races: filteredRaces,
         target_race_no: targetRaceNo,
         target_date_offset: targetDateOffset,
@@ -701,11 +707,71 @@
   // 3R-entries-results-phase2 (2026-04-21): 3 レース分の data_source を子 iframe へ postMessage で送信。
   //   既存の applyOddsScreen は 1 レース単位で動作するため、本関数で bundle 送信する。
   //   子テンプレ (entries-results-3r.html) は受信後、各列で results → odds フォールバック fetch を行う。
+  // 2026-07-15: 出走成績の表示レース解決（display_patternマスタ整理一覧 §1）。
+  //   実バッチは races[] に当日同場の全レースを出力する（スケジュールJSON出力PG設計書 v1.5 §6.5）
+  //   ため、固定範囲（51-54/61/62）は rr で絞り込み、dp50 は 3R 帯域の自動ページングを行う。
+  //   dp60 は screen8 4分割（2場×1-12R=24件、monitor 128）の全件同時表示と両立させるため
+  //   絞り込み・ページングとも行わない（6r テンプレが 6件×最大4ブロックへ自動配置）。
+  var ENTRIES_FIXED_RANGE = { 51: [1, 3], 52: [4, 6], 53: [7, 9], 54: [10, 12], 61: [1, 6], 62: [7, 12] };
+  var ENTRIES_PAGE_RANGES = [[1, 3], [4, 6], [7, 9], [10, 12]];  // dp50 の 1-3R→…→10-12R ループ
+  var ENTRIES_PAGE_SEC = (function() {
+    var v = Number(new URL(location.href).searchParams.get('page_rotation'));
+    return (v && v > 0) ? v : 15;  // 秒。?page_rotation= で上書き（デモ・検証用）
+  })();
+
+  // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
+  function raceRr(race) {
+    if (race && race.rr != null) return Number(race.rr);
+    var info = race && parseRaceId(race.race_id);
+    return info ? info.rr : null;
+  }
+  function racesInRange(races, range) {
+    return (races || []).filter(function(r) {
+      var n = raceRr(r);
+      return n != null && n >= range[0] && n <= range[1];
+    });
+  }
+
+  // 出走成績 screen が「今」表示すべきレース列を返す（dp50 はページ状態を進めず現ページを返す）
+  function entriesRacesToShow(state) {
+    var fixed = ENTRIES_FIXED_RANGE[state.displayPatternId];
+    if (fixed) {
+      var filtered = racesInRange(state.races, fixed);
+      return filtered.length ? filtered : state.races;  // rr 復元不能な旧データは従来動作
+    }
+    if (state.displayPatternId === 50) {
+      var pages = [];
+      ENTRIES_PAGE_RANGES.forEach(function(rg) {
+        var chunk = racesInRange(state.races, rg);
+        if (chunk.length) pages.push(chunk);
+      });
+      if (!pages.length) return state.races;
+      state.entriesPages = pages.length > 1 ? pages : null;
+      if (state.entriesPageIndex >= pages.length) state.entriesPageIndex = 0;
+      return pages[state.entriesPageIndex];
+    }
+    return state.races;  // dp60 ほか: 全件送信（6r テンプレ側で最大 24 件を 4 ブロック配置）
+  }
+
+  // dp50 の自動ページング tick（1 秒ごとに呼ばれ、ENTRIES_PAGE_SEC ごとに次ページへ）
+  function checkEntriesResultsPaging() {
+    screenStates.forEach(function(state) {
+      if (state.displayPatternId !== 50) return;
+      if (!state.entriesPages || state.entriesPages.length < 2) return;
+      state.entriesPageTick = (state.entriesPageTick || 0) + 1;
+      if (state.entriesPageTick < ENTRIES_PAGE_SEC) return;
+      state.entriesPageTick = 0;
+      state.entriesPageIndex = (state.entriesPageIndex + 1) % state.entriesPages.length;
+      if (state.iframeEl) sendEntriesResultsPayload(state.iframeEl, state.entriesPages[state.entriesPageIndex]);
+    });
+  }
+
   function applyEntriesResultsScreen(state) {
     var iframe = state.iframeEl;
     if (!iframe) return;
     var childQuery = buildChildQuery();
     var templateChanged = iframe.getAttribute('data-template') !== state.template;
+    var racesToShow = entriesRacesToShow(state);
     if (templateChanged) {
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig');
@@ -714,10 +780,10 @@
         return function() {
           sendEntriesResultsPayload(iframe, races);
         };
-      })(state.races);
+      })(racesToShow);
     } else {
       // iframe 再利用時（slot 切替で再割当など）は即時 postMessage
-      sendEntriesResultsPayload(iframe, state.races);
+      sendEntriesResultsPayload(iframe, racesToShow);
     }
   }
 
@@ -1201,6 +1267,8 @@
       checkNextRaceTransitions();
       // H-03: 1秒tick で枠連/枠単の 15秒周期切替を実施
       checkFrameOddsPaging();
+      // 2026-07-15: dp50（出走成績）の自動ページング（1-3R→…→10-12R ループ）
+      checkEntriesResultsPaging();
       // 情報バーのレース表示を最新化（遷移発生時に表示も更新）
       var slots = currentSchedule.slots || [];
       var currentSlot = null;
