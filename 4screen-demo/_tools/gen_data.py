@@ -2202,16 +2202,13 @@ def build_schedule(fast: bool = False) -> dict:
                    ("odds_JRA_06_11.json", post["odds_JRA_06_11.json"])]
     slot3_races = _broadcast_races(slot3_files, ["P1", "P2", "P3", "P4"])
 
-    # 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL (要件定義書 v3.3 §3.2)。
-    #   CRM「画面編集」の「サイネージ画面」ドロップダウン相当。時間帯ごとに 1 つ指定。
-    #   各 slot に異なる画像を設定し、CUT-002 → CUT-003 の切替動作を確認可能にする。
+    # 2026-07-22: monitor 101 は木暮様の 18頭立て/多頭数オッズ検証用のため、
+    #   サイネージカットイン(SCR-CUT-003)を無効化する（オッズ確認の妨げになるため）。
+    #   CUT-003 の確認は signage_url を持つ他 monitor で行う。
     slots = [
-        build_slot("slot1", s1_start, s1_end, "PAT-4SPLIT-STD", slot1_races,
-                   signage_url="/signage/sample-1.png"),
-        build_slot("slot2", s2_start, s2_end, "PAT-4SPLIT-UMATAN", slot2_races,
-                   signage_url="/signage/sample-2.png"),
-        build_slot("slot3", s3_start, s3_end, "PAT-4SPLIT-STD", slot3_races,
-                   signage_url="/signage/sample-1.png"),
+        build_slot("slot1", s1_start, s1_end, "PAT-4SPLIT-STD", slot1_races),
+        build_slot("slot2", s2_start, s2_end, "PAT-4SPLIT-UMATAN", slot2_races),
+        build_slot("slot3", s3_start, s3_end, "PAT-4SPLIT-STD", slot3_races),
     ]
     return {
         "server_time": NOW_ISO,

@@ -144,8 +144,7 @@
             }
           ]
         }
-      ],
-      "signage_url": "/signage/sample-1.png"
+      ]
     },
     {
       "slot_id": "slot2",
@@ -312,8 +311,7 @@
             }
           ]
         }
-      ],
-      "signage_url": "/signage/sample-2.png"
+      ]
     },
     {
       "slot_id": "slot3",
@@ -480,8 +478,7 @@
             }
           ]
         }
-      ],
-      "signage_url": "/signage/sample-1.png"
+      ]
     }
   ]
 }
