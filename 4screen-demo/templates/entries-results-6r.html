@@ -13,7 +13,7 @@
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260716e"></script>
+  <script src="../assets/js/common.js?v=20260722b"></script>
 </head>
 <body>
 
@@ -199,8 +199,11 @@
           html += '<div class="six-race__horse-meta"><div class="six-race__horse-weight">'
                 + (h.is_scratched === 1 ? '出走取消' : '競走除外') + '</div></div>';
         } else {
-          var icon = (h.genryokigo && GENRYO_ICON[h.genryokigo])
-            ? '<img class="jockey-icon" src="../assets/images/jockey/' + GENRYO_ICON[h.genryokigo] + '.svg" alt="">' : '';
+          // 2026-07-22: odds JSON の horses[] は org_genryokigo / new_genryokigo（§3 系）。
+          //   `genryokigo`（§4.5.4 系）のみ参照していたため出走表で記号が出なかった。
+          var gen6 = D.genryokigoOf ? D.genryokigoOf(h) : h.genryokigo;
+          var icon = (gen6 && GENRYO_ICON[gen6])
+            ? '<img class="jockey-icon" src="../assets/images/jockey/' + GENRYO_ICON[gen6] + '.svg" alt="">' : '';
           html += '<div class="six-race__horse-meta">'
                 +   '<div class="six-race__horse-weight">' + D.fmtWeight(h.weight) + formatWeightDiff(h.weight_diff, h.wt2, h.weight) + '</div>'
                 +   '<div class="six-race__horse-jockey">' + icon + esc(h.jockey) + '</div></div>';

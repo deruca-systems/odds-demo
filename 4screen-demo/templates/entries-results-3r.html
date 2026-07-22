@@ -8,7 +8,7 @@
        芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260716e"></script>
+  <script src="../assets/js/common.js?v=20260722b"></script>
 </head>
 <body>
 
@@ -375,9 +375,12 @@
       // 2026-04-21 Phase 3: ばんえい時は負担重量が整数(3-4桁)、通常は小数 1 桁
       // 2026-04-30 session3 改: 取消馬でも斤量(fwt)は表示する。
       // 取消セルは race-table__scratched で 馬体重(2)+性齢(3) の 2 セル結合（base CSS span 2）。
+      // 2026-07-22: 斤量は減量記号ぶんを差し引いた「実負担重量」を表示（及川決定）。
+      //   JSON の fwt は基本斤量（減量前）。D.effectiveFwt が記号から減算する。
+      var fwtVal = D.effectiveFwt ? D.effectiveFwt(h, banei) : h.fwt;
       var fwtStr = '--';
-      if (h.fwt != null) {
-        fwtStr = banei ? String(Math.round(h.fwt)) : Number(h.fwt).toFixed(1);
+      if (fwtVal != null) {
+        fwtStr = banei ? String(Math.round(fwtVal)) : Number(fwtVal).toFixed(1);
       }
       if (isScratched) {
         var label = h.is_scratched === 1 ? '出走取消' : '競走除外';
@@ -397,10 +400,13 @@
 
       // 騎手名（減量記号アイコン付き、genryokigo があれば）
       // 2026-04-30 session3 改訂3: ◇ (JRA-DB コード表2303 値=9 / NAR 公式: 2Kg減 女性騎手) を追加
+      // 2026-07-22: odds JSON の horses[] は org_genryokigo / new_genryokigo（仕様 §3 系）で
+      //   `genryokigo`（§4.5.4 entries[] 系）は存在しないため常に空になっていた。D.genryokigoOf で吸収。
       var jockeyIcon = '';
-      if (h.genryokigo) {
+      var gen = D.genryokigoOf ? D.genryokigoOf(h) : h.genryokigo;
+      if (gen) {
         var iconMap = { '★': 'fill-star', '▲': 'fill-triangle', '△': 'triangle', '☆': 'star', '◇': 'diamond' };
-        var iconName = iconMap[h.genryokigo] || '';
+        var iconName = iconMap[gen] || '';
         if (iconName) {
           jockeyIcon = '<img class="jockey-icon" src="../assets/images/jockey/'
                      + iconName + '.svg" alt="">';

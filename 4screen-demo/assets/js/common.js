@@ -216,6 +216,34 @@ function fmtOdds(v, betType, organizer) {
   return Number(v).toFixed(1);
 }
 
+// 減量記号（JSON 構造仕様書 v0.6.6 付録 A.12）。値は減量 kg。
+//   NAR/JRA とも 5 記号で kg 値は一致（★4 / ▲3 / △2 / ◇2 / ☆1）。
+var GENRYO_KG = { '★': 4, '▲': 3, '△': 2, '◇': 2, '☆': 1 };
+
+// 2026-07-22: 減量記号の解決（山内様 実機検証 §3-2 の欠落修正）。
+//   odds JSON の horses[] は `org_genryokigo` / `new_genryokigo`（仕様 §3 系）、
+//   results JSON の entries[] は `genryokigo`（仕様 §4.5.4）と名前が異なる。
+//   出走表テンプレートは horses[] を描画するのに `genryokigo` を読んでいたため
+//   常に空になり、減量記号が表示されなかった。両系統を吸収する。
+//   優先順は仕様 §4.5.4（`crc.new_genryokigo` または `crc.org_genryokigo`）に合わせ
+//   騎手変更後（new）を優先する。
+function genryokigoOf(h) {
+  if (!h) return null;
+  return h.genryokigo || h.new_genryokigo || h.org_genryokigo || null;
+}
+
+// 2026-07-22: 実負担重量（及川決定 2026-07-22）。
+//   JSON の `fwt` は「基本斤量（減量前）」。同一レース・同一性齢で減量記号のある騎手と
+//   無い騎手の fwt が同値であることを prod 実データで確認済（笠松 7/24 1R ほか）。
+//   出馬表は減量後の実負担重量を表示するため、記号ぶんを差し引く。
+//   ばんえいは負担重量（3-4桁）で減量記号の運用が無いため対象外。
+function effectiveFwt(h, banei) {
+  if (!h || h.fwt === null || h.fwt === undefined) return null;
+  if (banei) return h.fwt;
+  var kg = GENRYO_KG[genryokigoOf(h)];
+  return kg ? h.fwt - kg : h.fwt;
+}
+
 // 馬体重の表示（馬体重特殊値仕様書 v1.0 §4.5 準拠、2026-07-15 表示文字列確定）
 //   null/undefined = 計量前（電文未着。前日発売・当日計量前で正規に発生）→ 空欄
 //                    （地全協 keiba.go.jp 出馬表と同じ「未計量は何も出さない」流儀。及川決定 2026-07-15）
@@ -443,11 +471,16 @@ function renderRaceHeader(doc, race, opts) {
   setText(doc.querySelector('#hdr-venue'), race.place_name || '');
   setRaceNumber(doc.querySelector('#hdr-race'), race.rr);
   setText(doc.querySelector('#hdr-raceName'), race.race_name || '');
-  // 2026-07-15: race_class は競走種類（普通/特別/準重賞/重賞、JSON 仕様 §4.4）。
-  //   地全協 keiba.go.jp の当日メニューと同様「普通」は表示しない（特別・準重賞・重賞のみ表示）。
-  //   及川決定 2026-07-15（クラス条件「Ｃ３六 七」等の表示は JSON にフィールドが無いため別途判断）。
-  var raceClass = race.race_class || '';
-  setText(doc.querySelector('#hdr-raceClass'), raceClass === '普通' ? '' : raceClass);
+  // 2026-07-22: race_class（競走種類）の表示を廃止（及川決定）。
+  //   NAR 公式は「当日メニュー（一覧）」では競走種類を独立カラムで出すが、
+  //   「個別出馬表（DebaTable）」では種類ラベルを出さず競走名のみを表示する。
+  //   本画面は単一レース表示＝個別出馬表に相当するため、種類は出さないのが NAR 準拠。
+  //   これにより「涼月特別」＋「特別」＝「涼月特別特別」の重複表示も解消する
+  //   （山内様 実機検証 §3-3'。7/24 の 3 場で 11 レースが該当）。
+  //   ※ 7/15 の「普通は非表示・特別等は表示」判断は一覧ページの体裁に基づくものだった。
+  //   ※ NAR は競走名にクラス条件（Ａ４ / Ｃ３一 等）を付すが、当該フィールドは
+  //      現行 JSON に無い（別課題として内山様へ確認中）。
+  setText(doc.querySelector('#hdr-raceClass'), '');
 
   var raceInfo = doc.querySelector('.race-info');
   var prevDay = doc.querySelector('.previous-day');
@@ -468,7 +501,9 @@ function renderRaceHeader(doc, race, opts) {
     //   かつ「ダ 200m (直線)」は固定値で冗長なため非表示（ユーザーフィードバック ラウンド 4）
     var condText = TRACK_COND_LABEL[race.track_cond_cd] || '';
     if (isBaneiRace(race) && race.track_water_pct != null) {
-      condText = race.track_water_pct + '%';
+      // 2026-07-22: 数値をそのまま連結すると 0.0 が "0%" になり小数が落ちる。
+      //   常に小数1桁で表示する（山内様 実機検証 §3-5「##0.0％」であるべき）。
+      condText = Number(race.track_water_pct).toFixed(1) + '%';
     }
     setText(doc.querySelector('#hdr-condition'), condText);
     if (isBaneiRace(race)) {
@@ -1086,6 +1121,9 @@ window.OddsDemo = {
   fmtOdds: fmtOdds,
   fmtWeight: fmtWeight,
   fmtWeightDiff: fmtWeightDiff,
+  GENRYO_KG: GENRYO_KG,
+  genryokigoOf: genryokigoOf,
+  effectiveFwt: effectiveFwt,
   frameClassOf: frameClassOf,
   frameOfHorse: frameOfHorse,
   fetchWithOffset: fetchWithOffset,
