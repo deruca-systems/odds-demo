@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722c"></script>
+  <script src="../assets/js/common.js?v=20260722d"></script>
 </head>
 <body>
 
@@ -74,6 +74,23 @@
   var currentPoller = null;   // 指示書07: setInterval 方式から指数バックオフ付き poller に変更
   var lastData = null;
   var serverOffsetMs = 0;
+
+  // 2026-07-22: 枠連↔枠単ローテーション（H-03）の現在ページ。
+  //   親からの frameOddsPage 通知で更新し、再描画時も applyFramePage() でこの状態を再適用する。
+  //   従来は再描画のたびに枠連を無条件表示に戻していたため、枠単の表示中にポーリングが走ると
+  //   両ブロックが同時に並び、枠単が画面外へ押し出されて点滅して見えた。
+  var framePage = 'uren';   // 'uren'（枠連）| 'utan'（枠単）
+
+  // 現在ページと発売有無から、枠連／枠単ブロックの表示を確定する（唯一の表示制御経路）
+  function applyFramePage() {
+    var urenEl = document.getElementById('frame-uren');
+    var utanEl = document.getElementById('frame-utan');
+    if (!urenEl || !utanEl) return;
+    var urenAvailable = urenEl.dataset.frameOddsAvailable !== '0';
+    var showUtan = (framePage === 'utan');
+    urenEl.style.display = (showUtan || !urenAvailable) ? 'none' : '';
+    utanEl.style.display = showUtan ? '' : 'none';
+  }
 
   // 枠連ブロックの3カラム配置
   var FRAME_LAYOUT = [
@@ -145,10 +162,14 @@
     var frameOddsData = data.frame_odds || [];
     var urenWrap = document.getElementById('frame-uren');
     if (urenWrap) {
-      urenWrap.style.display = frameOddsData.length ? '' : 'none';
       // frameOddsPage（枠連↔枠単ローテ）ハンドラが display を上書きするため、発売有無を保持
       urenWrap.dataset.frameOddsAvailable = frameOddsData.length ? '1' : '0';
     }
+    // 2026-07-22: ここで枠連を無条件に表示へ戻していたため、枠単の表示中に再描画が走ると
+    //   枠連が復活して両ブロックが同時に並び、枠単が画面外へ押し出されていた
+    //   （18頭立てサンプルで「枠単」の文字が点滅する事象）。
+    //   ローテーションの現在ページを保持し、再描画時もそれを尊重する。
+    applyFramePage();
     var frameOddsMap = {};
     frameOddsData.forEach(function(e) { frameOddsMap[e.frame_a + '-' + e.frame_b] = e; });
     var popularKeys = D.computeFramePopular(frameOddsData);
@@ -240,14 +261,10 @@
     } else if (d.type === 'frameOddsPage') {
       // H-03 (2026-04-19): 親から枠連・枠単の切替通知を受信
       //   d.page: 'uren'（枠連）| 'utan'（枠単）
-      var urenEl = document.getElementById('frame-uren');
-      var utanEl = document.getElementById('frame-utan');
-      if (!urenEl || !utanEl) return;
-      var showUtan = (d.page === 'utan');
-      // 2026-07-15: 枠連発売なし（frame_odds 空）のときは 'uren' 指示でも表示しない
-      var urenAvailable = urenEl.dataset.frameOddsAvailable !== '0';
-      urenEl.style.display = (showUtan || !urenAvailable) ? 'none' : '';
-      utanEl.style.display = showUtan ? '' : 'none';
+      // 2026-07-22: 表示制御は applyFramePage() に一本化（再描画時も同じ状態を再適用するため）。
+      //   2026-07-15 の「枠連発売なし時は 'uren' 指示でも表示しない」ガードも同関数内で継続。
+      framePage = (d.page === 'utan') ? 'utan' : 'uren';
+      applyFramePage();
     }
   });
 
