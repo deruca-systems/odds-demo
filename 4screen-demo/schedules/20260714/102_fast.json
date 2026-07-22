@@ -5,8 +5,8 @@
   "slots": [
     {
       "slot_id": "slot1",
-      "start_time": "2026-07-14T15:18:13+09:00",
-      "end_time": "2026-07-14T15:19:13+09:00",
+      "start_time": "2026-07-24T13:00:00+09:00",
+      "end_time": "2026-07-24T13:02:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -80,8 +80,8 @@
     },
     {
       "slot_id": "slot2",
-      "start_time": "2026-07-14T15:19:13+09:00",
-      "end_time": "2026-07-14T15:20:13+09:00",
+      "start_time": "2026-07-24T13:02:00+09:00",
+      "end_time": "2026-07-24T13:04:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -113,8 +113,4904 @@
     },
     {
       "slot_id": "slot3",
-      "start_time": "2026-07-14T15:20:13+09:00",
-      "end_time": "2026-07-14T15:21:13+09:00",
+      "start_time": "2026-07-24T13:04:00+09:00",
+      "end_time": "2026-07-24T13:06:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot4",
+      "start_time": "2026-07-24T13:06:00+09:00",
+      "end_time": "2026-07-24T13:08:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot5",
+      "start_time": "2026-07-24T13:08:00+09:00",
+      "end_time": "2026-07-24T13:10:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot6",
+      "start_time": "2026-07-24T13:10:00+09:00",
+      "end_time": "2026-07-24T13:12:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot7",
+      "start_time": "2026-07-24T13:12:00+09:00",
+      "end_time": "2026-07-24T13:14:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot8",
+      "start_time": "2026-07-24T13:14:00+09:00",
+      "end_time": "2026-07-24T13:16:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot9",
+      "start_time": "2026-07-24T13:16:00+09:00",
+      "end_time": "2026-07-24T13:18:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot10",
+      "start_time": "2026-07-24T13:18:00+09:00",
+      "end_time": "2026-07-24T13:20:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot11",
+      "start_time": "2026-07-24T13:20:00+09:00",
+      "end_time": "2026-07-24T13:22:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot12",
+      "start_time": "2026-07-24T13:22:00+09:00",
+      "end_time": "2026-07-24T13:24:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot13",
+      "start_time": "2026-07-24T13:24:00+09:00",
+      "end_time": "2026-07-24T13:26:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot14",
+      "start_time": "2026-07-24T13:26:00+09:00",
+      "end_time": "2026-07-24T13:28:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot15",
+      "start_time": "2026-07-24T13:28:00+09:00",
+      "end_time": "2026-07-24T13:30:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot16",
+      "start_time": "2026-07-24T13:30:00+09:00",
+      "end_time": "2026-07-24T13:32:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot17",
+      "start_time": "2026-07-24T13:32:00+09:00",
+      "end_time": "2026-07-24T13:34:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot18",
+      "start_time": "2026-07-24T13:34:00+09:00",
+      "end_time": "2026-07-24T13:36:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot19",
+      "start_time": "2026-07-24T13:36:00+09:00",
+      "end_time": "2026-07-24T13:38:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot20",
+      "start_time": "2026-07-24T13:38:00+09:00",
+      "end_time": "2026-07-24T13:40:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot21",
+      "start_time": "2026-07-24T13:40:00+09:00",
+      "end_time": "2026-07-24T13:42:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot22",
+      "start_time": "2026-07-24T13:42:00+09:00",
+      "end_time": "2026-07-24T13:44:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot23",
+      "start_time": "2026-07-24T13:44:00+09:00",
+      "end_time": "2026-07-24T13:46:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot24",
+      "start_time": "2026-07-24T13:46:00+09:00",
+      "end_time": "2026-07-24T13:48:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot25",
+      "start_time": "2026-07-24T13:48:00+09:00",
+      "end_time": "2026-07-24T13:50:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot26",
+      "start_time": "2026-07-24T13:50:00+09:00",
+      "end_time": "2026-07-24T13:52:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot27",
+      "start_time": "2026-07-24T13:52:00+09:00",
+      "end_time": "2026-07-24T13:54:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot28",
+      "start_time": "2026-07-24T13:54:00+09:00",
+      "end_time": "2026-07-24T13:56:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot29",
+      "start_time": "2026-07-24T13:56:00+09:00",
+      "end_time": "2026-07-24T13:58:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot30",
+      "start_time": "2026-07-24T13:58:00+09:00",
+      "end_time": "2026-07-24T14:00:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot31",
+      "start_time": "2026-07-24T14:00:00+09:00",
+      "end_time": "2026-07-24T14:02:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot32",
+      "start_time": "2026-07-24T14:02:00+09:00",
+      "end_time": "2026-07-24T14:04:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot33",
+      "start_time": "2026-07-24T14:04:00+09:00",
+      "end_time": "2026-07-24T14:06:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot34",
+      "start_time": "2026-07-24T14:06:00+09:00",
+      "end_time": "2026-07-24T14:08:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot35",
+      "start_time": "2026-07-24T14:08:00+09:00",
+      "end_time": "2026-07-24T14:10:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot36",
+      "start_time": "2026-07-24T14:10:00+09:00",
+      "end_time": "2026-07-24T14:12:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot37",
+      "start_time": "2026-07-24T14:12:00+09:00",
+      "end_time": "2026-07-24T14:14:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot38",
+      "start_time": "2026-07-24T14:14:00+09:00",
+      "end_time": "2026-07-24T14:16:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot39",
+      "start_time": "2026-07-24T14:16:00+09:00",
+      "end_time": "2026-07-24T14:18:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot40",
+      "start_time": "2026-07-24T14:18:00+09:00",
+      "end_time": "2026-07-24T14:20:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot41",
+      "start_time": "2026-07-24T14:20:00+09:00",
+      "end_time": "2026-07-24T14:22:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot42",
+      "start_time": "2026-07-24T14:22:00+09:00",
+      "end_time": "2026-07-24T14:24:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot43",
+      "start_time": "2026-07-24T14:24:00+09:00",
+      "end_time": "2026-07-24T14:26:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot44",
+      "start_time": "2026-07-24T14:26:00+09:00",
+      "end_time": "2026-07-24T14:28:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot45",
+      "start_time": "2026-07-24T14:28:00+09:00",
+      "end_time": "2026-07-24T14:30:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot46",
+      "start_time": "2026-07-24T14:30:00+09:00",
+      "end_time": "2026-07-24T14:32:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot47",
+      "start_time": "2026-07-24T14:32:00+09:00",
+      "end_time": "2026-07-24T14:34:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot48",
+      "start_time": "2026-07-24T14:34:00+09:00",
+      "end_time": "2026-07-24T14:36:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot49",
+      "start_time": "2026-07-24T14:36:00+09:00",
+      "end_time": "2026-07-24T14:38:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot50",
+      "start_time": "2026-07-24T14:38:00+09:00",
+      "end_time": "2026-07-24T14:40:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot51",
+      "start_time": "2026-07-24T14:40:00+09:00",
+      "end_time": "2026-07-24T14:42:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot52",
+      "start_time": "2026-07-24T14:42:00+09:00",
+      "end_time": "2026-07-24T14:44:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot53",
+      "start_time": "2026-07-24T14:44:00+09:00",
+      "end_time": "2026-07-24T14:46:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot54",
+      "start_time": "2026-07-24T14:46:00+09:00",
+      "end_time": "2026-07-24T14:48:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot55",
+      "start_time": "2026-07-24T14:48:00+09:00",
+      "end_time": "2026-07-24T14:50:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot56",
+      "start_time": "2026-07-24T14:50:00+09:00",
+      "end_time": "2026-07-24T14:52:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot57",
+      "start_time": "2026-07-24T14:52:00+09:00",
+      "end_time": "2026-07-24T14:54:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot58",
+      "start_time": "2026-07-24T14:54:00+09:00",
+      "end_time": "2026-07-24T14:56:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot59",
+      "start_time": "2026-07-24T14:56:00+09:00",
+      "end_time": "2026-07-24T14:58:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot60",
+      "start_time": "2026-07-24T14:58:00+09:00",
+      "end_time": "2026-07-24T15:00:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot61",
+      "start_time": "2026-07-24T15:00:00+09:00",
+      "end_time": "2026-07-24T15:02:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot62",
+      "start_time": "2026-07-24T15:02:00+09:00",
+      "end_time": "2026-07-24T15:04:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot63",
+      "start_time": "2026-07-24T15:04:00+09:00",
+      "end_time": "2026-07-24T15:06:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot64",
+      "start_time": "2026-07-24T15:06:00+09:00",
+      "end_time": "2026-07-24T15:08:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot65",
+      "start_time": "2026-07-24T15:08:00+09:00",
+      "end_time": "2026-07-24T15:10:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot66",
+      "start_time": "2026-07-24T15:10:00+09:00",
+      "end_time": "2026-07-24T15:12:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot67",
+      "start_time": "2026-07-24T15:12:00+09:00",
+      "end_time": "2026-07-24T15:14:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot68",
+      "start_time": "2026-07-24T15:14:00+09:00",
+      "end_time": "2026-07-24T15:16:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot69",
+      "start_time": "2026-07-24T15:16:00+09:00",
+      "end_time": "2026-07-24T15:18:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot70",
+      "start_time": "2026-07-24T15:18:00+09:00",
+      "end_time": "2026-07-24T15:20:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot71",
+      "start_time": "2026-07-24T15:20:00+09:00",
+      "end_time": "2026-07-24T15:22:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot72",
+      "start_time": "2026-07-24T15:22:00+09:00",
+      "end_time": "2026-07-24T15:24:00+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot73",
+      "start_time": "2026-07-24T15:24:00+09:00",
+      "end_time": "2026-07-24T15:26:00+09:00",
+      "layout": "3split",
+      "layout_pattern": "3split",
+      "display_pattern_id": 100,
+      "display_pattern_name": "L字 左袖（出走表）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/side-entries.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 100,
+          "display_pattern_name": "L字 左袖（出走表）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/wide-popular.html",
+          "place_cd": "36",
+          "organizer_type": "NAR",
+          "display_pattern_id": 101,
+          "display_pattern_name": "L字 右下（人気・ワイド人気 4賭式）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_36_07",
+              "race_key": "門別7R",
+              "post_time_iso": "2026-07-14T15:19:13+09:00",
+              "data_source": "odds/20260714/NAR_36_07.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot_id": "slot74",
+      "start_time": "2026-07-24T15:26:00+09:00",
+      "end_time": "2026-07-24T15:28:00+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 80,
+      "display_pattern_name": "レース動画（地方競馬LIVE）",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/video-frame.html",
+          "place_cd": null,
+          "organizer_type": null,
+          "display_pattern_id": 80,
+          "display_pattern_name": "レース動画（地方競馬LIVE）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "type": "video",
+          "video_config": {
+            "venue_code": "urawa",
+            "quality_mode": "auto",
+            "quality_cap": 4,
+            "audio_muted": false,
+            "volume": 0.7
+          },
+          "races": []
+        }
+      ]
+    },
+    {
+      "slot_id": "slot75",
+      "start_time": "2026-07-24T15:28:00+09:00",
+      "end_time": "2026-07-24T15:30:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
