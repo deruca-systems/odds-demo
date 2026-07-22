@@ -13,7 +13,7 @@
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722b"></script>
+  <script src="../assets/js/common.js?v=20260722c"></script>
 </head>
 <body>
 
@@ -259,6 +259,35 @@
       }
       wrapper.insertAdjacentHTML('beforeend',
         '<div class="six-race"><div class="six-race__cols">' + cols + '</div>' + LEGEND_HTML + '</div>');
+    }
+    applyBlockScale(blocks);
+  }
+
+  // 2026-07-22: ブロック数に応じて描画スケールを合わせる（及川決定）。
+  //   style.css は芥川様アセットのため改変せず、:root の font-size と wrapper の
+  //   grid 定義のみをインラインで上書きする。
+  //
+  //   背景: `html.screen-4k` は `font-size: 0.2604166667vw`（1rem = 幅の 0.2604%）で、
+  //   `.six-race` は `192rem × 108rem` = 常に「viewport の 50% × 50%」になる。
+  //   これは 4 ブロック（2場×1-12R）で 4K 全面を埋める前提の値。
+  //   dp61/dp62（6R 固定 = 1 ブロック）を 4 分割の 1 コマに割り当てると、
+  //   コマの左上 1/4 にしか描画されない（幅 50% × 高さ 50%）。
+  //   iframe 内の vw はその iframe 自身が基準のため、コマが小さくても比率は変わらない。
+  //
+  //   対処: 1 ブロックのときは 192rem = 100vw となるよう font-size を 2 倍にし、
+  //   wrapper を 1×1 グリッドにしてコマ全体を使う。16:9 なら高さも 108rem = 56.25vw
+  //   = 100% となり歪みなく収まる。2 ブロック以上は従来どおり（2×2 前提）。
+  function applyBlockScale(blocks) {
+    var root = document.documentElement;
+    var wrapper = document.getElementById('wrapper');
+    if (blocks === 1) {
+      root.style.fontSize = (100 / 192) + 'vw';   // 192rem = 100vw
+      wrapper.style.gridTemplateColumns = '1fr';
+      wrapper.style.gridTemplateRows = '1fr';
+    } else {
+      root.style.fontSize = '';                   // style.css の既定に戻す
+      wrapper.style.gridTemplateColumns = '';
+      wrapper.style.gridTemplateRows = '';
     }
   }
 
