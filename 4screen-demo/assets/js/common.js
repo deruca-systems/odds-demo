@@ -2,8 +2,8 @@
  * 4画面JSONポーリングサンプル - 子テンプレート共通ユーティリティ
  *
  * 申し送り仕様書のクラス命名・CSS変数注入ルールに準拠。
- *  - row-* / number-* / block-* / body-* / win-popular / win-secondary / place-popular /
- *    value-popular / odds-popular / odds-unpopular / unpopular / weight-long / weight-diff / minute
+ *  - row-* / number-* / block-* / body-* / odds-d1 / odds-d3（O-3 桁数ベース配色）/
+ *    odds-cross / odds-scratched / body-scratched / weight-long / weight-diff / minute
  *  - インラインstyleは --horse-count / --name-length のCSS変数注入のみ
  *  - 色やサイズは必ずクラス付与で制御
  */
@@ -216,6 +216,77 @@ function fmtOdds(v, betType, organizer) {
   return Number(v).toFixed(1);
 }
 
+// O-3b (2026-07-29 及川決定): オッズ未着時の共通表示。
+//   票が入っていない組合せ・馬は配信 JSON に値が来ない（枠連は要素ごと欠落、
+//   単勝/複勝は null）。従来は画面ごとに 空欄 / '-' / '0.0' / 行削除 の 4 通りに
+//   分かれていたため、'-' に一本化する。'0.0' は「0倍」と誤読されるため廃止。
+//
+//   ※ 取消・除外セル（odds-scratched / body-scratched）と馬単の自己交差セル
+//     （odds-cross）は「値なし」ではなく「無効」なので、本関数を使わず
+//     従来どおり空白 + 専用クラスで表す。
+var ODDS_EMPTY = '-';
+
+function fmtOddsOr(v, betType, organizer) {
+  var s = fmtOdds(v, betType, organizer);
+  return s === '' ? ODDS_EMPTY : s;
+}
+
+// O-3 (2026-07-28 芥川様打合せ / 2026-07-29 及川決定): オッズ配色の共通判定。
+//   従来は画面ごとに付与ルールが異なっていた（単勝=昇順上位3/4-5位、複勝=上位50%、
+//   枠連枠単=is_popular、馬連ワイド=odds>=1000、人気順=rank<=3、マトリクス=上位5と>=1000）。
+//   これを「オッズの桁数」に一本化する。順位ベースの配色は全廃。
+//
+//   1桁      (odds <  10.0) → odds-d1（#FF8000 オレンジ）
+//   2桁      (10.0〜99.9)   → クラスなし（既定色＝白）
+//   3桁以上  (odds >= 100.0)→ odds-d3（#00B2FF 水色）
+//
+//   判定はキャップ適用後の値で行う（表示している文字列と色を一致させるため）。
+//   値が無い（票が入っていない＝'-' 表示）ときは色を付けない。
+function oddsColorClass(v, betType, organizer) {
+  if (v === null || v === undefined) return '';
+  var cap = betType ? oddsCapFor(betType, organizer) : 999.9;
+  var shown = (v >= cap) ? cap : v;
+  if (shown < 10) return 'odds-d1';
+  if (shown >= 100) return 'odds-d3';
+  return '';
+}
+
+// クラス名を組み立てるヘルパ（base + 配色クラス）。
+function oddsClass(base, v, betType, organizer) {
+  var c = oddsColorClass(v, betType, organizer);
+  return c ? (base + ' ' + c) : base;
+}
+
+// O-3b 追補 (2026-07-29 及川指摘): min - max 形式のセル（複勝・ワイド）を組み立てる。
+//   セルは `1fr auto 1fr` の 3 span 構成で、真ん中が区切りのハイフン。
+//   両方とも票が入っていないと `-` `-` `-` と 3 つ並び、区切りと値の区別がつかない。
+//   → 両方欠損のときは中央の 1 個だけ残して左右を空にする（グリッドは崩さない）。
+//   片方だけ欠損のときは従来どおり 3 span（値のある側と対比できるほうが分かりやすい）。
+function fillMinMaxCell(cellEl, min, max, betType, organizer) {
+  var noMin = (min === null || min === undefined);
+  var noMax = (max === null || max === undefined);
+  if (noMin && noMax) {
+    cellEl.appendChild(el('span', null, ''));
+    cellEl.appendChild(el('span', null, ODDS_EMPTY));
+    cellEl.appendChild(el('span', null, ''));
+    return cellEl;
+  }
+  cellEl.appendChild(el('span', oddsColorClass(min, betType, organizer) || null, fmtOddsOr(min, betType, organizer)));
+  cellEl.appendChild(el('span', null, '-'));
+  cellEl.appendChild(el('span', oddsColorClass(max, betType, organizer) || null, fmtOddsOr(max, betType, organizer)));
+  return cellEl;
+}
+
+// O-2 (2026-07-28 芥川様打合せ AI#7): 性齢の性別表記。
+//   JSON の sex は 牡/牝/セ（JSON構造仕様書 v0.6.6 §4.4、DB crc.sex 由来）。
+//   お披露目会で「セ」は表示に不適との指摘があり、表示側で置換する
+//   （データ契約・内山様バッチには手を入れない）。
+var SEX_LABEL = { 'セ': '騙' };
+
+function fmtSex(sex) {
+  return SEX_LABEL[sex] || sex || '';
+}
+
 // 減量記号（JSON 構造仕様書 v0.6.6 付録 A.12）。値は減量 kg。
 //   NAR/JRA とも 5 記号で kg 値は一致（★4 / ▲3 / △2 / ◇2 / ☆1）。
 var GENRYO_KG = { '★': 4, '▲': 3, '△': 2, '◇': 2, '☆': 1 };
@@ -345,51 +416,13 @@ function filterScratchedFromPopular(list, horses, combSize) {
 }
 
 // ---- 自動オッズ色付けルール ----
-// 単勝オッズから「人気」「次点」判定を算出（JSONのis_popular/is_secondaryは使わない）
-// ルール:
-//   win-popular: 単勝オッズ昇順 上位3頭
-//   win-secondary: 4〜5位
-// 取消馬（is_scratched != 0）は対象から除外する（指示書08）。
-function computeWinClasses(horses) {
-  var active = (horses || []).filter(function(h) { return !h.is_scratched; });
-  var sorted = active.slice().sort(function(a, b) { return a.win_odds - b.win_odds; });
-  var cls = {};
-  sorted.forEach(function(h, idx) {
-    if (idx < 3) cls[h.horse_no] = 'win-popular';
-    else if (idx < 5) cls[h.horse_no] = 'win-secondary';
-  });
-  return cls; // { horse_no: class }
-}
-
-// 複勝オッズmin/maxそれぞれの上位50%に place-popular を付ける
-// 取消馬（is_scratched != 0）は対象から除外する（指示書08）。
-function computePlaceClasses(horses) {
-  var active = (horses || []).filter(function(h) { return !h.is_scratched; });
-  var mins = active.map(function(h) { return h.place_odds_min; }).sort(function(a, b) { return a - b; });
-  var maxs = active.map(function(h) { return h.place_odds_max; }).sort(function(a, b) { return a - b; });
-  var minThreshold = mins.length > 0 ? mins[Math.ceil(mins.length / 2) - 1] : Infinity;
-  var maxThreshold = maxs.length > 0 ? maxs[Math.ceil(maxs.length / 2) - 1] : Infinity;
-  var res = {};
-  (horses || []).forEach(function(h) {
-    if (h.is_scratched) {
-      res[h.horse_no] = { minPopular: false, maxPopular: false };
-    } else {
-      res[h.horse_no] = {
-        minPopular: h.place_odds_min <= minThreshold,
-        maxPopular: h.place_odds_max <= maxThreshold
-      };
-    }
-  });
-  return res;
-}
-
-// 枠連: 下位5件に value-popular
-function computeFramePopular(frameOdds) {
-  var sorted = frameOdds.slice().sort(function(a, b) { return a.odds - b.odds; });
-  var pop = {};
-  sorted.slice(0, 5).forEach(function(e) { pop[e.frame_a + '-' + e.frame_b] = true; });
-  return pop;
-}
+// O-3 (2026-07-29): 順位ベースの配色判定を全廃した。
+//   撤去した関数: computeWinClasses（単勝 昇順上位3/4-5位）/ computePlaceClasses（複勝 上位50%）
+//                 computeFramePopular（枠連 下位5件）/ isTopPopular（rank<=3）
+//                 isUmarenUnpopular（odds>=1000）
+//   配色は oddsColorClass()（桁数ベース）に一本化されている。
+//   ※ computePlaceClasses は `null <= threshold` が true になるため、票が入っていない
+//     複勝オッズにも強調色が付く不具合があった。桁数ベースでは null を無色にして解消。
 
 // ---- H-03 (2026-04-19): 枠単マトリクス描画 ----
 // 仕様: wrapper 内に 2つの body を生成（上段=軸枠1-4、下段=軸枠5-8）。
@@ -429,10 +462,12 @@ function renderFrameUtan(utanData, wrapperEl, organizer) {
         var entry = matrix[fa + '-' + fb2];
         var item = el('div', 'frame-umatan__item');
         if (entry) {
-          item.textContent = fmtOdds(entry.odds, 'frame_exacta', organizer);
-          if (entry.is_popular) item.classList.add('value-popular');
+          item.textContent = fmtOddsOr(entry.odds, 'frame_exacta', organizer);
+          // O-3: is_popular（下位5件）ベースを廃し、桁数ベースに統一
+          var uCls = oddsColorClass(entry.odds, 'frame_exacta', organizer);
+          if (uCls) item.classList.add(uCls);
         } else {
-          item.textContent = '-';
+          item.textContent = ODDS_EMPTY;   // O-3b: 未着の組合せ
         }
         block.appendChild(item);
       }
@@ -444,12 +479,6 @@ function renderFrameUtan(utanData, wrapperEl, organizer) {
 
   wrapperEl.replaceChildren(frag);
 }
-
-// 人気順テーブル: 上位3件に odds-popular
-function isTopPopular(rank) { return rank <= 3; }
-
-// 馬連ワイド: umaren オッズが 1000倍以上 → unpopular（非人気強調）
-function isUmarenUnpopular(odds) { return odds >= 1000; }
 
 // ---- 共通ヘッダーレンダラー（race-title と race-info を更新） ----
 // opts = { mode, correctedNowMs }
@@ -1119,6 +1148,14 @@ window.OddsDemo = {
   FRAME_NUMBER_CLASS: FRAME_NUMBER_CLASS,
   WEATHER_ICON: WEATHER_ICON,
   fmtOdds: fmtOdds,
+  // O-3b: オッズ未着時は '-'。取消・自己交差セルには使わない
+  ODDS_EMPTY: ODDS_EMPTY,
+  fmtOddsOr: fmtOddsOr,
+  // O-3: オッズ配色（桁数ベース）。順位ベースの旧ルールは全廃した
+  oddsColorClass: oddsColorClass,
+  oddsClass: oddsClass,
+  fillMinMaxCell: fillMinMaxCell,   // 複勝・ワイドの min - max セル
+  fmtSex: fmtSex,          // O-2: 性齢の性別表記（セ → 騙）
   fmtWeight: fmtWeight,
   fmtWeightDiff: fmtWeightDiff,
   GENRYO_KG: GENRYO_KG,
@@ -1131,17 +1168,12 @@ window.OddsDemo = {
   el: el,
   setRaceNumber: setRaceNumber,
   renderRaceHeader: renderRaceHeader,
-  computeWinClasses: computeWinClasses,
-  computePlaceClasses: computePlaceClasses,
-  computeFramePopular: computeFramePopular,
   renderFrameUtan: renderFrameUtan,  // H-03
   // 指示書08: 取消馬対応
   scratchedLabel: scratchedLabel,
   scratchedLabelShort: scratchedLabelShort,
   buildScratchedSet: buildScratchedSet,
   filterScratchedFromPopular: filterScratchedFromPopular,
-  isTopPopular: isTopPopular,
-  isUmarenUnpopular: isUmarenUnpopular,
   umarenPageConfig: umarenPageConfig,
   calcUmarenPages: calcUmarenPages,
   calcUmarenLayout: calcUmarenLayout,
@@ -1175,15 +1207,13 @@ window.OddsDemo = {
  *   opts.type         'umaren' | 'umatan'
  *   opts.axisFrom     軸馬の開始番号（例: 1）
  *   opts.axisTo       軸馬の終了番号（例: 9）
- *   opts.unpopularThreshold  odds >= これ で odds-unpopular 付与（既定: 1000）
- *   opts.popularTopN         odds 昇順上位N個を odds-popular に（既定: 5）
  *
  * 構造:
  *   各 axis 馬 → <div class="screen-table__body body-{frameColor}">
  *                   <div class="screen-table__name">{axis}</div>
  *                   <div class="screen-table__row">
  *                     <div class="screen-table__number number-{frameColor}">{b}</div>
- *                     <div class="screen-table__odds [odds-cross|odds-popular|odds-unpopular]">{oddsValue}</div>
+ *                     <div class="screen-table__odds [odds-cross|odds-scratched|odds-d1|odds-d3]">{oddsValue}</div>
  *                   </div>
  *                   ...
  *                 </div>
@@ -1202,8 +1232,6 @@ function renderMatrixTable(container, horses, matrix, opts) {
   var type = opts.type;
   var axisFrom = opts.axisFrom;
   var axisTo = Math.min(opts.axisTo, n);
-  var unpopularThreshold = opts.unpopularThreshold != null ? opts.unpopularThreshold : 1000;
-  var popularTopN = opts.popularTopN != null ? opts.popularTopN : 5;
 
   // horse_no → frame_no マップ
   var frameOf = {};
@@ -1212,24 +1240,8 @@ function renderMatrixTable(container, horses, matrix, opts) {
   // 指示書08: 取消馬の horse_no セット（軸・相手の両方で使用）
   var scratchedSet = buildScratchedSet(horses);
 
-  // odds-popular 判定用: 表示範囲に入るセルの odds 昇順上位 N を集める
-  // 取消馬を含むセル（軸 or 相手が取消）は人気判定対象から除外する。
-  var visibleOdds = [];
-  for (var ax = axisFrom; ax <= axisTo; ax++) {
-    if (scratchedSet[ax]) continue;
-    var opposingFrom = (type === 'umatan') ? 1 : (ax + 1);
-    var opposingTo = n;
-    for (var b = opposingFrom; b <= opposingTo; b++) {
-      if (type === 'umatan' && b === ax) continue;
-      if (scratchedSet[b]) continue;
-      var entry = findMatrixEntry(matrix, ax, b, type);
-      if (entry && typeof entry.odds === 'number') {
-        visibleOdds.push(entry.odds);
-      }
-    }
-  }
-  visibleOdds.sort(function(a, b) { return a - b; });
-  var popularThreshold = visibleOdds.length >= popularTopN ? visibleOdds[popularTopN - 1] : Infinity;
+  // O-3 (2026-07-29): 「表示範囲の昇順上位N」による人気判定は廃止。
+  //   配色は oddsColorClass()（桁数ベース）がセル単位で決めるため、事前集計は不要。
 
   var fragment = document.createDocumentFragment();
   for (var axis = axisFrom; axis <= axisTo; axis++) {
@@ -1272,15 +1284,16 @@ function renderMatrixTable(container, horses, matrix, opts) {
         oddsDiv.textContent = '';
       } else {
         var e = findMatrixEntry(matrix, axis, bb, type);
+        // 2026-04-22 Phase 5: type (umaren/umatan) + organizer_type で cap 適用
+        var matrixBetType = (type === 'umaren' ? 'quinella' : (type === 'umatan' ? 'exacta' : type));
         if (e && typeof e.odds === 'number') {
-          // 2026-04-22 Phase 5: type (umaren/umatan) + organizer_type で cap 適用
-          var matrixBetType = (type === 'umaren' ? 'quinella' : (type === 'umatan' ? 'exacta' : type));
           oddsDiv.textContent = fmtOdds(e.odds, matrixBetType, opts.organizer_type);
-          if (e.odds <= popularThreshold) {
-            oddsDiv.classList.add('odds-popular');
-          } else if (e.odds >= unpopularThreshold) {
-            oddsDiv.classList.add('odds-unpopular');
-          }
+          // O-3: 順位ベース（昇順上位N / odds>=1000）を廃し、桁数ベースに統一
+          var mCls = oddsColorClass(e.odds, matrixBetType, opts.organizer_type);
+          if (mCls) oddsDiv.classList.add(mCls);
+        } else {
+          // O-3b: 票が入っていない／組合せが未配信 → 空欄ではなく '-'
+          oddsDiv.textContent = ODDS_EMPTY;
         }
       }
       row.appendChild(oddsDiv);

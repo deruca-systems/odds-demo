@@ -498,3 +498,135 @@ html.has-custom-hdr .race-screen__header-name,
 html.has-custom-hdr .six-race__header {
   background: var(--custom-header-grad) !important;
 }
+
+
+/* ==========================================================================
+ * O-1 (2026-07-28 芥川様打合せ AI#3): 4K出走成績（出走表モード）の均等割り付けを廃止
+ *   頭数が少ないレースで縦に均等割りされると間延びして見えるという指摘（お披露目会
+ *   §2-3 #2/#3）を受け、10頭をブレイクポイントとして上詰め＋下部に空きを残す。
+ *
+ *   style.css:3877 の `.six-race__horse-table` は
+ *     --row-height: calc((97.8rem - 4rem) / var(--horse-count));
+ *   で頭数ぶんに等分している。他画面（.race-table__body / .message__horse-table）は
+ *   すでに max(10, var(--horse-count)) を使っており、4K の出走表モードだけが
+ *   未対応だった。ここで同じルールに揃える。
+ *
+ *   行は .six-race__horse-row { flex: 0 0 var(--row-height) }（style.css:3996）で
+ *   積まれるため、行高を固定すれば上から詰まり余りが下に残る。
+ *   成績モード（.six-race__record-row）は height: 4rem の固定高なので対象外。
+ * ========================================================================== */
+html.screen-4k .six-race__horse-table {
+  --row-height: calc((97.8rem - 4rem) / max(10, var(--horse-count)));
+}
+
+
+/* ==========================================================================
+ * O-6(a) (2026-07-28 芥川様打合せ AI#12): 出走表の性齢・馬体重カラムを入れ替え
+ *   entries-results-3r.html（出走表モード）の列構成を
+ *     番 / 馬名 / 馬体重 / 性齢 / 斤量 / 騎手名
+ *   から
+ *     番 / 馬名 / 性齢 / 馬体重 / 斤量 / 騎手名
+ *   へ変更する。style.css:2574/2594 の grid-template-columns
+ *     2.4rem 12.3rem 4.4rem 3rem 3rem 5.8rem
+ *   の 3・4 列目（4.4rem と 3rem）を入れ替えるだけで、合計幅は変わらない。
+ *   取消馬の結合セル .race-table__scratched（grid-column: span 2）は
+ *   引き続き 3〜4 列目を占有する（3rem + 4.4rem = 7.4rem で従来と同じ）。
+ *
+ *   ※ 性齢↔単勝オッズのローテーション（O-6(b)）は未実装。
+ * ========================================================================== */
+.race-container .race-screen .race-table__head,
+.race-container .race-screen .race-table__row {
+  grid-template-columns: 2.4rem 12.3rem 3rem 4.4rem 3rem 5.8rem;
+}
+
+
+/* ==========================================================================
+ * O-3 (2026-07-28 芥川様打合せ AI#9 / 2026-07-29 及川決定): オッズ配色の統一
+ *   従来は画面ごとに付与ルールが異なっていた（単勝=昇順上位3/4-5位、複勝=上位50%、
+ *   枠連枠単=is_popular、馬連ワイド=odds>=1000、人気順=rank<=3、
+ *   マトリクス=昇順上位5と odds>=1000）。これを「オッズの桁数」に一本化する。
+ *
+ *     1桁     (odds <  10.0)  → .odds-d1  #FF8000（オレンジ）
+ *     2桁     (10.0〜99.9)    → クラスなし（既定色＝白）
+ *     3桁以上 (odds >= 100.0) → .odds-d3  #00B2FF（水色）
+ *
+ *   色値は style.css の既存 2 色をそのまま使う（新色は増やさない）。
+ *   クラス付与は common.js の oddsColorClass() / oddsClass() が一元管理する。
+ *   値が無い（'-' 表示）ときはクラスを付けないので色は付かない。
+ *
+ *   セレクタは style.css 側の既存ルール（例 .screen .race-table__odds-win.win-popular
+ *   = 詳細度 0,3,0）と同等以上になるよう、要素ごとに明示する。!important は使わない。
+ * ========================================================================== */
+/* --- 1桁: オレンジ --- */
+.screen .race-table__odds-win.odds-d1,
+.screen .race-table__odds-place span.odds-d1,
+.screen .frame-odds__value.odds-d1,
+.screen .frame-umatan__item.odds-d1,
+.screen .screen-main .screen-table__odds.odds-d1,
+.popular .race-table__odds-win.odds-d1,
+.popular .popular-table__odds.odds-d1,
+.umaren-wide .race-main .race-table__umaren.odds-d1,
+.umaren-wide .race-main .race-table__wide span.odds-d1,
+.message .message__horse-win.odds-d1,
+.message .message__bet-odds.odds-d1,
+/* O-6(b): 出走表 3列目にローテ表示する単勝オッズ */
+.race-container .race-screen .race-table__sex-age .col3-win.odds-d1 {
+  color: #FF8000;
+}
+/* --- 3桁以上: 水色 --- */
+.screen .race-table__odds-win.odds-d3,
+.screen .race-table__odds-place span.odds-d3,
+.screen .frame-odds__value.odds-d3,
+.screen .frame-umatan__item.odds-d3,
+.screen .screen-main .screen-table__odds.odds-d3,
+.popular .race-table__odds-win.odds-d3,
+.popular .popular-table__odds.odds-d3,
+.umaren-wide .race-main .race-table__umaren.odds-d3,
+.umaren-wide .race-main .race-table__wide span.odds-d3,
+.message .message__horse-win.odds-d3,
+.message .message__bet-odds.odds-d3,
+/* O-6(b): 出走表 3列目にローテ表示する単勝オッズ */
+.race-container .race-screen .race-table__sex-age .col3-win.odds-d3 {
+  color: #00B2FF;
+}
+
+
+/* ==========================================================================
+ * O-6(b) (2026-07-28 芥川様打合せ AI#12 / 2026-07-29 及川決定): 出走表 3列目の
+ *   性齢 ↔ 単勝オッズ ローテーション（15秒）
+ *
+ *   entries-results-3r.html は 3列目のセルに性齢と単勝オッズの両方を持たせ、
+ *   .race-table[data-col3] で表示側を切り替える（JS の setInterval が属性を書き換える）。
+ *   両方を DOM に置くことで、30 秒のポーリング再描画と競合してもローテ状態が飛ばない。
+ *
+ *   ヘッダ（.race-table__head の 3 番目）にも同じ .col3-sex / .col3-win を置いて
+ *   ラベルを「性齢」↔「単勝」で同期させる。
+ * ========================================================================== */
+.race-container .race-screen .race-table[data-col3="sex"] .col3-win,
+.race-container .race-screen .race-table[data-col3="win"] .col3-sex {
+  display: none;
+}
+/* 単勝オッズは性齢と同じ 1.2rem を既定にする（お披露目会の「フォントが小さい」指摘を踏まえ、
+ * 一律に縮めない）。3列目の幅は性齢基準の 3rem（セル内寸 39px）で、実測は次のとおり:
+ *   4 文字まで（9.9 / 13.2 / 99.9）… 1.2rem で 32px 前後 → 収まる
+ *   5 文字（100.0〜999.9）        … 1.2rem で 39.6px → わずかに溢れる
+ * よって 5 文字のときだけ 1.1rem（36px）に落とす。JS 側が文字数を見て
+ * .col3-win--long を付与する（既存の .weight-long と同じ考え方。及川決定 2026-07-29）。 */
+.race-container .race-screen .race-table__sex-age .col3-win {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.race-container .race-screen .race-table__sex-age .col3-win--long {
+  font-size: 1.1rem;
+}
+/* ヘッダのラベルは 2 文字どうしなので既定サイズのまま */
+.race-container .race-screen .race-table__head .col3-sex,
+.race-container .race-screen .race-table__head .col3-win {
+  display: inline;
+}
+.race-container .race-screen .race-table[data-col3="sex"] .race-table__head .col3-win,
+.race-container .race-screen .race-table[data-col3="win"] .race-table__head .col3-sex {
+  display: none;
+}

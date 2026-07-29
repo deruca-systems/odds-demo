@@ -7,8 +7,8 @@
   <!-- 3R-entries-results-phase3 (2026-04-30): payout-board DOM を screen5.html 準拠に書き換え。
        芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -26,28 +26,17 @@
     </div>
     <!-- 右端: 減量記号凡例。
          構造は芥川様 screen5.html 準拠 (race-info__inner > race-info__item × N)。
-         テキスト・記号構成はユーザー指示 (2026-04-30 session3 改訂3) で公式情報に厳密準拠:
-           出典: JRA 公式 https://www.jra.go.jp/keiba/rules/ (見習騎手・女性騎手の減量記号)
-                NAR 公式 https://www.keiba.go.jp/Howtoread/theracecard.html (通常競馬／ばんえい競馬)
-                JRA-DB システム仕様書 コード表2303 (値=9 ◇ = 5年以上 or 101勝以上の女性騎手 2Kg減)
-           表示順: kg 降順 (★4 → ▲3 → △2 → ◇2 → ☆1)、JRA/NAR で kg 値は完全一致
-         芥川様配布履歴:
-           - 2026-05-07 配布: jockey/star.svg, jockey/fill-star.svg, jockey/diamond.svg, info/diamond.svg を正式版で受領（design.zip）
-             申し送り仕様書 §8.5.1 で凡例（info/）と騎手横アイコン（jockey/）の対応マッピングが正式化された。
-           - 残課題: screen5.html サンプル値の「▲2Kg減」(本来 3Kg減) と
-             ばんえい末尾の「☆10Kg減」欠落、末尾 filler 文言は確認継続。 -->
+         出典: NAR 公式 https://www.keiba.go.jp/Howtoread/theracecard.html（ばんえい競馬）
+         アイコンは芥川様配布の info/ 系 SVG（申し送り仕様書 §8.5.1 でマッピング正式化）。
+
+         O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定):
+           凡例はばんえい（帯広）のときだけ「騎手に付く記号 △20Kg減 ☆10Kg減」を出す。
+           通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は表示しない。
+           それ以外は中身を空にする（外側 div は幅・高さを占有しており、display:none に
+           すると 3 列のレイアウトがずれるため残す）。
+           中身は描画のたびに renderLegend() が流し込む。 -->
     <div class="race-info">
-      <div class="race-info__inner">
-        <div class="race-info__item">騎手に付く記号</div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/fill-star.svg" alt=""><span class="race-info__text"><span>4Kg</span>減</span></div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/fill-triangle.svg" alt=""><span class="race-info__text"><span>3Kg</span>減</span></div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span class="race-info__text"><span>2Kg</span>減</span></div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/diamond.svg" alt=""><span class="race-info__text"><span>2Kg</span>減</span></div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span class="race-info__text"><span>1Kg</span>減</span></div>
-        <div class="race-info__item">（ばんえいは</div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span class="race-info__text"><span>20Kg</span>減</span></div>
-        <div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span class="race-info__text"><span>10Kg</span>減）</span></div>
-      </div>
+      <div class="race-info__inner" id="raceInfoLegend"></div>
     </div>
   </div>
 </div>
@@ -117,6 +106,7 @@
     var col = document.querySelector('[data-col-idx="' + colIdx + '"]');
     if (!col) return;
     col.setAttribute('data-odds-status', data.odds_status != null ? data.odds_status : 1);
+    setColBanei(colIdx, data);
 
     // 中止オーバーレイ
     if (data.odds_status === 2 || data.odds_status === 3) {
@@ -135,6 +125,65 @@
     var org = data.organizer_type || (data.race && data.race.organizer_type);
     var pp  = data.place_cd       || (data.race && data.race.place_cd);
     return org === 'NAR' && pp === '03';
+  }
+
+  // ==============================================================
+  // O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定)
+  //   減量記号の凡例は「ばんえい（帯広）のときだけ」出す。
+  //   ばんえい時に出すのは、従来カッコ書きだった 2 記号（△20Kg減 / ☆10Kg減）のみ。
+  //   通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は出さない。
+  //   非ばんえい時は中身を空にするだけで、外側の .race-info は残す
+  //   （幅・高さを占有しており display:none にすると 3 列のレイアウトがずれるため）。
+  //
+  //   判定単位は画面（3 列）。1 列でもばんえいがあれば出す。帯広と他場が混在した
+  //   画面でも記号の意味を引けるようにするため。
+  // ==============================================================
+  var BANEI_LEGEND_HTML = ''
+    + '<div class="race-info__item">騎手に付く記号</div>'
+    + '<div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/triangle.svg" alt=""><span class="race-info__text"><span>20Kg</span>減</span></div>'
+    + '<div class="race-info__item"><img class="race-info__icon" src="../assets/images/info/star.svg" alt=""><span class="race-info__text"><span>10Kg</span>減</span></div>';
+
+  var colIsBanei = [false, false, false];
+
+  function setColBanei(colIdx, data) {
+    colIsBanei[colIdx] = isBanei(data || {});
+    renderLegend();
+  }
+
+  // ==============================================================
+  // O-6(b) (2026-07-28 芥川様打合せ AI#12 / 2026-07-29 及川決定 15秒)
+  //   出走表の 3 列目を「性齢」と「単勝オッズ」で 15 秒ごとに入れ替える。
+  //   お披露目会 §2-4 #8「性齢よりも単勝オッズ」への対応。常時どちらかに固定せず、
+  //   画面が煩雑にならないかを実運用で確認するための試験実装。
+  //
+  //   ・両方を DOM に持たせ、.race-table[data-col3] で表示を切り替える。
+  //     30 秒のポーリング再描画とタイミングが競合してもローテ状態が飛ばない
+  //     （枠連↔枠単ローテ H-03 と同じ考え方）。
+  //   ・3 列すべて同時に切り替える（列ごとにバラバラだと目が散る）。
+  //   ・ヘッダのラベルも「性齢」↔「単勝」で同期する。
+  //   ・取消・除外馬は 3〜4 列目が結合セルのため、ローテーションの対象外。
+  // ==============================================================
+  var COL3_ROTATE_MS = 15000;
+  var col3Page = 'sex';   // 'sex'（性齢）| 'win'（単勝オッズ）
+
+  function applyCol3() {
+    var tables = document.querySelectorAll('.race-table');
+    for (var i = 0; i < tables.length; i++) {
+      tables[i].setAttribute('data-col3', col3Page);
+    }
+  }
+
+  setInterval(function() {
+    col3Page = (col3Page === 'sex') ? 'win' : 'sex';
+    applyCol3();
+  }, COL3_ROTATE_MS);
+
+  function renderLegend() {
+    var el = document.getElementById('raceInfoLegend');
+    if (!el) return;
+    var show = false;
+    for (var i = 0; i < colIsBanei.length; i++) { if (colIsBanei[i]) { show = true; break; } }
+    el.innerHTML = show ? BANEI_LEGEND_HTML : '';
   }
 
   function buildHeader(data, mode) {
@@ -333,6 +382,7 @@
     if (!col) return;
     var race = data.race || {};
     col.setAttribute('data-odds-status', race.odds_status != null ? race.odds_status : 0);
+    setColBanei(colIdx, race);
 
     // 中止オーバーレイ
     if (race.odds_status === 2 || race.odds_status === 3) {
@@ -343,6 +393,7 @@
     col.innerHTML = ''
       + buildHeader(race, 'entries')
       + buildRaceTable(data.horses || [], race);
+    applyCol3();   // O-6(b): 再描画後もローテの現在ページを反映する
   }
 
   function buildRaceTable(horses, data) {
@@ -350,12 +401,18 @@
     // 2026-04-21 Phase 3: ばんえい時は「斤量」→「重量」（議事録 20260408 §3）
     var banei = isBanei(data || {});
     var fwtHeader = banei ? '重量' : '斤量';
-    var html = '<div class="race-table" data-banei="' + (banei ? '1' : '0') + '">'
+    // O-6(a) (2026-07-28 芥川様打合せ AI#12): 性齢と馬体重のカラム位置を入れ替える。
+    //   列構成: 番 / 馬名 / 性齢（↔単勝） / 馬体重 / 斤量 / 騎手名
+    //   列幅は dos-overrides.css で .race-table__head / .race-table__row を上書き。
+    // O-6(b): 3列目は性齢と単勝オッズを 15 秒ごとに入れ替える。両方を DOM に持たせ、
+    //   .race-table[data-col3] で表示を切り替える（再描画でローテ状態が飛ばないように）。
+    var html = '<div class="race-table" data-banei="' + (banei ? '1' : '0') + '"'
+             + ' data-col3="' + col3Page + '">'
              + '<div class="race-table__head">'
              +   '<div>番</div>'
              +   '<div>馬名</div>'
+             +   '<div><span class="col3-sex">性齢</span><span class="col3-win">単勝</span></div>'
              +   '<div>馬体重</div>'
-             +   '<div>性齢</div>'
              +   '<div>' + fwtHeader + '</div>'
              +   '<div>騎手名</div>'
              + '</div>'
@@ -374,7 +431,8 @@
 
       // 2026-04-21 Phase 3: ばんえい時は負担重量が整数(3-4桁)、通常は小数 1 桁
       // 2026-04-30 session3 改: 取消馬でも斤量(fwt)は表示する。
-      // 取消セルは race-table__scratched で 馬体重(2)+性齢(3) の 2 セル結合（base CSS span 2）。
+      // 取消セルは race-table__scratched で 3〜4 列目の 2 セル結合（base CSS span 2）。
+      //   O-6(a) (2026-07-28) の入替後は 性齢(3)+馬体重(4) の結合になる（合計幅は同じ）。
       // 2026-07-22: 斤量は減量記号ぶんを差し引いた「実負担重量」を表示（及川決定）。
       //   JSON の fwt は基本斤量（減量前）。D.effectiveFwt が記号から減算する。
       var fwtVal = D.effectiveFwt ? D.effectiveFwt(h, banei) : h.fwt;
@@ -388,12 +446,26 @@
               + '<div class="race-table__assigned-weight">'
               +   fwtStr + '</div>';
       } else {
-        html += '<div class="race-table__weight">'
+        // O-6(a): 性齢 → 馬体重 の順で出す（従来は馬体重 → 性齢）
+        // O-2 (2026-07-28 AI#7): 性別は D.fmtSex でマッピング（セ → 騙）
+        // O-6(b): 同じセルに単勝オッズも持たせ、data-col3 で表示を切り替える。
+        //   単勝は他画面と同じく D.fmtOddsOr（票未着は '-'）＋ O-3 の桁数配色。
+        //   3列目の幅は性齢基準の 3rem。4 文字（99.9 等）までは性齢と同じ 1.2rem で収まるが、
+        //   5 文字（100.0〜999.9）だけは溢れるので col3-win--long でフォントを落とす
+        //   （既存の .weight-long と同じ考え方。及川決定 2026-07-29）。
+        var org3 = (data && data.organizer_type);
+        var winStr3 = D.fmtOddsOr(h.win_odds, 'win', org3);
+        var winCls3 = D.oddsClass('col3-win', h.win_odds, 'win', org3)
+                    + (winStr3.length >= 5 ? ' col3-win--long' : '');
+        html += '<div class="race-table__sex-age">'
+              +   '<span class="col3-sex">' + D.fmtSex(h.sex)
+              +     '<span class="age">' + (h.age != null ? h.age : '') + '</span></span>'
+              +   '<span class="' + winCls3 + '">' + winStr3 + '</span>'
+              + '</div>'
+              + '<div class="race-table__weight">'
               +   '<span>' + D.fmtWeight(h.weight) + '</span>'
               +   '<span class="weight-diff">' + formatWeightDiff(h.weight_diff, h.wt2, h.weight) + '</span>'
               + '</div>'
-              + '<div class="race-table__sex-age">' + (h.sex || '')
-              +   '<span class="age">' + (h.age != null ? h.age : '') + '</span></div>'
               + '<div class="race-table__assigned-weight">'
               +   fwtStr + '</div>';
       }

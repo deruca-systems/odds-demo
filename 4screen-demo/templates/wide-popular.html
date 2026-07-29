@@ -12,8 +12,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260604">
   <!-- L字右下固有スタイル (.lshape-bottom / .message.bottom-only) は dos-overrides.css に集約。 -->
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -79,7 +79,10 @@
   }
 
   // 1件分の .message__bet-row を生成。entry が null なら空行（プレースホルダ）。
-  function buildRow(entry, horses, combSize, race) {
+  // O-3b (2026-07-29): betType を引数化。従来は 4 賭式すべてに 'wide' を渡しており、
+  //   3連複・3連単のオッズ上限が 9999.9（ワイドの cap）で頭打ちになっていた
+  //   （JSON構造仕様書 v0.6.6 §4.2: NAR 3連複/3連単は 99999.9）。
+  function buildRow(entry, horses, combSize, race, betType) {
     var row = D.el('div', 'message__bet-row');
     var combo = D.el('div', 'message__bet-combo');
     if (entry) {
@@ -100,14 +103,17 @@
     }
     row.appendChild(combo);
 
-    var isAccent = entry && D.isTopPopular(entry.rank);
-    var oddsCls = 'message__bet-odds' + (isAccent ? ' message__bet-odds--accent' : '');
-    var oddsText = entry ? D.fmtOdds(entry.odds, 'wide', race && race.organizer_type) : '0.0';
+    // O-3: rank<=3 のアクセントを廃し、桁数ベースに統一
+    var oddsCls = entry
+      ? D.oddsClass('message__bet-odds', entry.odds, betType, race && race.organizer_type)
+      : 'message__bet-odds';
+    // O-3b: entry なし（票未着・件数不足）は '0.0' ではなく '-'
+    var oddsText = entry ? D.fmtOdds(entry.odds, betType, race && race.organizer_type) : D.ODDS_EMPTY;
     row.appendChild(D.el('div', oddsCls, oddsText));
     return row;
   }
 
-  function renderBetSection(subcolAId, subcolBId, list, horses, combSize, race) {
+  function renderBetSection(subcolAId, subcolBId, list, horses, combSize, race, betType) {
     var rows = (list || []).slice(0, ENTRIES_PER_BET);
     var subA = document.getElementById(subcolAId);
     var subB = document.getElementById(subcolBId);
@@ -115,7 +121,7 @@
     var fragB = document.createDocumentFragment();
     for (var i = 0; i < ENTRIES_PER_BET; i++) {
       var entry = rows[i];
-      var row = buildRow(entry, horses, combSize, race);
+      var row = buildRow(entry, horses, combSize, race, betType);
       if (i < ROWS_PER_SUBCOL) {
         fragA.appendChild(row);
       } else {
@@ -137,10 +143,10 @@
     var trioList     = D.filterScratchedFromPopular(data.trio_popular,     horses, 3);
     var trifectaList = D.filterScratchedFromPopular(data.trifecta_popular, horses, 3);
 
-    renderBetSection('umarenSubcolA',   'umarenSubcolB',   umarenList,   horses, 2, race);
-    renderBetSection('umatanSubcolA',   'umatanSubcolB',   umatanList,   horses, 2, race);
-    renderBetSection('trioSubcolA',     'trioSubcolB',     trioList,     horses, 3, race);
-    renderBetSection('trifectaSubcolA', 'trifectaSubcolB', trifectaList, horses, 3, race);
+    renderBetSection('umarenSubcolA',   'umarenSubcolB',   umarenList,   horses, 2, race, 'quinella');
+    renderBetSection('umatanSubcolA',   'umatanSubcolB',   umatanList,   horses, 2, race, 'exacta');
+    renderBetSection('trioSubcolA',     'trioSubcolB',     trioList,     horses, 3, race, 'trio');
+    renderBetSection('trifectaSubcolA', 'trifectaSubcolB', trifectaList, horses, 3, race, 'trifecta');
   }
 
   function startPolling() {

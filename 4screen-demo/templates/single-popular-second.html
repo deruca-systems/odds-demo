@@ -5,8 +5,8 @@
   <title>人気順16-30 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -78,7 +78,6 @@
     document.getElementById('popular').style.setProperty('--horse-count', horses.length);
     var body = document.getElementById('horseBody');
     var fragment = document.createDocumentFragment();
-    var winCls = D.computeWinClasses(horses);
     horses.forEach(function(h) {
       // 指示書08: 取消馬は row-scratched + 「取消」/「除外」ラベル
       var isScratched = !!h.is_scratched;
@@ -95,15 +94,18 @@
         // 人気順画面は単勝セル幅 6.3rem に収まらないため 2文字の短縮ラベルを使用。
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
       } else {
-        var winClass = winCls[h.horse_no] || '';
-        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', currentOrganizer)));
+        // O-3b: 票が入っていない馬は win_odds が null → '-' / O-3: 配色は桁数ベース
+        row.appendChild(D.el('div', D.oddsClass('race-table__odds-win', h.win_odds, 'win', currentOrganizer), D.fmtOddsOr(h.win_odds, 'win', currentOrganizer)));
       }
       fragment.appendChild(row);
     });
     body.replaceChildren(fragment);
   }
 
-  function renderCombinationList(containerId, list, horses, combSize, offset, limit) {
+  // O-3b (2026-07-29): betType を引数化。従来は 4 賭式すべてに 'exacta' を渡しており、
+  //   3連複・3連単のオッズ上限が 9999.9（馬単の cap）で頭打ちになっていた
+  //   （JSON構造仕様書 v0.6.6 §4.2: NAR 3連複/3連単は 99999.9）。
+  function renderCombinationList(containerId, list, horses, combSize, offset, limit, betType) {
     var body = document.getElementById(containerId);
     var fragment = document.createDocumentFragment();
     var rows = (list || []).slice(offset, offset + limit);
@@ -126,8 +128,12 @@
         }
       }
       row.appendChild(comb);
-      var popular = entry && D.isTopPopular(entry.rank);
-      var odds = D.el('div', 'popular-table__odds' + (popular ? ' odds-popular' : ''), entry ? D.fmtOdds(entry.odds, 'exacta', currentOrganizer) : '0.0');
+      // O-3: rank<=3 の強調を廃し、桁数ベースに統一
+      // O-3b: entry なし（票未着・件数不足）は '0.0' ではなく '-'
+      var oddsCls = entry
+        ? D.oddsClass('popular-table__odds', entry.odds, betType, currentOrganizer)
+        : 'popular-table__odds';
+      var odds = D.el('div', oddsCls, entry ? D.fmtOdds(entry.odds, betType, currentOrganizer) : D.ODDS_EMPTY);
       row.appendChild(odds);
       fragment.appendChild(row);
     }
@@ -148,10 +154,10 @@
     var umatanList   = D.filterScratchedFromPopular(data.umatan_popular,   horses, 2);
     var trioList     = D.filterScratchedFromPopular(data.trio_popular,     horses, 3);
     var trifectaList = D.filterScratchedFromPopular(data.trifecta_popular, horses, 3);
-    renderCombinationList('umarenList',   umarenList,   horses, 2, OFFSET, ROWS_PER_LIST);
-    renderCombinationList('umatanList',   umatanList,   horses, 2, OFFSET, ROWS_PER_LIST);
-    renderCombinationList('trioList',     trioList,     horses, 3, OFFSET, ROWS_PER_LIST);
-    renderCombinationList('trifectaList', trifectaList, horses, 3, OFFSET, ROWS_PER_LIST);
+    renderCombinationList('umarenList',   umarenList,   horses, 2, OFFSET, ROWS_PER_LIST, 'quinella');
+    renderCombinationList('umatanList',   umatanList,   horses, 2, OFFSET, ROWS_PER_LIST, 'exacta');
+    renderCombinationList('trioList',     trioList,     horses, 3, OFFSET, ROWS_PER_LIST, 'trio');
+    renderCombinationList('trifectaList', trifectaList, horses, 3, OFFSET, ROWS_PER_LIST, 'trifecta');
   }
 
   // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。

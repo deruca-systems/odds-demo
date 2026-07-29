@@ -12,8 +12,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260604">
   <!-- L字左袖固有スタイル (.lshape-side / .message.sidebar-only) は dos-overrides.css に集約。 -->
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -72,7 +72,6 @@
     var body = document.getElementById('horseBody');
     var fragment = document.createDocumentFragment();
 
-    var winCls = D.computeWinClasses(horses);
     var organizerType = race && race.organizer_type;
 
     // 枠番でグループ化（出現順を維持）
@@ -103,8 +102,8 @@
           // 取消馬は短縮ラベル（人気順画面と同じ運用）
           row.appendChild(D.el('div', 'message__horse-win race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
         } else {
-          var winClass = winCls[h.horse_no] || '';
-          row.appendChild(D.el('div', 'message__horse-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', organizerType)));
+          // O-3b: 票が入っていない馬は win_odds が null → '-' / O-3: 配色は桁数ベース
+          row.appendChild(D.el('div', D.oddsClass('message__horse-win', h.win_odds, 'win', organizerType), D.fmtOddsOr(h.win_odds, 'win', organizerType)));
         }
         rows.appendChild(row);
       });

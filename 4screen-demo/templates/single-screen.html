@@ -5,8 +5,8 @@
   <title>単勝・複勝・枠連 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -97,6 +97,12 @@
     [1, 6, 7], [2, 5, 8], [3, 4]
   ];
 
+  // O-8 (2026-07-29): 枠連の発売最小頭数。8頭以下は枠連の発売がない。
+  //   prod 実データで裏付け済み: 7/24 全36レースで 8頭以下は frame_odds が全て空、
+  //   9頭以上は全て満件（9頭=29 / 10頭=30 / 12頭=32 / 16頭=36）。
+  //   7/29 も他レースに票が入っている時間帯に園田10R（7頭）だけが空だった。
+  var FRAME_QUINELLA_MIN_HORSES = 9;
+
   function render(data) {
     var race = data.race || {};
     var horses = data.horses || [];
@@ -104,9 +110,6 @@
     lastData = data;
     document.getElementById('screen').style.setProperty('--horse-count', horses.length);
     D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
-
-    var winCls = D.computeWinClasses(horses);
-    var placeCls = D.computePlaceClasses(horses);
 
     var body = document.getElementById('horseBody');
     var horseFragment = document.createDocumentFragment();
@@ -131,15 +134,14 @@
         // grid-column: span 2 で単勝・複勝領域を1セルで占有（dos-overrides.css）。
         row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabel(h.is_scratched)));
       } else {
-        var winClass = winCls[h.horse_no] || '';
-        row.appendChild(D.el('div', 'race-table__odds-win' + (winClass ? ' ' + winClass : ''), D.fmtOdds(h.win_odds, 'win', race.organizer_type)));
-        var pInfo = placeCls[h.horse_no] || {};
-        var place = D.el('div', 'race-table__odds-place');
-        var pMin = D.el('span', pInfo.minPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_min, 'place', race.organizer_type));
-        var pSep = D.el('span', null, '-');
-        var pMax = D.el('span', pInfo.maxPopular ? 'place-popular' : null, D.fmtOdds(h.place_odds_max, 'place', race.organizer_type));
-        place.appendChild(pMin); place.appendChild(pSep); place.appendChild(pMax);
-        row.appendChild(place);
+        // O-3b (2026-07-29): 票が入っていない馬は win_odds / place_odds が null で配信される。
+        //   従来は空欄になっていたため、他画面と同じく '-' を出す。
+        // O-3: 配色は桁数ベース（値なしのときは色を付けない）
+        var org = race.organizer_type;
+        row.appendChild(D.el('div', D.oddsClass('race-table__odds-win', h.win_odds, 'win', org), D.fmtOddsOr(h.win_odds, 'win', org)));
+        // O-3b 追補: 複勝は min - max の 3 span 構成。両方欠損なら '-' 1 個にまとめる
+        row.appendChild(D.fillMinMaxCell(D.el('div', 'race-table__odds-place'),
+          h.place_odds_min, h.place_odds_max, 'place', org));
       }
 
       var weight = D.el('div', 'race-table__weight');
@@ -159,11 +161,15 @@
     // 枠連ブロック
     // 2026-07-15: 枠連発売なし（frame_odds 空＝8頭未満等）のときはブロックごと非表示にする。
     //   従来は枠番 1〜8 のラベルだけが並んで表示されていた（STG 実データ 名古屋3R 7頭で顕在化）。
+    // O-8 (2026-07-29): 発売有無の判定を frame_odds.length から出走頭数へ変更。
+    //   frame_odds.length では「枠連の発売なし（8頭以下）」と「発売前で1票も入っていない」を
+    //   区別できず、発売前の 9頭以上レースでもブロックごと消えていた（門別・川崎で確認）。
     var frameOddsData = data.frame_odds || [];
+    var urenAvailable = horses.length >= FRAME_QUINELLA_MIN_HORSES;
     var urenWrap = document.getElementById('frame-uren');
     if (urenWrap) {
       // frameOddsPage（枠連↔枠単ローテ）ハンドラが display を上書きするため、発売有無を保持
-      urenWrap.dataset.frameOddsAvailable = frameOddsData.length ? '1' : '0';
+      urenWrap.dataset.frameOddsAvailable = urenAvailable ? '1' : '0';
     }
     // 2026-07-22: ここで枠連を無条件に表示へ戻していたため、枠単の表示中に再描画が走ると
     //   枠連が復活して両ブロックが同時に並び、枠単が画面外へ押し出されていた
@@ -172,22 +178,41 @@
     applyFramePage();
     var frameOddsMap = {};
     frameOddsData.forEach(function(e) { frameOddsMap[e.frame_a + '-' + e.frame_b] = e; });
-    var popularKeys = D.computeFramePopular(frameOddsData);
+
+    // O-8: 行の生成は horses[] の枠構成から決める（frame_odds の有無では決めない）。
+    //   票が入っていない組合せは配信 JSON に要素ごと存在しないため、従来はその行が
+    //   消えて下の組合せが繰り上がっていた（NRS 助田様・NAR 瀧本様からの問合せ
+    //   2026-07-27、園田1R の 1-6 / 1-7）。
+    //   枠の頭数は取消馬も含めた全馬で数える。prod 実データ（7/29 名古屋2R、枠7の
+    //   1頭が取消）でも同枠組合せ 7-7 が配信されており、バッチ側も全馬基準のため。
+    var frameCount = {};
+    horses.forEach(function(h) {
+      var f = h.frame_no;
+      if (f >= 1 && f <= 8) frameCount[f] = (frameCount[f] || 0) + 1;
+    });
 
     var foBody = document.getElementById('frameOddsBody');
     var foFragment = document.createDocumentFragment();
-    FRAME_LAYOUT.forEach(function(col) {
+    // 発売なし（8頭以下）のときはブロックごと非表示なので中身も作らない
+    if (urenAvailable) FRAME_LAYOUT.forEach(function(col) {
       var colEl = D.el('div', 'frame-odds__col');
       col.forEach(function(frameA) {
         var block = D.el('div', 'frame-odds__block ' + D.frameClassOf(frameA, 'block'));
         block.appendChild(D.el('div', 'frame-odds__label', frameA));
         for (var frameB = frameA; frameB <= 8; frameB++) {
+          // 出走馬のいない枠は組合せ自体が存在しない（JSON構造仕様書 v0.6.6 §4.6）
+          if (!frameCount[frameA] || !frameCount[frameB]) continue;
+          // 同枠組合せはその枠が2頭以上のときのみ（同 §4.6）
+          if (frameA === frameB && frameCount[frameA] < 2) continue;
           var entry = frameOddsMap[frameA + '-' + frameB];
-          if (!entry) continue;
           var item = D.el('div', 'frame-odds__item');
           item.appendChild(D.el('div', 'frame-odds__number', frameB));
-          var valCls = 'frame-odds__value' + (popularKeys[frameA + '-' + frameB] ? ' value-popular' : '');
-          item.appendChild(D.el('div', valCls, D.fmtOdds(entry.odds, 'frame_quinella', race.organizer_type)));
+          // O-3: 配色は桁数ベース / O-3b: 未着の組合せは行を残して '-'
+          var valCls = entry
+            ? D.oddsClass('frame-odds__value', entry.odds, 'frame_quinella', race.organizer_type)
+            : 'frame-odds__value';
+          item.appendChild(D.el('div', valCls,
+            entry ? D.fmtOddsOr(entry.odds, 'frame_quinella', race.organizer_type) : D.ODDS_EMPTY));
           block.appendChild(item);
         }
         colEl.appendChild(block);

@@ -12,8 +12,8 @@
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -40,19 +40,44 @@
   };
   var GENRYO_ICON = { '★':'fill-star', '▲':'fill-triangle', '△':'triangle', '☆':'star', '◇':'diamond' };
 
-  // 凡例（§8.8 / §8.5.1。各 .six-race ブロックの下部に配置）
-  var LEGEND_HTML = ''
-    + '<div class="six-race__legend"><div class="six-race__legend-inner">'
+  // O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定)
+  //   減量記号の凡例は「ばんえい（帯広）のときだけ」出す。
+  //   ばんえい時に出すのは、従来カッコ書きだった 2 記号（△20Kg減 / ☆10Kg減）のみ。
+  //   通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は出さない。
+  //   非ばんえい時は中身を空にするだけで、外側の .six-race__legend は残す
+  //   （幅・高さを占有しており display:none にするとブロックのレイアウトがずれるため）。
+  //
+  //   判定単位はブロック（6 列＝1 場）。ブロック内に 1 件でもばんえいがあれば出す。
+  //   4K で 2 場並ぶとき、帯広のブロックにだけ凡例が出る。
+  //   ブロック構築時点ではデータ未取得のため、まず空で挿入し、各列の描画後に
+  //   renderLegends() が中身を流し込む。
+  var LEGEND_HTML = '<div class="six-race__legend"><div class="six-race__legend-inner"></div></div>';
+
+  var BANEI_LEGEND_INNER = ''
     + '<div class="six-race__legend-item">騎手に付く記号</div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/fill-star.svg" alt=""><span class="six-race__legend-text"><span>4Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/fill-triangle.svg" alt=""><span class="six-race__legend-text"><span>3Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/triangle.svg" alt=""><span class="six-race__legend-text"><span>2Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/diamond.svg" alt=""><span class="six-race__legend-text"><span>2Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/star.svg" alt=""><span class="six-race__legend-text"><span>1Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item">（ばんえいは</div>'
     + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/triangle.svg" alt=""><span class="six-race__legend-text"><span>20Kg</span>減</span></div>'
-    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/star.svg" alt=""><span class="six-race__legend-text"><span>10Kg</span>減）</span></div>'
-    + '</div></div>';
+    + '<div class="six-race__legend-item"><img class="six-race__legend-icon" src="../assets/images/info/star.svg" alt=""><span class="six-race__legend-text"><span>10Kg</span>減</span></div>';
+
+  // 列インデックス → ばんえいか。COLS_PER_BLOCK ごとにブロックへ集約する。
+  var colIsBanei = [];
+
+  function setColBanei(idx, data) {
+    colIsBanei[idx] = isBanei(data || {});
+    renderLegends();
+  }
+
+  function renderLegends() {
+    var blocks = document.querySelectorAll('.six-race');
+    for (var b = 0; b < blocks.length; b++) {
+      var inner = blocks[b].querySelector('.six-race__legend-inner');
+      if (!inner) continue;
+      var show = false;
+      for (var c = 0; c < COLS_PER_BLOCK; c++) {
+        if (colIsBanei[b * COLS_PER_BLOCK + c]) { show = true; break; }
+      }
+      inner.innerHTML = show ? BANEI_LEGEND_INNER : '';
+    }
+  }
 
   function esc(s) { return String(s == null ? '' : s); }
   function nameLen(s) { return (s || '').length; }
@@ -224,6 +249,7 @@
   function colEl(idx) { return document.querySelector('[data-col-idx="' + idx + '"]'); }
   function renderResultsMode(idx, data) {
     var col = colEl(idx); if (!col) return;
+    setColBanei(idx, data);
     if (data.odds_status === 2 || data.odds_status === 3) {
       col.innerHTML = buildHeader(data, 'results') + buildCancelled(data); return;
     }
@@ -235,11 +261,14 @@
   function renderEntriesMode(idx, data) {
     var col = colEl(idx); if (!col) return;
     var race = data.race || {};
+    setColBanei(idx, race);
     if (race.odds_status === 2 || race.odds_status === 3) {
       col.innerHTML = buildHeader(race, 'entries') + buildCancelled(race); return;
     }
     var horses = data.horses || [];
-    if (horses.length) col.style.setProperty('--horse-count', horses.length);
+    // O-1 (2026-07-28): 従来は `if (horses.length)` ガードで、horses が空のとき
+    //   前レースの --horse-count が残っていた。既定 10（ブレイクポイント）に落とす。
+    col.style.setProperty('--horse-count', horses.length || 10);
     col.innerHTML = buildHeader(race, 'entries')
       + '<div class="six-race__body">' + buildHorseTable(horses) + '</div>';
   }
@@ -250,6 +279,7 @@
   function buildBlocks(raceCount) {
     var wrapper = document.getElementById('wrapper');
     wrapper.innerHTML = '';
+    colIsBanei = [];   // O-4/O-5: ブロック再構築で前回の判定を捨てる
     var blocks = Math.min(MAX_BLOCKS, Math.max(1, Math.ceil(raceCount / COLS_PER_BLOCK)));
     var idx = 0;
     for (var b = 0; b < blocks; b++) {

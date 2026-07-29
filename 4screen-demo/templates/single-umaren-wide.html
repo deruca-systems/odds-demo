@@ -5,8 +5,8 @@
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260716b">
-  <script src="../assets/js/common.js?v=20260722d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
+  <script src="../assets/js/common.js?v=20260729e"></script>
 </head>
 <body>
 
@@ -128,14 +128,16 @@
       }
 
       var umaren = getPairOdds(umarenMap, axisHorse.horse_no, opp);
-      var umarenCls = 'race-table__umaren' + (umaren && D.isUmarenUnpopular(umaren.odds) ? ' unpopular' : '');
-      row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOdds(umaren.odds, 'quinella', currentOrganizer) : '-'));
+      // O-3: 配色は桁数ベース（従来の odds>=1000 しきい値は廃止）
+      var umarenCls = umaren
+        ? D.oddsClass('race-table__umaren', umaren.odds, 'quinella', currentOrganizer)
+        : 'race-table__umaren';
+      row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOddsOr(umaren.odds, 'quinella', currentOrganizer) : D.ODDS_EMPTY));
 
       var wideCell = D.el('div', 'race-table__wide');
       var wide = getPairOdds(wideMap, axisHorse.horse_no, opp);
-      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.min, 'wide', currentOrganizer) : '-'));
-      wideCell.appendChild(D.el('span', null, '-'));
-      wideCell.appendChild(D.el('span', null, wide ? D.fmtOdds(wide.max, 'wide', currentOrganizer) : '-'));
+      // O-3b 追補: ワイドも min - max の 3 span 構成。両方欠損なら '-' 1 個にまとめる
+      D.fillMinMaxCell(wideCell, wide ? wide.min : null, wide ? wide.max : null, 'wide', currentOrganizer);
       row.appendChild(wideCell);
 
       return row;
