@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
-  <script src="../assets/js/common.js?v=20260729e"></script>
+  <script src="../assets/js/common.js?v=20260729g"></script>
 </head>
 <body>
 
@@ -200,10 +200,15 @@
         var block = D.el('div', 'frame-odds__block ' + D.frameClassOf(frameA, 'block'));
         block.appendChild(D.el('div', 'frame-odds__label', frameA));
         for (var frameB = frameA; frameB <= 8; frameB++) {
-          // 出走馬のいない枠は組合せ自体が存在しない（JSON構造仕様書 v0.6.6 §4.6）
+          // 出走馬のいない枠は組合せ自体が存在しない（JSON構造仕様書 §4.6）
           if (!frameCount[frameA] || !frameCount[frameB]) continue;
-          // 同枠組合せはその枠が2頭以上のときのみ（同 §4.6）
-          if (frameA === frameB && frameCount[frameA] < 2) continue;
+          // O-8b (2026-07-29 及川決定): 同枠が成立しない枠（その枠が1頭）でも行は出す。
+          //   NAR 公式のオッズページは 8枠×8枠の三角マトリクスを常に固定表示し、
+          //   成立しない同枠（1-1〜4-4 等）を「-」で埋める。NRS・NAR 様が公式サイトと
+          //   見比べるため表示規約を揃える。枠連発売レースは必ず 8 枠すべてに馬がいる
+          //   （9頭以上・鳩の巣原理）ので、常に 36 行固定になりレイアウトも安定する。
+          //   配信 JSON 側は §4.6 どおり同枠2頭未満の要素を出さないため、ここは
+          //   entry なし＝「-」として扱われる。
           var entry = frameOddsMap[frameA + '-' + frameB];
           var item = D.el('div', 'frame-odds__item');
           item.appendChild(D.el('div', 'frame-odds__number', frameB));

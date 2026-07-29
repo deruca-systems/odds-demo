@@ -277,11 +277,19 @@ function fillMinMaxCell(cellEl, min, max, betType, organizer) {
   return cellEl;
 }
 
-// O-2 (2026-07-28 芥川様打合せ AI#7): 性齢の性別表記。
-//   JSON の sex は 牡/牝/セ（JSON構造仕様書 v0.6.6 §4.4、DB crc.sex 由来）。
+// O-2 (2026-07-28 芥川様打合せ AI#7 / 2026-07-29 及川決定): 性齢の性別表記。
+//   JSON の sex は 牡/牝/セ（JSON構造仕様書 §4.4、DB crc.sex 由来）。
 //   お披露目会で「セ」は表示に不適との指摘があり、表示側で置換する
 //   （データ契約・内山様バッチには手を入れない）。
-var SEX_LABEL = { 'セ': '騙' };
+//
+//   表記は **半角カナ「ｾﾝ」**。NAR 公式（Let's 地方競馬の出馬表）が「セン」表記のため
+//   それに合わせつつ、全角「セン」は列幅 3rem に収まらないため半角を採る。
+//   実測（列幅 3rem = 39px / 1.2rem = 16px / Yu Gothic UI）:
+//     騙        … 1桁 27px / 2桁 34px  → 1行
+//     ｾﾝ(半角)  … 1桁 27px / 2桁 35px  → 1行   ← 採用
+//     セン(全角)… 1桁 37px / 2桁 39px  → **2桁で折り返す**
+//   地方競馬は 10 歳以上の出走があるため、2桁で折り返さないことが採否の条件。
+var SEX_LABEL = { 'セ': 'ｾﾝ' };
 
 function fmtSex(sex) {
   return SEX_LABEL[sex] || sex || '';

@@ -21,7 +21,7 @@
 │   └ entries-results-*.html  出走成績（3R/6R、screen8 6/6版準拠）
 ├ assets/css/
 │   ├ style.css              ← 芥川様アセット。改変禁止（PreToolUse hook でブロックされる）
-│   └ demo-helpers.css       ← デモ専用ヘルパー。独自追加はすべてここへ
+│   └ dos-overrides.css      ← デモ専用ヘルパー。独自追加はすべてここへ
 ├ assets/js/common.js        ← ポーリング・時刻補正・色判定・取消馬対応の共通基盤
 ├ schedules/ odds/ results/ changes/ ← 日付フォルダ配下の JSON
 └ _tools/gen_data.py         ← データ再生成（NOW 基準で post_time を配置）
@@ -29,7 +29,7 @@
 
 ## 必須遵守事項
 
-1. **`assets/css/style.css` は改変禁止**。独自追加は `demo-helpers.css` に書く（芥川様の正式対応で削除する前提）
+1. **`assets/css/style.css` は改変禁止**。独自追加は `dos-overrides.css` に書く（芥川様の正式対応で削除する前提）
 2. **`px` 使用禁止**：`rem` 基準、`vw`/`vh`/`%` のみ（システム組み込み申し送り仕様書 §4 準拠）。iframe 内の vw/vh は iframe 自身基準（親ウィンドウ基準ではない）
 3. **インライン style はカスタムプロパティ注入のみ**：`--horse-count` / `--row-count` / `grid-row` 等。色はクラス付与で、hex/rgb 直接注入禁止。例外：`single-screen.html` の `style="display:none;"`（frame ローテ機構の初期状態、意図的）
 4. **フォント**：日本語 Yu Gothic UI、英数 Segoe UI（クラス側で指定済、上書きしない）
