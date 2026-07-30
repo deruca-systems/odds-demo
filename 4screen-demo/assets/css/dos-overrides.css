@@ -630,3 +630,32 @@ html.screen-4k .six-race__horse-table {
 .race-container .race-screen .race-table[data-col3="win"] .race-table__head .col3-sex {
   display: none;
 }
+
+/* 2026-07-30: 前日発売の参照先が存在しないときの案内（山内様 実機検証 #2 / 及川決定 案B）。
+ * index.html が target_date_offset>=1 で参照先を翌日パスへ書き換えた結果、
+ * その場が翌日に開催しないと 404 になる。誤って当日オッズを「前日発売」として
+ * 出すよりは空が正しいが、理由が伝わらないため案内を重ねる。
+ * 本筋は CRM 側のバリデーション（翌日開催の無い場は表示日=翌日で保存不可）。 */
+.dos-prevday-unavailable {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b1020;
+  color: #dfe6f3;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 4%;
+}
+
+/* 2026-07-30: 変更情報の出走取消・競走除外行からバッジを外したことに伴う列定義の是正。
+ * style.css は 4 列（R / バッジ 3.5rem / 馬番 2.4rem / 馬名 auto）を前提にしており、
+ * バッジを削ると馬名が馬番用の 2.4rem 枠に入って overflow:hidden で切れていた。
+ * 騎手変更行（.race-board__row--jockey）と同じ 3 列構成に揃える。 */
+.race-board__row--entry {
+  grid-template-columns: 1.9rem 2.4rem auto;
+}

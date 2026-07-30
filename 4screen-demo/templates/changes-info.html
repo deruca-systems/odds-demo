@@ -7,8 +7,8 @@
   <!-- changes-info-phase6 (2026-04-30): race-board DOM を screen6.html 準拠に書き換え。
        インライン style 廃止、race-board*/race-board__col--{color} クラス使用。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260729g">
-  <script src="../assets/js/common.js?v=20260729g"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260730f">
+  <script src="../assets/js/common.js?v=20260730f"></script>
 </head>
 <body>
 
@@ -17,17 +17,6 @@
     <!-- col 0 -->
     <div class="race-board__col race-board__col--blue" data-col-idx="0">
       <div class="race-board__track" id="col0-track">---</div>
-      <section class="race-board__panel">
-        <div class="race-board__panel-head">
-          <div class="race-board__panel-title-row">
-            <h2 class="race-board__panel-title">発走時刻変更</h2>
-          </div>
-          <div class="race-board__panel-page"><span id="col0-time-page"></span></div>
-        </div>
-        <div class="race-board__panel-body body-none" id="col0-time-body">
-          <span>変更情報はありません</span>
-        </div>
-      </section>
       <section class="race-board__panel">
         <div class="race-board__panel-head">
           <div class="race-board__panel-title-row">
@@ -50,22 +39,22 @@
           <span>変更情報はありません</span>
         </div>
       </section>
-    </div>
-
-    <!-- col 1 -->
-    <div class="race-board__col race-board__col--orange" data-col-idx="1">
-      <div class="race-board__track" id="col1-track">---</div>
       <section class="race-board__panel">
         <div class="race-board__panel-head">
           <div class="race-board__panel-title-row">
             <h2 class="race-board__panel-title">発走時刻変更</h2>
           </div>
-          <div class="race-board__panel-page"><span id="col1-time-page"></span></div>
+          <div class="race-board__panel-page"><span id="col0-time-page"></span></div>
         </div>
-        <div class="race-board__panel-body body-none" id="col1-time-body">
+        <div class="race-board__panel-body body-none" id="col0-time-body">
           <span>変更情報はありません</span>
         </div>
       </section>
+    </div>
+
+    <!-- col 1 -->
+    <div class="race-board__col race-board__col--orange" data-col-idx="1">
+      <div class="race-board__track" id="col1-track">---</div>
       <section class="race-board__panel">
         <div class="race-board__panel-head">
           <div class="race-board__panel-title-row">
@@ -88,22 +77,22 @@
           <span>変更情報はありません</span>
         </div>
       </section>
-    </div>
-
-    <!-- col 2 -->
-    <div class="race-board__col race-board__col--green" data-col-idx="2">
-      <div class="race-board__track" id="col2-track">---</div>
       <section class="race-board__panel">
         <div class="race-board__panel-head">
           <div class="race-board__panel-title-row">
             <h2 class="race-board__panel-title">発走時刻変更</h2>
           </div>
-          <div class="race-board__panel-page"><span id="col2-time-page"></span></div>
+          <div class="race-board__panel-page"><span id="col1-time-page"></span></div>
         </div>
-        <div class="race-board__panel-body body-none" id="col2-time-body">
+        <div class="race-board__panel-body body-none" id="col1-time-body">
           <span>変更情報はありません</span>
         </div>
       </section>
+    </div>
+
+    <!-- col 2 -->
+    <div class="race-board__col race-board__col--green" data-col-idx="2">
+      <div class="race-board__track" id="col2-track">---</div>
       <section class="race-board__panel">
         <div class="race-board__panel-head">
           <div class="race-board__panel-title-row">
@@ -123,6 +112,17 @@
           <div class="race-board__panel-page"><span id="col2-jockey-page"></span></div>
         </div>
         <div class="race-board__panel-body body-none" id="col2-jockey-body">
+          <span>変更情報はありません</span>
+        </div>
+      </section>
+      <section class="race-board__panel">
+        <div class="race-board__panel-head">
+          <div class="race-board__panel-title-row">
+            <h2 class="race-board__panel-title">発走時刻変更</h2>
+          </div>
+          <div class="race-board__panel-page"><span id="col2-time-page"></span></div>
+        </div>
+        <div class="race-board__panel-body body-none" id="col2-time-body">
           <span>変更情報はありません</span>
         </div>
       </section>
@@ -154,7 +154,10 @@
   var PAGE_INTERVAL_MS = 8000;
 
   // pageState[colIdx][section] = { items: [], buildRow: fn }
-  var SECTIONS = ['time', 'scratch', 'jockey'];
+  // 2026-07-30: パネルの並び順（お披露目会FB・及川決定）。
+  //   発走時刻変更は優先度が低いため 3 段目へ下げ、取消・除外 → 騎手変更 の順にした。
+  //   HTML 側のパネル並び順もこの配列と一致させること。
+  var SECTIONS = ['scratch', 'jockey', 'time'];
   var pageState = [0, 1, 2].map(function() {
     var s = {};
     SECTIONS.forEach(function(k) { s[k] = { items: [], buildRow: null }; });
@@ -236,12 +239,12 @@
   }
 
   // 出走取消・競走除外行
+  // 2026-07-30: 「取消」「除外」のバッジを廃止（お披露目会FB・及川決定）。
+  //   パネル見出しが「出走取消・競走除外」なので、行ごとの区別は付けない。
+  //   ※ 区別が必要になった場合は chg_type（2=取消 / 3=除外）から復元できる。
   function buildScratchRow(c) {
-    var badgeCls = c.chg_type === 2 ? 'race-board__badge--cancel' : 'race-board__badge--exclude';
-    var badgeTxt = c.chg_type === 2 ? '取消' : '除外';
     return '<div class="race-board__row race-board__row--entry">'
          +   '<span class="race-board__race">' + (c.rr || '-') + 'R</span>'
-         +   '<span class="race-board__badge ' + badgeCls + '">' + badgeTxt + '</span>'
          +   '<span class="race-board__horse-num">' + (c.horse_no != null ? c.horse_no : '-') + '</span>'
          +   '<span class="race-board__horse-name">' + (c.horse_name || '') + '</span>'
          + '</div>';
@@ -252,8 +255,17 @@
     var det    = c.detail || {};
     var oldJ   = det.org_jockey_nm  || '-';
     var newJ   = det.new_jockey_nm  || '未定';
-    var oldFwt = det.org_fwt != null ? ' ' + Number(det.org_fwt).toFixed(1) + 'kg' : '';
-    var newFwt = det.new_fwt != null ? ' ' + Number(det.new_fwt).toFixed(1) + 'kg' : '';
+    // 2026-07-30: 出走表と表記を揃える（及川決定）。JSON の fwt は基本斤量（減量前）なので
+    //   減量記号ぶんを差し引いた実負担重量を出す（山内様 実機検証 #1 と同じ扱い）。
+    //   これを入れる前は、出走表が 51.0kg（54 − ▲3）を出す騎手を変更情報は 54.0kg と
+    //   表示しており、同一騎手で 2 画面の数字が食い違っていた。
+    function fwtText(fwt, gen) {
+      if (fwt == null) return '';
+      var v = D.effectiveFwt({ fwt: fwt, genryokigo: gen || null });
+      return v == null ? '' : ' ' + Number(v).toFixed(1) + 'kg';
+    }
+    var oldFwt = fwtText(det.org_fwt, det.org_genryokigo);
+    var newFwt = fwtText(det.new_fwt, det.new_genryokigo);
     var oldGen = det.org_genryokigo || '';
     var newGen = det.new_genryokigo || '';
     return '<div class="race-board__row race-board__row--jockey">'
@@ -267,7 +279,7 @@
          + '</div>';
   }
 
-  function renderColumn(colIdx, data) {
+  function renderColumn(colIdx, data, raceNoList) {
     // トラック名
     var trackEl = document.getElementById('col' + colIdx + '-track');
     if (trackEl) {
@@ -277,6 +289,11 @@
     }
 
     var changes = (data && data.changes) || [];
+    // 2026-07-30: 売場別発売設定の対象レースだけを残す（及川決定）。
+    //   target_race_no_list が null/未指定なら全レース（§3.13 の規約と同じ）。
+    if (raceNoList && raceNoList.length) {
+      changes = changes.filter(function(c) { return raceNoList.indexOf(c.rr) >= 0; });
+    }
     var buckets = { time: [], scratch: [], jockey: [] };
     changes.forEach(function(c) {
       if      (c.chg_type === 4)                   buckets.time.push(c);
@@ -296,27 +313,74 @@
     renderAll();
   }
 
-  var urls = [null, null, null];
+  // 2026-07-30: 売場が発売する全場を対象にし、3 場ずつ巡回表示する（及川決定）。
+  //   allColumns … 親から受け取った全場（venue_filters 由来。モニターの競馬場に依存しない）
+  //   colPage    … 3 場ぶんのページ番号
+  var allColumns = [];
+  var colPage = 0;
+  var COL_PAGE_INTERVAL_MS = 24000;   // 行ページング(8秒)の 3 倍。1 ページぶん行が一巡してから送る
 
-  async function pollColumn(colIdx) {
-    var url = urls[colIdx];
-    if (!url) return;
+  function colTotalPages() {
+    return Math.max(1, Math.ceil(allColumns.length / 3));
+  }
+
+  function visibleColumns() {
+    var p = colPage % colTotalPages();
+    return allColumns.slice(p * 3, p * 3 + 3);
+  }
+
+  async function pollColumn(slotIdx) {
+    var col = visibleColumns()[slotIdx];
+    if (!col || !col.url) return;
     try {
-      var res = await D.fetchWithOffset(url);
-      if (res && res.data) renderColumn(colIdx, res.data);
+      var res = await D.fetchWithOffset(col.url);
+      if (res && res.data) renderColumn(slotIdx, res.data, col.race_no_list);
     } catch (_) {}
   }
 
+  // 2026-07-30: 発売場が 3 未満のとき、余った列を消す（お披露目会FB・及川決定）。
+  //   従来は場名が「---」のまま 3 パネルが「変更情報はありません」で並び、
+  //   1 場しか発売しない売場では 2/3 が無意味な空欄になっていた（山内様 実機検証 #6）。
+  function applyColumnVisibility() {
+    var vis = visibleColumns();
+    [0, 1, 2].forEach(function(i) {
+      var col = document.querySelector('.race-board__col[data-col-idx="' + i + '"]');
+      if (col) col.style.display = vis[i] ? '' : 'none';
+    });
+  }
+
+  // 表示中の 3 場を差し替える。行ページは先頭に戻す（場が変わったのに 2/3 ページ目から
+  //   始まると読み手が追えないため）。
+  function refreshVisibleColumns() {
+    applyColumnVisibility();
+    globalPage = 0;
+    [0, 1, 2].forEach(function(i) { pollColumn(i); });
+  }
+
+  // 親は定期ポーリングのたびに同じ payload を再送する。毎回 colPage を 0 に戻すと
+  //   場のページ送りが永久に進まないため、列構成が変わったときだけリセットする。
+  var columnsSig = '';
+
   window.addEventListener('message', function(e) {
     if (!e.data || e.data.type !== 'setChangesInfo') return;
-    var cols = e.data.columns || [];
-    urls = cols.slice(0, 3).map(function(c) { return c.url; });
-    while (urls.length < 3) urls.push(null);
-    urls.forEach(function(_, i) { pollColumn(i); });
+    var cols = (e.data.columns || []).filter(function(c) { return c && c.url; });
+    var sig = cols.map(function(c) { return c.url; }).join('|');
+    if (sig === columnsSig) return;   // 変化なし＝ページ送りの状態を保つ
+    columnsSig = sig;
+    allColumns = cols;
+    colPage = 0;
+    refreshVisibleColumns();
   });
 
+  // 場のページ送り（4 場以上のときだけ動く）
   setInterval(function() {
-    urls.forEach(function(_, i) { if (urls[i]) pollColumn(i); });
+    if (colTotalPages() <= 1) return;
+    colPage++;
+    refreshVisibleColumns();
+  }, COL_PAGE_INTERVAL_MS);
+
+  setInterval(function() {
+    [0, 1, 2].forEach(function(i) { pollColumn(i); });
   }, POLL_INTERVAL_MS);
 })();
 </script>

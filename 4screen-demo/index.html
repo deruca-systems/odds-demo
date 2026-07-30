@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260729g"></script>
+<script src="assets/js/common.js?v=20260730f"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -480,7 +480,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260729g');
+    params.set('v', '20260730f');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -555,6 +555,20 @@
   // 2026-06-29: venue_filters（§3.13）で発売対象外レースを除外する。
   //   venue_filters 省略/空配列 → 全発売（races そのまま）。
   //   リストに無い開催場のレース → 除外（その売場では売らない）。
+  // 2026-07-30: data_source のパス中の {YYYYMMDD} を offset 日ぶん進める（§3.5.4 前日発売）。
+  //   例: odds/20260730/NAR_21_01.json + offset 1 → odds/20260731/NAR_21_01.json
+  //   日付が見つからない/offset が 0 のときは元の値をそのまま返す。
+  function shiftDataSourceDate(dataSource, offset) {
+    if (!dataSource || !offset) return dataSource;
+    return dataSource.replace(/\/(\d{8})\//, function(_m, ymd) {
+      var d = new Date(+ymd.slice(0, 4), +ymd.slice(4, 6) - 1, +ymd.slice(6, 8));
+      if (isNaN(d.getTime())) return _m;
+      d.setDate(d.getDate() + offset);
+      var pad = function(n) { return (n < 10 ? '0' : '') + n; };
+      return '/' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '/';
+    });
+  }
+
   function applyVenueFilters(races, venueFilters) {
     if (!venueFilters || !venueFilters.length) return races;
     return races.filter(function(race) {
@@ -596,6 +610,21 @@
        && rawRaces.length && !filteredRaces.length) {
         console.warn('[venue_filters] ' + canonicalPos + ' の発売対象レースが皆無 → 画面スキップ（§3.13.4）');
       }
+      // 2026-07-30: 前日発売（§3.5.4）の参照先を offset 日ぶんずらす（山内様 実機検証 #2）。
+      //   バッチは target_date_offset>=1 でも data_source に「当日」パスを出力する
+      //   （2026-07-30 STG 実測。旭川 TV2: offset=1 でも odds/20260730/... のまま）。
+      //   従来フロントは offset を「前日発売」ラベルにしか使っておらず、参照先が当日の
+      //   ままだったため「当日のレースが前日発売と表示される」状態になっていた。
+      //   ここで races[].data_source を書き換え、以降の全消費側（オッズ画面・出走成績・
+      //   変更情報）に一括で効かせる。
+      if (targetDateOffset >= 1) {
+        filteredRaces = filteredRaces.map(function(race) {
+          var copy = {};
+          for (var k in race) { if (race.hasOwnProperty(k)) copy[k] = race[k]; }
+          copy.data_source = shiftDataSourceDate(race.data_source, targetDateOffset);
+          return copy;
+        });
+      }
       var state = {
         position: canonicalPos,
         template: resolvedTemplate,
@@ -607,6 +636,12 @@
         entriesPageIndex: 0,
         entriesPageTick: 0,
         races: filteredRaces,
+        // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
+        //   売場別発売設定の発売場をすべてカバーする（及川決定）。
+        //   CRM は 1 画面 1 場所のモデルで、画面選択2〜4 に別の場を入れても
+        //   スケジュール JSON には反映されない（2026-07-30 STG 実測）。
+        //   そのため screen.races[] ではなく venue_filters から列を組み立てる。
+        venue_filters: venueFilters || [],
         target_race_no: targetRaceNo,
         target_date_offset: targetDateOffset,
         currentRaceIndex: -1,
@@ -803,23 +838,61 @@
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig');
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(races) {
-        return function() { sendChangesInfoPayload(iframe, races); };
-      })(state.races);
+      iframe.onload = (function(st) {
+        return function() { sendChangesInfoPayload(iframe, st); };
+      })(state);
     } else {
-      sendChangesInfoPayload(iframe, state.races);
+      sendChangesInfoPayload(iframe, state);
     }
   }
 
-  function sendChangesInfoPayload(iframe, races) {
+  // 2026-07-30: 変更情報の列を venue_filters（§3.13）から組み立てる（及川決定）。
+  //   ・モニターに設定した競馬場には左右されない
+  //   ・売場が発売する全場を対象にする（3 場を超える場合は子側でページング）
+  //   ・対象レースも売場別発売設定に従う（target_race_no_list を子へ渡して絞り込む）
+  //   target_date_offset>=1 の行は前日発売用の重複エントリなので当日分だけを使う。
+  //   パス規約は JSON 構造仕様書 §1.5（changes/{YYYYMMDD}/{organizer_type}_{place_cd}.json）。
+  function changesColumnsOf(state) {
+    var seen = {};
+    return (state.venue_filters || []).filter(function(vf) {
+      if (vf.target_date_offset) return false;
+      var k = vf.organizer_type + '_' + vf.place_cd;
+      if (seen[k]) return false;
+      seen[k] = true;
+      return true;
+    }).map(function(vf) {
+      return {
+        race_id: vf.organizer_type + '_' + vf.place_cd,
+        race_key: vf.place_cd,
+        race_no_list: vf.target_race_no_list || null,
+        url: DERUCA_CONFIG.resolveDataSource(
+          'changes/' + DISPLAY_DATE + '/' + vf.organizer_type + '_' + vf.place_cd + '.json')
+      };
+    });
+  }
+
+  function sendChangesInfoPayload(iframe, state) {
     try {
-      iframe.contentWindow.postMessage({
-        type: 'setChangesInfo',
-        columns: (races || []).slice(0, 3).map(function(race) {
+      var cols = changesColumnsOf(state);
+      // venue_filters が空の売場では従来どおり races[] を使う（後方互換）
+      if (!cols.length) {
+        cols = (state.races || []).map(function(race) {
           return {
             race_id: race.race_id,
             race_key: race.race_key,
+            race_no_list: null,
             url: DERUCA_CONFIG.resolveDataSource(race.data_source)
+          };
+        });
+      }
+      iframe.contentWindow.postMessage({
+        type: 'setChangesInfo',
+        columns: cols.map(function(c) {
+          return {
+            race_id: c.race_id,
+            race_key: c.race_key,
+            race_no_list: c.race_no_list,
+            url: c.url
           };
         })
       }, '*');

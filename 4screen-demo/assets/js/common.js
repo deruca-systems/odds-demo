@@ -729,6 +729,28 @@ async function fetchWithOffset(url, timeoutMs) {
 //   name:          string                    ログ識別用
 // 戻り値: { stop(), getStatus() }
 
+// 2026-07-30: 前日発売の参照先が存在しないときの案内（山内様 実機検証 #2 / 及川決定）。
+//   index.html が target_date_offset>=1 のとき data_source を翌日パスへ書き換えるが、
+//   その場が翌日に開催しない場合は参照先 JSON が存在せず 404 になる。
+//   誤って当日オッズを「前日発売」として出すよりは空にするのが正しいが、
+//   理由が分からないため案内を重ねる。本筋は CRM 側で「翌日開催の無い場は
+//   表示日=翌日で保存できない」バリデーションを入れること（堀井様領域）。
+//   ※ 親 index.html は setSaleContext を受け取らず offset=0 のままなので発火しない。
+var _prevDayNoticeEl = null;
+function setPrevDaySaleUnavailable(on) {
+  if (on) {
+    if (_prevDayNoticeEl) return;
+    var d = document.createElement('div');
+    d.className = 'dos-prevday-unavailable';
+    d.textContent = '本日の前日発売はありません';
+    document.body.appendChild(d);
+    _prevDayNoticeEl = d;
+  } else if (_prevDayNoticeEl) {
+    if (_prevDayNoticeEl.parentNode) _prevDayNoticeEl.parentNode.removeChild(_prevDayNoticeEl);
+    _prevDayNoticeEl = null;
+  }
+}
+
 function startResilientPolling(opts) {
   var baseMs = opts.baseIntervalMs;
   var maxMult = opts.maxMultiplier || 12;
@@ -755,6 +777,7 @@ function startResilientPolling(opts) {
       var result = await opts.fetch();
       failCount = 0;
       lastSuccessTime = Date.now();
+      setPrevDaySaleUnavailable(false);
       try { opts.onSuccess(result); } catch (renderErr) {
         console.error('[' + name + '] onSuccess error:', renderErr);
       }
@@ -763,6 +786,10 @@ function startResilientPolling(opts) {
       lastErrorMessage = err && err.message ? err.message : String(err);
       lastErrorTime = Date.now();
       console.error('[' + name + '] poll error (count=' + failCount + '):', err);
+      // 前日発売セルで参照先が無い（404）＝翌日にその場の開催が無いケース
+      if (_saleContext.target_date_offset >= 1 && /HTTP 40[34]/.test(lastErrorMessage)) {
+        setPrevDaySaleUnavailable(true);
+      }
       if (opts.onFailure) {
         try { opts.onFailure(err, failCount); } catch (_) {}
       }
