@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260730f"></script>
+<script src="assets/js/common.js?v=20260731a"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -178,7 +178,26 @@
   //   デフォルト60秒（= 締切+180秒、J-WEB準拠）、?fast=1 で 5秒、?next_race_sec=N で上書き可。
   var SCHEDULE_POLL_SEC = 30;   // スケジュールJSONポーリング（秒、本番デフォルト）
   var ODDS_POLL_SEC     = 30;   // 子テンプレのオッズJSONポーリング（秒、本番デフォルト）
-  var NEXT_RACE_DELAY_SEC = 60; // 発走時刻+N秒で次レース遷移（H-04 Phase 1 §1 合意値）
+  var NEXT_RACE_DELAY_SEC = 60; // 発走時刻+N秒で次レース遷移（H-04 Phase 1 §1 合意値。timer モード時のみ使用）
+  // 2026-07-30: 当回レースの切替トリガ（7/28 お披露目会FB 課題整理 §5-1 ／ 及川決定）。
+  //   'payout' … 当該レースの**払戻が配信されたら**次レースへ（既定）
+  //   'timer'  … 発走時刻+NEXT_RACE_DELAY_SEC で次レースへ（従来動作。デモ・検証用）
+  //
+  //   prod 実測（2026-07-30・NAR 4場 全48レース／`当回レース切替タイミング_実測_20260730.md`）:
+  //     ① results JSON の出現 … 発走+1.1分（中央値）だが **中身は空**。判定に使えない
+  //     ② 払戻の充填          … 発走+8.3分（中央値、範囲 +6.8〜+30.1）← ここで切替
+  //     ③ 着順の充填          … 発走+14.4分（中央値、範囲 +11.1〜+33.7）
+  //   ③まで待つと最大 33 分オッズが残るため、目的（終わったレースのオッズを出し続けない）には②で足りる。
+  var RACE_ADVANCE_MODE = 'payout';
+  var NEXT_RACE_FALLBACK_SEC = 35 * 60; // 払戻が来ないとき（中止・欠損）の強制遷移。実測最大 30.1 分 + 余裕
+  var RESULT_CHECK_INTERVAL_MS = 30000; // results JSON の確認間隔（レース単位。確定したら以後叩かない）
+  // 起動時の初期レース選択に使う「払戻がまだ来ていないとみなす」時間。
+  //   ここは**中央値ではなく実測の最大寄り**に取る。理由は誤りの非対称性:
+  //     短すぎる → 未確定のレースを飛ばす。遷移は前進のみなので**復帰できない**
+  //     長すぎる → 確定済みの古いレースを掴むが、払戻チェックが即座に確定を検知して前進する。
+  //                各レースの初回チェックはスロットル対象外なので 1 秒に 1 レースずつ収束する
+  //   実測（2026-07-30・48レース）の払戻到着は +6.8〜+30.1 分。最大側をカバーする。
+  var PAYOUT_ETA_SEC = 32 * 60;
   var FRAME_UTAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
   var SLOT_TICK_SEC     = 5;    // 時間帯切替の検査間隔（秒）- 1秒tickではなく5秒で十分
   var DISPLAY_TICK_SEC  = 1;    // 情報バー表示更新（秒）。サーバ負荷には関与しない。
@@ -209,6 +228,14 @@
     if (isFinite(sp) && sp >= 1) SCHEDULE_POLL_SEC = sp;
     if (isFinite(op) && op >= 1) ODDS_POLL_SEC = op;
     if (isFinite(nr) && nr >= 1) NEXT_RACE_DELAY_SEC = nr;
+    // 2026-07-30: 切替トリガの選択。
+    //   ?fast=1 と ?next_race_sec=N は「秒で送る」意図なので timer モードに落とす
+    //   （デモ用フィクスチャには払戻が無く、payout モードでは進まないため）。
+    if (USE_FAST || (isFinite(nr) && nr >= 1)) RACE_ADVANCE_MODE = 'timer';
+    var adv = q.get('advance');
+    if (adv === 'timer' || adv === 'payout') RACE_ADVANCE_MODE = adv;   // 明示指定が最優先
+    var fb = Number(q.get('fallback_sec'));   // 検証用: フェイルセーフまでの秒数
+    if (isFinite(fb) && fb >= 1) NEXT_RACE_FALLBACK_SEC = fb;
   })();
 
   // H-04 Phase 1 §9.2 案P1採用: position 文字列 "P1"-"P4" を iframe 番号に対応付け
@@ -480,7 +507,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260730f');
+    params.set('v', '20260731a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -517,7 +544,10 @@
     for (var i = 0; i < races.length; i++) {
       var postMs = Date.parse(races[i].post_time_iso);
       if (isNaN(postMs)) continue;
-      var displayEndMs = postMs + NEXT_RACE_DELAY_SEC * 1000;
+      // 2026-07-30: payout モードでは実際の切替が「払戻の到着」なので、起動時の目安も
+      //   実測中央値（発走+8.3分）に合わせる。60秒のままだと起動直後に先のレースを掴む。
+      var holdSec = (RACE_ADVANCE_MODE === 'payout') ? PAYOUT_ETA_SEC : NEXT_RACE_DELAY_SEC;
+      var displayEndMs = postMs + holdSec * 1000;
       if (now < displayEndMs) return i;
     }
     return races.length - 1;  // 全レース発走+N秒超: 末尾継続
@@ -1167,6 +1197,40 @@
   }
   // === END: TECH-VERIFICATION-ONLY ===
 
+  // 2026-07-30: 払戻の到着でレースを送る（§5-1・及川決定）。
+  //   results JSON の「存在」は発走したことしか意味しない（発走+1分で空の器が作られる）。
+  //   確定の判定は payouts.win の中身で行う。
+  //   レース単位で状態を持ち、確定したら以後 fetch しない。画面が同じレースを見ている場合は共有される。
+  var _payoutProbe = {};   // race_id -> { checkedAt, confirmed }
+
+  function resultsUrlOf(race) {
+    if (!race || !race.data_source) return null;
+    if (race.data_source.indexOf('odds/') !== 0) return null;
+    return DERUCA_CONFIG.resolveDataSource('results/' + race.data_source.slice('odds/'.length));
+  }
+
+  // 確定していれば true。未確定なら false を返しつつ、間隔を空けて非同期に確認する。
+  function isPayoutConfirmed(race, now) {
+    var id = race.race_id || race.data_source;
+    var st = _payoutProbe[id] || (_payoutProbe[id] = { checkedAt: 0, confirmed: false });
+    if (st.confirmed) return true;
+    if (now - st.checkedAt < RESULT_CHECK_INTERVAL_MS) return false;
+    st.checkedAt = now;
+    var url = resultsUrlOf(race);
+    if (!url) return false;
+    fetch(url, { cache: 'no-cache' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        var win = d && d.payouts && d.payouts.win;
+        if (win && win.length) {
+          st.confirmed = true;
+          console.info('[next-race] 払戻を確認 → 次レースへ: ' + id);
+        }
+      })
+      .catch(function() {});   // 未生成(403/404)・通信断は「未確定」として次回に持ち越す
+    return false;
+  }
+
   // H-04 Phase 1 §5.3-5.4: 1秒tickでの次レース遷移判定
   function checkNextRaceTransitions() {
     var now = correctedNow();
@@ -1175,13 +1239,28 @@
       if (state.currentRaceIndex < 0) return;
       if (state.target_race_no != null) return;  // 2026-06-29: 対象レース固定は順送りしない（§3.5.4）
       if (state.races.length <= 1) return;  // 1レース固定は遷移なし
+      // 2026-07-30: 末尾レースは遷移先が無い（transitionToNextRace が no-op）。
+      //   ここで抜けないと payout モードのフェイルセーフが毎秒 warn を出し続ける。
+      if (state.currentRaceIndex + 1 >= state.races.length) return;
       var currentRace = state.races[state.currentRaceIndex];
       if (!currentRace || !currentRace.post_time_iso) return;
       var postMs = Date.parse(currentRace.post_time_iso);
       if (isNaN(postMs)) return;
-      var triggerMs = postMs + NEXT_RACE_DELAY_SEC * 1000;
-      if (now < triggerMs) return;
-      transitionToNextRace(state, now);
+
+      if (RACE_ADVANCE_MODE === 'timer') {
+        if (now < postMs + NEXT_RACE_DELAY_SEC * 1000) return;
+        transitionToNextRace(state, now);
+        return;
+      }
+
+      // payout モード
+      if (now < postMs) return;                                   // 発走前は動かさない
+      if (now >= postMs + NEXT_RACE_FALLBACK_SEC * 1000) {        // 中止・欠損時のフェイルセーフ
+        console.warn('[next-race] 払戻が来ないため強制遷移: ' + (currentRace.race_id || ''));
+        transitionToNextRace(state, now);
+        return;
+      }
+      if (isPayoutConfirmed(currentRace, now)) transitionToNextRace(state, now);
     });
   }
 
