@@ -687,3 +687,34 @@ html.screen-4k .six-race__horse-table {
   margin-right: 0.3rem;
   vertical-align: middle;
 }
+
+/* ------------------------------------------------------------------
+ * ISH-10 (2026-08-01): L字左袖の見出し「馬番」が枠線からはみ出す
+ *
+ * サテライト石狩 引地様のご指摘（7/30）:
+ *   「L字の際の単勝オッズの部分上部の『枠』『馬番』『馬名』の『馬番』だけ
+ *     線よりはみ出している（おそらく L字だけ。単勝と人気順は大丈夫そう）」
+ *
+ * 原因: style.css の .message__horse-table-head は
+ *   grid-template-columns: 2.4rem 2.4rem minmax(0,1fr) 3.4rem
+ *   に対し見出しの font-size が 1.4rem。「馬番」は 2 文字 = 2.8rem となり
+ *   列幅 2.4rem（実効 2.3rem・border-right 0.1rem 込み）を超える。
+ *   「枠」は 1 文字、「馬名」は 1fr 列なので溢れない → 馬番だけが顕在化する。
+ *
+ * 対処: 列幅は広げられない。本文行 .message__horse-table-row も
+ *   2.4rem minmax(0,1fr) 3.4rem で、ヘッダーだけ広げると列がずれるため。
+ *   見出しの文字サイズを列に収まる値へ下げる。.win（単勝）は 3.4rem 列で
+ *   溢れていないので据え置く。
+ *
+ * 【原版でも同じ】芥川様デザイン原版 design/htdocs/screen7.html でも溢れている
+ *   （実測 2026-08-01: 馬番 clientWidth 46px / scrollWidth 51px）。style.css の
+ *   値をそのまま引き継いだ結果で、プロト側で持ち込んだ問題ではない。
+ *
+ * 【本 override は恒久措置】2026-08-01 及川判断。スピード優先、かつ本番実装も
+ *   実質デルカ側で行うため、原版 style.css の改訂は待たずにここで吸収する。
+ *   原版が将来修正された場合は、本ブロックの要否を再確認すること。
+ * ------------------------------------------------------------------ */
+.message__horse-table-head div:not(.win) {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
