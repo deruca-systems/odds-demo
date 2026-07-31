@@ -12,8 +12,8 @@
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260731d">
-  <script src="../assets/js/common.js?v=20260731d"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260801a">
+  <script src="../assets/js/common.js?v=20260801a"></script>
 </head>
 <body>
 
@@ -241,7 +241,11 @@
             ? '<img class="jockey-icon" src="../assets/images/jockey/' + GENRYO_ICON[gen6] + '.svg" alt="">' : '';
           html += '<div class="six-race__horse-meta">'
                 +   '<div class="six-race__horse-weight">' + D.fmtWeight(h.weight) + formatWeightDiff(h.weight_diff, h.wt2, h.weight) + '</div>'
-                +   '<div class="six-race__horse-jockey">' + icon + esc(h.jockey) + '</div></div>';
+                // 2026-08-01: 騎手名を D.truncateJockey に通す（single-screen.html /
+                //   entries-results-3r.html と同じルール）。未適用だと JRA データで省略切れする。
+                //   JRA-DB の騎手名は姓名を固定長で埋めるため全角スペースが 5〜6 個入り
+                //   （例「舟山　　　　　　瑠泉」）、その幅で枠を超えていた（8/1 JRA 実データで検出）。
+                +   '<div class="six-race__horse-jockey">' + icon + esc(D.truncateJockey(h.jockey)) + '</div></div>';
         }
         html += '</div></div>';
       });
