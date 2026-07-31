@@ -5,8 +5,8 @@
   "slots": [
     {
       "slot_id": "slot1",
-      "start_time": "2026-07-24T13:00:00+09:00",
-      "end_time": "2026-07-24T13:10:00+09:00",
+      "start_time": "2026-07-28T13:00:00+09:00",
+      "end_time": "2026-07-28T13:10:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -47,7 +47,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -80,8 +80,8 @@
     },
     {
       "slot_id": "slot2",
-      "start_time": "2026-07-24T13:10:00+09:00",
-      "end_time": "2026-07-24T13:20:00+09:00",
+      "start_time": "2026-07-28T13:10:00+09:00",
+      "end_time": "2026-07-28T13:20:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -101,7 +101,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -113,8 +113,8 @@
     },
     {
       "slot_id": "slot3",
-      "start_time": "2026-07-24T13:20:00+09:00",
-      "end_time": "2026-07-24T13:30:00+09:00",
+      "start_time": "2026-07-28T13:20:00+09:00",
+      "end_time": "2026-07-28T13:30:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
@@ -197,7 +197,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -209,8 +209,8 @@
     },
     {
       "slot_id": "slot4",
-      "start_time": "2026-07-24T13:30:00+09:00",
-      "end_time": "2026-07-24T13:40:00+09:00",
+      "start_time": "2026-07-28T13:30:00+09:00",
+      "end_time": "2026-07-28T13:40:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -251,7 +251,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -284,8 +284,8 @@
     },
     {
       "slot_id": "slot5",
-      "start_time": "2026-07-24T13:40:00+09:00",
-      "end_time": "2026-07-24T13:50:00+09:00",
+      "start_time": "2026-07-28T13:40:00+09:00",
+      "end_time": "2026-07-28T13:50:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -305,7 +305,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -317,8 +317,8 @@
     },
     {
       "slot_id": "slot6",
-      "start_time": "2026-07-24T13:50:00+09:00",
-      "end_time": "2026-07-24T14:00:00+09:00",
+      "start_time": "2026-07-28T13:50:00+09:00",
+      "end_time": "2026-07-28T14:00:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
@@ -401,7 +401,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -413,8 +413,8 @@
     },
     {
       "slot_id": "slot7",
-      "start_time": "2026-07-24T14:00:00+09:00",
-      "end_time": "2026-07-24T14:10:00+09:00",
+      "start_time": "2026-07-28T14:00:00+09:00",
+      "end_time": "2026-07-28T14:10:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -455,7 +455,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -488,8 +488,8 @@
     },
     {
       "slot_id": "slot8",
-      "start_time": "2026-07-24T14:10:00+09:00",
-      "end_time": "2026-07-24T14:20:00+09:00",
+      "start_time": "2026-07-28T14:10:00+09:00",
+      "end_time": "2026-07-28T14:20:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -509,7 +509,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -521,8 +521,8 @@
     },
     {
       "slot_id": "slot9",
-      "start_time": "2026-07-24T14:20:00+09:00",
-      "end_time": "2026-07-24T14:30:00+09:00",
+      "start_time": "2026-07-28T14:20:00+09:00",
+      "end_time": "2026-07-28T14:30:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
@@ -605,7 +605,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -617,8 +617,8 @@
     },
     {
       "slot_id": "slot10",
-      "start_time": "2026-07-24T14:30:00+09:00",
-      "end_time": "2026-07-24T14:40:00+09:00",
+      "start_time": "2026-07-28T14:30:00+09:00",
+      "end_time": "2026-07-28T14:40:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -659,7 +659,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -692,8 +692,8 @@
     },
     {
       "slot_id": "slot11",
-      "start_time": "2026-07-24T14:40:00+09:00",
-      "end_time": "2026-07-24T14:50:00+09:00",
+      "start_time": "2026-07-28T14:40:00+09:00",
+      "end_time": "2026-07-28T14:50:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -713,7 +713,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -725,8 +725,8 @@
     },
     {
       "slot_id": "slot12",
-      "start_time": "2026-07-24T14:50:00+09:00",
-      "end_time": "2026-07-24T15:00:00+09:00",
+      "start_time": "2026-07-28T14:50:00+09:00",
+      "end_time": "2026-07-28T15:00:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
@@ -809,7 +809,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -821,8 +821,8 @@
     },
     {
       "slot_id": "slot13",
-      "start_time": "2026-07-24T15:00:00+09:00",
-      "end_time": "2026-07-24T15:10:00+09:00",
+      "start_time": "2026-07-28T15:00:00+09:00",
+      "end_time": "2026-07-28T15:10:00+09:00",
       "layout": "3split",
       "layout_pattern": "3split",
       "display_pattern_id": 100,
@@ -863,7 +863,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -896,8 +896,8 @@
     },
     {
       "slot_id": "slot14",
-      "start_time": "2026-07-24T15:10:00+09:00",
-      "end_time": "2026-07-24T15:20:00+09:00",
+      "start_time": "2026-07-28T15:10:00+09:00",
+      "end_time": "2026-07-28T15:20:00+09:00",
       "layout": "1screen",
       "layout_pattern": "1screen",
       "display_pattern_id": 80,
@@ -917,7 +917,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,
@@ -929,8 +929,8 @@
     },
     {
       "slot_id": "slot15",
-      "start_time": "2026-07-24T15:20:00+09:00",
-      "end_time": "2026-07-24T15:30:00+09:00",
+      "start_time": "2026-07-28T15:20:00+09:00",
+      "end_time": "2026-07-28T15:30:00+09:00",
       "layout": "4split",
       "layout_pattern": "4split",
       "display_pattern_id": 1,
@@ -1013,7 +1013,7 @@
           "back_color_code": null,
           "type": "video",
           "video_config": {
-            "venue_code": "kasamatsu",
+            "venue_code": "monbetsu",
             "quality_mode": "auto",
             "quality_cap": 4,
             "audio_muted": false,

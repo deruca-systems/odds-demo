@@ -729,6 +729,28 @@ async function fetchWithOffset(url, timeoutMs) {
 //   name:          string                    ログ識別用
 // 戻り値: { stop(), getStatus() }
 
+// 2026-07-31: 返還レース（レース不成立）の判定。
+//   実データでは odds_status=1（確定）のまま、全賭式の払戻が
+//   combination="0"/"0-0"/"0-0-0"・amount=100・is_void=true で配信され、
+//   entries（着順）は**永久に空**のままになる。
+//   （2026-07-24 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で実発生）
+//   odds_status=2「レース中止」は実データに存在しないため、この形で判定するしかない。
+//   1 件でも通常の払戻があれば返還レースではない（確定途中で payouts だけ入った状態と区別する）。
+function isVoidRace(payouts) {
+  if (!payouts) return false;
+  var found = false;
+  for (var k in payouts) {
+    if (k === 'bet_order' || !payouts.hasOwnProperty(k)) continue;
+    var arr = payouts[k];
+    if (!arr || !arr.length) continue;
+    for (var i = 0; i < arr.length; i++) {
+      if (!arr[i].is_void) return false;
+      found = true;
+    }
+  }
+  return found;
+}
+
 // 2026-07-30: 前日発売の参照先が存在しないときの案内（山内様 実機検証 #2 / 及川決定）。
 //   index.html が target_date_offset>=1 のとき data_source を翌日パスへ書き換えるが、
 //   その場が翌日に開催しない場合は参照先 JSON が存在せず 404 になる。
@@ -1198,6 +1220,7 @@ window.OddsDemo = {
   effectiveFwt: effectiveFwt,
   frameClassOf: frameClassOf,
   frameOfHorse: frameOfHorse,
+  isVoidRace: isVoidRace,   // 返還レース判定（3R/6R 出走成績で使用）
   fetchWithOffset: fetchWithOffset,
   setText: setText,
   el: el,

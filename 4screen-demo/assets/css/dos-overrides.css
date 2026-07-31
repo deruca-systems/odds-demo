@@ -659,3 +659,31 @@ html.screen-4k .six-race__horse-table {
 .race-board__row--entry {
   grid-template-columns: 1.9rem 2.4rem auto;
 }
+
+/* 2026-07-31: 返還表示（is-void）
+ *
+ * レース不成立で全賭式が元返し（100円）になるケース。実データでは
+ * combination="0"/"0-0"/"0-0-0"、amount=100、is_void=true が全賭式に入る
+ * （2026-07-24 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で実発生）。
+ * 金額だけ出すと「0番が100円で的中」に見えるため「返還」を明示する。
+ * 特払（is-special-pay）と同じ扱い。芥川様の正式CSSが来たら差し替える。 */
+.payout-board__price.is-void {
+  position: relative;
+}
+.payout-board__price.is-void .payout-board__void-label,
+.six-race__payout-price.is-void .six-race__payout-void-label {
+  display: inline-block;
+  color: #9AA7B8;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+.payout-board__price.is-void .payout-board__void-label {
+  font-size: 1.4rem;
+}
+/* 4K（6R）側は特払ラベルも未実装だったため同時に定義する */
+.six-race__payout-price.is-special-pay .six-race__payout-special-label {
+  display: inline-block;
+  color: #FFBF00;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}

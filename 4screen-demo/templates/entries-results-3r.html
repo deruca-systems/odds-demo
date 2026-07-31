@@ -7,8 +7,8 @@
   <!-- 3R-entries-results-phase3 (2026-04-30): payout-board DOM を screen5.html 準拠に書き換え。
        芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260731a">
-  <script src="../assets/js/common.js?v=20260731a"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260731d">
+  <script src="../assets/js/common.js?v=20260731d"></script>
 </head>
 <body>
 
@@ -308,6 +308,9 @@
 
   // 馬番/組番 HTML（複勝は rank 付き）
   function buildPayoutNumber(betType, p) {
+    // 2026-07-31: 返還は複勝も combination="0" で来る。place 分岐より先に判定しないと
+    //   「1着0」と出てしまう。
+    if (p.is_void) return '<div class="payout-board__number">−</div>';
     if (betType === 'place') {
       var rankLabel = p.place_label || '';       // e.g. "1着"
       var rankNum   = rankLabel.replace('着', '');
@@ -325,8 +328,18 @@
     return '<div class="payout-board__number">' + inner + '</div>';
   }
 
-  // 金額 HTML（特払対応）
+  // 金額 HTML（特払・返還対応）
   function buildPayoutPrice(p) {
+    // 2026-07-31: 返還（is_void=true）。レース不成立で全賭式が元返しになるケース。
+    //   実データ: combination="0" / amount=100 / is_void=true が全賭式に入る
+    //   （2026-07-24 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で発生）。
+    //   金額をそのまま出すと「0番が100円で的中」に見えるため「返還」を明示する。
+    if (p.is_void) {
+      return '<div class="payout-board__price is-void">'
+           + '<span class="payout-board__void-label">返還</span>'
+           + formatAmount(p.amount)
+           + '<span>円</span></div>';
+    }
     if (p.is_special_pay) {
       return '<div class="payout-board__price is-special-pay">'
            + '<span class="payout-board__special-label">特払</span>'
@@ -508,7 +521,12 @@
       var res = await D.fetchWithOffset(urls.resultsUrl);
       // 2026-07-15: バッチはレース確定前から entries 空の results JSON を生成する（STG 名古屋5R で確認）。
       //   空のまま成績モードに入るとヘッダーのみの空表示になるため、entries が入るまで出走表モードを継続する。
-      if (res && res.data && Array.isArray(res.data.entries) && res.data.entries.length > 0) {
+      // 2026-07-31: ただし**返還レースは entries が永久に空**のままなので、この条件だけだと
+      //   いつまでも出走表が出続ける（2026-07-24 大井6R で確認）。全賭式が is_void の場合は
+      //   着順が無くても成績モードへ入れて「返還」を表示する。
+      if (res && res.data
+          && ((Array.isArray(res.data.entries) && res.data.entries.length > 0)
+              || D.isVoidRace(res.data.payouts))) {
         renderResultsMode(colIdx, res.data);
         return;
       }
