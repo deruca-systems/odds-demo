@@ -215,6 +215,13 @@
    */
   w.DERUCA_CONFIG.resolveDataSource = function(dataSource) {
     if (!dataSource) return null;
+    // 2026-08-01: 先頭スラッシュ付き（オリジン絶対パス）はそのまま返す。
+    //   schedules JSON の signage_url は "/dos-signage/000003/....jpg" の形で来る
+    //   （スケジュールJSON出力プログラム設計書 v1.7 §6.4.6）。従来は odds/... のような
+    //   相対パスしか想定しておらず '../' を付けていたため、"..//dos-signage/..." という
+    //   壊れた URL になり画像が 404 になっていた（STG 実データで確認）。
+    //   絶対パスは baseUrl の有無にかかわらず解決不要。
+    if (dataSource.charAt(0) === '/') return dataSource;
     if (w.DERUCA_CONFIG.baseUrl) {
       return w.DERUCA_CONFIG.buildUrl(dataSource);
     }
