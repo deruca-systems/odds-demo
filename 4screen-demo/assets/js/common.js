@@ -101,7 +101,30 @@ window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'setSignageUrl') {
     cutinState.signage_url = e.data.url || null;
   }
+  // 2026-08-05: カットイン発火済み状態の復元（引地様 №21）。
+  //   dp20/30/40 の自動ページングは template を差し替える＝**iframe をリロードする**ため、
+  //   子の cutinState.shownForRace が毎回リセットされ、同じレースのカットインが
+  //   ページ送りのたびに何度も出ていた（15秒周期なら15秒ごとに「締切5分前」）。
+  //   親がレース単位で発火済みキーを保持し、リロード後の子へ復元する。
+  //   ⚠ 送信は親の iframe.onload 内・setDataUrl より前。初回 poll の checkCutin より必ず先に届く。
+  if (e.data && e.data.type === 'restoreCutinState') {
+    if (e.data.shownForRace) cutinState.shownForRace = e.data.shownForRace;
+  }
 });
+
+// 2026-08-05: カットインの発火状況を親に通知する（引地様 №21）。
+//   親は (a) 発火済みキーを保持してリロード後の子に復元し、
+//       (b) 表示中はページ送りを保留する（10秒/30秒の表示を途中で切らないため）。
+function notifyCutinState() {
+  if (window.parent === window) return;
+  try {
+    window.parent.postMessage({
+      type: 'cutinState',
+      shownForRace: cutinState.shownForRace,
+      active: !!cutinState.active
+    }, '*');
+  } catch (_) {}
+}
 
 // 【ハンドシェイク】リスナー登録直後に親へ offset を要求する。
 //   iframe.onload 発火と <script> ロード完了のタイミング不一致を吸収するため、
@@ -1085,6 +1108,7 @@ function checkCutin(race, correctedNowMs) {
   if (remainMs <= 0 && cutinState.shownForRace !== raceKey + '_closed') {
     showCutin('closed', race);
     cutinState.shownForRace = raceKey + '_closed';
+    notifyCutinState();   // 2026-08-05 №21: 発火済みを親へ（リロードを跨いで保持させる）
     return;
   }
 
@@ -1097,6 +1121,7 @@ function checkCutin(race, correctedNowMs) {
       && cutinState.shownForRace !== raceKey + '_closed') {
     showCutin('countdown', race, COUNTDOWN_START_MIN);
     cutinState.shownForRace = raceKey + '_countdown';
+    notifyCutinState();   // 2026-08-05 №21: 発火済みを親へ（リロードを跨いで保持させる）
     return;
   }
 }
@@ -1136,6 +1161,7 @@ function showCutin(type, race, minutesLeft) {
       overlay.classList.add('is-hidden');
       cutinState.active = false;
       cutinState.type = null;
+      notifyCutinState();
       return;
     }
     signageImg.src = cutinState.signage_url;
@@ -1144,11 +1170,13 @@ function showCutin(type, race, minutesLeft) {
     overlay.classList.remove('is-hidden');
     cutinState.active = true;
     cutinState.type = 'signage';
+    notifyCutinState();   // 2026-08-05 №21: 表示中はページ送りを保留させる
     cutinState.hideTimer = setTimeout(function() {
       overlay.classList.add('is-hidden');
       signageWrap.classList.add('is-hidden');
       cutinState.active = false;
       cutinState.type = null;
+      notifyCutinState();
     }, SIGNAGE_CUTIN_DISPLAY_SEC * 1000);
     return;
   }
@@ -1179,6 +1207,7 @@ function showCutin(type, race, minutesLeft) {
   overlay.classList.remove('is-hidden');
   cutinState.active = true;
   cutinState.type = type;
+  notifyCutinState();   // 2026-08-05 №21: 表示中はページ送りを保留させる
 
   cutinState.hideTimer = setTimeout(function() {
     // CUT-002 終了直後に CUT-003 (signage) を発火 (signage_url ありの場合)。
@@ -1191,6 +1220,7 @@ function showCutin(type, race, minutesLeft) {
       board.classList.add('is-hidden');
       cutinState.active = false;
       cutinState.type = null;
+      notifyCutinState();
     }
   }, CUTIN_DISPLAY_SEC * 1000);
 }
@@ -1244,6 +1274,15 @@ window.OddsDemo = {
   resolvePostTime: resolvePostTime,
   ensureCutinTemplate: ensureCutinTemplate,
   renderMatrixTable: renderMatrixTable,
+  // 2026-08-05 №22: オッズ画面のページ定義（描画パラメータ＋空判定＋親通知）
+  matrixPageOpts: matrixPageOpts,
+  matrixPagePairs: matrixPagePairs,
+  matrixPageHasContent: matrixPageHasContent,
+  popularPageOpts: popularPageOpts,
+  popularPageHasContent: popularPageHasContent,
+  notifyOddsPagesAvailability: notifyOddsPagesAvailability,
+  MATRIX_PAGE_SPEC: MATRIX_PAGE_SPEC,
+  POPULAR_PAGE_SPEC: POPULAR_PAGE_SPEC,
   // 指示書07 エラーハンドリング
   startResilientPolling: startResilientPolling,
   registerPoller: registerPoller,
@@ -1279,17 +1318,149 @@ window.OddsDemo = {
  *   umaren: 各 axis に対し b = axis+1..N の行
  *   umatan: 各 axis に対し b = 1..N の行（b == axis なら odds-cross）
  */
+/**
+ * 馬番順マトリクスの「ページ定義」。単一の正とし、描画も空判定もここから導く。
+ *
+ * 2026-08-05 (引地様 №22): dp20/30 の自動ページングで 2 ページ目が真っ黒になっていた。
+ *   `single-umaren-second.html` は軸馬 10〜17 を出すテンプレなので、少頭数のレースでは
+ *   描くものが 1 つも無い（8頭・9頭の実データで実測: セル 0 個）。dp50 にある
+ *   「ページが1つなら送らない」ガードが dp20/30/40 に無かった。
+ *
+ * ページに中身があるかは **テンプレ名から機械的に決まる**ので、親（index.html）に
+ * 頭数のしきい値を書き写すと必ず腐る。ここに 1 か所だけ置き、
+ *   ・テンプレは matrixPageOpts() で描画パラメータを受け取る
+ *   ・notifyOddsPagesAvailability() が全ページの可否を計算して親へ通知する
+ * とし、**描画と可否判定が同じ列挙関数 matrixPagePairs() を通る**ようにする。
+ */
+var MATRIX_PAGE_SPEC = {
+  'single-umaren-first.html':  { type: 'umaren', axisFrom: 1,  axisTo: 9  },
+  'single-umaren-second.html': { type: 'umaren', axisFrom: 10, axisTo: 17 },
+  'single-umatan-first.html':  { type: 'umatan', axisFrom: 1,  axisTo: 9  },
+  'single-umatan-second.html': { type: 'umatan', axisFrom: 10, axisTo: 18 }
+};
+
+/** テンプレ名から描画パラメータ（type/axisFrom/axisTo）の複製を返す。 */
+function matrixPageOpts(templateName) {
+  var s = MATRIX_PAGE_SPEC[templateName];
+  if (!s) {
+    console.warn('[matrix-page] MATRIX_PAGE_SPEC に未登録のテンプレ: ' + templateName);
+    return null;
+  }
+  return { type: s.type, axisFrom: s.axisFrom, axisTo: s.axisTo };
+}
+
+/**
+ * このページに描かれる (軸, 相手[]) を列挙する。
+ * renderMatrixTable の描画も、親へ返す「中身があるか」も必ずここを通す（二重管理をしない）。
+ */
+function matrixPagePairs(horses, opts) {
+  var pairs = [];
+  var n = (horses || []).length;
+  if (!n || !opts) return pairs;
+  var frameOf = {};
+  horses.forEach(function(h) { frameOf[h.horse_no] = h.frame_no; });
+  var axisTo = Math.min(opts.axisTo, n);
+  for (var axis = opts.axisFrom; axis <= axisTo; axis++) {
+    if (!frameOf[axis]) continue;                         // 該当馬なし
+    var opp = [];
+    // umatan は相手 1..n（自己交差セルを含む）／umaren は無順なので軸より大きい馬番のみ
+    var from = (opts.type === 'umatan') ? 1 : (axis + 1);
+    for (var b = from; b <= n; b++) {
+      if (frameOf[b]) opp.push(b);
+    }
+    pairs.push({ axis: axis, frame: frameOf[axis], opp: opp });
+  }
+  return pairs;
+}
+
+/** このページに1セルでも描かれるか。0 なら親はこのページへページ送りしてはいけない。 */
+function matrixPageHasContent(horses, opts) {
+  return matrixPagePairs(horses, opts).some(function(p) { return p.opp.length > 0; });
+}
+
+/**
+ * 人気順（SCR-ODD-004）のページ定義。MATRIX_PAGE_SPEC と同じ考え方で単一の正とする。
+ *   ①=上位1〜15位 / ②=上位16〜30位。テンプレはここから offset/limit を受け取る。
+ * 2026-08-05: dp40（人気順の自動ページング）も親が template を差し替える＝iframe を
+ *   リロードする作りなので、№21（カットイン再発火）も №22（中身の無いページへ送る）も
+ *   同じ穴がある。dp20/30 と同じ仕組みに載せる（及川指示）。
+ */
+var POPULAR_PAGE_SPEC = {
+  'single-popular.html':        { offset: 0,  limit: 15 },
+  'single-popular-second.html': { offset: 15, limit: 15 }
+};
+
+/** テンプレ名から人気順の描画パラメータ（offset/limit）の複製を返す。 */
+function popularPageOpts(templateName) {
+  var s = POPULAR_PAGE_SPEC[templateName];
+  if (!s) {
+    console.warn('[popular-page] POPULAR_PAGE_SPEC に未登録のテンプレ: ' + templateName);
+    return null;
+  }
+  return { offset: s.offset, limit: s.limit };
+}
+
+/** 人気順の 4 賭式リスト（取消除外後）。描画側と同じ手順を通す。 */
+function popularLists(data, horses) {
+  return [
+    filterScratchedFromPopular(data.umaren_popular,   horses, 2),
+    filterScratchedFromPopular(data.umatan_popular,   horses, 2),
+    filterScratchedFromPopular(data.trio_popular,     horses, 3),
+    filterScratchedFromPopular(data.trifecta_popular, horses, 3)
+  ];
+}
+
+/**
+ * このページに 1 件でも実データが載るか。
+ * 4 賭式すべてが offset に届かない（＝全欄 '-' だけ）なら中身なしとする。
+ */
+function popularPageHasContent(data, horses, spec) {
+  if (!spec) return true;
+  return popularLists(data || {}, horses || []).some(function(list) {
+    return (list || []).length > spec.offset;
+  });
+}
+
+/**
+ * 2026-08-05 (引地様 №22): オッズ画面の各ページの「中身の有無」を親へ通知する。
+ *   親（checkOddsAutoPaging）は false のページを飛ばす。
+ *   **表示中の子が全ページ分を答える**ので、空のページは一度も画面に出ない
+ *   （「出してから空だと分かる」方式だと一瞬黒くなる）。
+ *   馬番順マトリクス（dp20/30）と人気順（dp40）の両方をここで面倒を見る。
+ */
+function notifyOddsPagesAvailability(dataUrl, data) {
+  if (window.parent === window) return;
+  data = data || {};
+  var horses = data.horses || [];
+  var pages = {};
+  var name;
+  for (name in MATRIX_PAGE_SPEC) {
+    if (!MATRIX_PAGE_SPEC.hasOwnProperty(name)) continue;
+    pages['templates/' + name] = matrixPageHasContent(horses, MATRIX_PAGE_SPEC[name]);
+  }
+  for (name in POPULAR_PAGE_SPEC) {
+    if (!POPULAR_PAGE_SPEC.hasOwnProperty(name)) continue;
+    pages['templates/' + name] = popularPageHasContent(data, horses, POPULAR_PAGE_SPEC[name]);
+  }
+  try {
+    window.parent.postMessage({
+      type: 'oddsPagesAvailability',
+      url: dataUrl,
+      horses: horses.length,
+      pages: pages
+    }, '*');
+  } catch (_) {}
+}
+
 function renderMatrixTable(container, horses, matrix, opts) {
   if (!container) return;
   var n = (horses || []).length;
-  if (n === 0) {
+  if (n === 0 || !opts) {
     container.replaceChildren();
     return;
   }
 
   var type = opts.type;
-  var axisFrom = opts.axisFrom;
-  var axisTo = Math.min(opts.axisTo, n);
 
   // horse_no → frame_no マップ
   var frameOf = {};
@@ -1301,10 +1472,14 @@ function renderMatrixTable(container, horses, matrix, opts) {
   // O-3 (2026-07-29): 「表示範囲の昇順上位N」による人気判定は廃止。
   //   配色は oddsColorClass()（桁数ベース）がセル単位で決めるため、事前集計は不要。
 
+  // 2026-08-05 №22: 軸・相手の列挙は matrixPagePairs() に一本化した。
+  //   親へ通知する「このページに中身があるか」と同じ関数を通すことで、
+  //   描画結果と可否判定が食い違わないようにする。
+  var pairs = matrixPagePairs(horses, opts);
   var fragment = document.createDocumentFragment();
-  for (var axis = axisFrom; axis <= axisTo; axis++) {
-    if (!frameOf[axis]) continue; // 該当馬なし
-    var axisFrame = frameOf[axis];
+  for (var pi = 0; pi < pairs.length; pi++) {
+    var axis = pairs[pi].axis;
+    var axisFrame = pairs[pi].frame;
     var axisScratched = !!scratchedSet[axis];
     var body = document.createElement('div');
     body.className = 'screen-table__body ' + (FRAME_BODY_CLASS[axisFrame] || '');
@@ -1315,11 +1490,10 @@ function renderMatrixTable(container, horses, matrix, opts) {
     name.textContent = String(axis);
     body.appendChild(name);
 
-    var oppFrom = (type === 'umatan') ? 1 : (axis + 1);
-    var oppTo = n;
-    for (var bb = oppFrom; bb <= oppTo; bb++) {
+    var opp = pairs[pi].opp;
+    for (var oi = 0; oi < opp.length; oi++) {
+      var bb = opp[oi];
       var bFrame = frameOf[bb];
-      if (!bFrame) continue;
       var row = document.createElement('div');
       row.className = 'screen-table__row';
 

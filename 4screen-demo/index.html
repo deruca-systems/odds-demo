@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260804b"></script>
+<script src="assets/js/common.js?v=20260805b"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -552,7 +552,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260804b');
+    params.set('v', '20260805b');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -726,6 +726,15 @@
         oddsPageTemplates: ODDS_PAGE_TEMPLATES[screen.display_pattern_id] || null,
         oddsPageIndex: 0,
         oddsPageTick: 0,
+        // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
+        //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
+        //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
+        oddsPageAvailable: {},
+        // 2026-08-05 (引地様 №21): カットインの発火済みキーと表示中フラグ。
+        //   ページ送りは iframe をリロードするため子の状態が飛ぶ。親が持って復元する。
+        cutinShownForRace: null,
+        cutinActive: false,
+        oddsPageHoldSec: 0,
         races: filteredRaces,
         // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
         //   売場別発売設定の発売場をすべてカバーする（及川決定）。
@@ -930,6 +939,26 @@
   //   1 秒ごとに呼ばれ、ODDS_PAGE_SEC ごとに template を first↔second で差し替える。
   //   template が変わるので applyOddsScreen が iframe.src を貼り替える（dp50 と同じ方式）。
   //   固定ページの dp21/22/31/32/41/42 は oddsPageTemplates を持たないので対象外。
+  // 2026-08-05 (引地様 №22): そのページに中身があるか。子からの通知が無い間は true。
+  //   dp50 の「ページが1つなら送らない」ガードを dp20/30/40 にも用意するための土台。
+  function oddsPageIsAvailable(state, idx) {
+    var tmpl = state.oddsPageTemplates[idx];
+    return state.oddsPageAvailable[tmpl] !== false;
+  }
+  // 現在ページから見て次に送るべきページ。中身のあるページが他に無ければ現在ページを返す。
+  function nextAvailableOddsPage(state) {
+    var len = state.oddsPageTemplates.length;
+    for (var i = 1; i < len; i++) {
+      var cand = (state.oddsPageIndex + i) % len;
+      if (oddsPageIsAvailable(state, cand)) return cand;
+    }
+    return state.oddsPageIndex;
+  }
+  // 2026-08-05 №21: カットイン表示中にページ送りするとリロードで表示が切れる。
+  //   最大待ち時間は CUT-002(10秒) → CUT-003(30秒) の連鎖ぶん＋余裕。
+  //   子が「終わった」を返せなくなった場合に固まらないための上限。
+  var ODDS_PAGE_CUTIN_HOLD_MAX_SEC = 45;
+
   function checkOddsAutoPaging() {
     screenStates.forEach(function(state) {
       if (state.type !== 'odds') return;
@@ -937,8 +966,17 @@
       if (!state.iframeEl) return;
       state.oddsPageTick = (state.oddsPageTick || 0) + 1;
       if (state.oddsPageTick < ODDS_PAGE_SEC) return;
+      // カットイン表示中は送らない（送ると iframe リロードで 10秒/30秒の表示が途中で切れる）
+      if (state.cutinActive && state.oddsPageHoldSec < ODDS_PAGE_CUTIN_HOLD_MAX_SEC) {
+        state.oddsPageHoldSec++;
+        return;   // tick は据え置き。カットインが明けた次の tick で送る
+      }
+      state.oddsPageHoldSec = 0;
       state.oddsPageTick = 0;
-      state.oddsPageIndex = (state.oddsPageIndex + 1) % state.oddsPageTemplates.length;
+      // 2026-08-05 №22: 中身の無いページ（少頭数の「軸馬10〜」等）へは送らない
+      var next = nextAvailableOddsPage(state);
+      if (next === state.oddsPageIndex) return;   // 送り先が無い＝1ページ運用
+      state.oddsPageIndex = next;
       state.template = state.oddsPageTemplates[state.oddsPageIndex];
       applyOddsScreen(state);
     });
@@ -1154,12 +1192,23 @@
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(d, bg, su, sc) {
+      iframe.onload = (function(d, bg, su, sc, cutinKey) {
         return function() {
           // 2026-07-15: CRM 背景色を芥川ヘッダークラス付け替えで適用（applyHeaderColor 参照）。
           //   旧 Phase 5 の CSS 変数注入（--race-header-bg / has-custom-bg）は受け側 CSS
           //   未実装で機能していなかったため廃止。
           applyHeaderColor(iframe, bg);
+          // 2026-08-05 (引地様 №21): カットイン発火済み状態を復元する。
+          //   ページ送り（dp20/30/40）は iframe をリロードするため、これが無いと
+          //   同じレースの「締切5分前」がページ送りのたびに再発火する。
+          //   ⚠ setDataUrl より前に送ること（子の初回 poll → checkCutin より先に届かせる）。
+          if (cutinKey) {
+            try {
+              iframe.contentWindow.postMessage({
+                type: 'restoreCutinState', shownForRace: cutinKey
+              }, '*');
+            } catch (_) {}
+          }
           // 2026-06-04: signage_url 送信 (CUT-003 用、テンプレに依存しない共通 postMessage)
           if (su) {
             try {
@@ -1178,7 +1227,7 @@
             }, '*');
           } catch (_) {}
         };
-      })(dataUrl, state.back_color_code, signageUrl, saleContext);
+      })(dataUrl, state.back_color_code, signageUrl, saleContext, state.cutinShownForRace);
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
@@ -1383,6 +1432,15 @@
     state.currentRaceIndex = nextIndex;
     state.currentRaceId = state.races[nextIndex].race_id;
     state.lastTransitionMs = now;
+    // 2026-08-05: レースが変わったらページ送り関連の判定をやり直す。
+    //   №22 oddsPageAvailable … 頭数が変わるので前レースの可否を持ち越さない
+    //                            （新レースのデータ受信後に子からの通知で再判定）
+    //   №21 cutinShownForRace … カットインは raceKey 込みなので実害は無いが、
+    //                            前レースのキーを残さない
+    state.oddsPageAvailable = {};
+    state.cutinShownForRace = null;
+    state.cutinActive = false;
+    state.oddsPageHoldSec = 0;
     applyOddsScreenDataSourceOnly(state);
     // H-03 (2026-04-19): レース切替時は枠連/枠単ページを初期値 'uren' に戻す
     //   iframe 側 DOM は継続使用（再ロードなし）のため、前レースの表示状態（utan）が
@@ -1671,6 +1729,39 @@
         state.frameOddsPageTick = 0;
         notifyFrameOddsPage(state);
       }
+      return;
+    }
+    // 2026-08-05 (引地様 №22): オッズ画面 各ページの中身の有無を子から受信。
+    //   frameUtanAvailability と同じ「子が判定 → 親がページ送りを止める」パターン。
+    //   表示中の子が**全ページ分**を答えるので、空のページは一度も画面に出ない。
+    //   対象: 馬番順マトリクス（dp20/30）と人気順（dp40）。
+    if (d.type === 'oddsPagesAvailability') {
+      var mState = findScreenStateBySource(e.source);
+      if (!mState || !mState.oddsPageTemplates) return;
+      mState.oddsPageAvailable = d.pages || {};
+      // 既に空のページを表示してしまっている場合（頭数が変わった等）は中身のあるページへ戻す
+      if (!oddsPageIsAvailable(mState, mState.oddsPageIndex)) {
+        var back = nextAvailableOddsPage(mState);
+        if (back !== mState.oddsPageIndex) {
+          console.warn('[odds-paging] 中身の無いページを表示中のため戻す: '
+            + mState.oddsPageTemplates[mState.oddsPageIndex] + ' (' + d.horses + '頭)');
+          mState.oddsPageIndex = back;
+          mState.oddsPageTick = 0;
+          mState.template = mState.oddsPageTemplates[back];
+          applyOddsScreen(mState);
+        }
+      }
+      return;
+    }
+    // 2026-08-05 (引地様 №21): 子のカットイン状態を受信。
+    //   ・shownForRace を親が保持し、ページ送りでリロードした子へ復元する（再発火の防止）
+    //   ・表示中（active）はページ送りを保留する（10秒/30秒の表示を途中で切らない）
+    if (d.type === 'cutinState') {
+      var cState = findScreenStateBySource(e.source);
+      if (!cState) return;
+      if (d.shownForRace) cState.cutinShownForRace = d.shownForRace;
+      cState.cutinActive = !!d.active;
+      if (!cState.cutinActive) cState.oddsPageHoldSec = 0;
       return;
     }
   });

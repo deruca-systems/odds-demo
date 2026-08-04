@@ -5,8 +5,8 @@
   <title>人気順1-15 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260804b">
-  <script src="../assets/js/common.js?v=20260804b"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260805b">
+  <script src="../assets/js/common.js?v=20260805b"></script>
 </head>
 <body>
 
@@ -71,8 +71,11 @@
   var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
   var lastData = null;
   var serverOffsetMs = 0;
-  var ROWS_PER_LIST = 15;
-  var OFFSET = 0;
+  // 2026-08-05 №22: 表示範囲は common.js の POPULAR_PAGE_SPEC が単一の正。
+  //   ここに数値を書くと親のページ送り可否判定と食い違う。
+  var PAGE = D.popularPageOpts('single-popular.html') || { offset: 0, limit: 15 };
+  var ROWS_PER_LIST = PAGE.limit;
+  var OFFSET = PAGE.offset;
 
   function renderHorses(horses) {
     document.getElementById('popular').style.setProperty('--horse-count', horses.length);
@@ -160,6 +163,8 @@
     renderCombinationList('umatanList',   umatanList,   horses, 2, OFFSET, ROWS_PER_LIST, 'exacta');
     renderCombinationList('trioList',     trioList,     horses, 3, OFFSET, ROWS_PER_LIST, 'trio');
     renderCombinationList('trifectaList', trifectaList, horses, 3, OFFSET, ROWS_PER_LIST, 'trifecta');
+    // 2026-08-05 №22: 各ページに中身があるかを親へ通知（親は空のページへページ送りしない）
+    D.notifyOddsPagesAvailability(dataUrl, data);
   }
 
   // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
