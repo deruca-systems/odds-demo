@@ -353,6 +353,31 @@
   //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
   //   ?display_date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
   //   後方互換: ?date=YYYYMMDD でも可（display_date 優先）。
+  // 2026-08-04: 致命的な設定ミスを画面に出す（現状はモニター未指定のみ）。
+  //   売場の端末は無人で回るため、黙って別の画面を出すと誰も気づけない。
+  //   CSS に依存せずインラインで組む（テンプレ未ロードでも必ず出す）。
+  function showFatalError(title, lead, examples) {
+    var esc = function(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+    var list = (examples || []).map(function(e) {
+      return '<div style="margin:.35em 0;font-family:monospace;font-size:.62em;'
+           + 'color:#cfd8e3;word-break:break-all;">' + esc(e) + '</div>';
+    }).join('');
+    document.body.style.margin = '0';
+    document.body.innerHTML =
+      '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;'
+    + 'background:#12161c;color:#fff;font-family:sans-serif;text-align:center;padding:4vh 4vw;'
+    + 'box-sizing:border-box;">'
+    + '<div>'
+    + '<div style="font-size:3.4vw;font-weight:bold;color:#ff6b6b;margin-bottom:.6em;">'
+    +   esc(title) + '</div>'
+    + '<div style="font-size:1.7vw;margin-bottom:1.4em;">' + esc(lead) + '</div>'
+    + '<div style="font-size:2.2vw;text-align:left;display:inline-block;">' + list + '</div>'
+    + '</div></div>';
+    console.error('[fatal] ' + title + ' / ' + lead);
+  }
+
   // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
   //   ブラウザは index.html 共通。取得 JSON のみクエリで出し分ける：
   //     通常     ?monitor_id=…（後方互換 ?monitor=）        → schedules/{date}/{id}.json
@@ -362,7 +387,21 @@
   var MONITOR_UUID = _params.get('monitor_uuid') || null;
   var IS_PREVIEW = (_params.get('preview') === '1' || _params.get('preview') === 'true');
   var DISPLAY_MODE = MONITOR_UUID ? 'manual' : (IS_PREVIEW ? 'preview' : 'normal');
-  var MONITOR_ID = _params.get('monitor_id') || _params.get('monitor') || '101';
+  // 2026-08-04: モニター未指定のときに既定 '101' を見に行くのをやめ、エラー表示にする（及川決定）。
+  //   従来は monitor_id / monitor / monitor_uuid のいずれも無いと **黙って monitor=101 の画面**を出していた。
+  //   石狩60台・駅前30台のような環境では「設定したはずの画面が出ない」と現場が原因を探すことになり、
+  //   ISH-17（売場別発売設定の登録漏れ）と同じ「間違いに気づけない」構図を生む。
+  //   **黙って別物を出すより、指定漏れを明示する。**
+  var MONITOR_ID_RAW = _params.get('monitor_id') || _params.get('monitor');
+  if (!MONITOR_UUID && !MONITOR_ID_RAW) {
+    showFatalError('モニターIDが指定されていません',
+      'URL に端末番号を付けてください。',
+      ['通常表示　：' + location.pathname + '?monitor=5',
+       'プレビュー：' + location.pathname + '?monitor=5&preview=1',
+       '手動切替　：' + location.pathname + '?monitor_uuid=（CRM発行のUUID）']);
+    return;   // 以降のポーリング・描画は行わない
+  }
+  var MONITOR_ID = MONITOR_ID_RAW;
   // === BEGIN: TEMPORARY-MIGRATION-COMPAT (本番不要、後方互換用) ===
   // 2026-04-30 session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
   // path-date-folder 移行後の 3 桁形式（'101', '102'）に正規化する。
