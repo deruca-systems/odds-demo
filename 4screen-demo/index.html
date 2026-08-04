@@ -523,6 +523,17 @@
     return '?' + params.toString();
   }
 
+  // 2026-08-04: screen 単位のクエリ。dp11/12/13 の固定ページ指定（?page=N）を付与する。
+  //   buildChildQuery は全画面共通のため、dp 由来の値はここで足す。
+  //   親URLに ?page= が明示されている場合はそちらを優先（検証用の手動上書き）。
+  function childQueryFor(state) {
+    var q = buildChildQuery();
+    var fixed = state && ODDS_FIXED_PAGE[state.displayPatternId];
+    if (!fixed) return q;
+    if (new URL(location.href).searchParams.get('page')) return q;
+    return q + '&page=' + fixed;
+  }
+
   // H-04: 使用しない position の iframe をクリアする（layout切替で不要になった場合）
   function clearUnusedFrames() {
     var used = {};
@@ -671,6 +682,11 @@
         entriesPages: null,
         entriesPageIndex: 0,
         entriesPageTick: 0,
+        // 2026-08-04: dp20/30/40（オッズ画面の自動ページング）のページ状態（ISH-14 ②③）。
+        //   ODDS_PAGE_TEMPLATES[dp] の [0] は resolveTemplate の解決先と一致させてある。
+        oddsPageTemplates: ODDS_PAGE_TEMPLATES[screen.display_pattern_id] || null,
+        oddsPageIndex: 0,
+        oddsPageTick: 0,
         races: filteredRaces,
         // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
         //   売場別発売設定の発売場をすべてカバーする（及川決定）。
@@ -792,6 +808,27 @@
     return (v && v > 0) ? v : 15;  // 秒。?page_rotation= で上書き（デモ・検証用）
   })();
 
+  // 2026-08-04: オッズ画面の自動ページング（ISH-14 ②③ / 引地様 8/1 確認表）。
+  //   「自動ページング」を名乗る dp10/20/30/40/50 のうち、実装があったのは
+  //     dp10 … 子テンプレ single-umaren-wide.html 内でローテ
+  //     dp50 … 親側で entriesPages をローテ
+  //   の 2 つだけで、**dp20/30/40 は固定①と同じテンプレに解決されるだけ**でページ送りが
+  //   無かった（dp40→single-popular.html は dp41 と同一、等）。dp50 と同じ「親側でローテ」
+  //   方式に揃えて補う。ローテは template を差し替えるため applyOddsScreen が
+  //   iframe.src を貼り替える（dp50 と同じ挙動）。
+  var ODDS_PAGE_TEMPLATES = {
+    20: ['templates/single-umaren-first.html', 'templates/single-umaren-second.html'],
+    30: ['templates/single-umatan-first.html', 'templates/single-umatan-second.html'],
+    40: ['templates/single-popular.html',      'templates/single-popular-second.html']
+  };
+  // 2026-08-04: 馬連・ワイド（dp10-13）は 1 テンプレ内でページ制御する作りで、
+  //   子は ?page=N で固定ページになる（single-umaren-wide.html の forcedPage）。
+  //   ところが親は ?page= を「親URLからの素通し」しかしておらず dp から導出していなかったため、
+  //   dp11/12/13 を選んでも固定にならず常にローテしていた。dp→page をここで与える。
+  //   dp10（自動ページング）は page を付けない＝テンプレ側のローテに任せる。
+  var ODDS_FIXED_PAGE = { 11: 1, 12: 2, 13: 3 };
+  var ODDS_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
+
   // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
   function raceRr(race) {
     if (race && race.rr != null) return Number(race.rr);
@@ -836,6 +873,24 @@
       state.entriesPageTick = 0;
       state.entriesPageIndex = (state.entriesPageIndex + 1) % state.entriesPages.length;
       if (state.iframeEl) sendEntriesResultsPayload(state.iframeEl, state.entriesPages[state.entriesPageIndex]);
+    });
+  }
+
+  // 2026-08-04: dp20/30/40（馬連・馬単・人気順の自動ページング）の tick（ISH-14 ②③）。
+  //   1 秒ごとに呼ばれ、ODDS_PAGE_SEC ごとに template を first↔second で差し替える。
+  //   template が変わるので applyOddsScreen が iframe.src を貼り替える（dp50 と同じ方式）。
+  //   固定ページの dp21/22/31/32/41/42 は oddsPageTemplates を持たないので対象外。
+  function checkOddsAutoPaging() {
+    screenStates.forEach(function(state) {
+      if (state.type !== 'odds') return;
+      if (!state.oddsPageTemplates || state.oddsPageTemplates.length < 2) return;
+      if (!state.iframeEl) return;
+      state.oddsPageTick = (state.oddsPageTick || 0) + 1;
+      if (state.oddsPageTick < ODDS_PAGE_SEC) return;
+      state.oddsPageTick = 0;
+      state.oddsPageIndex = (state.oddsPageIndex + 1) % state.oddsPageTemplates.length;
+      state.template = state.oddsPageTemplates[state.oddsPageIndex];
+      applyOddsScreen(state);
     });
   }
 
@@ -1043,7 +1098,8 @@
       target_race_no: state.target_race_no,
       target_date_offset: state.target_date_offset || 0
     };
-    var childQuery = buildChildQuery();
+    // 2026-08-04: dp11/12/13 の固定ページ（?page=N）を付与（ISH-14）
+    var childQuery = childQueryFor(state);
     if (iframe.getAttribute('data-template') !== state.template) {
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
@@ -1316,10 +1372,42 @@
   }
 
   var currentSlotIndex = -1;
+  var currentSlotSig = null;
+
+  // 2026-08-04: slot の「中身」が変わったかを判定するシグネチャ（ISH-19 / 木暮様 事象①）。
+  //   従来 applyCurrentSlot は slot_id の変化でしか screenStates を再構築しなかった。
+  //   CRM で「時間帯（time_section）はそのまま、中の画面設定（layout_section）だけ変更」した
+  //   場合は slot_id が変わらないため、スケジュールJSONを 30 秒ごとに取り直していても
+  //   画面が作り直されず、F5 するまで古い設定が残り続けた。
+  //     ・引地様 ISH-19「札幌→新潟に変えてもオッズ画面は札幌のまま」
+  //     ・木暮様 事象①「ナイターに切り替えても画面が止まったまま。手動 F5 まで復帰しない」
+  //   video 画面が data-sig で行っている「設定が変わったか」の判定を slot 全体へ広げる。
+  //   ⚠ server_time など毎ポーリングで変わる値は絶対に入れない（毎回再構築＝画面が点滅する）。
+  function slotSignature(slot, venueFilters) {
+    var parts = [slot.layout_pattern || slot.layout || ''];
+    (slot.screens || []).forEach(function(sc) {
+      var races = sc.races || [];
+      parts.push([
+        sc.position || sc.layout_section || '',
+        sc.display_pattern_id,
+        sc.type || 'odds',
+        sc.place_cd == null ? '' : sc.place_cd,
+        sc.back_color_code || '',
+        sc.signage_url || '',
+        sc.target_race_no == null ? '' : sc.target_race_no,
+        sc.target_date_offset || 0,
+        races.length,
+        races.map(function(r) { return r.data_source || r.race_id || ''; }).join('~'),
+        JSON.stringify(sc.video_config || null)
+      ].join('|'));
+    });
+    parts.push('vf:' + JSON.stringify(venueFilters || []));
+    return parts.join('#');
+  }
 
   // H-04 (2026-04-17): 旧 applyCurrentRace → applyCurrentSlot に刷新。
   //   race_rotation_seconds を廃止し、slot.screens[] から screenStates を構築。
-  //   slot切替時のみ screenStates を再構築し、画面ごとの race 進行は 1秒tick で管理。
+  //   2026-08-04: 再構築の条件を「slot_id の変化」から「slot_id または中身の変化」へ拡張。
   function applyCurrentSlot(schedule) {
     var slots = schedule.slots;
     if (!slots || !slots.length) return;
@@ -1327,10 +1415,13 @@
     var slot = slots[slotIdx] || {};
     if (!slot.screens || !slot.screens.length) return;
 
-    var slotChanged = (currentSlotId !== slot.slot_id);
+    var slotSig = slotSignature(slot, schedule.venue_filters);
+    var slotIdChanged = (currentSlotId !== slot.slot_id);
+    var slotChanged = slotIdChanged || (currentSlotSig !== slotSig);
     if (slotChanged) {
-      if (currentSlotIndex >= 0) setStatus('スロット切替中');
+      if (currentSlotIndex >= 0) setStatus(slotIdChanged ? 'スロット切替中' : '設定更新中');
       currentSlotId = slot.slot_id;
+      currentSlotSig = slotSig;
       currentSlotIndex = slotIdx;
 
       // 指示書09 T5-3: slot.layout に応じて CSS クラスを切替
@@ -1457,6 +1548,8 @@
       checkFrameOddsPaging();
       // 2026-07-15: dp50（出走成績）の自動ページング（1-3R→…→10-12R ループ）
       checkEntriesResultsPaging();
+      // 2026-08-04: dp20/30/40（馬連・馬単・人気順）の自動ページング（ISH-14 ②③）
+      checkOddsAutoPaging();
       // 情報バーのレース表示を最新化（遷移発生時に表示も更新）
       var slots = currentSchedule.slots || [];
       var currentSlot = null;
