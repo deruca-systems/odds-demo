@@ -12,8 +12,8 @@
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260801c">
-  <script src="../assets/js/common.js?v=20260801c"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260804a">
+  <script src="../assets/js/common.js?v=20260804a"></script>
 </head>
 <body>
 
@@ -290,11 +290,26 @@
   // ---- 4分割ブロック構築 ----
   // races[] を 6 件ずつブロック化し、最大4ブロック（.six-race）を .wrapper に描画。
   //   各ブロック = 6 列（.six-race__col）+ 凡例。col には全体通し番号 data-col-idx を付与。
+  var builtCols = -1;   // いま DOM に組んである列数（再構築の要否判定に使う）
+
   function buildBlocks(raceCount) {
     var wrapper = document.getElementById('wrapper');
+    var blocks = Math.min(MAX_BLOCKS, Math.max(1, Math.ceil(raceCount / COLS_PER_BLOCK)));
+    // 2026-08-04: ページ送りのちらつき対策（引地様 ISH-14 の dp60 対応で顕在化）。
+    //   従来は message を受けるたび wrapper.innerHTML='' で全消しし、空の列枠を作ってから
+    //   各列が非同期 fetch で埋まるのを待っていたため、切替の瞬間に画面が白く抜けた。
+    //   3R 版（entries-results-3r.html）は列 DOM を保持したまま col.innerHTML を
+    //   差し替えるだけなのでちらつかない。**同じ挙動に揃える。**
+    //   列構成が変わらないページ送り（dp60 の 1-6R ↔ 7-12R は常に同数）では
+    //   DOM を維持し、各列は fetch 完了時に個別へ差し替わる＝前の内容が残ったまま入れ替わる。
+    if (builtCols === raceCount
+        && wrapper.querySelectorAll('.six-race').length === blocks) {
+      applyBlockScale(blocks);
+      return;
+    }
     wrapper.innerHTML = '';
     colIsBanei = [];   // O-4/O-5: ブロック再構築で前回の判定を捨てる
-    var blocks = Math.min(MAX_BLOCKS, Math.max(1, Math.ceil(raceCount / COLS_PER_BLOCK)));
+    builtCols = raceCount;
     var idx = 0;
     for (var b = 0; b < blocks; b++) {
       var cols = '';
