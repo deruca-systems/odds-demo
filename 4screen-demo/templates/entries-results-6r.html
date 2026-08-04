@@ -12,8 +12,8 @@
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260804a">
-  <script src="../assets/js/common.js?v=20260804a"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260804b">
+  <script src="../assets/js/common.js?v=20260804b"></script>
 </head>
 <body>
 
@@ -290,7 +290,7 @@
   // ---- 4分割ブロック構築 ----
   // races[] を 6 件ずつブロック化し、最大4ブロック（.six-race）を .wrapper に描画。
   //   各ブロック = 6 列（.six-race__col）+ 凡例。col には全体通し番号 data-col-idx を付与。
-  var builtCols = -1;   // いま DOM に組んである列数（再構築の要否判定に使う）
+  var builtBlocks = -1;   // いま DOM に組んであるブロック数（再構築の要否判定に使う）
 
   function buildBlocks(raceCount) {
     var wrapper = document.getElementById('wrapper');
@@ -300,16 +300,29 @@
     //   各列が非同期 fetch で埋まるのを待っていたため、切替の瞬間に画面が白く抜けた。
     //   3R 版（entries-results-3r.html）は列 DOM を保持したまま col.innerHTML を
     //   差し替えるだけなのでちらつかない。**同じ挙動に揃える。**
-    //   列構成が変わらないページ送り（dp60 の 1-6R ↔ 7-12R は常に同数）では
-    //   DOM を維持し、各列は fetch 完了時に個別へ差し替わる＝前の内容が残ったまま入れ替わる。
-    if (builtCols === raceCount
+    //
+    //   ⚠ 判定はレース件数ではなく **ブロック数** で行う。
+    //   列は常に blocks × COLS_PER_BLOCK 本作られるため、件数が変わっても
+    //   ブロック数が同じなら DOM は作り直さなくてよい。
+    //   件数で比較していた版では、**12R 開催でない場（金沢は10R）だけ**
+    //   1-6R(6件) → 7-10R(4件) で件数が変わって再構築が走り、
+    //   その場だけちらつく状態になっていた（2026-08-04 STG 実機の録画で確認）。
+    if (builtBlocks === blocks
         && wrapper.querySelectorAll('.six-race').length === blocks) {
+      // 使われない列（例: 金沢 7-10R のときの 11R/12R 枠）は明示的に空にする。
+      //   DOM を保持する以上、消さないと前ページ（5R/6R）の内容が残ってしまう。
+      var keep = wrapper.querySelectorAll('.six-race__col');
+      for (var k = raceCount; k < keep.length; k++) {
+        keep[k].innerHTML = '';
+        colIsBanei[k] = false;
+      }
+      renderLegends();
       applyBlockScale(blocks);
       return;
     }
     wrapper.innerHTML = '';
     colIsBanei = [];   // O-4/O-5: ブロック再構築で前回の判定を捨てる
-    builtCols = raceCount;
+    builtBlocks = blocks;
     var idx = 0;
     for (var b = 0; b < blocks; b++) {
       var cols = '';
