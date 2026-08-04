@@ -798,11 +798,19 @@
   //   子テンプレ (entries-results-3r.html) は受信後、各列で results → odds フォールバック fetch を行う。
   // 2026-07-15: 出走成績の表示レース解決（display_patternマスタ整理一覧 §1）。
   //   実バッチは races[] に当日同場の全レースを出力する（スケジュールJSON出力PG設計書 v1.5 §6.5）
-  //   ため、固定範囲（51-54/61/62）は rr で絞り込み、dp50 は 3R 帯域の自動ページングを行う。
-  //   dp60 は screen8 4分割（2場×1-12R=24件、monitor 128）の全件同時表示と両立させるため
-  //   絞り込み・ページングとも行わない（6r テンプレが 6件×最大4ブロックへ自動配置）。
+  //   ため、固定範囲（51-54/61/62）は rr で絞り込み、dp50/dp60 は自動ページングを行う。
+  //   2026-08-04 訂正（及川）: dp60 は「**dp61/62（6R表示）をページングして 12R 分を見せる**」が
+  //   正しい定義。従来は「絞り込み・ページングとも行わない（全件を 6r テンプレの
+  //   6件×最大4ブロックへ自動配置）」という実装で、定義と食い違っていた。
+  //   ⚠ プロトの monitor 128 は dp60 に 2場×1-12R=24件を渡して1画面に敷き詰める使い方を
+  //     していたため、本改修で「2場の 1-6R」→「2場の 7-12R」の2ページ送りに変わる。
   var ENTRIES_FIXED_RANGE = { 51: [1, 3], 52: [4, 6], 53: [7, 9], 54: [10, 12], 61: [1, 6], 62: [7, 12] };
-  var ENTRIES_PAGE_RANGES = [[1, 3], [4, 6], [7, 9], [10, 12]];  // dp50 の 1-3R→…→10-12R ループ
+  // 自動ページングの帯域。dp50 は 3R 帯 ×4、dp60 は 6R 帯 ×2（= dp61 → dp62）。
+  var ENTRIES_PAGE_RANGES_BY_DP = {
+    50: [[1, 3], [4, 6], [7, 9], [10, 12]],
+    60: [[1, 6], [7, 12]]
+  };
+  var ENTRIES_PAGE_RANGES = ENTRIES_PAGE_RANGES_BY_DP[50];  // 後方互換（既存参照用）
   var ENTRIES_PAGE_SEC = (function() {
     var v = Number(new URL(location.href).searchParams.get('page_rotation'));
     return (v && v > 0) ? v : 15;  // 秒。?page_rotation= で上書き（デモ・検証用）
@@ -849,24 +857,27 @@
       var filtered = racesInRange(state.races, fixed);
       return filtered.length ? filtered : state.races;  // rr 復元不能な旧データは従来動作
     }
-    if (state.displayPatternId === 50) {
+    // dp50（3R帯×4）/ dp60（6R帯×2 ＝ dp61 → dp62）の自動ページング
+    var ranges = ENTRIES_PAGE_RANGES_BY_DP[state.displayPatternId];
+    if (ranges) {
       var pages = [];
-      ENTRIES_PAGE_RANGES.forEach(function(rg) {
+      ranges.forEach(function(rg) {
         var chunk = racesInRange(state.races, rg);
         if (chunk.length) pages.push(chunk);
       });
+      // rr を復元できない旧データや、1 ページ分しか無い場合は従来どおり全件を返す
       if (!pages.length) return state.races;
       state.entriesPages = pages.length > 1 ? pages : null;
       if (state.entriesPageIndex >= pages.length) state.entriesPageIndex = 0;
       return pages[state.entriesPageIndex];
     }
-    return state.races;  // dp60 ほか: 全件送信（6r テンプレ側で最大 24 件を 4 ブロック配置）
+    return state.races;
   }
 
-  // dp50 の自動ページング tick（1 秒ごとに呼ばれ、ENTRIES_PAGE_SEC ごとに次ページへ）
+  // dp50 / dp60 の自動ページング tick（1 秒ごとに呼ばれ、ENTRIES_PAGE_SEC ごとに次ページへ）
   function checkEntriesResultsPaging() {
     screenStates.forEach(function(state) {
-      if (state.displayPatternId !== 50) return;
+      if (!ENTRIES_PAGE_RANGES_BY_DP[state.displayPatternId]) return;
       if (!state.entriesPages || state.entriesPages.length < 2) return;
       state.entriesPageTick = (state.entriesPageTick || 0) + 1;
       if (state.entriesPageTick < ENTRIES_PAGE_SEC) return;
