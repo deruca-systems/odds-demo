@@ -378,6 +378,57 @@
     console.error('[fatal] ' + title + ' / ' + lead);
   }
 
+  // 2026-08-10: 「この時間帯の設定がありません」の案内（立川 TAC-11・木暮様）。
+  //   showFatalError と違い **復帰する**ため、body を作り替えずオーバーレイを重ねる。
+  //   設定が入れば次のポーリング（applyCurrentSlot）で hideNoScheduleNotice() が呼ばれて消える。
+  var noScheduleNoticeShown = false;
+  function showNoScheduleNotice(slots) {
+    // 設定済み（screens がある）時間帯を拾って案内に出す。原因を現場で切り分けられるようにする。
+    var configured = (slots || []).filter(function(s) {
+      return s && s.screens && s.screens.length;
+    }).map(function(s) {
+      return String(s.start_time || '--:--') + '〜' + String(s.end_time || '--:--');
+    });
+    var el = document.getElementById('noScheduleNotice');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'noScheduleNotice';
+      el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;'
+        + 'align-items:center;justify-content:center;background:#12161c;color:#fff;'
+        + 'font-family:sans-serif;text-align:center;padding:4vh 4vw;box-sizing:border-box;';
+      document.body.appendChild(el);
+    }
+    var esc = function(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+    // 2026-08-10: **この画面は来場者からも見えます。**「管理画面」「設定」等の内部の言葉は出さず、
+    //   売場の掲示として不自然でない文言にする（及川指示）。
+    //   切り分け用の情報は右下に小さく端末番号と時刻だけ（係員が電話で伝えられる最小限）。
+    //   詳細は console と情報バー（?debug=1 / H キー）で見る。
+    el.innerHTML =
+      '<div>'
+    + '<div style="font-size:3.0vw;font-weight:bold;margin-bottom:.7em;">'
+    +   'ただいま準備中です</div>'
+    + '<div style="font-size:1.7vw;color:#cfd8e3;">'
+    +   'しばらくお待ちください</div>'
+    + '</div>'
+    + '<div style="position:absolute;right:1.2vw;bottom:1.0vh;font-size:.85vw;'
+    +   'color:#39424e;font-family:monospace;">'
+    +   'M' + esc(MONITOR_ID || MONITOR_UUID || '-') + ' '
+    +   esc(fmtTime(new Date(correctedNow()))) + '</div>';
+    if (!noScheduleNoticeShown) {
+      console.warn('[no-schedule] 現在時刻に該当する設定がありません（設定済みの時間帯: '
+        + (configured.join(' / ') || 'なし') + '）');
+      noScheduleNoticeShown = true;
+    }
+    setStatus('設定なし');
+  }
+  function hideNoScheduleNotice() {
+    var el = document.getElementById('noScheduleNotice');
+    if (el) el.parentNode.removeChild(el);
+    noScheduleNoticeShown = false;
+  }
+
   // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
   //   ブラウザは index.html 共通。取得 JSON のみクエリで出し分ける：
   //     通常     ?monitor_id=…（後方互換 ?monitor=）        → schedules/{date}/{id}.json
@@ -1518,10 +1569,15 @@
   //   2026-08-04: 再構築の条件を「slot_id の変化」から「slot_id または中身の変化」へ拡張。
   function applyCurrentSlot(schedule) {
     var slots = schedule.slots;
-    if (!slots || !slots.length) return;
+    // 2026-08-10: 設定が無い時間帯で全画面が真っ黒になるのをやめ、案内を出す（立川 TAC-11・木暮様）。
+    //   現地では「モニターか PC の電源が入っていない」ように見え、故障と区別できない。
+    //   ISH-18（モニターID未指定）で入れた「黙って何も出さない、をやめる」方針と同じ趣旨。
+    //   ※ fatal と違い復帰するため body は壊さず、オーバーレイを重ねて次のポーリングで消す。
+    if (!slots || !slots.length) { showNoScheduleNotice(null); return; }
     var slotIdx = pickCurrentSlotIndex(slots);
     var slot = slots[slotIdx] || {};
-    if (!slot.screens || !slot.screens.length) return;
+    if (!slot.screens || !slot.screens.length) { showNoScheduleNotice(slots); return; }
+    hideNoScheduleNotice();
 
     var slotSig = slotSignature(slot, schedule.venue_filters);
     var slotIdChanged = (currentSlotId !== slot.slot_id);
@@ -1621,6 +1677,12 @@
       },
       onFailure: function(err, failCount) {
         setStatus('スケジュール取得失敗（連続' + failCount + '回）');
+        // 2026-08-10: **一度も描画できていない**ときだけ案内を出す（立川 TAC-11・木暮様）。
+        //   その日の設定が無い（＝スケジュール JSON が未生成）と 404 になり、
+        //   従来は真っ黒のままで「モニターか PC の電源が入っていない」ように見えていた。
+        //   すでに描画できている場合は**現在の表示を維持**する（従来どおり。一時的な通信断で
+        //   売場の画面を消さない）。
+        if (currentSlotIndex < 0) showNoScheduleNotice(null);
       }
     });
     window.OddsDemo.registerPoller(schedulePoller);
