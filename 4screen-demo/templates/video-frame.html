@@ -50,6 +50,79 @@
     var currentSource = null;
     var audioWanted = false;  // 直近 config が音声ON（audio_muted=false）を要求しているか
 
+    /* ------------------------------------------------------------------
+     * 2026-08-14: 映像だけ止まる事象への対処（ISH-26 / TAC-07 / TAC-12 / 8/3 事象①）
+     *
+     * 症状: オッズは進むのにレース映像が待機画面のまま／途中で張り付く。リロードで復帰。
+     *       とくに「実況が始まる前に動画画面を設定しておくと、実況が始まっても始まらない」。
+     *
+     * 原因: 動画 URL は会場単位（buildVideoUrl は venue_code から組む）で、当回が変わっても
+     *       変化しない。そのため親からの setVideoConfig 再送は「同一 source」で素通りする。
+     *       それ自体は正しい（当回ごとに張り替えると映像が途切れる）が、
+     *       **一度止まったプレイヤーを起こす仕組みがどこにも無かった**。
+     *         ・fatal な HLS エラーでもメッセージを出すだけで復帰しない
+     *         ・再生位置が進んでいないことを誰も監視していない
+     *       中央（GCH）側 gch-video-frame.js には fatal 復帰と定期ポーリングがあり、
+     *       報告4件がすべて地方であることと符合する。
+     *
+     * 対処: ①fatal エラーからの復帰（hls.js 標準の startLoad / recoverMediaError）
+     *       ②再生位置の停滞監視。止まっていたら張り直す
+     *       いずれも指数バックオフ付き。無人運用のため「諦めない」ことを優先する。
+     * ------------------------------------------------------------------ */
+    var WATCHDOG_INTERVAL_MS = 3000;   // 監視周期
+    var STALL_LIMIT_MS       = 15000;  // これだけ進まなければ停滞とみなす
+    var BACKOFF_MIN_MS       = 2000;
+    var BACKOFF_MAX_MS       = 30000;
+    var lastCfg       = null;   // 直近の設定（張り直しに使う）
+    var lastTime      = -1;
+    var lastProgressAt = 0;
+    var recoverCount  = 0;
+    var recoverTimer  = null;
+    var backoffMs     = BACKOFF_MIN_MS;
+
+    function nowMs() { return new Date().getTime(); }
+
+    /** 再接続を予約する。連続失敗時はバックオフを伸ばす。 */
+    function scheduleRecover(reason) {
+      if (recoverTimer || !lastCfg) return;
+      recoverCount++;
+      var waitSec = Math.round(backoffMs / 1000);
+      console.warn('[video-frame] 再接続を予約 #' + recoverCount + ' 理由=' + reason + ' ' + waitSec + '秒後');
+      setStatus('再接続待ち(' + recoverCount + ') ' + reason + ' → ' + waitSec + '秒後', true);
+      recoverTimer = setTimeout(function() {
+        recoverTimer = null;
+        backoffMs = Math.min(backoffMs * 2, BACKOFF_MAX_MS);
+        // 同一 source 判定を外して必ず張り直す
+        currentSource = null;
+        // -1 で初期化すると、張り直し直後の初回監視で currentTime(0) と食い違い
+        // 「進行した」と誤判定してバックオフが伸びない。実値で初期化すること。
+        lastTime = videoEl.currentTime;
+        lastProgressAt = nowMs();
+        applyConfig(lastCfg);
+      }, backoffMs);
+    }
+
+    // 再生位置が進んでいるかを見張る。events ではなく実測値をポーリングする
+    // （stalled/waiting は発火しないまま止まることがあるため）。
+    setInterval(function() {
+      if (!currentSource || recoverTimer) return;
+      var t = videoEl.currentTime;
+      if (t !== lastTime) {
+        lastTime = t;
+        lastProgressAt = nowMs();
+        if (backoffMs !== BACKOFF_MIN_MS) {
+          backoffMs = BACKOFF_MIN_MS;   // 正常に進んだらバックオフを戻す
+          console.info('[video-frame] 再生が進行。バックオフを初期化');
+        }
+        return;
+      }
+      if (!lastProgressAt) { lastProgressAt = nowMs(); return; }
+      var stalled = nowMs() - lastProgressAt;
+      if (stalled >= STALL_LIMIT_MS) {
+        scheduleRecover('停滞 ' + Math.round(stalled / 1000) + '秒');
+      }
+    }, WATCHDOG_INTERVAL_MS);
+
     function setStatus(text, isError) {
       if (!statusEl) return;
       statusEl.textContent = text;
@@ -96,6 +169,7 @@
      */
     function applyConfig(cfg) {
       if (!cfg) return;
+      lastCfg = cfg;   // 停滞・エラーからの張り直しに使う
       var videoSource = cfg.video_source;
       var qualityMode = cfg.quality_mode || 'auto';
       var qualityCap  = cfg.quality_cap != null ? Number(cfg.quality_cap) : null;
@@ -134,6 +208,10 @@
         hls = null;
       }
       currentSource = videoSource;
+      // -1 で初期化すると、張り直し直後の初回監視で currentTime(0) と食い違い
+      // 「進行した」と誤判定してバックオフが伸びない。実値で初期化すること。
+      lastTime = videoEl.currentTime;
+      lastProgressAt = nowMs();   // 張り直し直後に即・停滞判定されないようにする
 
       if (window.Hls && Hls.isSupported()) {
         hls = new Hls({
@@ -149,11 +227,29 @@
           setStatus('再生開始 ' + (videoSource.split('/').pop()));
           tryPlay();
         });
+        // 2026-08-14: fatal を放置していたため一度落ちると永久に復帰しなかった。
+        //   hls.js 標準の復帰手順を踏み、それでも駄目なら張り直しを予約する。
         hls.on(Hls.Events.ERROR, function(event, data) {
-          console.error('[video-frame] hls error', data);
-          if (data && data.fatal) {
-            setStatus('HLS エラー: ' + (data.details || data.type), true);
+          if (!data) return;
+          if (!data.fatal) {
+            console.debug('[video-frame] hls warn', data.details);
+            return;
           }
+          console.error('[video-frame] hls fatal', data.type, data.details);
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            try {
+              hls.startLoad();
+              setStatus('通信エラー: 再読込中（' + data.details + '）', true);
+              return;
+            } catch (_) {}
+          } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+            try {
+              hls.recoverMediaError();
+              setStatus('再生エラー: 復旧中（' + data.details + '）', true);
+              return;
+            } catch (_) {}
+          }
+          scheduleRecover('HLS ' + (data.details || data.type));
         });
       } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
         // iOS Safari など HLS ネイティブサポート

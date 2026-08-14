@@ -1357,7 +1357,11 @@
       iframe.setAttribute('data-template', videoTemplate);
       iframe.setAttribute('data-sig', sig);
       iframe.removeAttribute('data-source');
-      iframe.src = videoTemplate;
+      // 2026-08-14: 動画テンプレだけキャッシュバスターが付いておらず、
+      //   video-frame.html を直しても旧版がキャッシュから読まれる状態だった。
+      //   オッズ子テンプレ（state.template + childQuery）と同じ扱いに揃える。
+      //   data-template は従来どおりクエリ無しで保持する（needsReload の比較キーのため）。
+      iframe.src = videoTemplate + buildChildQuery();
       iframe.onload = sendConfig;
     } else if (needsReconfig) {
       iframe.setAttribute('data-sig', sig);
