@@ -5,8 +5,8 @@
   <title>人気順1-15 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260805b">
-  <script src="../assets/js/common.js?v=20260805b"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260814a">
+  <script src="../assets/js/common.js?v=20260814a"></script>
 </head>
 <body>
 
@@ -178,6 +178,9 @@
         return D.fetchWithOffset(dataUrl);
       },
       onSuccess: function(res) {
+        // ISH-16B (2026-08-14): 受領した offset を保持する。代入が無いと 0 のままで
+        //   締切表示・カットイン・ヘッダーtick が端末時計そのままになる。render() より前に置く。
+        serverOffsetMs = res.serverOffset || 0;
         render(res.data);
         D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
         if (window.parent !== window) {

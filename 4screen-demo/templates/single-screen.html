@@ -5,8 +5,8 @@
   <title>単勝・複勝・枠連 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430s3">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260805b">
-  <script src="../assets/js/common.js?v=20260805b"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260814a">
+  <script src="../assets/js/common.js?v=20260814a"></script>
 </head>
 <body>
 
@@ -251,9 +251,13 @@
   }
 
   // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
-  // checkCutin は親から受け取った初回固定 offset (serverOffsetMs) を使う。
-  // fetchWithOffset の res.serverOffset は毎 poll で再計算されるため、静的 server_time に
-  // スナップして時間が進まない。ヘッダー startHeaderTicker と同じ基準に揃えるため初回固定を使用。
+  // ISH-16B (2026-08-14): serverOffsetMs は毎 poll で res.serverOffset に更新する。
+  //   旧コメントは「親から受け取った初回固定 offset を使う」と書いていたが、実際には
+  //   **どこにも代入が無く 0 のまま**で、renderRaceHeader / checkCutin / startHeaderTicker の
+  //   3経路すべてが端末時計そのままだった（PC の時刻ズレが締切表示にそのまま出る）。
+  //   「毎 poll だと静的 server_time にスナップして進まない」という旧来の懸念は
+  //   server_time-fix-v3 (2026-04-20) で解消済み。offset は HTTP Date+Age 由来の**差分**なので
+  //   再計算しても値はほぼ不変で、poll 間も Date.now() が進む。毎回更新するほうが時計ドリフトに強い。
   function startPolling() {
     if (currentPoller) currentPoller.stop();
     currentPoller = D.startResilientPolling({
@@ -264,6 +268,8 @@
         return D.fetchWithOffset(dataUrl);
       },
       onSuccess: function(res) {
+        // ISH-16B: render() より前に代入する（render 内の renderRaceHeader が既に使う）
+        serverOffsetMs = res.serverOffset || 0;
         render(res.data);
         D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
         if (window.parent !== window) {
