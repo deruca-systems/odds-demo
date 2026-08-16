@@ -1275,14 +1275,17 @@ window.OddsDemo = {
   ensureCutinTemplate: ensureCutinTemplate,
   renderMatrixTable: renderMatrixTable,
   // 2026-08-05 №22: オッズ画面のページ定義（描画パラメータ＋空判定＋親通知）
-  matrixPageOpts: matrixPageOpts,
+  // 2026-08-16 ISH-25: キーをテンプレ名 → ページ番号（1始まり）へ変更
+  matrixPageOpts: matrixPageOpts,           // (type, page)
+  matrixPageCount: matrixPageCount,         // (type)
   matrixPagePairs: matrixPagePairs,
   matrixPageHasContent: matrixPageHasContent,
-  popularPageOpts: popularPageOpts,
+  popularPageOpts: popularPageOpts,         // (page)
+  popularPageCount: popularPageCount,
   popularPageHasContent: popularPageHasContent,
-  notifyOddsPagesAvailability: notifyOddsPagesAvailability,
-  MATRIX_PAGE_SPEC: MATRIX_PAGE_SPEC,
-  POPULAR_PAGE_SPEC: POPULAR_PAGE_SPEC,
+  notifyOddsPagesAvailability: notifyOddsPagesAvailability,  // (url, data, kind)
+  MATRIX_PAGES: MATRIX_PAGES,
+  POPULAR_PAGES: POPULAR_PAGES,
   // 指示書07 エラーハンドリング
   startResilientPolling: startResilientPolling,
   registerPoller: registerPoller,
@@ -1322,7 +1325,7 @@ window.OddsDemo = {
  * 馬番順マトリクスの「ページ定義」。単一の正とし、描画も空判定もここから導く。
  *
  * 2026-08-05 (引地様 №22): dp20/30 の自動ページングで 2 ページ目が真っ黒になっていた。
- *   `single-umaren-second.html` は軸馬 10〜17 を出すテンプレなので、少頭数のレースでは
+ *   馬連の**ページ2**は軸馬 10〜17 を出すので、少頭数のレースでは
  *   描くものが 1 つも無い（8頭・9頭の実データで実測: セル 0 個）。dp50 にある
  *   「ページが1つなら送らない」ガードが dp20/30/40 に無かった。
  *
@@ -1332,21 +1335,46 @@ window.OddsDemo = {
  *   ・notifyOddsPagesAvailability() が全ページの可否を計算して親へ通知する
  * とし、**描画と可否判定が同じ列挙関数 matrixPagePairs() を通る**ようにする。
  */
-var MATRIX_PAGE_SPEC = {
-  'single-umaren-first.html':  { type: 'umaren', axisFrom: 1,  axisTo: 9  },
-  'single-umaren-second.html': { type: 'umaren', axisFrom: 10, axisTo: 17 },
-  'single-umatan-first.html':  { type: 'umatan', axisFrom: 1,  axisTo: 9  },
-  'single-umatan-second.html': { type: 'umatan', axisFrom: 10, axisTo: 18 }
+/*
+ * 2026-08-16 (ISH-25): **キーをテンプレ名からページ番号へ移した。**
+ *   旧: 1ページ＝1テンプレで、ページ送り＝親が iframe.src を差し替える方式だった。
+ *       src が変わると iframe がまるごと再読込され、**4分割で3画面が同時に 0.33 秒暗転**する
+ *       （2026-08-16 の録画をフレーム解析して実測。輝度 80.4 → 47.1 → 79.4 の10フレーム）。
+ *   新: 1テンプレが全ページを描けるようにし、**親は postMessage でページ番号だけ送る**。
+ *       iframe は再読込されないので暗転しない。出走成績（dp50/60）が既にこの方式で、
+ *       同じ録画で暗転ゼロ・切替1〜3フレームであることを確認済み。
+ *
+ *   ページ番号は **1 始まり**（?page=N・setOddsPage の page と一致させる）。
+ */
+var MATRIX_PAGES = {
+  umaren: [
+    { axisFrom: 1,  axisTo: 9  },   // ページ1（dp21）
+    { axisFrom: 10, axisTo: 17 }    // ページ2（dp22）
+  ],
+  umatan: [
+    { axisFrom: 1,  axisTo: 9  },   // ページ1（dp31）
+    { axisFrom: 10, axisTo: 18 }    // ページ2（dp32）
+  ]
 };
 
-/** テンプレ名から描画パラメータ（type/axisFrom/axisTo）の複製を返す。 */
-function matrixPageOpts(templateName) {
-  var s = MATRIX_PAGE_SPEC[templateName];
-  if (!s) {
-    console.warn('[matrix-page] MATRIX_PAGE_SPEC に未登録のテンプレ: ' + templateName);
+/** 種別とページ番号（1始まり）から描画パラメータの複製を返す。 */
+function matrixPageOpts(type, page) {
+  var list = MATRIX_PAGES[type];
+  if (!list) {
+    console.warn('[matrix-page] 未知の種別: ' + type);
     return null;
   }
-  return { type: s.type, axisFrom: s.axisFrom, axisTo: s.axisTo };
+  var s = list[(page || 1) - 1];
+  if (!s) {
+    console.warn('[matrix-page] 未定義のページ: ' + type + ' page=' + page);
+    return null;
+  }
+  return { type: type, axisFrom: s.axisFrom, axisTo: s.axisTo };
+}
+
+/** 種別のページ数。親がローテの上限に使う。 */
+function matrixPageCount(type) {
+  return (MATRIX_PAGES[type] || []).length;
 }
 
 /**
@@ -1379,25 +1407,31 @@ function matrixPageHasContent(horses, opts) {
 }
 
 /**
- * 人気順（SCR-ODD-004）のページ定義。MATRIX_PAGE_SPEC と同じ考え方で単一の正とする。
+ * 人気順（SCR-ODD-004）のページ定義。MATRIX_PAGES と同じ考え方で単一の正とする。
  *   ①=上位1〜15位 / ②=上位16〜30位。テンプレはここから offset/limit を受け取る。
  * 2026-08-05: dp40（人気順の自動ページング）も親が template を差し替える＝iframe を
  *   リロードする作りなので、№21（カットイン再発火）も №22（中身の無いページへ送る）も
  *   同じ穴がある。dp20/30 と同じ仕組みに載せる（及川指示）。
  */
-var POPULAR_PAGE_SPEC = {
-  'single-popular.html':        { offset: 0,  limit: 15 },
-  'single-popular-second.html': { offset: 15, limit: 15 }
-};
+/* 2026-08-16 (ISH-25): MATRIX_PAGES と同じくページ番号キーへ移した（理由は上記）。 */
+var POPULAR_PAGES = [
+  { offset: 0,  limit: 15 },   // ページ1（dp41）上位 1〜15 位
+  { offset: 15, limit: 15 }    // ページ2（dp42）上位 16〜30 位
+];
 
-/** テンプレ名から人気順の描画パラメータ（offset/limit）の複製を返す。 */
-function popularPageOpts(templateName) {
-  var s = POPULAR_PAGE_SPEC[templateName];
+/** ページ番号（1始まり）から人気順の描画パラメータの複製を返す。 */
+function popularPageOpts(page) {
+  var s = POPULAR_PAGES[(page || 1) - 1];
   if (!s) {
-    console.warn('[popular-page] POPULAR_PAGE_SPEC に未登録のテンプレ: ' + templateName);
+    console.warn('[popular-page] 未定義のページ: page=' + page);
     return null;
   }
   return { offset: s.offset, limit: s.limit };
+}
+
+/** 人気順のページ数。 */
+function popularPageCount() {
+  return POPULAR_PAGES.length;
 }
 
 /** 人気順の 4 賭式リスト（取消除外後）。描画側と同じ手順を通す。 */
@@ -1428,24 +1462,32 @@ function popularPageHasContent(data, horses, spec) {
  *   （「出してから空だと分かる」方式だと一瞬黒くなる）。
  *   馬番順マトリクス（dp20/30）と人気順（dp40）の両方をここで面倒を見る。
  */
-function notifyOddsPagesAvailability(dataUrl, data) {
+function notifyOddsPagesAvailability(dataUrl, data, kind) {
   if (window.parent === window) return;
   data = data || {};
   var horses = data.horses || [];
-  var pages = {};
-  var name;
-  for (name in MATRIX_PAGE_SPEC) {
-    if (!MATRIX_PAGE_SPEC.hasOwnProperty(name)) continue;
-    pages['templates/' + name] = matrixPageHasContent(horses, MATRIX_PAGE_SPEC[name]);
-  }
-  for (name in POPULAR_PAGE_SPEC) {
-    if (!POPULAR_PAGE_SPEC.hasOwnProperty(name)) continue;
-    pages['templates/' + name] = popularPageHasContent(data, horses, POPULAR_PAGE_SPEC[name]);
+  // 2026-08-16 (ISH-25): キーをテンプレ名からページ番号へ。
+  //   pages[i] が false のページへ親はローテしない（i は 0 始まり＝ページ i+1）。
+  //   kind は 'umaren' | 'umatan' | 'popular'。**表示中の子が自分の種別の全ページを答える。**
+  var pages = [];
+  if (kind === 'popular') {
+    POPULAR_PAGES.forEach(function(spec) {
+      pages.push(popularPageHasContent(data, horses, spec));
+    });
+  } else if (MATRIX_PAGES[kind]) {
+    MATRIX_PAGES[kind].forEach(function(spec) {
+      pages.push(matrixPageHasContent(horses, {
+        type: kind, axisFrom: spec.axisFrom, axisTo: spec.axisTo
+      }));
+    });
+  } else {
+    return;   // 種別不明なら通知しない（親は 1 ページ運用のまま）
   }
   try {
     window.parent.postMessage({
       type: 'oddsPagesAvailability',
       url: dataUrl,
+      kind: kind,
       horses: horses.length,
       pages: pages
     }, '*');

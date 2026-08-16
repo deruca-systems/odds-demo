@@ -5,8 +5,8 @@
   <title>人気順1-15 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260814a">
-  <script src="../assets/js/common.js?v=20260814a"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260816b">
+  <script src="../assets/js/common.js?v=20260816b"></script>
 </head>
 <body>
 
@@ -71,11 +71,36 @@
   var currentPoller = null;   // 指示書07: 指数バックオフ付き poller
   var lastData = null;
   var serverOffsetMs = 0;
-  // 2026-08-05 №22: 表示範囲は common.js の POPULAR_PAGE_SPEC が単一の正。
+  // 2026-08-05 №22: 表示範囲は common.js の POPULAR_PAGES が単一の正。
   //   ここに数値を書くと親のページ送り可否判定と食い違う。
-  var PAGE = D.popularPageOpts('single-popular.html') || { offset: 0, limit: 15 };
-  var ROWS_PER_LIST = PAGE.limit;
-  var OFFSET = PAGE.offset;
+  // 2026-08-16 (ISH-25): 旧 single-popular / -second を1枚に統合した。
+  //   ページ送りは**親が postMessage(setOddsPage) で番号を送る**方式（出走成績 dp50/60 と同じ）。
+  //   旧方式は親が iframe.src を差し替えており、**4分割で3画面が同時に 0.33 秒暗転**していた
+  //   （2026-08-16 の録画をフレーム解析して実測）。
+  //   ?page=N があればそのページに固定（dp41/42）。無ければ親のローテに従う（dp40）。
+  var currentPage = 1;
+  (function applyQuery() {
+    try {
+      var p = Number(new URL(location.href).searchParams.get('page'));
+      if (isFinite(p) && p >= 1) currentPage = p;
+    } catch (_) {}
+  })();
+  function pageSpec() {
+    return D.popularPageOpts(currentPage) || { offset: 0, limit: 15 };
+  }
+  // 見出しもページで変わる（上位1〜15 / 上位16〜30）
+  var LIST_HEADS = { umarenList: '馬連', umatanList: '馬単',
+                     trioList: '3連複', trifectaList: '3連単' };
+  function updateListHeads() {
+    var s = pageSpec();
+    var from = s.offset + 1, to = s.offset + s.limit;
+    Object.keys(LIST_HEADS).forEach(function(id) {
+      var body = document.getElementById(id);
+      var head = body && body.parentElement
+        ? body.parentElement.querySelector('.popular-table__head') : null;
+      if (head) D.setText(head, LIST_HEADS[id] + ' 上位' + from + '～' + to);
+    });
+  }
 
   function renderHorses(horses) {
     document.getElementById('popular').style.setProperty('--horse-count', horses.length);
@@ -159,12 +184,18 @@
     var umatanList   = D.filterScratchedFromPopular(data.umatan_popular,   horses, 2);
     var trioList     = D.filterScratchedFromPopular(data.trio_popular,     horses, 3);
     var trifectaList = D.filterScratchedFromPopular(data.trifecta_popular, horses, 3);
-    renderCombinationList('umarenList',   umarenList,   horses, 2, OFFSET, ROWS_PER_LIST, 'quinella');
-    renderCombinationList('umatanList',   umatanList,   horses, 2, OFFSET, ROWS_PER_LIST, 'exacta');
-    renderCombinationList('trioList',     trioList,     horses, 3, OFFSET, ROWS_PER_LIST, 'trio');
-    renderCombinationList('trifectaList', trifectaList, horses, 3, OFFSET, ROWS_PER_LIST, 'trifecta');
+    var SP = pageSpec();
+    // 2026-08-16 (ISH-25): いま何ページ目かを DOM に出す（single-umaren.html と同じ理由）。
+    //   人気順は**上部の単勝表がページで変わらない**ため、冒頭テキストを見る検証は
+    //   ページ送りを取り逃がす（実際 render_matrix がそれで誤検知した）。
+    document.body.setAttribute('data-odds-page', currentPage);
+    updateListHeads();
+    renderCombinationList('umarenList',   umarenList,   horses, 2, SP.offset, SP.limit, 'quinella');
+    renderCombinationList('umatanList',   umatanList,   horses, 2, SP.offset, SP.limit, 'exacta');
+    renderCombinationList('trioList',     trioList,     horses, 3, SP.offset, SP.limit, 'trio');
+    renderCombinationList('trifectaList', trifectaList, horses, 3, SP.offset, SP.limit, 'trifecta');
     // 2026-08-05 №22: 各ページに中身があるかを親へ通知（親は空のページへページ送りしない）
-    D.notifyOddsPagesAvailability(dataUrl, data);
+    D.notifyOddsPagesAvailability(dataUrl, data, 'popular');
   }
 
   // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
@@ -197,6 +228,15 @@
   }
 
   window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setOddsPage') {
+      // 2026-08-16 (ISH-25): ページ送り。**iframe を再読込せず DOM を描き替えるだけ。**
+      var np = Number(e.data.page);
+      if (isFinite(np) && np >= 1 && np !== currentPage) {
+        currentPage = np;
+        if (lastData) render(lastData);
+      }
+      return;
+    }
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
       // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。

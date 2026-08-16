@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <!--
-  馬単オッズ（馬番順）軸馬 10～18 ページ
+  馬連オッズ（馬番順）軸馬 1～9 ページ
   ※ 芥川様から single-* 単体HTMLの受領前の暫定テンプレ。
      docs/画面サンプル(202604015_screen34サンプル)/screen2.html より
-     .screen.screen-umatan.screen-second ブロックを切り抜いて作成。
+     .screen.screen-umaren.screen-first ブロックを切り抜いて作成。
      正式版受領時はこのファイルを丸ごと差し替え。
 -->
 <html lang="ja" class="single-screen">
 <head>
   <meta charset="UTF-8">
-  <title>馬単オッズ（馬番順）2 単体表示</title>
+  <title>馬連オッズ（馬番順）1 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260814a">
-  <script src="../assets/js/common.js?v=20260814a"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260816b">
+  <script src="../assets/js/common.js?v=20260816b"></script>
 </head>
 <body>
 
 <div class="wrapper">
-  <div class="screen screen-umatan screen-second" id="screen">
-    <div class="race-header header-light_blue">
+  <div class="screen screen-umaren screen-first" id="screen">
+    <div class="race-header header-orange">
       <div class="race-title">
         <span id="hdr-venue"></span><span class="race" id="hdr-race"><span>R</span></span><span id="hdr-raceName"></span><span id="hdr-raceClass"></span>
       </div>
@@ -41,7 +41,7 @@
       <div class="previous-day is-hidden">前日発売</div>
     </div>
     <div class="screen-main">
-      <div class="screen-main__head">馬単オッズ（馬番順）</div>
+      <div class="screen-main__head">馬連オッズ（馬番順）</div>
       <div class="screen-table" id="oddsTable"></div>
     </div>
   </div>
@@ -58,26 +58,42 @@
   var lastData = null;
   var serverOffsetMs = 0;
 
+  // 2026-08-16 (ISH-25): 旧 single-umaren-first / -second を1枚に統合した。
+  //   ページ送りは**親が postMessage(setOddsPage) で番号を送る**方式（出走成績 dp50/60 と同じ）。
+  //   旧方式は親が iframe.src を差し替えており、**4分割で3画面が同時に 0.33 秒暗転**していた。
+  //   ?page=N があればそのページに固定（dp21/22）。無ければ親のローテに従う（dp20）。
+  var currentPage = 1;
+  (function applyQuery() {
+    try {
+      var p = Number(new URL(location.href).searchParams.get('page'));
+      if (isFinite(p) && p >= 1) currentPage = p;
+    } catch (_) {}
+  })();
+
   function render(data) {
     var race = data.race || {};
     var horses = data.horses || [];
     lastData = data;
     document.getElementById('screen').style.setProperty('--horse-count', horses.length);
     D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
-    // 2026-08-05 №22: 軸範囲は common.js の MATRIX_PAGE_SPEC が単一の正。
-    //   ここに数値を書くと親のページ送り可否判定と食い違う（少頭数で真っ黒になった原因）。
-    var opts = D.matrixPageOpts('single-umatan-second.html');
+    // 2026-08-16 (ISH-25): いま何ページ目かを DOM に出す。
+    //   統合前はテンプレ名（-first / -second）で外から判別できたが、統合して同じ名前に
+    //   なったため**検証ツールがページを見分けられなくなった**（render_matrix が
+    //   「回っていない」と誤検知した）。**名前で判っていたことを属性で残す。**
+    document.body.setAttribute('data-odds-page', currentPage);
+    // 2026-08-05 №22 / 2026-08-16 ISH-25: 軸範囲は common.js の MATRIX_PAGES が単一の正。
+    var opts = D.matrixPageOpts('umaren', currentPage);
     if (opts) opts.organizer_type = race.organizer_type;
-    D.renderMatrixTable(document.getElementById('oddsTable'), horses, data.umatan_matrix, opts);
+    D.renderMatrixTable(document.getElementById('oddsTable'), horses, data.umaren_matrix, opts);
     // 各ページに中身があるかを親へ通知（親は空のページへページ送りしない）
-    D.notifyOddsPagesAvailability(dataUrl, data);
+    D.notifyOddsPagesAvailability(dataUrl, data, 'umaren');
   }
 
   // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
   function startPolling() {
     if (currentPoller) currentPoller.stop();
     currentPoller = D.startResilientPolling({
-      name: 'single-umatan-second',
+      name: 'single-umaren',
       baseIntervalMs: D.pollInterval,
       fetch: function() {
         if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
@@ -103,12 +119,21 @@
   }
 
   window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'setDataUrl') {
+    if (!e.data) return;
+    if (e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
       // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
       //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
       //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       startPolling();
+    } else if (e.data.type === 'setOddsPage') {
+      // 2026-08-16 (ISH-25): ページ送り。**iframe を再読込せず DOM を描き替えるだけ。**
+      //   これがちらつきを消す本体。lastData があれば即再描画、無ければ次の poll で反映。
+      var p = Number(e.data.page);
+      if (isFinite(p) && p >= 1 && p !== currentPage) {
+        currentPage = p;
+        if (lastData) render(lastData);
+      }
     }
   });
 

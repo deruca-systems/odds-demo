@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260716a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260814a"></script>
+<script src="assets/js/common.js?v=20260816b"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -285,18 +285,22 @@
     11:  'templates/single-umaren-wide.html',
     12:  'templates/single-umaren-wide.html',
     13:  'templates/single-umaren-wide.html',
+    // 2026-08-16 (ISH-25): 馬連・馬単・人気順の first/second を1枚に統合した。
+    //   自動ページング(20/30/40)も固定(21/22/31/32/41/42)も**同じテンプレ**を使い、
+    //   ページは ?page=N（固定）または postMessage setOddsPage（ローテ）で指定する。
+    //   iframe.src が変わらないので**ページ送りで再読込されない＝暗転しない**。
     // 馬連（マトリクス）
-    20:  'templates/single-umaren-first.html',
-    21:  'templates/single-umaren-first.html',
-    22:  'templates/single-umaren-second.html',
+    20:  'templates/single-umaren.html',
+    21:  'templates/single-umaren.html',
+    22:  'templates/single-umaren.html',
     // 馬単（マトリクス）
-    30:  'templates/single-umatan-first.html',
-    31:  'templates/single-umatan-first.html',
-    32:  'templates/single-umatan-second.html',
+    30:  'templates/single-umatan.html',
+    31:  'templates/single-umatan.html',
+    32:  'templates/single-umatan.html',
     // 人気順
     40:  'templates/single-popular.html',
     41:  'templates/single-popular.html',
-    42:  'templates/single-popular-second.html',
+    42:  'templates/single-popular.html',
     // 出走成績（3R 系: 自動ページング/固定範囲）
     50:  'templates/entries-results-3r.html',
     51:  'templates/entries-results-3r.html',
@@ -603,7 +607,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260814a');
+    params.set('v', '20260816b');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -773,14 +777,17 @@
         entriesPageIndex: 0,
         entriesPageTick: 0,
         // 2026-08-04: dp20/30/40（オッズ画面の自動ページング）のページ状態（ISH-14 ②③）。
-        //   ODDS_PAGE_TEMPLATES[dp] の [0] は resolveTemplate の解決先と一致させてある。
-        oddsPageTemplates: ODDS_PAGE_TEMPLATES[screen.display_pattern_id] || null,
+        //   2026-08-16 ISH-25: 全ページを1テンプレで描くようにしたので、
+        //   ここはテンプレではなく**ページ数と種別**だけを持つ。
+        // 2026-08-16 ISH-25: テンプレ配列 → ページ数＋種別
+        oddsPageCount: ODDS_PAGE_COUNT[screen.display_pattern_id] || 0,
+        oddsPageKind:  ODDS_PAGE_KIND[screen.display_pattern_id] || null,
         oddsPageIndex: 0,
         oddsPageTick: 0,
         // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
         //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
         //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
-        oddsPageAvailable: {},
+        oddsPageAvailable: [],
         // 2026-08-05 (引地様 №21): カットインの発火済みキーと表示中フラグ。
         //   ページ送りは iframe をリロードするため子の状態が飛ぶ。親が持って復元する。
         cutinShownForRace: null,
@@ -923,17 +930,32 @@
   //   無かった（dp40→single-popular.html は dp41 と同一、等）。dp50 と同じ「親側でローテ」
   //   方式に揃えて補う。ローテは template を差し替えるため applyOddsScreen が
   //   iframe.src を貼り替える（dp50 と同じ挙動）。
-  var ODDS_PAGE_TEMPLATES = {
-    20: ['templates/single-umaren-first.html', 'templates/single-umaren-second.html'],
-    30: ['templates/single-umatan-first.html', 'templates/single-umatan-second.html'],
-    40: ['templates/single-popular.html',      'templates/single-popular-second.html']
+  // 2026-08-16 (ISH-25): テンプレ配列 → **ページ数**へ。テンプレは1枚に統合したので、
+  //   ローテは「何ページあるか」だけ分かればよい。切替は postMessage(setOddsPage)。
+  //   kind は子が空ページ通知（oddsPagesAvailability）で名乗る種別と一致させる。
+  var ODDS_PAGE_KIND = {
+    20: 'umaren',
+    30: 'umatan',
+    40: 'popular'
+  };
+  var ODDS_PAGE_COUNT = {
+    20: 2,
+    30: 2,
+    40: 2
   };
   // 2026-08-04: 馬連・ワイド（dp10-13）は 1 テンプレ内でページ制御する作りで、
   //   子は ?page=N で固定ページになる（single-umaren-wide.html の forcedPage）。
   //   ところが親は ?page= を「親URLからの素通し」しかしておらず dp から導出していなかったため、
   //   dp11/12/13 を選んでも固定にならず常にローテしていた。dp→page をここで与える。
   //   dp10（自動ページング）は page を付けない＝テンプレ側のローテに任せる。
-  var ODDS_FIXED_PAGE = { 11: 1, 12: 2, 13: 3 };
+  // 2026-08-16 (ISH-25): 統合に伴い 21/22・31/32・41/42 もここで固定ページを与える。
+  //   dp11/12/13（馬連・ワイド）は従来どおり。
+  var ODDS_FIXED_PAGE = {
+    11: 1, 12: 2, 13: 3,
+    21: 1, 22: 2,
+    31: 1, 32: 2,
+    41: 1, 42: 2
+  };
   var ODDS_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
 
   // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
@@ -987,18 +1009,21 @@
   }
 
   // 2026-08-04: dp20/30/40（馬連・馬単・人気順の自動ページング）の tick（ISH-14 ②③）。
-  //   1 秒ごとに呼ばれ、ODDS_PAGE_SEC ごとに template を first↔second で差し替える。
-  //   template が変わるので applyOddsScreen が iframe.src を貼り替える（dp50 と同じ方式）。
-  //   固定ページの dp21/22/31/32/41/42 は oddsPageTemplates を持たないので対象外。
+  //   1 秒ごとに呼ばれ、ODDS_PAGE_SEC ごとにページを送る。
+  //   2026-08-16 ISH-25: **template は変えず postMessage(setOddsPage) でページ番号を送る。**
+  //     旧方式（template を first↔second で差し替え＝iframe.src 貼り替え）は
+  //     4分割で3画面が同時に 0.33 秒暗転していた（録画のフレーム解析で実測）。
+  //   固定ページの dp21/22/31/32/41/42 は oddsPageCount を持たないので対象外
+  //     （ODDS_FIXED_PAGE で ?page=N を与える）。
   // 2026-08-05 (引地様 №22): そのページに中身があるか。子からの通知が無い間は true。
   //   dp50 の「ページが1つなら送らない」ガードを dp20/30/40 にも用意するための土台。
   function oddsPageIsAvailable(state, idx) {
-    var tmpl = state.oddsPageTemplates[idx];
-    return state.oddsPageAvailable[tmpl] !== false;
+    // 2026-08-16 ISH-25: 子は自分の種別の全ページを配列で答える（0 始まり）
+    return state.oddsPageAvailable[idx] !== false;
   }
   // 現在ページから見て次に送るべきページ。中身のあるページが他に無ければ現在ページを返す。
   function nextAvailableOddsPage(state) {
-    var len = state.oddsPageTemplates.length;
+    var len = state.oddsPageCount || 0;
     for (var i = 1; i < len; i++) {
       var cand = (state.oddsPageIndex + i) % len;
       if (oddsPageIsAvailable(state, cand)) return cand;
@@ -1010,14 +1035,31 @@
   //   子が「終わった」を返せなくなった場合に固まらないための上限。
   var ODDS_PAGE_CUTIN_HOLD_MAX_SEC = 45;
 
+  /**
+   * 2026-08-16 (ISH-25): 表示中の子へページ番号を送る。**iframe.src は触らない。**
+   *   これが「ちらつかない」ことの本体。子は DOM を描き替えるだけで再読込しない。
+   *   出走成績（dp50/60）が既に同じ考え方（sendEntriesResultsPayload）で動いている。
+   */
+  function sendOddsPage(state) {
+    if (!state.iframeEl || !state.iframeEl.contentWindow) return;
+    try {
+      state.iframeEl.contentWindow.postMessage({
+        type: 'setOddsPage',
+        page: state.oddsPageIndex + 1   // 子は 1 始まりで受ける（?page=N と同じ）
+      }, '*');
+    } catch (_) {}
+  }
+
   function checkOddsAutoPaging() {
     screenStates.forEach(function(state) {
       if (state.type !== 'odds') return;
-      if (!state.oddsPageTemplates || state.oddsPageTemplates.length < 2) return;
+      if (!state.oddsPageCount || state.oddsPageCount < 2) return;
       if (!state.iframeEl) return;
       state.oddsPageTick = (state.oddsPageTick || 0) + 1;
       if (state.oddsPageTick < ODDS_PAGE_SEC) return;
-      // カットイン表示中は送らない（送ると iframe リロードで 10秒/30秒の表示が途中で切れる）
+      // カットイン表示中は送らない。
+      // 2026-08-16: 再読込しなくなったので「表示が途中で切れる」理由は消えたが、
+      //   カットイン中に背後の内容が変わるのは落ち着かないため待つ方針は維持する。
       if (state.cutinActive && state.oddsPageHoldSec < ODDS_PAGE_CUTIN_HOLD_MAX_SEC) {
         state.oddsPageHoldSec++;
         return;   // tick は据え置き。カットインが明けた次の tick で送る
@@ -1028,8 +1070,7 @@
       var next = nextAvailableOddsPage(state);
       if (next === state.oddsPageIndex) return;   // 送り先が無い＝1ページ運用
       state.oddsPageIndex = next;
-      state.template = state.oddsPageTemplates[state.oddsPageIndex];
-      applyOddsScreen(state);
+      sendOddsPage(state);
     });
   }
 
@@ -1492,7 +1533,7 @@
     //                            （新レースのデータ受信後に子からの通知で再判定）
     //   №21 cutinShownForRace … カットインは raceKey 込みなので実害は無いが、
     //                            前レースのキーを残さない
-    state.oddsPageAvailable = {};
+    state.oddsPageAvailable = [];
     state.cutinShownForRace = null;
     state.cutinActive = false;
     state.oddsPageHoldSec = 0;
@@ -1803,18 +1844,20 @@
     //   対象: 馬番順マトリクス（dp20/30）と人気順（dp40）。
     if (d.type === 'oddsPagesAvailability') {
       var mState = findScreenStateBySource(e.source);
-      if (!mState || !mState.oddsPageTemplates) return;
-      mState.oddsPageAvailable = d.pages || {};
+      if (!mState || !mState.oddsPageCount) return;
+      // 種別が食い違う通知は無視（slot 切替直後に前テンプレの通知が届くことがある）
+      if (d.kind && mState.oddsPageKind && d.kind !== mState.oddsPageKind) return;
+      mState.oddsPageAvailable = d.pages || [];
       // 既に空のページを表示してしまっている場合（頭数が変わった等）は中身のあるページへ戻す
       if (!oddsPageIsAvailable(mState, mState.oddsPageIndex)) {
         var back = nextAvailableOddsPage(mState);
         if (back !== mState.oddsPageIndex) {
           console.warn('[odds-paging] 中身の無いページを表示中のため戻す: '
-            + mState.oddsPageTemplates[mState.oddsPageIndex] + ' (' + d.horses + '頭)');
+            + mState.oddsPageKind + ' page' + (mState.oddsPageIndex + 1)
+            + ' (' + d.horses + '頭)');
           mState.oddsPageIndex = back;
           mState.oddsPageTick = 0;
-          mState.template = mState.oddsPageTemplates[back];
-          applyOddsScreen(mState);
+          sendOddsPage(mState);   // src は触らない
         }
       }
       return;
