@@ -718,3 +718,29 @@ html.screen-4k .six-race__horse-table {
   font-size: 1.15rem;
   letter-spacing: -0.02em;
 }
+
+/* ============================================================
+ * DOS-03 (2026-08-17): 変更情報（dp70）騎手変更の「変更前」欄が隣へ重なる
+ * ------------------------------------------------------------
+ * style.css `.race-board__jockey-change` は
+ *     grid-template-columns: 10rem 0.8rem auto;   / 変更前 / 矢印 / 変更後 /
+ *     white-space: nowrap;
+ * で、変更前の欄が 10rem 固定。**減量記号(▲◇☆★△) + 4文字の騎手名 + 斤量**は
+ * 12.1rem 必要なため、`overflow` の指定も無いまま矢印・変更後の上に重なる。
+ *
+ * 実測（2026-08-17 / STG 8/16 スナップショット JRA_01 の騎手変更 6 件）:
+ *     1screen  1rem=20px … 必要 242px / 枠 200px   6/6 件がはみ出し
+ *     4分割    1rem=10px … 必要 121px / 枠 100px   6/6 件がはみ出し
+ *   列幅も文字も rem 指定のため**倍率に依らず同じ比率で溢れる**。
+ *
+ * 12.4rem で 0 件、行・ボードとも溢れなし（ボード幅 624→672px。パネルには収まる）。
+ * 余裕を見て 12.6rem。さらに保険として ellipsis を付け、将来もっと長い表記が来ても
+ * **重なる（読めない・誤読する）のではなく、切れた（欠けたと判る）**形にする。
+ * ============================================================ */
+.race-board__jockey-change {
+  grid-template-columns: 12.6rem 0.8rem auto;
+}
+.race-board__jockey-old {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
