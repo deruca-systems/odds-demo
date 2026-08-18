@@ -1,0 +1,162 @@
+{
+  "server_time": "2026-08-16T15:09:36+09:00",
+  "monitor_id": 125,
+  "display_date": "20260816",
+  "venue_filters": [
+    {
+      "place_cd": "19",
+      "organizer_type": "NAR",
+      "target_race_no_list": "2-4"
+    },
+    {
+      "place_cd": "05",
+      "organizer_type": "JRA",
+      "target_race_no_list": null
+    }
+  ],
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-08-16T15:09:36+09:00",
+      "end_time": "2026-08-16T21:09:36+09:00",
+      "layout": "4split",
+      "layout_pattern": "4split",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "19",
+          "organizer_type": "NAR",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_19_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-08-16T15:19:36+09:00",
+              "data_source": "odds/20260816/NAR_19_01.json"
+            },
+            {
+              "race_id": "NAR_19_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-08-16T15:29:36+09:00",
+              "data_source": "odds/20260816/NAR_19_02.json"
+            },
+            {
+              "race_id": "NAR_19_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-08-16T15:39:36+09:00",
+              "data_source": "odds/20260816/NAR_19_03.json"
+            },
+            {
+              "race_id": "NAR_19_04",
+              "race_key": "船橋4R",
+              "post_time_iso": "2026-08-16T15:49:36+09:00",
+              "data_source": "odds/20260816/NAR_19_04.json"
+            },
+            {
+              "race_id": "NAR_19_05",
+              "race_key": "船橋5R",
+              "post_time_iso": "2026-08-16T15:59:36+09:00",
+              "data_source": "odds/20260816/NAR_19_05.json"
+            }
+          ]
+        },
+        {
+          "position": "P2",
+          "layout_section": "P2",
+          "template": "templates/single-popular.html",
+          "place_cd": "05",
+          "organizer_type": "JRA",
+          "display_pattern_id": 41,
+          "display_pattern_name": "人気順①（1〜15位）",
+          "target_race_no": 11,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-08-16T16:09:36+09:00",
+              "data_source": "odds/20260816/JRA_05_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P3",
+          "layout_section": "P3",
+          "template": "templates/single-umaren-wide.html",
+          "place_cd": "05",
+          "organizer_type": "JRA",
+          "display_pattern_id": 10,
+          "display_pattern_name": "馬連・ワイド（自動ページング）",
+          "target_race_no": 11,
+          "target_date_offset": 1,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-08-16T15:09:36+09:00",
+              "data_source": "odds/20260817/JRA_05_11.json"
+            }
+          ]
+        },
+        {
+          "position": "P4",
+          "layout_section": "P4",
+          "template": "templates/single-popular-second.html",
+          "place_cd": "19",
+          "organizer_type": "NAR",
+          "display_pattern_id": 42,
+          "display_pattern_name": "人気順②（16〜30位）",
+          "target_race_no": null,
+          "target_date_offset": 0,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "NAR_19_01",
+              "race_key": "船橋1R",
+              "post_time_iso": "2026-08-16T15:19:36+09:00",
+              "data_source": "odds/20260816/NAR_19_01.json"
+            },
+            {
+              "race_id": "NAR_19_02",
+              "race_key": "船橋2R",
+              "post_time_iso": "2026-08-16T15:29:36+09:00",
+              "data_source": "odds/20260816/NAR_19_02.json"
+            },
+            {
+              "race_id": "NAR_19_03",
+              "race_key": "船橋3R",
+              "post_time_iso": "2026-08-16T15:39:36+09:00",
+              "data_source": "odds/20260816/NAR_19_03.json"
+            },
+            {
+              "race_id": "NAR_19_04",
+              "race_key": "船橋4R",
+              "post_time_iso": "2026-08-16T15:49:36+09:00",
+              "data_source": "odds/20260816/NAR_19_04.json"
+            },
+            {
+              "race_id": "NAR_19_05",
+              "race_key": "船橋5R",
+              "post_time_iso": "2026-08-16T15:59:36+09:00",
+              "data_source": "odds/20260816/NAR_19_05.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "server_time": "2026-08-16T15:09:36+09:00",
+  "monitor_id": 129,
+  "display_date": "20260816",
+  "slots": [
+    {
+      "slot_id": "slot1",
+      "start_time": "2026-08-16T15:09:36+09:00",
+      "end_time": "2026-08-16T21:09:36+09:00",
+      "layout": "1screen",
+      "layout_pattern": "1screen",
+      "display_pattern_id": 1,
+      "display_pattern_name": "単勝・複勝・枠連・枠単",
+      "screens": [
+        {
+          "position": "P1",
+          "layout_section": "P1",
+          "template": "templates/single-screen.html",
+          "place_cd": "05",
+          "organizer_type": "JRA",
+          "display_pattern_id": 1,
+          "display_pattern_name": "単勝・複勝・枠連・枠単",
+          "target_race_no": 11,
+          "target_date_offset": 1,
+          "is_auto_extend": false,
+          "back_color_code": null,
+          "races": [
+            {
+              "race_id": "JRA_05_11",
+              "race_key": "東京11R",
+              "post_time_iso": "2026-08-16T15:09:36+09:00",
+              "data_source": "odds/20260817/JRA_05_11.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

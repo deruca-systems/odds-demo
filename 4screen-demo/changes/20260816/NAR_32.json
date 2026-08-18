@@ -1,0 +1,36 @@
+{
+  "server_time": "2026-08-16T15:09:36+09:00",
+  "organizer_type": "NAR",
+  "place_cd": "32",
+  "place_name": "佐賀",
+  "display_date": "20260816",
+  "changes": [
+    {
+      "chg_seq": 1,
+      "chg_time": "2026-08-16T14:51:36+09:00",
+      "rr": 2,
+      "chg_type": 1,
+      "chg_type_name": "騎手変更",
+      "horse_no": 3,
+      "horse_name": "ラッキーフジ",
+      "detail": {
+        "org_jockey_nm": "本田正重",
+        "new_jockey_nm": "吉原寛人",
+        "chg_reason_cd": "05",
+        "chg_reason_name": "騎手負傷"
+      }
+    },
+    {
+      "chg_seq": 2,
+      "chg_time": "2026-08-16T15:24:36+09:00",
+      "rr": 3,
+      "chg_type": 2,
+      "chg_type_name": "出走取消",
+      "horse_no": 7,
+      "horse_name": "ハナビシルーン",
+      "detail": {
+        "scratch_reason": "跛行のため"
+      }
+    }
+  ]
+}

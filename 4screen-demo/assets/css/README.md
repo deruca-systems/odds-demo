@@ -133,7 +133,10 @@ CSS を修正するとき、以下の順序で該当箇所を特定する:
    - `.race-container .race-screen__col` / `.race-record` / `.race-payout` / `.race-table`
 2. **新規 SCREEN3R セクション**（style.css 末尾、Phase 2 で追加）
    - `.race-record[data-pattern]` / `.race-payout[data-pattern]` / `.race-payout__refund` / `.race-payout--cancelled`
-   - `.race-payout__row.is-special-pay` / `.race-record__time .time-int/.time-frac` / `.race-table__row.row-scratched`
+   - `.race-payout__row.is-special-pay` / `.race-table__row.row-scratched`
+   - ⚠ `.race-record__time .time-int` / `.time-frac` は **2026-08-18 (DOS-04) に廃止**。
+     着差は `normalizeMargin()` で半角 `1 1/2` に変換して出すため span で分けない
+     （style.css 側に定義は元々無く、テンプレだけが出していた）。
 
 ### §5.2 `.race-info` 命名衝突の注意
 

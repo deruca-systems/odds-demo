@@ -1,0 +1,21 @@
+{
+  "server_time": "2026-08-15T22:14:50+09:00",
+  "organizer_type": "JRA",
+  "place_cd": "07",
+  "place_name": "中京",
+  "display_date": "20260815",
+  "changes": [
+    {
+      "chg_seq": 1,
+      "chg_time": "2026-08-15T21:54:51+09:00",
+      "rr": 12,
+      "chg_type": 2,
+      "chg_type_name": "出走取消",
+      "horse_no": 7,
+      "horse_name": "ユキグニロード",
+      "detail": {
+        "scratch_reason": "けいれんのため"
+      }
+    }
+  ]
+}

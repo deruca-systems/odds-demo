@@ -7,7 +7,7 @@
   <!-- 3R-entries-results-phase3 (2026-04-30): payout-board DOM を screen5.html 準拠に書き換え。
        芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
   <link rel="stylesheet" href="../assets/css/style.css?v=20260430">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260817a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260818a">
   <script src="../assets/js/common.js?v=20260817a"></script>
 </head>
 <body>
@@ -225,18 +225,35 @@
     return html;
   }
 
-  // M-2 着差プロポーショナル対策: "1 1/2" を <span> で分離
+  // DOS-04 (2026-08-18): 着差の表示。**実データは全角・空白なし**（`２１／２` `１１／４` `３／４`）。
+  //   旧実装 M-2 は芥川様原版のサンプル（**半角** `1 1/2`）に合わせた `split(' ')` で、
+  //   **実データに空白が無いため一度も分岐していなかった**（`.time-int`/`.time-frac` の CSS も無かった）。
+  //   結果、全角4字＝実質8字ぶんが枠に収まらず**隣の馬名側へ食い込んでいた**
+  //   （実測 2026-08-18 / 3r: 必要 128px・使える 96px。`overflow` 指定も無い）。
+  //
+  //   🔴 **芥川様 FB 対応デザイン（4K）に合わせ、半角へ変換して `1 1/2` の形で出す**
+  //      （2026-08-18 及川決定）。整数部と分数部の間に**半角空白**を入れることで
+  //      「２１／２ が 21/2（21分の2）に読める」誤読（画面仕様書 §3-5）も解消する。
+  //      ⚠ 一度は「全角のまま分数部を 0.6em で小さく」実装したが、**小さすぎて視認性が悪い**
+  //        （8/18 及川確認）。デザイン正本どおり **同じ文字サイズの半角**にする。
+  //
+  //   ⚠ 同じ関数が entries-results-3r.html と entries-results-6r.html の**両方**にある。
+  //     片方だけ直すと 4K(6R) 側に残る（HANDOFF 追記(8) と同じ轍）。
+  //   分数を持たないもの（クビ／アタマ／ハナ／大差）はそのまま出す（カタカナ・漢字は全角が正）。
+  var MARGIN_ZEN2HAN = { '０':'0','１':'1','２':'2','３':'3','４':'4',
+                         '５':'5','６':'6','７':'7','８':'8','９':'9','／':'/' };
+  function normalizeMargin(s) {
+    var out = s.replace(/[０-９／]/g, function(c) { return MARGIN_ZEN2HAN[c]; });
+    // `21/2` → `2 1/2`。分母・分子は1桁なので、`/` の1つ前から分数部が始まる。
+    //   既に空白がある（半角データ）ときは触らない。
+    var i = out.indexOf('/');
+    if (i >= 2 && out.indexOf(' ') < 0) out = out.slice(0, i - 1) + ' ' + out.slice(i - 1);
+    return out;
+  }
   function renderMarginOrTime(entry) {
     if (entry.time) return entry.time;
-    if (entry.margin_name) {
-      var parts = entry.margin_name.split(' ');
-      if (parts.length === 2) {
-        return '<span class="time-int">' + parts[0] + '</span>'
-             + '<span class="time-frac">' + parts[1] + '</span>';
-      }
-      return entry.margin_name;
-    }
-    return '';
+    if (!entry.margin_name) return '';
+    return normalizeMargin(String(entry.margin_name));
   }
 
   // ==============================================================

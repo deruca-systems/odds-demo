@@ -1,0 +1,306 @@
+{
+  "server_time": "2026-08-15T22:14:51+09:00",
+  "race_id": "JRA_07_08",
+  "race_key": "中京8R",
+  "organizer_type": "JRA",
+  "place_cd": "07",
+  "place_name": "中京",
+  "rr": 8,
+  "display_date": "20260815",
+  "odds_status": 1,
+  "dead_heat_pattern": "G",
+  "entries": [
+    {
+      "rank": 1,
+      "frame_no": 1,
+      "horse_no": 1,
+      "horse_name": "ロードトレイル",
+      "jockey": "小沢大仁",
+      "genryokigo": null,
+      "time": "5:44.4",
+      "margin_name": null,
+      "frame_color_class": "number-white",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 2,
+      "frame_no": 2,
+      "horse_no": 2,
+      "horse_name": "フリートストリートダンサー",
+      "jockey": "丸山元気",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "クビ",
+      "frame_color_class": "number-black",
+      "is_dead_heat": false,
+      "accident_type": null
+    },
+    {
+      "rank": 3,
+      "frame_no": 3,
+      "horse_no": 3,
+      "horse_name": "エコロマーズ",
+      "jockey": "菊澤一樹",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "1/2",
+      "frame_color_class": "number-red",
+      "is_dead_heat": true,
+      "accident_type": null
+    },
+    {
+      "rank": 3,
+      "frame_no": 4,
+      "horse_no": 4,
+      "horse_name": "ハートホイップ",
+      "jockey": "黛弘人",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "同着",
+      "frame_color_class": "number-blue",
+      "is_dead_heat": true,
+      "accident_type": null
+    },
+    {
+      "rank": 3,
+      "frame_no": 5,
+      "horse_no": 5,
+      "horse_name": "レオテミス",
+      "jockey": "石田拓郎",
+      "genryokigo": null,
+      "time": null,
+      "margin_name": "同着",
+      "frame_color_class": "number-yellow",
+      "is_dead_heat": true,
+      "accident_type": null
+    }
+  ],
+  "payouts": {
+    "bet_order": [
+      "win",
+      "place",
+      "frame_quinella",
+      "frame_exacta",
+      "quinella",
+      "exacta",
+      "wide",
+      "trio",
+      "trifecta"
+    ],
+    "win": [
+      {
+        "combination": "1",
+        "combination_type": "wn",
+        "amount": 500,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "place": [
+      {
+        "combination": "1",
+        "combination_type": "pe",
+        "amount": 330,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "1着"
+      },
+      {
+        "combination": "2",
+        "combination_type": "pe",
+        "amount": 150,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "2着"
+      },
+      {
+        "combination": "3",
+        "combination_type": "pe",
+        "amount": 350,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "3着"
+      },
+      {
+        "combination": "4",
+        "combination_type": "pe",
+        "amount": 280,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "3着"
+      },
+      {
+        "combination": "5",
+        "combination_type": "pe",
+        "amount": 120,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": "3着"
+      }
+    ],
+    "frame_quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "bq",
+        "amount": 260,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "frame_exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "be",
+        "amount": 1750,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "quinella": [
+      {
+        "combination": "1-2",
+        "combination_type": "qa",
+        "amount": 1370,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "exacta": [
+      {
+        "combination": "1-2",
+        "combination_type": "ea",
+        "amount": 1890,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "wide": [
+      {
+        "combination": "1-2",
+        "combination_type": "wd",
+        "amount": 680,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-3",
+        "combination_type": "wd",
+        "amount": 540,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-4",
+        "combination_type": "wd",
+        "amount": 520,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-5",
+        "combination_type": "wd",
+        "amount": 310,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-3",
+        "combination_type": "wd",
+        "amount": 480,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-4",
+        "combination_type": "wd",
+        "amount": 470,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "2-5",
+        "combination_type": "wd",
+        "amount": 450,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trio": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "to",
+        "amount": 17740,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-2-4",
+        "combination_type": "to",
+        "amount": 8880,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-2-5",
+        "combination_type": "to",
+        "amount": 17570,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ],
+    "trifecta": [
+      {
+        "combination": "1-2-3",
+        "combination_type": "ta",
+        "amount": 271140,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-2-4",
+        "combination_type": "ta",
+        "amount": 140660,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      },
+      {
+        "combination": "1-2-5",
+        "combination_type": "ta",
+        "amount": 46430,
+        "is_special_pay": false,
+        "is_void": false,
+        "place_label": null
+      }
+    ]
+  },
+  "refund": {
+    "horse_no_bitmap": "000000000000000000",
+    "bracket_no_bitmap": "00000000",
+    "same_bracket_bitmap": null
+  },
+  "post_time": "21:34",
+  "post_time_iso": "2026-08-15T21:34:51+09:00",
+  "weather": "sunny",
+  "surface": "ダ",
+  "condition": "良",
+  "distance": 1200,
+  "race_name": "メイクデビュー新潟"
+}

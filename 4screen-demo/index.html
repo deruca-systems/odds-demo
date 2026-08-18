@@ -607,7 +607,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260817a');
+    params.set('v', '20260818a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -725,137 +725,235 @@
     });
   }
 
+  // === BEGIN: v0.6.7 pages[] 同一区画ローテーション (2026-08-18) ===
+  //   JSON構造仕様書 v0.6.7 §3.5.2.2 / スケジュールJSON出力PG設計書 v1.8 §6.4.7。
+  //   CRM「画面選択1〜4」は **同一区画（layout_section）内で最大4つを順に切り替える**設定だが、
+  //   JSON に器が無く `_01` だけが出ていた（引地様 確認表 №30/№31）。v0.6.7 で
+  //   `screens[].pages[]` が新設され、内山様 v1.8 が STG に反映済み。
+  //     ・`pages` があればそれを順に切り替え、無ければ **直下フィールドを1件**として扱う（dual-read）
+  //     ・`pages` が 1 件のときはローテ tick を回さない ＝ **従来と完全に同じ挙動**
+  //     ・区画単位の値（back_color / signage_url / is_auto_extend）は `pages[]` に含まれない
+  //       （§3.5.2.2）。screens[] 直下のものを全頁で共通に使う
+  //     ・周期は **フロント固定 15 秒**（JSON には持たせない。§3.5.2.2「切替の周期」）
+
+  // video 判定は display_pattern_id ∈ {80, 90〜94}（§3.5.1）。
+  //   pages[] の要素は `type` を持たない（仕様に無い）ため、dp からの導出が必須。
+  //   旧形式（プロト gen_data）の screen.type は引き続き優先する。
+  var VIDEO_DISPLAY_PATTERN_IDS = { 80: 1, 90: 1, 91: 1, 92: 1, 93: 1, 94: 1 };
+
+  // screen → 正規化した頁の配列。`pages` 未出力の JSON では [screen 相当] の 1 件になる。
+  //   ⚠ `pages[].races` は v1.8 §6.4.7 で「常に出力」だが、**先行反映の STG では未出力**の
+  //     期間がある。その間は screens[].races で代替する（同一場のローテのみ成立）。
+  //     ただし **頁の場が代表枠と違う**のに races が無い場合は、代替すると
+  //     **別の場のレースを出してしまう**ので、その頁を落として警告する（黙って誤表示しない）。
+  function normalizeScreenPages(screen) {
+    var toPage = function(p) {
+      var isSelf = (p === screen);
+      var dpid = (p.display_pattern_id != null) ? p.display_pattern_id : screen.display_pattern_id;
+      // 旧形式の screen.type は自分自身の頁にだけ効かせる（頁ごとの種別は dp が正）
+      var explicitType = p.type || (isSelf ? screen.type : null);
+      return {
+        raw:                  p,
+        place_cd:             (p.place_cd != null) ? p.place_cd : screen.place_cd,
+        organizer_type:       (p.organizer_type != null) ? p.organizer_type : screen.organizer_type,
+        display_pattern_id:   dpid,
+        display_pattern_name: (p.display_pattern_name != null) ? p.display_pattern_name : screen.display_pattern_name,
+        // 旧形式（プロト gen_data）の template 直指定は screen 単位。resolveTemplate が読む
+        template:             p.template || (isSelf ? screen.template : null),
+        target_race_no:       (p.target_race_no != null) ? p.target_race_no : null,
+        target_date_offset:   p.target_date_offset || 0,
+        races:                (p.races != null) ? p.races : (screen.races || []),
+        racesInherited:       (p.races == null),
+        // 旧フラット形式（screen 直下に venue_code 等）の dual-read は自分自身の頁のみ
+        video_config:         (p.video_config != null) ? p.video_config : (isSelf ? screen.video_config : null),
+        type:                 explicitType || (VIDEO_DISPLAY_PATTERN_IDS[dpid] ? 'video' : 'odds')
+      };
+    };
+    var raw = (screen.pages && screen.pages.length) ? screen.pages : [screen];
+    var pages = [];
+    raw.forEach(function(p, i) {
+      var page = toPage(p);
+      if (page.racesInherited && p !== screen && String(page.place_cd) !== String(screen.place_cd)) {
+        console.warn('[pages] 頁' + (i + 1) + '（場 ' + page.place_cd + ' / dp' + page.display_pattern_id
+          + '）は pages[].races を持たず、代表枠（場 ' + screen.place_cd + '）と場が違うため'
+          + '参照先を決められません。この頁をスキップします'
+          + '（JSON構造仕様書 v0.6.7 §3.5.2.2「pages[].races は常に出力する」の反映待ち）。');
+        return;
+      }
+      pages.push(page);
+    });
+    return pages.length ? pages : [toPage(screen)];
+  }
+
+  // 頁の place_cd が venue_filters（§3.13）の対象外なら、その頁はスキップする（§3.5.2.2）。
+  //   ⚠ 1 頁しか無い screen には適用しない。従来 venue_filters は races[] の絞込みにしか
+  //     使っておらず、ここで画面ごと落とすと **既存の単一表示の挙動が変わる**ため。
+  function filterPagesByVenue(pages, venueFilters) {
+    if (!venueFilters || !venueFilters.length) return pages;
+    if (!pages || pages.length < 2) return pages;
+    var kept = pages.filter(function(page) {
+      if (page.type === 'video') return true;       // video は場コードを持たないことがある
+      if (page.place_cd == null) return true;
+      for (var i = 0; i < venueFilters.length; i++) {
+        if (String(venueFilters[i].place_cd) === String(page.place_cd)
+         && (!page.organizer_type || venueFilters[i].organizer_type === page.organizer_type)) return true;
+      }
+      console.warn('[pages] 場 ' + page.place_cd + '（dp' + page.display_pattern_id
+        + '）は venue_filters の対象外のため頁をスキップします（§3.5.2.2）。');
+      return false;
+    });
+    return kept.length ? kept : pages;   // 全滅時は従来動作を優先（画面を消さない）
+  }
+  // === END: v0.6.7 pages[] 同一区画ローテーション ===
+
   function buildScreenStates(slot, venueFilters) {
     var screens = slot.screens || [];
     // 2026-06-04: slot.signage_url を screens[*] に伝播 (CRM の時間帯設定はスロット単位、
     //   要件定義書 v3.3 §3.2 SCR-CUT-003)。screen 個別の signage_url が定義されていない場合のみ補完。
     var slotSignageUrl = slot.signage_url || null;
     return screens.map(function(screen) {
-      // v0.6.3 dual-read: position/template を新旧両形式から解決（layout_section/display_pattern_id も可）
-      var canonicalPos = resolveCanonicalPosition(screen);
-      var resolvedTemplate = resolveTemplate(screen);
       // signage_url は screen 個別 > slot 全体 の優先順
       if (!screen.signage_url && slotSignageUrl) {
         screen.signage_url = slotSignageUrl;
       }
-      // 2026-06-29: 対象レース固定 / 前日発売（§3.5.4）。null=自動順送り / 0=当日。
-      var targetRaceNo = (screen.target_race_no != null) ? screen.target_race_no : null;
-      var targetDateOffset = screen.target_date_offset || 0;
-      // venue_filters（§3.13）で発売対象外レースを除外。ただし対象レース固定セル
-      //   （target_race_no 指定）は運用者が明示選択した1レースなので絞込み対象外。
-      var rawRaces = screen.races || [];
-      var filteredRaces = (screen.type === 'video' || targetRaceNo != null)
-        ? rawRaces
-        : applyVenueFilters(rawRaces, venueFilters);
-      if (screen.type !== 'video' && targetRaceNo == null
-       && rawRaces.length && !filteredRaces.length) {
-        console.warn('[venue_filters] ' + canonicalPos + ' の発売対象レースが皆無 → 画面スキップ（§3.13.4）');
-      }
-      // 2026-07-30: 前日発売（§3.5.4）の参照先を offset 日ぶんずらす（山内様 実機検証 #2）。
-      //   バッチは target_date_offset>=1 でも data_source に「当日」パスを出力する
-      //   （2026-07-30 STG 実測。旭川 TV2: offset=1 でも odds/20260730/... のまま）。
-      //   従来フロントは offset を「前日発売」ラベルにしか使っておらず、参照先が当日の
-      //   ままだったため「当日のレースが前日発売と表示される」状態になっていた。
-      //   ここで races[].data_source を書き換え、以降の全消費側（オッズ画面・出走成績・
-      //   変更情報）に一括で効かせる。
-      if (targetDateOffset >= 1) {
-        filteredRaces = filteredRaces.map(function(race) {
-          var copy = {};
-          for (var k in race) { if (race.hasOwnProperty(k)) copy[k] = race[k]; }
-          copy.data_source = shiftDataSourceDate(race.data_source, targetDateOffset);
-          return copy;
-        });
-      }
-      var state = {
-        position: canonicalPos,
-        template: resolvedTemplate,
-        type: screen.type || 'odds',
-        // 2026-07-15: 出走成績の固定範囲/自動ページング判定等で全画面種別が dp を参照する
-        displayPatternId: screen.display_pattern_id,
-        // 2026-07-15: dp50（出走成績 自動ページング）のページ状態
-        entriesPages: null,
-        entriesPageIndex: 0,
-        entriesPageTick: 0,
-        // 2026-08-04: dp20/30/40（オッズ画面の自動ページング）のページ状態（ISH-14 ②③）。
-        //   2026-08-16 ISH-25: 全ページを1テンプレで描くようにしたので、
-        //   ここはテンプレではなく**ページ数と種別**だけを持つ。
-        // 2026-08-16 ISH-25: テンプレ配列 → ページ数＋種別
-        oddsPageCount: ODDS_PAGE_COUNT[screen.display_pattern_id] || 0,
-        oddsPageKind:  ODDS_PAGE_KIND[screen.display_pattern_id] || null,
-        oddsPageIndex: 0,
-        oddsPageTick: 0,
-        // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
-        //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
-        //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
-        oddsPageAvailable: [],
-        // 2026-08-05 (引地様 №21): カットインの発火済みキーと表示中フラグ。
-        //   ページ送りは iframe をリロードするため子の状態が飛ぶ。親が持って復元する。
-        cutinShownForRace: null,
-        cutinActive: false,
-        oddsPageHoldSec: 0,
-        races: filteredRaces,
-        // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
-        //   売場別発売設定の発売場をすべてカバーする（及川決定）。
-        //   CRM は 1 画面 1 場所のモデルで、画面選択2〜4 に別の場を入れても
-        //   スケジュール JSON には反映されない（2026-07-30 STG 実測）。
-        //   そのため screen.races[] ではなく venue_filters から列を組み立てる。
-        venue_filters: venueFilters || [],
-        target_race_no: targetRaceNo,
-        target_date_offset: targetDateOffset,
-        currentRaceIndex: -1,
-        currentRaceId: null,
-        lastTransitionMs: 0,
-        iframeEl: getIframeByPosition(canonicalPos),
-        videoConfig: null,
-        // Phase 5 (2026-04-22): ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
-        //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
-        //   値あれば iframe の :root CSS 変数 --race-header-bg に #HEX を注入する。
-        back_color_code: screen.back_color_code || null,
-        // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot 単位の signage_url を
-        //   screens[*] へ伝播済 (buildScreenStates 直前に caller が注入)。
-        signage_url: screen.signage_url || null,
-        // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
-        //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
-        //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
-        //   hasFrameUtan: 子 iframe からの通知で更新される枠単発売有無フラグ。
-        //     発売なし時は checkFrameOddsPaging がスキップされ、枠連のみ表示される。
-        frameOddsPage: 'uren',
-        frameOddsPageTick: 0,
-        hasFrameUtan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
-      };
-      if (state.type === 'video') {
-        state.displayPatternId = screen.display_pattern_id;
-        if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(screen.display_pattern_id)) {
-          // 2026-07-15: 中央（GCH、dp90-94）。池澤様 STG 実装の取り込み。
-          //   ch=dp-89 を DosVideoDisplay.greenConfig が導出（video_config は null 前提）。
-          //   audio_muted 未指定時は音声デフォルト出力方針（2026-07-14）に合わせ false。
-          var gcfg = DosVideoDisplay.greenConfig(screen);
-          var gvc = screen.video_config || {};
-          if (gvc.audio_muted == null) gcfg.audio_muted = false;
-          state.videoConfig = gcfg;
-        } else {
-          // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
-          //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
-          //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
-          var vc = screen.video_config || screen;
-          // 2026-07-15: venue_code 未供給（内山様バッチ実装前）の間は、cell の place_cd
-          //   (コード表105) からフロントで自己解決する（池澤様 DosVideoDisplay.narConfig）。
-          var narFallback = (!vc.venue_code && window.DosVideoDisplay)
-            ? DosVideoDisplay.narConfig(screen) : null;
-          state.videoConfig = {
-            venue_code:             vc.venue_code || (narFallback && narFallback.venue_code),
-            quality_mode:           vc.quality_mode || 'auto',
-            quality_cap:            vc.quality_cap,
-            quality_fixed:          vc.quality_fixed,
-            // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
-            audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
-            volume:                 vc.volume != null ? vc.volume : 0.7,
-            video_source_override:  vc.video_source_override
-          };
-        }
-      }
+      // 2026-08-18: 頁（pages[]）を正規化し、先頭頁で state を組む。
+      var pages = filterPagesByVenue(normalizeScreenPages(screen), venueFilters);
+      var state = buildScreenPageState(screen, pages[0], venueFilters);
+      state.screen = screen;          // 頁切替で組み直すため元 screen を保持
+      state.pages = pages;
+      state.pageIndex = 0;
+      state.pageTick = 0;
+      state.pageHoldSec = 0;
       return state;
     });
+  }
+
+  // 2026-08-18: screen（区画単位の設定）と page（頁単位の設定）から screenState を組む。
+  //   頁切替のたびに呼ばれ、**頁に依存する値だけ**を作る。
+  //   pages を持たない JSON では page = screen 相当の 1 件なので、従来と同じ結果になる。
+  function buildScreenPageState(screen, page, venueFilters) {
+    // v0.6.3 dual-read: position/template を新旧両形式から解決（layout_section/display_pattern_id も可）
+    var canonicalPos = resolveCanonicalPosition(screen);
+    var resolvedTemplate = resolveTemplate(page);
+    // 2026-06-29: 対象レース固定 / 前日発売（§3.5.4）。null=自動順送り / 0=当日。
+    var targetRaceNo = page.target_race_no;
+    var targetDateOffset = page.target_date_offset || 0;
+    var pageType = page.type;
+    // venue_filters（§3.13）で発売対象外レースを除外。ただし対象レース固定セル
+    //   （target_race_no 指定）は運用者が明示選択した1レースなので絞込み対象外。
+    var rawRaces = page.races || [];
+    var filteredRaces = (pageType === 'video' || targetRaceNo != null)
+      ? rawRaces
+      : applyVenueFilters(rawRaces, venueFilters);
+    if (pageType !== 'video' && targetRaceNo == null
+     && rawRaces.length && !filteredRaces.length) {
+      console.warn('[venue_filters] ' + canonicalPos + ' の発売対象レースが皆無 → 画面スキップ（§3.13.4）');
+    }
+    // 2026-07-30: 前日発売（§3.5.4）の参照先を offset 日ぶんずらす（山内様 実機検証 #2）。
+    //   バッチは target_date_offset>=1 でも data_source に「当日」パスを出力する
+    //   （2026-07-30 STG 実測。旭川 TV2: offset=1 でも odds/20260730/... のまま）。
+    //   従来フロントは offset を「前日発売」ラベルにしか使っておらず、参照先が当日の
+    //   ままだったため「当日のレースが前日発売と表示される」状態になっていた。
+    //   ここで races[].data_source を書き換え、以降の全消費側（オッズ画面・出走成績・
+    //   変更情報）に一括で効かせる。
+    if (targetDateOffset >= 1) {
+      filteredRaces = filteredRaces.map(function(race) {
+        var copy = {};
+        for (var k in race) { if (race.hasOwnProperty(k)) copy[k] = race[k]; }
+        copy.data_source = shiftDataSourceDate(race.data_source, targetDateOffset);
+        return copy;
+      });
+    }
+    var state = {
+      position: canonicalPos,
+      template: resolvedTemplate,
+      type: pageType,
+      // 2026-07-15: 出走成績の固定範囲/自動ページング判定等で全画面種別が dp を参照する
+      displayPatternId: page.display_pattern_id,
+      // 2026-07-15: dp50（出走成績 自動ページング）のページ状態
+      entriesPages: null,
+      entriesPageIndex: 0,
+      entriesPageTick: 0,
+      // 2026-08-04: dp20/30/40（オッズ画面の自動ページング）のページ状態（ISH-14 ②③）。
+      //   2026-08-16 ISH-25: 全ページを1テンプレで描くようにしたので、
+      //   ここはテンプレではなく**ページ数と種別**だけを持つ。
+      // 2026-08-16 ISH-25: テンプレ配列 → ページ数＋種別
+      oddsPageCount: ODDS_PAGE_COUNT[page.display_pattern_id] || 0,
+      oddsPageKind:  ODDS_PAGE_KIND[page.display_pattern_id] || null,
+      oddsPageIndex: 0,
+      oddsPageTick: 0,
+      // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
+      //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
+      //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
+      oddsPageAvailable: [],
+      // 2026-08-05 (引地様 №21): カットインの発火済みキーと表示中フラグ。
+      //   ページ送りは iframe をリロードするため子の状態が飛ぶ。親が持って復元する。
+      cutinShownForRace: null,
+      cutinActive: false,
+      oddsPageHoldSec: 0,
+      races: filteredRaces,
+      // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
+      //   売場別発売設定の発売場をすべてカバーする（及川決定）。
+      //   CRM は 1 画面 1 場所のモデルで、画面選択2〜4 に別の場を入れても
+      //   スケジュール JSON には反映されない（2026-07-30 STG 実測）。
+      //   そのため screen.races[] ではなく venue_filters から列を組み立てる。
+      venue_filters: venueFilters || [],
+      target_race_no: targetRaceNo,
+      target_date_offset: targetDateOffset,
+      currentRaceIndex: -1,
+      currentRaceId: null,
+      lastTransitionMs: 0,
+      iframeEl: getIframeByPosition(canonicalPos),
+      videoConfig: null,
+      // Phase 5 (2026-04-22): ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
+      //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
+      //   値あれば iframe の :root CSS 変数 --race-header-bg に #HEX を注入する。
+      //   ⚠ v0.6.7 §3.5.2.2: back_color は**区画単位**。頁ごとには変えられない。
+      back_color_code: screen.back_color_code || null,
+      // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot 単位の signage_url を
+      //   screens[*] へ伝播済 (buildScreenStates 直前に caller が注入)。
+      signage_url: screen.signage_url || null,
+      // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
+      //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
+      //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
+      //   hasFrameUtan: 子 iframe からの通知で更新される枠単発売有無フラグ。
+      //     発売なし時は checkFrameOddsPaging がスキップされ、枠連のみ表示される。
+      frameOddsPage: 'uren',
+      frameOddsPageTick: 0,
+      hasFrameUtan: true  // 初期値 true。子から通知受信で false に更新される可能性あり
+    };
+    if (state.type === 'video') {
+      if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(page.display_pattern_id)) {
+        // 2026-07-15: 中央（GCH、dp90-94）。池澤様 STG 実装の取り込み。
+        //   ch=dp-89 を DosVideoDisplay.greenConfig が導出（video_config は null 前提）。
+        //   audio_muted 未指定時は音声デフォルト出力方針（2026-07-14）に合わせ false。
+        var gcfg = DosVideoDisplay.greenConfig(page);
+        var gvc = page.video_config || {};
+        if (gvc.audio_muted == null) gcfg.audio_muted = false;
+        state.videoConfig = gcfg;
+      } else {
+        // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
+        //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
+        //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
+        //   2026-08-18: 頁単位では page.video_config（§3.5.2.2）が正。
+        var vc = page.video_config || page.raw || {};
+        // 2026-07-15: venue_code 未供給（内山様バッチ実装前）の間は、cell の place_cd
+        //   (コード表105) からフロントで自己解決する（池澤様 DosVideoDisplay.narConfig）。
+        var narFallback = (!vc.venue_code && window.DosVideoDisplay)
+          ? DosVideoDisplay.narConfig(page) : null;
+        state.videoConfig = {
+          venue_code:             vc.venue_code || (narFallback && narFallback.venue_code),
+          quality_mode:           vc.quality_mode || 'auto',
+          quality_cap:            vc.quality_cap,
+          quality_fixed:          vc.quality_fixed,
+          // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
+          audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
+          volume:                 vc.volume != null ? vc.volume : 0.7,
+          video_source_override:  vc.video_source_override
+        };
+      }
+    }
+    return state;
   }
 
   function initializeScreen(state) {
@@ -957,6 +1055,10 @@
     41: 1, 42: 2
   };
   var ODDS_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
+  // 2026-08-18: 区画内の頁ローテーション（pages[]）の周期。JSON構造仕様書 v0.6.7 §3.5.2.2 で
+  //   **フロント固定 15 秒**と定めた（JSON には持たせない）。既存の自動ページングと同一周期。
+  //   将来 CRM で設定可能にする場合は screens[].page_rotation_sec（予約済・v0.6.7 では未出力）。
+  var SCREEN_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
 
   // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
   function raceRr(race) {
@@ -1073,6 +1175,59 @@
       sendOddsPage(state);
     });
   }
+
+  // 2026-08-18: 区画内の頁ローテーション（pages[]、JSON構造仕様書 v0.6.7 §3.5.2.2）。
+  //   CRM「画面選択1〜4」を 15 秒ごとに送る。**1 頁のときは何もしない**（従来動作）。
+  //   既存の自動ページング（dp10/20/30/40/50/60）とは**別の軸**である点に注意。
+  //     ・自動ページング … 1 つの表示パターンの中でページを送る（同じ dp のまま）
+  //     ・頁ローテーション … **表示パターンごと差し替える**（dp51→52→53→54、場も賭式も変わりうる）
+  //   そのため state を頁ごとに組み直して initializeScreen をやり直す。
+  //   dp51→54 のように**テンプレが同じ**なら applyEntriesResultsScreen が postMessage だけ
+  //   行うので iframe は再読込されない（＝暗転しない）。テンプレが変わる頁では再読込になる。
+  function applyScreenPage(state, nextIndex) {
+    var page = state.pages[nextIndex];
+    if (!page) return;
+    var fresh = buildScreenPageState(state.screen, page, state.venue_filters);
+    // fresh は頁依存の値だけを持つ。pages / pageIndex / screen 等の管理値は上書きされない。
+    for (var k in fresh) { if (fresh.hasOwnProperty(k)) state[k] = fresh[k]; }
+    state.pageIndex = nextIndex;
+    state.pageTick = 0;
+    state.pageHoldSec = 0;
+    initializeScreen(state);
+  }
+
+  // 1 秒 tick。SCREEN_PAGE_SEC ごとに次の頁へ送る。
+  function checkScreenPageRotation() {
+    screenStates.forEach(function(state) {
+      if (!state.pages || state.pages.length < 2) return;   // 単一頁 = 従来どおり何もしない
+      state.pageTick = (state.pageTick || 0) + 1;
+      if (state.pageTick < SCREEN_PAGE_SEC) return;
+      // カットイン表示中は送らない（checkOddsAutoPaging と同じ方針・同じ上限）
+      if (state.cutinActive && state.pageHoldSec < ODDS_PAGE_CUTIN_HOLD_MAX_SEC) {
+        state.pageHoldSec++;
+        return;   // tick は据え置き。カットインが明けた次の tick で送る
+      }
+      applyScreenPage(state, (state.pageIndex + 1) % state.pages.length);
+    });
+  }
+
+  // 2026-08-18: 検証用。頁ローテーションは**時間軸の挙動**なので、スクショでも静的リンタでも
+  //   捕まらない（CLAUDE.md「名前が動作を約束するものは名前から検査する」）。
+  //   render_matrix.py / ブラウザコンソールから現在の頁を読めるようにしておく。
+  window.DosDebugScreens = function() {
+    return screenStates.map(function(s) {
+      return {
+        position: s.position,
+        template: s.template,
+        display_pattern_id: s.displayPatternId,
+        place_cd: s.pages && s.pages[s.pageIndex] ? s.pages[s.pageIndex].place_cd : null,
+        page: (s.pageIndex + 1) + '/' + (s.pages ? s.pages.length : 1),
+        page_dp: s.pages ? s.pages.map(function(p) { return p.display_pattern_id; }) : [],
+        races: (s.races || []).length,
+        current_race: s.currentRaceId
+      };
+    });
+  };
 
   function applyEntriesResultsScreen(state) {
     var iframe = state.iframeEl;
@@ -1602,7 +1757,23 @@
         sc.target_date_offset || 0,
         races.length,
         races.map(function(r) { return r.data_source || r.race_id || ''; }).join('~'),
-        JSON.stringify(sc.video_config || null)
+        JSON.stringify(sc.video_config || null),
+        // 2026-08-18: 頁（pages[]、v0.6.7 §3.5.2.2）の構成も「中身」に含める。
+        //   CRM で「時間帯はそのまま、画面選択2〜4 だけ差し替え」した場合、
+        //   ここに入れないと screenStates が組み直されず F5 まで古い頁が回り続ける。
+        //   ⚠ 頁ごとの races も含める（場をまたぐ頁は参照先が丸ごと変わるため）。
+        'pg:' + (sc.pages || []).map(function(pg) {
+          return [
+            pg.display_pattern_id,
+            pg.place_cd == null ? '' : pg.place_cd,
+            pg.organizer_type || '',
+            pg.target_race_no == null ? '' : pg.target_race_no,
+            pg.target_date_offset || 0,
+            (pg.races || []).length,
+            (pg.races || []).map(function(r) { return r.data_source || r.race_id || ''; }).join('~'),
+            JSON.stringify(pg.video_config || null)
+          ].join(',');
+        }).join(';')
       ].join('|'));
     });
     parts.push('vf:' + JSON.stringify(venueFilters || []));
@@ -1765,6 +1936,8 @@
       checkEntriesResultsPaging();
       // 2026-08-04: dp20/30/40（馬連・馬単・人気順）の自動ページング（ISH-14 ②③）
       checkOddsAutoPaging();
+      // 2026-08-18: 区画内の頁ローテーション（pages[]、v0.6.7 §3.5.2.2）
+      checkScreenPageRotation();
       // 情報バーのレース表示を最新化（遷移発生時に表示も更新）
       var slots = currentSchedule.slots || [];
       var currentSlot = null;
