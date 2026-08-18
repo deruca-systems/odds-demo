@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>人気順1-15 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260818a">
-  <script src="../assets/js/common.js?v=20260817a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260819a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819a">
+  <script src="../assets/js/common.js?v=20260819a"></script>
 </head>
 <body>
 
@@ -161,7 +161,9 @@
       var oddsCls = entry
         ? D.oddsClass('popular-table__odds', entry.odds, betType, currentOrganizer)
         : 'popular-table__odds';
-      var odds = D.el('div', oddsCls, entry ? D.fmtOdds(entry.odds, betType, currentOrganizer) : D.ODDS_EMPTY);
+      // DOS-05 (2026-08-19): 桁数で溢れないよう表示文字数を --odds-len で渡す
+      var oddsText = entry ? D.fmtOdds(entry.odds, betType, currentOrganizer) : D.ODDS_EMPTY;
+      var odds = D.setOddsLen(D.el('div', oddsCls, oddsText), oddsText);
       row.appendChild(odds);
       fragment.appendChild(row);
     }

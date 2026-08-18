@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260422c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260818a">
-  <script src="../assets/js/common.js?v=20260817a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260819a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819a">
+  <script src="../assets/js/common.js?v=20260819a"></script>
 </head>
 <body>
 
@@ -129,8 +129,11 @@
 
       var umaren = getPairOdds(umarenMap, axisHorse.horse_no, opp);
       // O-3: 配色は桁数ベース（従来の odds>=1000 しきい値は廃止）
+      // 2026-08-18: 桁数によるフォント縮小クラス（申し送り仕様書 §6.7.1-D）。
+      //   馬連は JRA cap 99999.9 ＝ **整数部5桁が実際に出る**（例 13138.3）。
       var umarenCls = umaren
-        ? D.oddsClass('race-table__umaren', umaren.odds, 'quinella', currentOrganizer)
+        ? D.joinClass(D.oddsClass('race-table__umaren', umaren.odds, 'quinella', currentOrganizer),
+                      D.oddsDigitClass(umaren.odds, 'quinella', currentOrganizer))
         : 'race-table__umaren';
       row.appendChild(D.el('div', umarenCls, umaren ? D.fmtOddsOr(umaren.odds, 'quinella', currentOrganizer) : D.ODDS_EMPTY));
 

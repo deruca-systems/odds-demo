@@ -168,6 +168,7 @@ style
 .umaren-wide .race-header .race-title,
 .popular .race-header .race-title {
   display: flex;
+  align-items: baseline;
   gap: 0.8rem;
   white-space: nowrap;
 }
@@ -180,12 +181,17 @@ style
 .screen .race-header .race-title span.race,
 .umaren-wide .race-header .race-title span.race,
 .popular .race-header .race-title span.race {
+  display: inline-flex;
+  align-items: baseline;
   font-family: "Segoe UI", sans-serif;
+  font-size: 3.2rem; /* 32pt：数字を日本語見出しと揃える */
+  line-height: 2.2rem;
 }
 .screen .race-header .race-title span.race span,
 .umaren-wide .race-header .race-title span.race span,
 .popular .race-header .race-title span.race span {
   font-size: 2rem;
+  line-height: 2.2rem;
 }
 .screen .race-header .race-info,
 .umaren-wide .race-header .race-info,
@@ -283,6 +289,7 @@ style
 .umaren-wide .race-header .race-info .race-time.start,
 .popular .race-header .race-info .race-time.start {
   background: #0D1117;
+  border-left: none;
 }
 .screen .race-header .race-info .race-time.start span.minute,
 .umaren-wide .race-header .race-info .race-time.start span.minute,
@@ -299,18 +306,31 @@ style
 .screen .race-header .previous-day,
 .umaren-wide .race-header .previous-day,
 .popular .race-header .previous-day {
-  width: 9.9rem;
-  height: 2.7rem;
   display: grid;
   place-content: center;
-  color: #CEE069;
-  font-size: 2rem;
-  letter-spacing: 0.05em;
-  border: 0.1rem solid #1C1C1C;
-  border-radius: 0.4rem;
-  background: linear-gradient(113.33deg, #1F3352 27.64%, #0D1117 72.36%);
-  margin-right: 0.8rem;
+  width: 16rem;
+  background-color: #0D1117;
+  padding: 0.4rem;
+}
+.screen .race-header .previous-day span,
+.umaren-wide .race-header .previous-day span,
+.popular .race-header .previous-day span {
+  width: 15.2rem;
+  height: 3rem;
+  display: grid;
+  place-content: center;
+  font-size: 2.6rem;
+  line-height: 1;
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
+  border: 0.1rem solid #fff;
+  border-radius: 0.2rem;
   white-space: nowrap;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* 1層目: テキスト色 / 2層目: バッジ背景 */
+  background-image: linear-gradient(113.33deg, #BA0000 27.64%, #9A0108 72.36%), linear-gradient(113.33deg, #F7FF0D 27.64%, #B2BF00 72.36%);
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
 }
 
 /*----------
@@ -417,8 +437,8 @@ body {
   color: #1C1C1C;
 }
 .screen .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333333;
+  color: #ffffff;
 }
 .screen .race-table__row.row-black .race-table__frame,
 .screen .race-table__row.row-black .race-table__number {
@@ -555,7 +575,6 @@ body {
 }
 .screen .race-table__weight span.weight-diff {
   font-size: 1.4rem;
-  font-weight: 700;
 }
 .screen .race-table {
   /* 騎手名 */
@@ -602,8 +621,7 @@ body {
   color: #1C1C1C;
 }
 .screen .frame-odds__block.block-white .frame-odds__number {
-  background: #DFDFDF;
-  color: #1C1C1C;
+  background: #333;
 }
 .screen .frame-odds__block.block-black .frame-odds__label {
   background: #0D1117;
@@ -730,8 +748,8 @@ body {
   color: #1C1C1C;
 }
 .umaren-wide .race-main .race-table__body.body-white .race-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
+  color: #FFF;
+  background-color: #333;
 }
 .umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
   background: #686868;
@@ -831,7 +849,6 @@ body {
   align-items: center;
   font-family: "Segoe UI", sans-serif;
   font-size: 1.6rem;
-  font-weight: 700;
   border-right: 0.1rem solid #000000;
   padding-right: 0.4rem;
 }
@@ -858,7 +875,6 @@ body {
 .umaren-wide .race-main .race-table__wide span {
   font-family: "Segoe UI", sans-serif;
   font-size: 1.6rem;
-  font-weight: 700;
   text-align: right;
 }
 .umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
@@ -927,8 +943,8 @@ body {
   color: #1C1C1C;
 }
 .popular .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333333;
+  color: #ffffff;
 }
 .popular .race-table__row.row-black .race-table__frame,
 .popular .race-table__row.row-black .race-table__number {
@@ -1132,6 +1148,105 @@ body {
 }
 
 /*----------
+screen1-fullname
+フルネーム記載版（screen1ベース）
+----------*/
+/* 単勝・複勝：斤量追加・馬体重拡張・騎手フルネーム（枠連なしの全幅テーブル） */
+.fullname .screen .race-main {
+  grid-template-columns: 1fr;
+}
+.fullname .screen .race-table {
+  width: 100%;
+}
+.fullname .screen .race-table__head, .fullname .screen .race-table__row {
+  /* 枠 馬番 馬名 単勝 複勝 馬体重 斤量 騎手名(残り100%) */
+  grid-template-columns: 3.1rem 3.1rem 16.7rem 6.3rem 13.6rem 13.5rem 6.3rem 1fr;
+}
+.fullname .screen .race-table__weight {
+  display: grid;
+  grid-template-columns: 5.6rem 7.6rem;
+  gap: 0.4rem;
+}
+.fullname .screen .race-table__weight span {
+  text-align: right;
+}
+.fullname .screen .race-table__weight span.weight-diff {
+  font-size: 2.2rem;
+  text-align: left;
+}
+.fullname .screen .race-table__weight span.weight-diff--plus {
+  color: #FF0000;
+}
+.fullname .screen .race-table__weight span.weight-diff--minus {
+  color: #0077FF;
+}
+.fullname .screen .race-table__weight span.weight-diff--text {
+  font-family: "Yu Gothic UI", "Yu Gothic", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+}
+.fullname .screen .race-table__weight span.weight-diff .weight-diff__paren {
+  color: #fff;
+}
+.fullname .screen .race-table__assigned-weight {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+  padding-right: 0.4rem;
+}
+.fullname .screen .race-table__row:nth-child(even) .race-table__assigned-weight {
+  background-color: #26364E;
+}
+.fullname .screen .race-table__jockey {
+  font-size: 2rem;
+  min-width: 0;
+  width: 100%;
+}
+.fullname .screen .frame-odds {
+  display: none; /* 枠連はフルネーム版.screenでは非表示（テーブル全幅） */
+}
+
+/* 馬連・ワイド：出走頭数に応じた馬名サイズ（10頭=2rem〜18頭=1.6rem）+ 数値桁数ルール */
+.fullname .umaren-wide .race-main .race-table {
+  /* 1頭減るごとに +0.05rem（18頭:1.6rem → 10頭:2rem） */
+  --name-base: clamp(
+    1.6rem,
+    calc(1.6rem + (18 - var(--horse-count)) * 0.05rem),
+    2rem
+  );
+}
+.fullname .umaren-wide .race-main .race-table__name span.name-number {
+  font-size: var(--name-base);
+}
+.fullname .umaren-wide .race-main .race-table__name span:not(.name-number) {
+  --name-count: max(11, var(--name-length));
+  font-size: min(var(--name-base) * 11 / var(--name-count), var(--name-base));
+}
+.fullname .umaren-wide .race-main .race-table__umaren {
+  font-size: 2.2rem;
+}
+.fullname .umaren-wide .race-main .race-table__umaren.odds-long {
+  font-size: 1.8rem;
+}
+.fullname .umaren-wide .race-main .race-table__umaren.odds-longest {
+  font-size: 1.6rem;
+}
+.fullname .umaren-wide .race-main .race-table__umaren {
+  /* 比較用：青(.unpopular / #00B2FF)は残し、黄色案 */
+}
+.fullname .umaren-wide .race-main .race-table__umaren.unpopular-yellow {
+  color: #F0CC00;
+}
+.fullname .umaren-wide .race-main .race-table__wide span {
+  font-size: 2.2rem;
+}
+.fullname .umaren-wide .race-main .race-table__wide span.odds-long {
+  font-size: 1.8rem;
+}
+
+/*----------
 screen2
 style
 ----------*/
@@ -1149,8 +1264,7 @@ style
   grid-template-rows: repeat(var(--row-count), 1fr);
 }
 .screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-white {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333;
 }
 .screen.screen-umaren .screen-main .screen-table__row .screen-table__number.number-black {
   background-color: #0D1117;
@@ -1252,8 +1366,7 @@ style
   background-color: #677C9C;
 }
 .screen .screen-main .screen-table__row:nth-child(2) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(3) .screen-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
+  background-color: #333;
 }
 .screen .screen-main .screen-table__row:nth-child(6) .screen-table__number, .screen .screen-main .screen-table__row:nth-child(7) .screen-table__number {
   background-color: var(--color-red-dark);
@@ -1360,8 +1473,8 @@ style
   color: #1C1C1C;
 }
 .screen .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333333;
+  color: #ffffff;
 }
 .screen .race-table__row.row-black .race-table__frame,
 .screen .race-table__row.row-black .race-table__number {
@@ -1498,7 +1611,6 @@ style
 }
 .screen .race-table__weight span.weight-diff {
   font-size: 1.4rem;
-  font-weight: 700;
 }
 .screen .race-table {
   /* 騎手名 */
@@ -1553,8 +1665,7 @@ style
   border-bottom: 0.1rem solid #000000;
 }
 .screen .frame-umatan__number:nth-child(2) {
-  background: #DFDFDF;
-  color: #1C1C1C;
+  background: #333;
 }
 .screen .frame-umatan__number:nth-child(3) {
   background: #0D1117;
@@ -1683,8 +1794,8 @@ style
   color: #1C1C1C;
 }
 .umaren-wide .race-main .race-table__body.body-white .race-table__number {
-  color: #1C1C1C;
-  background-color: #DFDFDF;
+  color: #FFF;
+  background-color: #333;
 }
 .umaren-wide .race-main .race-table__body.body-black .race-table__wide::before {
   background: #686868;
@@ -1787,7 +1898,6 @@ style
   align-items: center;
   font-family: "Segoe UI", sans-serif;
   font-size: 1.6rem;
-  font-weight: 700;
   border-right: 0.1rem solid #000000;
   padding-right: 0.4rem;
 }
@@ -1814,7 +1924,6 @@ style
 .umaren-wide .race-main .race-table__wide span {
   font-family: "Segoe UI", sans-serif;
   font-size: 1.6rem;
-  font-weight: 700;
   text-align: right;
 }
 .umaren-wide .race-main .race-table__wide span:first-child, .umaren-wide .race-main .race-table__wide span:last-child {
@@ -1883,8 +1992,8 @@ style
   color: #1C1C1C;
 }
 .popular .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333333;
+  color: #ffffff;
 }
 .popular .race-table__row.row-black .race-table__frame,
 .popular .race-table__row.row-black .race-table__number {
@@ -2124,7 +2233,7 @@ style
 }
 .race-container .race-screen__header-name .race-number {
   font-family: "Segoe UI", sans-serif;
-  font-size: 3rem;
+  font-size: 3.2rem; /* 32pt：数字を日本語見出しと揃える */
   margin-left: 0.8rem;
 }
 .race-container .race-screen__header-name .race-number span {
@@ -2599,8 +2708,8 @@ style
   color: #1C1C1C;
 }
 .race-container .race-screen .race-table__row.row-white .race-table__name {
-  background-color: #DFDFDF;
-  color: #1C1C1C;
+  background-color: #333333;
+  color: #ffffff;
 }
 .race-container .race-screen .race-table__row.row-black .race-table__number {
   background-color: #0D1117;
@@ -3074,7 +3183,7 @@ screen7 — L字画面（マークアップ）
 }
 .message__race-head-number {
   font-family: "Segoe UI", sans-serif;
-  font-size: 3rem;
+  font-size: 3.2rem; /* 32pt：数字を日本語見出しと揃える */
 }
 .message__race-head-number span {
   font-size: 2rem;
@@ -3131,8 +3240,8 @@ screen7 — L字画面（マークアップ）
   color: #1c1c1c;
 }
 .message__horse-table-group.row-white .message__horse-name {
-  background-color: #dfdfdf;
-  color: #1c1c1c;
+  background-color: #333333;
+  color: #ffffff;
 }
 .message__horse-table-group.row-black .message__horse-frame,
 .message__horse-table-group.row-black .message__horse-number {
@@ -3428,7 +3537,7 @@ html.screen-4k {
 }
 .six-race__race-number {
   font-family: "Segoe UI", sans-serif;
-  font-size: 3rem;
+  font-size: 3.2rem; /* 32pt：数字を日本語見出しと揃える */
 }
 .six-race__race-number span {
   font-size: 2rem;
@@ -3561,14 +3670,6 @@ html.screen-4k {
   min-height: 7.167rem;
   flex-direction: row;
 }
-.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) {
-  max-height: 4.3rem;
-  height: 4.3rem;
-}
-.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-num,
-.six-race__payout--single .six-race__payout-group--wide .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-price {
-  line-height: 2rem;
-}
 .six-race__payout--single .six-race__payout-type {
   display: flex;
   justify-content: start;
@@ -3591,23 +3692,18 @@ html.screen-4k {
   max-height: 3.067rem;
   height: 3.067rem;
 }
-.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) {
-  grid-template-columns: 1fr;
-  max-height: 6.366rem;
-  height: 6.366rem;
-}
-.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-num {
-  width: 9.8rem;
-}
-.six-race__payout--single .six-race__payout-item:has(.six-race__payout-num .hyphen) .six-race__payout-price {
-  width: 24.7rem;
-}
 .six-race__payout--single .six-race__payout-num {
   padding-right: 0.4rem;
   font-size: 2.8rem;
 }
 .six-race__payout--single .six-race__payout-price {
   font-size: 2.8rem;
+}
+.six-race__payout--single .six-race__payout-price--long {
+  font-size: 2.4rem; /* 7桁 */
+}
+.six-race__payout--single .six-race__payout-price--xlong {
+  font-size: 2.1rem; /* 8桁 */
 }
 .six-race__payout--single .six-race__payout-price span {
   font-size: 2.2rem;
@@ -3627,9 +3723,6 @@ html.screen-4k {
   max-width: 50%;
   min-height: 10rem;
 }
-.six-race__payout--grid .six-race__payout-stack.--pattern-E .six-race__payout-group {
-  min-height: 7rem;
-}
 .six-race__payout--grid .six-race__payout-group--win .six-race__payout-item {
   max-height: 2rem;
   height: 2rem;
@@ -3641,6 +3734,9 @@ html.screen-4k {
   text-align: left;
   padding-right: 0;
   padding-left: 0.4rem;
+}
+.six-race__payout--grid .six-race__payout-stack.--pattern-E .six-race__payout-group {
+  min-height: 7rem;
 }
 .six-race__payout--grid .six-race__payout-type {
   width: 2.8rem;
@@ -3874,7 +3970,9 @@ html.screen-4k {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  --row-height: calc((97.8rem - 4rem) / var(--horse-count));
+  /* 10頭以下は10頭基準の行高で固定（不足分は下部余白） */
+  --row-count: max(10, var(--horse-count));
+  --row-height: calc((97.8rem - 4rem) / var(--row-count));
 }
 .six-race__horse-table-head {
   flex: 0 0 auto;

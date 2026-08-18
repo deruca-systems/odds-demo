@@ -274,10 +274,57 @@ function oddsColorClass(v, betType, organizer) {
   return '';
 }
 
+// 2026-08-18: 桁数によるフォント縮小クラス。
+//   芥川様「システム組み込み申し送り仕様書」§6.7.1-D（keiba-odds 28a1aeb / 8-17 push）。
+//     整数部 1〜3桁 → クラスなし
+//     整数部 4桁    → odds-long
+//     整数部 5桁    → odds-longest（**馬連のみ**）
+//   ⚠ 4桁と5桁は**排他**（5桁のとき odds-long は付けない）。
+//   ⚠ 「馬連のみ」は **cap が自動的に保証する**。ワイドの cap は NAR/JRA とも 9999.9
+//     （JSON構造仕様書 §4.5.1）で整数部は最大4桁 → 本関数は odds-longest を返せない。
+//     呼び出し側で賭式を分岐する必要はない。
+//   判定はキャップ適用後の値で行う（oddsColorClass と同じ。表示文字列と一致させるため）。
+//   ⚠ **色クラス（odds-d1/d3）とは別軸**。両方付きうる（色＝桁数帯、これ＝文字サイズ）。
+function oddsDigitClass(v, betType, organizer) {
+  if (v === null || v === undefined) return '';
+  var cap = betType ? oddsCapFor(betType, organizer) : 999.9;
+  var shown = (v >= cap) ? cap : v;
+  var intDigits = String(Math.floor(shown)).length;
+  if (intDigits >= 5) return 'odds-longest';
+  if (intDigits === 4) return 'odds-long';
+  return '';
+}
+
 // クラス名を組み立てるヘルパ（base + 配色クラス）。
 function oddsClass(base, v, betType, organizer) {
   var c = oddsColorClass(v, betType, organizer);
   return c ? (base + ' ' + c) : base;
+}
+
+// 2026-08-19 (DOS-05): オッズ欄の**表示文字数**を CSS 変数 `--odds-len` で渡す。
+//   人気順（`.popular-table__odds` 2.2rem / 枠 6.8rem）と L字の組番オッズ
+//   （`.message__bet-odds` 1.4rem / 枠 4.1〜4.4rem）は**整数部4桁で既に溢れる**
+//   （実測 2026-08-19: 人気順 FHD 133px / 枠 128px）。右詰めなので溢れは**左＝隣の列**に出る。
+//   実データ（NAR）は人気順が上位30位までで3桁止まりのため普段は出ないが、
+//   **少頭数や JRA（3連単 cap 999999.9＝整数部6桁）で顕在化する。**
+//   申し送り仕様書 §6.7.1-D は**馬連ワイド専用**で人気順の桁数クラスは仕様に無いため、
+//   **及川判断で dos-overrides.css 側で解決する**（芥川様への実装依頼はしない。2026-08-19）。
+//   §6.7 の「CSS変数または定義済みクラスの付与のみで制御する」に従い、
+//   馬名の `--name-length` と同じ CSS 変数方式にする（`font-size` の直接指定は禁止）。
+function setOddsLen(el, text) {
+  if (!el) return el;
+  var t = String(text == null ? '' : text);
+  el.style.setProperty('--odds-len', t.length);
+  return el;
+}
+
+// 空要素を除いてクラス名を連結する
+function joinClass() {
+  var out = [];
+  for (var i = 0; i < arguments.length; i++) {
+    if (arguments[i]) out.push(arguments[i]);
+  }
+  return out.join(' ');
 }
 
 // O-3b 追補 (2026-07-29 及川指摘): min - max 形式のセル（複勝・ワイド）を組み立てる。
@@ -294,9 +341,15 @@ function fillMinMaxCell(cellEl, min, max, betType, organizer) {
     cellEl.appendChild(el('span', null, ''));
     return cellEl;
   }
-  cellEl.appendChild(el('span', oddsColorClass(min, betType, organizer) || null, fmtOddsOr(min, betType, organizer)));
+  // 2026-08-18: 桁数クラス（§6.7.1-D）は**数値 span のみ**に付ける。区切りの '-' には付けない。
+  //   複勝もこの関数を通るが cap 999.9（整数部3桁）なので oddsDigitClass は常に '' を返す。
+  cellEl.appendChild(el('span', joinClass(oddsColorClass(min, betType, organizer),
+                                          oddsDigitClass(min, betType, organizer)) || null,
+                        fmtOddsOr(min, betType, organizer)));
   cellEl.appendChild(el('span', null, '-'));
-  cellEl.appendChild(el('span', oddsColorClass(max, betType, organizer) || null, fmtOddsOr(max, betType, organizer)));
+  cellEl.appendChild(el('span', joinClass(oddsColorClass(max, betType, organizer),
+                                          oddsDigitClass(max, betType, organizer)) || null,
+                        fmtOddsOr(max, betType, organizer)));
   return cellEl;
 }
 
@@ -1241,6 +1294,9 @@ window.OddsDemo = {
   // O-3: オッズ配色（桁数ベース）。順位ベースの旧ルールは全廃した
   oddsColorClass: oddsColorClass,
   oddsClass: oddsClass,
+  oddsDigitClass: oddsDigitClass,   // §6.7.1-D 桁数によるフォント縮小クラス
+  joinClass: joinClass,
+  setOddsLen: setOddsLen,           // DOS-05 オッズ欄の文字数を --odds-len で渡す
   fillMinMaxCell: fillMinMaxCell,   // 複勝・ワイドの min - max セル
   fmtSex: fmtSex,          // O-2: 性齢の性別表記（セ → 騙）
   fmtWeight: fmtWeight,

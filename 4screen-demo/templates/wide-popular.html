@@ -10,10 +10,10 @@
   <meta charset="UTF-8">
   <title>人気順 4賭式 上位1〜10（L字右下）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260604">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260819a">
   <!-- L字右下固有スタイル (.lshape-bottom / .message.bottom-only) は dos-overrides.css に集約。 -->
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260818a">
-  <script src="../assets/js/common.js?v=20260817a"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819a">
+  <script src="../assets/js/common.js?v=20260819a"></script>
 </head>
 <body>
 
@@ -109,7 +109,8 @@
       : 'message__bet-odds';
     // O-3b: entry なし（票未着・件数不足）は '0.0' ではなく '-'
     var oddsText = entry ? D.fmtOdds(entry.odds, betType, race && race.organizer_type) : D.ODDS_EMPTY;
-    row.appendChild(D.el('div', oddsCls, oddsText));
+    // DOS-05 (2026-08-19): 桁数で溢れないよう表示文字数を --odds-len で渡す
+    row.appendChild(D.setOddsLen(D.el('div', oddsCls, oddsText), oddsText));
     return row;
   }
 

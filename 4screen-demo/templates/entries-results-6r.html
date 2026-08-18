@@ -11,9 +11,9 @@
        を描画。運用想定（PL確認 2026-06-29）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260606a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260818a">
-  <script src="../assets/js/common.js?v=20260817a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260819a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819a">
+  <script src="../assets/js/common.js?v=20260819a"></script>
 </head>
 <body>
 
@@ -87,6 +87,20 @@
     return org === 'NAR' && pp === '03';
   }
   function formatAmount(n) { return (n == null) ? '-' : Number(n).toLocaleString('ja-JP'); }
+  // 2026-08-19: 払戻額の桁数クラス（芥川様 申し送り仕様書 §6.6 / §7.2、keiba-odds 28a1aeb 取込）。
+  //   7桁 → --long（2.4rem） / 8桁 → --xlong（2.1rem）。
+  //   ⚠ 桁数は**カンマを除いた整数の桁数**で数える（`515,560` は 6 桁）。
+  //   ⚠ CSS 定義は 1カラム（`.six-race__payout--single`）向けだが、
+  //     §6.6 の注記どおり**グリッド型でも HTML 側でクラスを付与する**。
+  //   🔴 style.css からは `:has(.six-race__payout-num .hyphen)` のレイアウト指定が
+  //     削除され、桁対応はこのクラス方式に置き換わった。**クラスを出さないと縮まない。**
+  function payoutDigitClass(n) {
+    if (n === null || n === undefined || isNaN(Number(n))) return '';
+    var d = String(Math.floor(Math.abs(Number(n)))).length;
+    if (d >= 8) return 'six-race__payout-price--xlong';
+    if (d === 7) return 'six-race__payout-price--long';
+    return '';
+  }
   function decodeBitmap(bm) {
     var out = []; if (!bm) return out;
     for (var i = 0; i < bm.length; i++) if (bm[i] === '1') out.push(i + 1);
@@ -174,6 +188,8 @@
       //   返還はレース不成立で全賭式が元返しになるケース。金額だけ出すと
       //   「0番が100円で的中」に見えるため明示する。
       var priceCls = p.is_void ? ' is-void' : (p.is_special_pay ? ' is-special-pay' : '');
+      var payoutDg = payoutDigitClass(p.amount);
+      if (payoutDg) priceCls += ' ' + payoutDg;
       var priceLbl = p.is_void ? '<span class="six-race__payout-void-label">返還</span>'
                    : (p.is_special_pay ? '<span class="six-race__payout-special-label">特払</span>' : '');
       return '<div class="six-race__payout-item">' + numHtml
