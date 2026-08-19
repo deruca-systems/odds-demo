@@ -747,8 +747,16 @@
   //     ただし **頁の場が代表枠と違う**のに races が無い場合は、代替すると
   //     **別の場のレースを出してしまう**ので、その頁を落として警告する（黙って誤表示しない）。
   function normalizeScreenPages(screen) {
-    var toPage = function(p) {
+    var toPage = function(p, i) {
       var isSelf = (p === screen);
+      // 🔴 §3.5.2.2「screens[] 直下は **pages[0] と同値**」。したがって **pages[0] は直下の値を
+      //   引き継いでよい**（頁2以降は自分の値だけを使う）。
+      //   2026-08-19: ここを `p === screen` だけで判定しており、`pages` がある JSON では
+      //   pages[0] が別オブジェクトになるため **screen.video_config を落としていた**。
+      //   その結果 dp80 の venue_code が解決できず `Unknown venue_code: null` で
+      //   動画が出なかった（8/19 STG monitor 1 sec04 / monitor 2 sec02 で実測）。
+      //   place_cd 等は元から無条件に引き継いでおり、video_config だけが取り残されていた。
+      var isFirst = isSelf || i === 0;
       var dpid = (p.display_pattern_id != null) ? p.display_pattern_id : screen.display_pattern_id;
       // 旧形式の screen.type は自分自身の頁にだけ効かせる（頁ごとの種別は dp が正）
       var explicitType = p.type || (isSelf ? screen.type : null);
@@ -765,24 +773,29 @@
         races:                (p.races != null) ? p.races : (screen.races || []),
         racesInherited:       (p.races == null),
         // 旧フラット形式（screen 直下に venue_code 等）の dual-read は自分自身の頁のみ
-        video_config:         (p.video_config != null) ? p.video_config : (isSelf ? screen.video_config : null),
+        video_config:         (p.video_config != null) ? p.video_config : (isFirst ? screen.video_config : null),
         type:                 explicitType || (VIDEO_DISPLAY_PATTERN_IDS[dpid] ? 'video' : 'odds')
       };
     };
     var raw = (screen.pages && screen.pages.length) ? screen.pages : [screen];
     var pages = [];
     raw.forEach(function(p, i) {
-      var page = toPage(p);
+      var page = toPage(p, i);
       if (page.racesInherited && p !== screen && String(page.place_cd) !== String(screen.place_cd)) {
+        // 2026-08-19: 代表枠が **video 頁**のときは place_cd が省略されうる（§3.5.2.2「video 頁では省略可」。
+        //   実際 dp80 は場を video_config.venue_code で持つ）。この場合「場が違う」ではなく
+        //   「代表枠に場が無く、引き継げる races も無い」が正しい説明なので文言を分ける。
+        var why = (screen.place_cd == null)
+          ? '代表枠が場を持たない画面（dp' + screen.display_pattern_id + '）で、引き継げる races がありません'
+          : '代表枠（場 ' + screen.place_cd + '）と場が違うため参照先を決められません';
         console.warn('[pages] 頁' + (i + 1) + '（場 ' + page.place_cd + ' / dp' + page.display_pattern_id
-          + '）は pages[].races を持たず、代表枠（場 ' + screen.place_cd + '）と場が違うため'
-          + '参照先を決められません。この頁をスキップします'
+          + '）は pages[].races を持たず、' + why + '。この頁をスキップします'
           + '（JSON構造仕様書 v0.6.7 §3.5.2.2「pages[].races は常に出力する」の反映待ち）。');
         return;
       }
       pages.push(page);
     });
-    return pages.length ? pages : [toPage(screen)];
+    return pages.length ? pages : [toPage(screen, 0)];
   }
 
   // 頁の place_cd が venue_filters（§3.13）の対象外なら、その頁はスキップする（§3.5.2.2）。
