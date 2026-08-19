@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ja" class="single-screen">
+<html lang="ja" data-dos-hide-until-data="1" class="single-screen fullname">
 <head>
   <meta charset="UTF-8">
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260819a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819a">
-  <script src="../assets/js/common.js?v=20260819a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260819m">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260819m">
+  <script src="../assets/js/common.js?v=20260819m"></script>
 </head>
 <body>
 
@@ -70,6 +70,7 @@
 
   var currentPage = forcedPage || 1;
   var currentPageCount = 0;
+  var lastNotifiedPageCount = 0;   // 乙案: 親へ申告済みのページ数
   var currentHorseCount = -1;
 
   function getPairOdds(map, a, b) {
@@ -246,6 +247,12 @@
         startPageRotation(pageCount);
       }
     }
+    // 乙案 (2026-08-19): 親は頭数を知らないのでページ数を算出できない。
+    //   区画内の頁ローテ(pages[])の滞在時間を決めるのに要るので申告する。
+    if (pageCount !== lastNotifiedPageCount && window.parent !== window) {
+      lastNotifiedPageCount = pageCount;
+      try { window.parent.postMessage({ type: 'childPageCount', count: pageCount }, '*'); } catch (_) {}
+    }
 
     renderCurrentPage();
   }
@@ -281,6 +288,14 @@
   }
 
   window.addEventListener('message', function(e) {
+    // 乙案 (2026-08-19): 表に出た時点でページ送りを 1 ページ目から数え直す。
+    //   ダブルバッファは表示の 4 秒前に読み込むため、そのままだと内側の 15 秒が
+    //   4 秒先行し、P1 が 11 秒・末尾にまた P1 が 4 秒という出方になる。
+    if (e.data && e.data.type === 'resetPageRotation') {
+      if (!forcedPage) { currentPage = 1; renderCurrentPage(); }
+      startPageRotation(currentPageCount);
+      return;
+    }
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
       // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。

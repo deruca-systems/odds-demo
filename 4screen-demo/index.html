@@ -8,12 +8,12 @@
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
 <!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260819a"></script>
+<script src="assets/js/config.js?v=20260819m"></script>
 <!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260819a"></script>
+<script src="assets/js/video-display.js?v=20260819m"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260819a"></script>
+<script src="assets/js/common.js?v=20260819m"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -198,6 +198,11 @@
   //                各レースの初回チェックはスロットル対象外なので 1 秒に 1 レースずつ収束する
   //   実測（2026-07-30・48レース）の払戻到着は +6.8〜+30.1 分。最大側をカバーする。
   var PAYOUT_ETA_SEC = 32 * 60;
+  // 起動時の先読み（prefetchPayoutProbes）の上限と待ち時間。
+  //   PAYOUT_ETA_SEC を最大寄りに取った代償で「確定済みの前レースを掴む」のは避けられないが、
+  //   **描画前に**払戻を確認しておけば往復が画面に出ない。
+  var PAYOUT_PREFETCH_MAX = 6;          // 1 区画あたりに先読みするレース数の上限
+  var PAYOUT_PREFETCH_TIMEOUT_MS = 1500; // 通信が詰まっても描画は止めない
   var FRAME_UTAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
   var SLOT_TICK_SEC     = 5;    // 時間帯切替の検査間隔（秒）- 1秒tickではなく5秒で十分
   var DISPLAY_TICK_SEC  = 1;    // 情報バー表示更新（秒）。サーバ負荷には関与しない。
@@ -607,7 +612,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260819a');
+    params.set('v', '20260819m');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -629,6 +634,19 @@
   }
 
   // H-04: 使用しない position の iframe をクリアする（layout切替で不要になった場合）
+  // 案B: スロットが変わったら 2 枚目は全部引っ込め、主 iframe を表に戻す。
+  function hideAllBufferIframes() {
+    [1, 2, 3, 4].forEach(function(n) {
+      var buf = document.getElementById('frame' + n + 'b');
+      if (buf) {
+        buf.style.visibility = 'hidden'; buf.onload = null; buf.src = 'about:blank';
+        buf.removeAttribute('data-template'); buf.removeAttribute('data-source');
+      }
+      var pri = document.getElementById('frame' + n);
+      if (pri) pri.style.visibility = '';
+    });
+  }
+
   function clearUnusedFrames() {
     var used = {};
     screenStates.forEach(function(s) {
@@ -659,7 +677,18 @@
       //   実測中央値（発走+8.3分）に合わせる。60秒のままだと起動直後に先のレースを掴む。
       var holdSec = (RACE_ADVANCE_MODE === 'payout') ? PAYOUT_ETA_SEC : NEXT_RACE_DELAY_SEC;
       var displayEndMs = postMs + holdSec * 1000;
-      if (now < displayEndMs) return i;
+      if (now < displayEndMs) {
+        // 🔴 2026-08-19: 払戻が既に来ているレースは掴まない。
+        //   PAYOUT_ETA_SEC(32分) は実測**最大**寄りの見積りなので、払戻が中央値
+        //   (+8.3分) で来ていると確定済みの前レースを掴む。従来はその 1〜2 秒後に
+        //   payout チェックが前進させて自己修正していたが、**その往復が画面に見えた**
+        //   （2026-08-19 録画: リロードのたび 川崎4R→5R / 名古屋5R→6R / 門別5R→6R。
+        //     園田だけ無症状なのは 12R＝最終レースで遷移先が無いため）。
+        //   _payoutProbe は prefetchPayoutProbes が**描画前に**埋める。
+        var probed = _payoutProbe[races[i].race_id || races[i].data_source];
+        if (probed && probed.confirmed && i + 1 < races.length) continue;
+        return i;
+      }
     }
     return races.length - 1;  // 全レース発走+N秒超: 末尾継続
   }
@@ -837,6 +866,11 @@
       state.pageIndex = 0;
       state.pageTick = 0;
       state.pageHoldSec = 0;
+      // 🔴 2026-08-19: カットインのキーは raceKey を含むので**区画に1組**で足りる（引地様 №21）。
+      //   当初「頁ごとの単一キー」にしたところ、頁2〜4 で復元されず
+      //   **同じレースで4回連続発火**した（実測）。集合にして頁ローテで丸ごと引き継ぐ。
+      state.cutinShownKeys = {};
+      state.cutinSeededKeys = {};
       return state;
     });
   }
@@ -895,6 +929,8 @@
       oddsPageKind:  ODDS_PAGE_KIND[page.display_pattern_id] || null,
       oddsPageIndex: 0,
       oddsPageTick: 0,
+      // 乙案: テンプレ駆動のページ数（dp10）。子の申告で埋まるまでは 1 扱い。
+      childPageCount: 1,
       // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
       //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
       //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
@@ -992,12 +1028,32 @@
       state.currentRaceIndex = findRaceIndexByRaceNo(state.races, state.target_race_no);
       if (state.currentRaceIndex < 0 && state.races.length) state.currentRaceIndex = 0; // 念のため
     } else {
-      state.currentRaceIndex = getInitialRaceIndex(state.races, correctedNow());
+      // 🔴 2026-08-19: 頁ローテでは**レース選択をやり直さない**。
+      //   頁は賭式・表示形式が変わるだけで、見ているレースは同じはず。
+      //   やり直すと getInitialRaceIndex が payout 未着の**締切済みレースを掴み直し**、
+      //   その1〜2秒後に次レースへ遷移する往復が毎回起きる。
+      //   症状: 「切替時に一瞬 前のR が表示される」＋「締切カットインが毎回再発火する」
+      //   （2026-08-19 STG monitor 1 区画03 で実測: 頁3に入るたび 2R→3R を往復）。
+      //   preferRaceId は applyScreenPage が頁切替の直前に積む。**同じ race_id が
+      //   新しい races[] に無ければ（＝場が違う頁）通常どおり初期選択する。**
+      var pref = state.preferRaceId ? findRaceIndexById(state.races, state.preferRaceId) : -1;
+      state.currentRaceIndex = (pref >= 0) ? pref
+                                           : getInitialRaceIndex(state.races, correctedNow());
+      state.preferRaceId = null;
     }
     if (state.currentRaceIndex >= 0) {
       state.currentRaceId = state.races[state.currentRaceIndex].race_id;
     }
     applyOddsScreen(state);
+  }
+
+  // 2026-08-19: races[] から race_id で index を引く（頁ローテのレース維持に使う）。
+  function findRaceIndexById(races, raceId) {
+    if (!races || !raceId) return -1;
+    for (var i = 0; i < races.length; i++) {
+      if (races[i].race_id === raceId) return i;
+    }
+    return -1;
   }
 
   // 2026-06-29: races[] から rr=target_race_no のレースを探す（§3.5.4 対象レース固定）。
@@ -1071,6 +1127,27 @@
   // 2026-08-18: 区画内の頁ローテーション（pages[]）の周期。JSON構造仕様書 v0.6.7 §3.5.2.2 で
   //   **フロント固定 15 秒**と定めた（JSON には持たせない）。既存の自動ページングと同一周期。
   //   将来 CRM で設定可能にする場合は screens[].page_rotation_sec（予約済・v0.6.7 では未出力）。
+  // 2026-08-19 (案B): 頁ローテのダブルバッファ。
+  //   区画あたり iframe を 2 枚持ち、表示中の裏で次頁を読み込み、
+  //   **子から renderReady が来てから**入れ替える。空白 0ms を狙う。
+  //   案A（データ到着まで遮蔽）で空白は「暗転」になったが、4区画が同時に
+  //   約 217ms 暗転する（2026-08-19 STG monitor 3 の録画をフレーム解析）。
+  //   保守的に、必要なときだけ 2 枚目を作る:
+  //     ・頁が 1 つの区画は作らない（＝従来と完全に同じ経路）
+  //     ・動画（dp80/90-94）は対象外。HLS プレイヤを二重に起こさない
+  //     ・次頁のテンプレが同じなら iframe は再ロードされない＝空白が出ないので不要
+  //   ?dblbuf=0 で丸ごと無効化できる（切り戻し用）。
+  //   ⚠ query の解釈は上方の IIFE で行うが、この var 代入は**その後に実行される**ため
+  //   そこで false にしても true で上書きされてしまう（2026-08-19 に踏んだ）。ここで直接読む。
+  var DOUBLE_BUFFER = !/(^|[?&])dblbuf=0([&#]|$)/.test(location.search);
+  var PRELOAD_LEAD_SEC = 4;    // 何秒前から裏で読み込むか
+  // 🔴 2026-08-19 (甲案): カットイン表示中は頁送りを保留するが、**保留したぶんを
+  //   次の頁から差し引いて位相を戻す**。戻さないと、カットインが出た区画だけ
+  //   他区画から遅れたままになり、4 区画の切替が揃わなくなる。
+  //   カットインの判定を毎秒に直した（common.js startHeaderTicker）ことで
+  //   カットインが滞在の途中で始まり境界をまたぐようになったため、この保留が
+  //   起きやすくなった。差し引いても最低 MIN_PAGE_VISIBLE_SEC は必ず表示する。
+  var MIN_PAGE_VISIBLE_SEC = 5;
   var SCREEN_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
 
   // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
@@ -1200,13 +1277,204 @@
   function applyScreenPage(state, nextIndex) {
     var page = state.pages[nextIndex];
     if (!page) return;
+    // 🔴 2026-08-19: カットインの発火済みキーを頁ごとに退避・復元する。
+    //   子のキーは `raceKey + '_countdown' / '_closed'`（common.js）＝**レースに紐づく**。
+    //   ところが buildScreenPageState は毎回 cutinShownForRace を null で作り直すため、
+    //   **頁が回るたびに「まだ出していない」に戻り、同じレースの締切カットインが再発火**していた
+    //   （2026-08-19 STG monitor 1 区画03「園田 馬連①」で実測。dp51→52→21→22 は
+    //     テンプレか ?page= が毎回変わるので iframe が再読込され、そのたびに出ていた）。
+    //   頁ごとに持つのは、頁が**別の場のレース**を出しうるため（screen に 1 つでは足りない）。
+    state.cutinShownKeys = state.cutinShownKeys || {};
+    state.cutinSeededKeys = state.cutinSeededKeys || {};
+    // 🔴 **上書きの前に**退避する。buildScreenPageState は currentRaceId を null で
+    //   作り直すため、コピー後に読むと必ず null になる（2026-08-19 に踏んだ。
+    //   「頁が変わってもレースを維持する」修正が丸ごと効いていなかった）。
+    // 🔴 2026-08-19: **出走成績（dp50-54/60-62）は currentRaceId を持たない**（範囲表示のため）。
+    //   そのまま引き継ぐと、出走成績の頁を通過した時点で null になり、
+    //   次のオッズ頁で**毎回レースを選び直す**（＝締切済みレースを掴み直し、
+    //   1〜2秒後に次レースへ飛ぶ「一瞬前のRが見える」＋カットイン再発火）。
+    //   実測 2026-08-19 STG monitor 1 区画03（dp51→52→21→22）:
+    //     頁1・頁2 は race=None → 頁3 で毎回 8R を掴み直し → 2秒後 9R へ。
+    //   そこで **値が入っているときだけ更新する sticky な lastRaceId** に覚えさせ、
+    //   出走成績の頁を跨いでもレースを保てるようにする。
+    //   ⚠ 場が違う頁では findRaceIndexById が -1 を返し、通常の初期選択に落ちる（安全）。
+    if (state.currentRaceId) state.lastRaceId = state.currentRaceId;
+    var keepRaceId = state.lastRaceId || state.currentRaceId;
     var fresh = buildScreenPageState(state.screen, page, state.venue_filters);
     // fresh は頁依存の値だけを持つ。pages / pageIndex / screen 等の管理値は上書きされない。
     for (var k in fresh) { if (fresh.hasOwnProperty(k)) state[k] = fresh[k]; }
+    // 集合は state に載ったまま引き継がれる（fresh に無いキーなので上書きされない）
+    // 頁が変わっても見ているレースは維持する（上の initializeScreen が拾う）
+    state.preferRaceId = keepRaceId;
     state.pageIndex = nextIndex;
     state.pageTick = 0;
     state.pageHoldSec = 0;
     initializeScreen(state);
+  }
+
+  // 🔴 2026-08-19 (乙案): 頁ローテ(pages[])の滞在時間を「内側のページ数」ぶん延ばす。
+  //   内側の自動ページングも 15 秒周期なので、外側と**同じ周期・同じ起点**になり
+  //   2 ページ目に切り替わる瞬間に外側が次の頁へ送っていた。
+  //   実測 2026-08-19 STG monitor 3 区画01（130 秒観察）:
+  //     dp20 馬連（自動ページング）… 常に 1/2。**2 ページ目が一度も出ない**
+  //     dp40 人気順（自動ページング）… 常に 1/2。同上
+  //     dp10 馬連ワイド … P2 は 3.7 秒だけ（案B の先読み 4 秒ぶんずれた副産物）
+  //   これは 2026-08-18 に入れた pages[] が持ち込んだ退行で、
+  //   画面選択に入れずに単独で使う限りは従来どおり動く。
+  //   ⚠ 影響範囲を絞る作り:
+  //     ・頁が 1 つの区画は checkScreenPageRotation が先に return する＝**呼ばれない**
+  //     ・内側ページを持たない dp は 1 を返す＝滞在 15 秒のまま（従来と同じ）
+  function innerPageCountOf(state) {
+    // 親が駆動する自動ページング（dp20/30/40）。中身の無いページは数えない
+    //   （少頭数で「軸馬10〜」が空になる場合。引地様 №22）。
+    if (state.oddsPageCount >= 2) {
+      var avail = 0;
+      for (var i = 0; i < state.oddsPageCount; i++) { if (oddsPageIsAvailable(state, i)) avail++; }
+      return Math.max(1, avail);
+    }
+    // テンプレが駆動する馬連ワイド（dp10）。ページ数は頭数で決まるので子が申告する。
+    if (state.childPageCount >= 2) return state.childPageCount;
+    // 出走成績の自動ページング（dp50/60）
+    if (state.entriesPages && state.entriesPages.length >= 2) return state.entriesPages.length;
+    return 1;
+  }
+
+  function screenPageDwellSec(state) {
+    return SCREEN_PAGE_SEC * innerPageCountOf(state);
+  }
+
+  // 案B: 区画の 2 枚目 iframe。**必要になった区画だけ**遅延生成する。
+  //   .grid .cell は position:relative なので、両方を absolute inset:0 で重ねる。
+  //   バッジ(.cell__badge)は z-index:1 なので、iframe をバッジの**前**に挿すと上に残る。
+  function ensureBufferIframe(state) {
+    var n = positionToFrameNum(state.position);
+    if (!n) return null;
+    var primary = document.getElementById('frame' + n);
+    if (!primary || !primary.parentNode) return null;
+    var stack = function(el) {
+      el.style.position = 'absolute';
+      el.style.left = '0'; el.style.top = '0';
+      el.style.width = '100%'; el.style.height = '100%';
+    };
+    var buf = document.getElementById('frame' + n + 'b');
+    if (!buf) {
+      buf = document.createElement('iframe');
+      buf.id = 'frame' + n + 'b';
+      buf.name = 'frame' + n + 'b';
+      stack(buf);
+      buf.style.visibility = 'hidden';
+      var badge = primary.parentNode.querySelector('.cell__badge');
+      primary.parentNode.insertBefore(buf, badge || null);
+      stack(primary);   // 主 iframe も重ね合わせ座標に揃える（見た目は不変）
+    }
+    // 🔴 2026-08-19: 裏は「いま表示していない方」。**入れ替えるたびに役割が逆転する**。
+    //   常に frameNb を裏だと決め打ちすると、2 回目の頁送りで
+    //   **表示中の iframe を潰して 4 秒間なにも映らなくなる**（STG monitor 3 で実測）。
+    return (state.iframeEl === buf) ? primary : buf;
+  }
+
+  // その頁送りでバッファが要るか。要らないなら従来経路（applyScreenPage）に落とす。
+  function pageSwapNeedsBuffer(state, nextPage) {
+    if (!DOUBLE_BUFFER) return false;
+    if (!state.pages || state.pages.length < 2) return false;
+    if (state.type === 'video') return false;
+    if (!nextPage || nextPage.type === 'video') return false;
+    // テンプレが変わらないなら applyOddsScreen は iframe を再ロードしない＝空白が出ない
+    return resolveTemplate(nextPage) !== state.template;
+  }
+
+  function abortPagePreload(state) {
+    if (!state || !state.preload) return;
+    var el = state.preload.st && state.preload.st.iframeEl;
+    if (el) {
+      el.style.visibility = 'hidden';
+      el.onload = null;
+      el.removeAttribute('data-template');
+      el.removeAttribute('data-source');
+      el.removeAttribute('data-sig');
+      el.src = 'about:blank';
+    }
+    state.preload = null;
+  }
+
+  // 裏で次頁を組み立てる。**state 本体はまだ書き換えない**（表示中の頁が壊れる）。
+  function startPagePreload(state, nextIndex) {
+    var page = state.pages[nextIndex];
+    if (!page) return false;
+    var buf = ensureBufferIframe(state);
+    if (!buf) return false;
+    if (state.currentRaceId) state.lastRaceId = state.currentRaceId;
+    var pre = {}, k, k2;
+    for (k in state) { if (state.hasOwnProperty(k)) pre[k] = state[k]; }
+    var fresh = buildScreenPageState(state.screen, page, state.venue_filters);
+    for (k2 in fresh) { if (fresh.hasOwnProperty(k2)) pre[k2] = fresh[k2]; }
+    pre.screen = state.screen;
+    pre.pages  = state.pages;
+    pre.pageIndex = nextIndex;
+    pre.preferRaceId = state.lastRaceId || state.currentRaceId;
+    pre.iframeEl = buf;
+    pre.preload = null;
+    // カットインの集合は state と**同じオブジェクト**を共有する（区画に 1 組）
+    pre.cutinShownKeys  = state.cutinShownKeys;
+    pre.cutinSeededKeys = state.cutinSeededKeys;
+    state.preload = { index: nextIndex, st: pre, ready: false };
+    buf.style.visibility = 'hidden';
+    initializeScreen(pre);
+    // 裏でカットインを出させない（出すと発火済みキーを消費し、表で二度と出なくなる）
+    sendCutinSuppressed(buf, true);
+    return true;
+  }
+
+  // 裏の描画が済んだので表に出す。
+  function commitPagePreload(state) {
+    var pre = state.preload.st, k;
+    var oldEl = state.iframeEl;
+    pre.iframeEl.style.visibility = '';
+    if (oldEl && oldEl !== pre.iframeEl) oldEl.style.visibility = 'hidden';
+    for (k in pre) { if (pre.hasOwnProperty(k)) state[k] = pre[k]; }
+    state.preload = null;
+    state.pageTick = 0;
+    state.pageHoldSec = 0;
+    // 裏に回った側は空にする。放置すると 1 区画で 2 つの文書がポーリングし続け、
+    //   取得回数が常時 2 倍になる（次の先読みで読み直すので実害はない）。
+    if (oldEl && oldEl !== state.iframeEl) {
+      oldEl.onload = null;
+      oldEl.removeAttribute('data-template');
+      oldEl.removeAttribute('data-source');
+      oldEl.removeAttribute('data-sig');
+      oldEl.src = 'about:blank';
+    }
+    // 表に出たので抑止を解く。子は最後に見たレースで即座に再判定する。
+    sendCutinSuppressed(state.iframeEl, false);
+    // 乙案: 先読みで 4 秒早く起きているぶん、テンプレ駆動のページ送り（dp10）は
+    //   表に出た時点で 1 ページ目から数え直させる。これが無いと
+    //   P1 が 11 秒・最後にまた P1 が 4 秒、という半端な出方になる。
+    if (state.iframeEl && state.iframeEl.contentWindow) {
+      try { state.iframeEl.contentWindow.postMessage({ type: 'resetPageRotation' }, '*'); } catch (_) {}
+    }
+  }
+
+  // 甲案: 保留したぶんを次の頁の tick に繰り越し、他区画との位相を戻す。
+  //   ただし次の頁が一瞬で消えないよう、最低 MIN_PAGE_VISIBLE_SEC は表示する。
+  function applyPageCatchUp(state, carrySec) {
+    if (!carrySec || carrySec <= 0) return;
+    var d = screenPageDwellSec(state);
+    var maxCarry = Math.max(0, d - MIN_PAGE_VISIBLE_SEC);
+    state.pageTick = Math.min(carrySec, maxCarry);
+  }
+
+  function sendCutinSuppressed(iframe, on) {
+    if (!iframe || !iframe.contentWindow) return;
+    try { iframe.contentWindow.postMessage({ type: 'setCutinSuppressed', on: !!on }, '*'); } catch (_) {}
+  }
+
+  // preload 中の iframe から来たメッセージの持ち主を引く（renderReady 専用）。
+  function findPreloadOwner(sourceWin) {
+    for (var i = 0; i < screenStates.length; i++) {
+      var s = screenStates[i];
+      if (s.preload && s.preload.st.iframeEl && s.preload.st.iframeEl.contentWindow === sourceWin) return s;
+    }
+    return null;
   }
 
   // 1 秒 tick。SCREEN_PAGE_SEC ごとに次の頁へ送る。
@@ -1214,13 +1482,33 @@
     screenStates.forEach(function(state) {
       if (!state.pages || state.pages.length < 2) return;   // 単一頁 = 従来どおり何もしない
       state.pageTick = (state.pageTick || 0) + 1;
-      if (state.pageTick < SCREEN_PAGE_SEC) return;
+      var dwell = screenPageDwellSec(state);   // 乙案: 内側ページ数ぶん延ばす
+      // 甲案で tick を進めるため === では取り逃す。>= にして二重起動は下の条件で防ぐ。
+      if (state.pageTick >= dwell - PRELOAD_LEAD_SEC) {
+        var ni = (state.pageIndex + 1) % state.pages.length;
+        if (pageSwapNeedsBuffer(state, state.pages[ni])
+            && (!state.preload || state.preload.index !== ni)) {
+          abortPagePreload(state);
+          startPagePreload(state, ni);
+        }
+      }
+      if (state.pageTick < dwell) return;
       // カットイン表示中は送らない（checkOddsAutoPaging と同じ方針・同じ上限）
       if (state.cutinActive && state.pageHoldSec < ODDS_PAGE_CUTIN_HOLD_MAX_SEC) {
         state.pageHoldSec++;
         return;   // tick は据え置き。カットインが明けた次の tick で送る
       }
-      applyScreenPage(state, (state.pageIndex + 1) % state.pages.length);
+      var next = (state.pageIndex + 1) % state.pages.length;
+      // 甲案: カットインで保留した秒数。頁送りの直後に次の頁の tick へ繰り越す。
+      var carry = state.pageHoldSec || 0;
+      // 案B: 裏の描画が終わっていれば**空白なしで**入れ替える。
+      //   終わっていなければ従来経路に落とす（＝今までどおり。止まらない）。
+      if (state.preload && state.preload.index === next) {
+        if (state.preload.ready) { commitPagePreload(state); applyPageCatchUp(state, carry); return; }
+        abortPagePreload(state);
+      }
+      applyScreenPage(state, next);
+      applyPageCatchUp(state, carry);
     });
   }
 
@@ -1235,6 +1523,9 @@
         display_pattern_id: s.displayPatternId,
         place_cd: s.pages && s.pages[s.pageIndex] ? s.pages[s.pageIndex].place_cd : null,
         page: (s.pageIndex + 1) + '/' + (s.pages ? s.pages.length : 1),
+        // 2026-08-19: 親が駆動する自動ページング（dp20/30/40）の現在ページ。
+        //   頁ローテ(pages[])と周期が同じだと 2 ページ目が出ないため、検証に要る。
+        odds_page: (s.oddsPageIndex + 1) + '/' + (s.oddsPageCount || 1),
         page_dp: s.pages ? s.pages.map(function(p) { return p.display_pattern_id; }) : [],
         races: (s.races || []).length,
         current_race: s.currentRaceId
@@ -1452,7 +1743,7 @@
       iframe.setAttribute('data-template', state.template);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
       iframe.src = state.template + childQuery;
-      iframe.onload = (function(d, bg, su, sc, cutinKey) {
+      iframe.onload = (function(d, bg, su, sc, cutinKey, seedKey) {
         return function() {
           // 2026-07-15: CRM 背景色を芥川ヘッダークラス付け替えで適用（applyHeaderColor 参照）。
           //   旧 Phase 5 の CSS 変数注入（--race-header-bg / has-custom-bg）は受け側 CSS
@@ -1462,10 +1753,11 @@
           //   ページ送り（dp20/30/40）は iframe をリロードするため、これが無いと
           //   同じレースの「締切5分前」がページ送りのたびに再発火する。
           //   ⚠ setDataUrl より前に送ること（子の初回 poll → checkCutin より先に届かせる）。
-          if (cutinKey) {
+          if (cutinKey || seedKey) {
             try {
               iframe.contentWindow.postMessage({
-                type: 'restoreCutinState', shownForRace: cutinKey
+                type: 'restoreCutinState', shownForRace: cutinKey,
+                shownKeys: seedKey.shown, seededKeys: seedKey.seeded
               }, '*');
             } catch (_) {}
           }
@@ -1487,7 +1779,8 @@
             }, '*');
           } catch (_) {}
         };
-      })(dataUrl, state.back_color_code, signageUrl, saleContext, state.cutinShownForRace);
+      })(dataUrl, state.back_color_code, signageUrl, saleContext, state.cutinShownForRace,
+         { shown: state.cutinShownKeys || {}, seeded: state.cutinSeededKeys || {} });
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
@@ -1656,6 +1949,60 @@
     return false;
   }
 
+  // 2026-08-19: 払戻の有無を 1 回だけ確認して _payoutProbe に載せる（Promise 版）。
+  //   isPayoutConfirmed は「毎秒 tick から呼ぶ」前提の同期 API で**初回は必ず false** を返す。
+  //   起動時はその false のせいで確定済みの前レースを掴むので、await できる形が要る。
+  function probePayoutOnce(race) {
+    var id = race.race_id || race.data_source;
+    var st = _payoutProbe[id] || (_payoutProbe[id] = { checkedAt: 0, confirmed: false });
+    if (st.confirmed) return Promise.resolve(true);
+    var url = resultsUrlOf(race);
+    if (!url) return Promise.resolve(false);
+    return fetch(url, { cache: 'no-cache' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        var win = d && d.payouts && d.payouts.win;
+        if (win && win.length) st.confirmed = true;
+        return st.confirmed;
+      })
+      .catch(function() { return false; });   // 未生成(403/404)・通信断は「未確定」
+  }
+
+  // 🔴 2026-08-19: 初期レース選択の**前に**、掴む候補レースの払戻を先読みする。
+  //   これが無いと「リロードのたびに前の R が約 2 秒映ってから当該 R に飛ぶ」。
+  //   待つのは先頭頁だけ。他頁は 15 秒後に出るので fire-and-forget で温めれば間に合う
+  //   （頁が別の場を出す構成では、温めておかないと同じ往復がその頁で起きる）。
+  function prefetchPayoutProbes(states, now, venueFilters) {
+    var seen = {}, jobs = [];
+    function collect(races, shouldAwait) {
+      if (!races || races.length <= 1) return;
+      var start = getInitialRaceIndex(races, now);
+      if (start < 0) return;
+      for (var i = start; i < races.length && i < start + PAYOUT_PREFETCH_MAX; i++) {
+        var postMs = Date.parse(races[i].post_time_iso);
+        if (isNaN(postMs) || now < postMs) break;   // 発走前のレースに払戻は来ない
+        var id = races[i].race_id || races[i].data_source;
+        if (seen[id]) continue;
+        seen[id] = 1;
+        var pr = probePayoutOnce(races[i]);
+        if (shouldAwait) jobs.push(pr);
+      }
+    }
+    (states || []).forEach(function(st) {
+      if (!st || st.type === 'video' || st.target_race_no != null) return;
+      collect(st.races, true);
+      (st.pages || []).forEach(function(pg, idx) {
+        if (idx === 0 || !pg || pg.type === 'video' || pg.target_race_no != null) return;
+        collect(applyVenueFilters(pg.races || [], venueFilters), false);
+      });
+    });
+    if (!jobs.length) return Promise.resolve();
+    return Promise.race([
+      Promise.all(jobs),
+      new Promise(function(resolve) { setTimeout(resolve, PAYOUT_PREFETCH_TIMEOUT_MS); })
+    ]);
+  }
+
   // H-04 Phase 1 §5.3-5.4: 1秒tickでの次レース遷移判定
   function checkNextRaceTransitions() {
     var now = correctedNow();
@@ -1702,6 +2049,8 @@
     //   №21 cutinShownForRace … カットインは raceKey 込みなので実害は無いが、
     //                            前レースのキーを残さない
     state.oddsPageAvailable = [];
+    // 2026-08-19: 集合方式ではレースごとにキーが違うのでクリア不要
+    //   （クリアすると前レースの発火済みを忘れ、掴み直しで再発火する）
     state.cutinShownForRace = null;
     state.cutinActive = false;
     state.oddsPageHoldSec = 0;
@@ -1822,9 +2171,18 @@
       applyLayout(slot.layout_pattern || slot.layout);
 
       // screenStates を再構築（slot 内では不変）。venue_filters は schedule トップレベル（§3.13）。
+      screenStates.forEach(abortPagePreload);   // 案B: 旧スロットの先読みを捨てる
+      hideAllBufferIframes();
       screenStates = buildScreenStates(slot, schedule.venue_filters);
-      screenStates.forEach(initializeScreen);
-      clearUnusedFrames();
+      // 🔴 2026-08-19: 初期レースを決める前に払戻を先読みする（prefetchPayoutProbes 参照）。
+      //   描画が最大 1.5 秒遅れるが、遅らせないと**必ず**前の R が一瞬映る。
+      var built = screenStates;
+      prefetchPayoutProbes(built, correctedNow(), schedule.venue_filters).then(function() {
+        if (screenStates !== built) return;   // 先読み中にスロットが変わったら破棄
+        built.forEach(initializeScreen);
+        clearUnusedFrames();
+        updateInfoBarSlotAndRace(slot);
+      });
     }
 
     // 情報バー（P1 代表表示、H-04 Phase 1 §9.7 案D1）
@@ -2011,6 +2369,24 @@
       sendServerOffsetTo(e.source);
       return;
     }
+    // 乙案: テンプレが自分でページ送りする dp（dp10 馬連ワイド）のページ数を受ける。
+    //   親は頭数を知らないのでページ数を算出できない。滞在時間の計算に使う。
+    if (d.type === 'childPageCount') {
+      var pcState = findScreenStateBySource(e.source) || findPreloadOwner(e.source);
+      if (pcState) {
+        var tgt = (pcState.preload && pcState.preload.st.iframeEl
+                   && pcState.preload.st.iframeEl.contentWindow === e.source)
+                  ? pcState.preload.st : pcState;
+        tgt.childPageCount = Number(d.count) || 1;
+      }
+      return;
+    }
+    // 案B: 裏の頁が「描画まで済んだ」と言ってきた。入れ替えてよい印を立てる。
+    if (d.type === 'renderReady') {
+      var owner = findPreloadOwner(e.source);
+      if (owner && owner.preload) owner.preload.ready = true;
+      return;
+    }
     // H-03 (2026-04-19 改訂): 子 single-screen.html から枠単発売有無の通知受信
     //   発売なし時はページング停止、強制的に枠連表示へ戻す
     if (d.type === 'frameUtanAvailability') {
@@ -2055,6 +2431,12 @@
       var cState = findScreenStateBySource(e.source);
       if (!cState) return;
       if (d.shownForRace) cState.cutinShownForRace = d.shownForRace;
+      // 2026-08-19: 発火済み／評価済みの**キー集合**を親に集約する（区画に1組）
+      cState.cutinShownKeys = cState.cutinShownKeys || {};
+      cState.cutinSeededKeys = cState.cutinSeededKeys || {};
+      var kk;
+      for (kk in (d.shownKeys || {})) { cState.cutinShownKeys[kk] = 1; }
+      for (kk in (d.seededKeys || {})) { cState.cutinSeededKeys[kk] = 1; }
       cState.cutinActive = !!d.active;
       if (!cState.cutinActive) cState.oddsPageHoldSec = 0;
       return;

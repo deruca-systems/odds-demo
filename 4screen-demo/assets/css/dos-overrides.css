@@ -822,3 +822,47 @@ html.screen-4k .six-race__horse-table {
 .message__bet-odds {
   font-size: clamp(0.9rem, calc(1.4rem * 5 / max(5, var(--odds-len, 5))), 1.4rem);
 }
+
+/* DOS-06 (2026-08-19): データ到着まで中身を出さない。
+   JS で visibility を落とす方式では **common.js の実行前に骨組みが描かれ得る**ため、
+   レンダリングブロックする CSS で伏せる。解除は common.js が属性を外して行う
+   （notifyFirstPaint）。属性を宣言したテンプレだけが対象。 */
+html[data-dos-hide-until-data] { visibility: hidden; }
+
+
+/* ============================================================
+ * DOS-07 (2026-08-19): 馬連・馬単マトリクスのオッズを馬連ワイドと同じ大きさにする
+ * ------------------------------------------------------------
+ * 馬連ワイド（dp10）に `.fullname` を当てて 2.2rem にしたところ、
+ * 同じ 4 分割に並ぶ馬連①②（dp20-22）／馬単①②（dp30-32）が 1.6rem のままで
+ * **相対的に小さく見える**（2026-08-19 及川判断で拡大）。
+ * 人気順（.popular-table__odds）は既に 2.2rem なので、これで 4 分割の
+ * オッズ文字サイズが揃う。
+ *
+ * 実測（2026-08-19 STG・FHD 1rem=20px・Segoe UI 700。セル内寸 65px）:
+ *     文字数      1.6rem  1.8rem  2.0rem  2.2rem
+ *     999.9 (5)     ○       ○       ○       ○
+ *     9999.9 (6)    ○       ○       ○      ×+5px
+ *     99999.9(7)    ○      ×+2px   ×+10px  ×+17px
+ *   → 芥川様の馬連ワイドと**同じ 2.2 / 1.8 / 1.6rem の三段**がちょうど収まる。
+ *
+ * 縦: セル高は 37〜45px（mon1/3 実測）。軸馬でページ分割（①=1〜9 / ②=10〜）するため
+ *   列幅・行高は頭数が増えても縮まない。2.2rem=22px は余裕をもって収まる。
+ *
+ * ⚠ `overflow: hidden` は付けない。右詰めなので隠れるのは**左＝上位桁**で、
+ *   `9999.9` が `999.9` に化けて 1 桁小さく誤読される（DOS-04 / DOS-05 と同じ理由）。
+ * ⚠ 仕様側（申し送り仕様書 §6.7.1）はマトリクスのサイズを定義していない。
+ *   定義されたらそちらへ寄せる。芥川様へ実装依頼はしない。
+ * ============================================================ */
+.screen.screen-umaren .screen-main .screen-table__odds,
+.screen.screen-umatan .screen-main .screen-table__odds {
+  font-size: 2.2rem;
+}
+.screen.screen-umaren .screen-main .screen-table__odds.odds-long,
+.screen.screen-umatan .screen-main .screen-table__odds.odds-long {
+  font-size: 1.8rem;
+}
+.screen.screen-umaren .screen-main .screen-table__odds.odds-longest,
+.screen.screen-umatan .screen-main .screen-table__odds.odds-longest {
+  font-size: 1.6rem;
+}

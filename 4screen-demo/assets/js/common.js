@@ -107,8 +107,31 @@ window.addEventListener('message', function(e) {
   //   ページ送りのたびに何度も出ていた（15秒周期なら15秒ごとに「締切5分前」）。
   //   親がレース単位で発火済みキーを保持し、リロード後の子へ復元する。
   //   ⚠ 送信は親の iframe.onload 内・setDataUrl より前。初回 poll の checkCutin より必ず先に届く。
+  // 案B (2026-08-19): 裏で先読み中の iframe はカットインを出してはいけない。
+  //   出すと発火済みキーを消費し、表に出た本番の画面で**二度と出なくなる**。
+  //   表に出た瞬間に抑止を解き、最後に見たレースで即座に判定し直す
+  //   （次の poll まで待つと最大 1 ポーリング周期ぶん遅れる）。
+  if (e.data && e.data.type === 'setCutinSuppressed') {
+    var wasSuppressed = _cutinSuppressed;
+    _cutinSuppressed = !!e.data.on;
+    if (wasSuppressed && !_cutinSuppressed && _lastCutinRace) {
+      checkCutin(_lastCutinRace, _lastCutinNow + (Date.now() - _lastCutinWall));
+    }
+    return;
+  }
   if (e.data && e.data.type === 'restoreCutinState') {
     if (e.data.shownForRace) cutinState.shownForRace = e.data.shownForRace;
+    if (e.data.shownKeys) {
+      for (var sk in e.data.shownKeys) { cutinState.shownKeys[sk] = 1; }
+    }
+    if (e.data.seededKeys) {
+      for (var dk in e.data.seededKeys) { cutinState.seededKeys[dk] = 1; }
+    }
+    // 2026-08-19 (CUT-000): 「そのレースを既に見ていたか」も復元する。
+    //   🔴 これが無いと、**頁ローテで iframe が15秒ごとに作り直されるたびに初回評価に戻り**、
+    //     seed 抑止が毎回かかって**カットインがほとんど出なくなる**（実測で発火0件）。
+    //   「画面」の単位は iframe ではなく**区画**なので、親が頁を跨いで保持する。
+    if (e.data.seededForRace) cutinState.seededForRace = e.data.seededForRace;
   }
 });
 
@@ -121,6 +144,8 @@ function notifyCutinState() {
     window.parent.postMessage({
       type: 'cutinState',
       shownForRace: cutinState.shownForRace,
+      shownKeys: cutinState.shownKeys,
+      seededKeys: cutinState.seededKeys,
       active: !!cutinState.active
     }, '*');
   } catch (_) {}
@@ -155,7 +180,14 @@ var cutinState = {
   active: false,
   type: null,
   hideTimer: null,
-  shownForRace: null,
+  shownForRace: null,          // 後方互換（最後に発火したキー）
+  // 🔴 2026-08-19: **キーの集合**で持つ。
+  //   キーには raceKey が入っている（`NAR-川崎3_countdown` 等）ので、
+  //   **区画に1組あれば頁が何を出しても混ざらない。**
+  //   当初これを「頁ごとの単一キー」にしたため、頁2〜4 では復元されず
+  //   **同じレースで4回連続発火**した（2026-08-19 実測）。
+  shownKeys: {},               // 発火済み
+  seededKeys: {},              // 評価済み（CUT-000。初回は発火せず記録のみ）
   signage_url: null,
   chainTimer: null
 };
@@ -879,6 +911,8 @@ function startResilientPolling(opts) {
       try { opts.onSuccess(result); } catch (renderErr) {
         console.error('[' + name + '] onSuccess error:', renderErr);
       }
+      // 🔴 2026-08-19: 初回描画が済んだ。遮蔽を解き、親に「入れ替えてよい」を通知する。
+      notifyFirstPaint();
     } catch (err) {
       failCount++;
       lastErrorMessage = err && err.message ? err.message : String(err);
@@ -922,6 +956,39 @@ function startResilientPolling(opts) {
 // 全 poller の状態を集約取得するためのレジストリ。
 // 将来の管理画面連携（heartbeat/ビーコン送信）用の基盤。
 var _pollerRegistry = [];
+// 🔴 2026-08-19 (案A): データ到着まで中身を出さない。
+//   テンプレの静的 HTML（「発走」ラベル・晴れアイコン・見出し・場名の無い「R」）が
+//   fetch 完了前に描画されるため、頁ローテの約 137ms が「無地」ではなく
+//   **一瞬だけ誤情報が出る**状態になっていた（2026-08-19 STG monitor 3 で撮影）。
+//   親の .grid iframe は background:#0D1117 なので、隠せば暗いまま静かに入れ替わる。
+//
+//   ⚠ 対象は **<html data-dos-hide-until-data="1"> を自分で宣言したテンプレだけ**。
+//     entries-results-3r/6r・changes-info は親からの postMessage で描くため
+//     registerPoller を通らず、遮蔽すると failsafe まで暗転する。宣言させない。
+var _firstPaintDone = false;
+var FIRST_PAINT_FAILSAFE_MS = 2500;   // 何が起きても真っ暗のままにはしない
+
+function notifyFirstPaint() {
+  if (_firstPaintDone) return;
+  _firstPaintDone = true;
+  var de = document.documentElement;
+  if (de) de.removeAttribute('data-dos-hide-until-data');   // CSS の遮蔽を解除
+  // 案B（ダブルバッファ）が「裏の頁を表に出してよい」判断に使う。
+  if (window.parent !== window) {
+    try {
+      window.parent.postMessage({ type: 'renderReady', template: location.pathname }, '*');
+    } catch (_) {}
+  }
+}
+
+(function hideUntilFirstPaint() {
+  var de = document.documentElement;
+  if (!de || !de.getAttribute('data-dos-hide-until-data')) return;
+  // テンプレを単体で開いたとき（親なし）は伏せたままにしない
+  if (window.parent === window) { de.removeAttribute('data-dos-hide-until-data'); return; }
+  setTimeout(notifyFirstPaint, FIRST_PAINT_FAILSAFE_MS);   // 何が起きても暗転のままにしない
+})();
+
 function registerPoller(poller) {
   _pollerRegistry.push(poller);
 }
@@ -1144,8 +1211,17 @@ function resolvePostTime(postTimeStr, correctedNowMs) {
  * カットイン表示判定。各子テンプレートの poll 内、render 後に毎回呼ぶ。
  * CUT-001（締切5分前）/ CUT-002（発売終了）を重複なしで1回ずつ表示。
  */
+var _cutinSuppressed = false;   // 案B: 裏で先読み中は true
+var _lastCutinRace = null;      // 抑止解除時に即座に判定し直すため
+var _lastCutinNow  = 0;
+var _lastCutinWall = 0;
+
 function checkCutin(race, correctedNowMs) {
   if (!race || !race.post_time || race.is_previous_day) return;
+  _lastCutinRace = race;
+  _lastCutinNow  = correctedNowMs;
+  _lastCutinWall = Date.now();
+  if (_cutinSuppressed) return;   // 案B: 裏の iframe では出さない・seed もしない
 
   var postMs = resolvePostTime(race.post_time_iso || race.post_time, correctedNowMs);
   if (isNaN(postMs)) return;
@@ -1157,9 +1233,37 @@ function checkCutin(race, correctedNowMs) {
   // field-rename-v0.5 (2026-04-20): race.org/venue/race_no → organizer_type/place_name/rr
   var raceKey    = (race.organizer_type || '') + '-' + (race.place_name || '') + (race.rr || '');
 
+  // 🔴 CUT-000（2026-08-19 及川決定）: **画面に出てから起きた変化だけ出す。**
+  //   カットインは「いま起きたこと」を知らせるもので、**後から現れた画面に過去を再生する
+  //   ものではない。**そのレースを**初めて評価した時点**では発火せず、状態だけ記録する。
+  //
+  //   これが無いと、頁ローテーション（v0.6.7 pages[]）で途中からレースを掴んだときに
+  //   **残り2分でも「締切 5 分前」と出る**（ラベルは COUNTDOWN_START_MIN 固定のため）。
+  //   実測 2026-08-19: 同じ画面のヘッダが「締切2分前」、カットインが「締切 5 分前」。
+  //   さらに「8R 締切 → 直後に 9R 5分前」と**立て続けに2つ出る**問題も同じ根。
+  //   ⚠ 旧コメントの「ずれは4分台まで」という前提は、頁ローテの導入で成立しなくなった。
+  //
+  //   ⚠ **締切"後"の変化は出す。**初回評価で「5分以内」を見た場合でも `_countdown` だけを
+  //     済み扱いにし、その後の締切到達（CUT-002）は**見ている前で起きた変化なので発火する。**
+  //   ⚠ 親からの restoreCutinState（№21）とは役割が別。あちらは「同じ画面で既に見せた」の復元、
+  //     こちらは「そもそも見ていなかった区間」の抑止。
+  if (!cutinState.seededKeys[raceKey]) {
+    cutinState.seededKeys[raceKey] = 1;
+    if (remainMs <= 0) {
+      // 掴んだ時点で既に締切済み → 締切の瞬間を見ていない
+      cutinState.shownKeys[raceKey + '_closed'] = 1;
+    } else if (remainMs <= COUNTDOWN_START_MIN * 60 * 1000) {
+      // 掴んだ時点で既に5分以内 → 5分前の瞬間を見ていない
+      cutinState.shownKeys[raceKey + '_countdown'] = 1;
+    }
+    notifyCutinState();
+    return;
+  }
+
   // CUT-002: 締切到達
-  if (remainMs <= 0 && cutinState.shownForRace !== raceKey + '_closed') {
+  if (remainMs <= 0 && !cutinState.shownKeys[raceKey + '_closed']) {
     showCutin('closed', race);
+    cutinState.shownKeys[raceKey + '_closed'] = 1;
     cutinState.shownForRace = raceKey + '_closed';
     notifyCutinState();   // 2026-08-05 №21: 発火済みを親へ（リロードを跨いで保持させる）
     return;
@@ -1170,9 +1274,10 @@ function checkCutin(race, correctedNowMs) {
   // 表示する「N 分前」は動的計算ではなく COUNTDOWN_START_MIN（= 5）で固定する。
   // 仕様上「締切5分前カットイン」なので、発火したら必ず「5 分前」と表示するのが正。
   if (remainMs > 0 && remainMs <= COUNTDOWN_START_MIN * 60 * 1000
-      && cutinState.shownForRace !== raceKey + '_countdown'
-      && cutinState.shownForRace !== raceKey + '_closed') {
+      && !cutinState.shownKeys[raceKey + '_countdown']
+      && !cutinState.shownKeys[raceKey + '_closed']) {
     showCutin('countdown', race, COUNTDOWN_START_MIN);
+    cutinState.shownKeys[raceKey + '_countdown'] = 1;
     cutinState.shownForRace = raceKey + '_countdown';
     notifyCutinState();   // 2026-08-05 №21: 発火済みを親へ（リロードを跨いで保持させる）
     return;
@@ -1621,6 +1726,10 @@ function renderMatrixTable(container, horses, matrix, opts) {
           // O-3: 順位ベース（昇順上位N / odds>=1000）を廃し、桁数ベースに統一
           var mCls = oddsColorClass(e.odds, matrixBetType, opts.organizer_type);
           if (mCls) oddsDiv.classList.add(mCls);
+          // DOS-07 (2026-08-19): 桁数によるフォント縮小。馬連ワイド（§6.7.1-D）と同じ
+          //   odds-long / odds-longest を使い、CSS 側で 2.2 / 1.8 / 1.6rem に落とす。
+          var mLen = oddsDigitClass(e.odds, matrixBetType, opts.organizer_type);
+          if (mLen) oddsDiv.classList.add(mLen);
         } else {
           // O-3b: 票が入っていない／組合せが未配信 → 空欄ではなく '-'
           oddsDiv.textContent = ODDS_EMPTY;
@@ -1662,10 +1771,21 @@ function startHeaderTicker(getState) {
     try {
       var s = getState();
       if (!s || !s.data || !s.data.race) return;
+      var nowMs = Date.now() + (s.serverOffsetMs || 0);
       renderRaceHeader(s.doc, s.data.race, {
         mode: s.mode || 'full',
-        correctedNowMs: Date.now() + (s.serverOffsetMs || 0)
+        correctedNowMs: nowMs
       });
+      // 🔴 2026-08-19: カットインの判定も**ヘッダーと同じ毎秒・同じ時刻基準**で行う。
+      //   従来は checkCutin をオッズの poll（POLL_INTERVAL_MS = 30 秒）でしか呼んでおらず、
+      //   ヘッダーが毎秒「締切N分前」を更新しているのにカットインは 30 秒に 1 回しか
+      //   判定されていなかった。さらに頁ローテ(pages[])では子が 15 秒ごとに作り直されるため
+      //   **poll は起動直後の 1 回だけ**になり、実質「頁が切り替わった瞬間にしか出ない」
+      //   状態だった（2026-08-19 及川様報告「締切カットインは次の画面種類に移るまで出ない」）。
+      //   時刻基準をヘッダーと共有するので、表示とカットインの数字が食い違うこともない。
+      //   ⚠ この関数を使う 5 テンプレは checkCutin を呼ぶ 5 テンプレと完全に一致する。
+      //     判定は純計算で、発火済みキーで多重発火は防がれる（CUT-000 / shownKeys）。
+      checkCutin(s.data.race, nowMs);
     } catch (_) {}
   }, 1000);
 }
