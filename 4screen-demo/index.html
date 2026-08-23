@@ -8,12 +8,12 @@
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
 <!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260819m"></script>
+<script src="assets/js/config.js?v=20260824b"></script>
 <!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260819m"></script>
+<script src="assets/js/video-display.js?v=20260824b"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260819m"></script>
+<script src="assets/js/common.js?v=20260824b"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -285,6 +285,9 @@
   //   ★確認済: 1 = 単勝・複勝・枠連・枠単（SCR-ODD-001、2026-06-02 STG 実機検証）。
   var DISPLAY_PATTERN_ID_TO_TEMPLATE = {
     1:   'templates/single-screen.html',          // ★単勝・複勝・枠連・枠単（SCR-ODD-001）
+    // 2026-08-19: 騎手名フルネーム版（芥川様 screen1-fullname / keiba-odds 28a1aeb）。
+    //   dp1 に対し 斤量列＋馬体重増減の赤青＋騎手名フル、枠連／枠単は出さない。
+    2:   'templates/single-screen-fullname.html',
     // 馬連・ワイド（自動ページング/固定P1-P3）。テンプレ側でページ制御
     10:  'templates/single-umaren-wide.html',
     11:  'templates/single-umaren-wide.html',
@@ -339,7 +342,8 @@
   };
   // display_pattern_name → テンプレ（id 未マップ時の二次フォールバック）。
   var DISPLAY_PATTERN_NAME_TO_TEMPLATE = {
-    '単勝・複勝・枠連・枠単': 'templates/single-screen.html'
+    '単勝・複勝・枠連・枠単': 'templates/single-screen.html',
+    '単勝・複勝・馬体重・斤量・騎手名': 'templates/single-screen-fullname.html'
   };
 
   // screen からテンプレパスを解決（template 直指定 > id マップ > name マップ）。
@@ -612,7 +616,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260819m');
+    params.set('v', '20260824b');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {

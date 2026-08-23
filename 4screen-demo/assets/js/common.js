@@ -636,8 +636,16 @@ function renderRaceHeader(doc, race, opts) {
     var icon = doc.querySelector('#hdr-weatherIcon');
     if (icon) {
       // field-rename-v0.5 (2026-04-20): race.weather → race.weather_cd (INT)
-      icon.src = '../assets/images/weather/' + (WEATHER_ICON[race.weather_cd] || 'sunny.svg');
-      icon.alt = race.weather_label || '';
+      // 🔴 2026-08-24: **同じ値でも代入すると再取得が走る。**
+      //   renderRaceHeader は startHeaderTicker から**毎秒**呼ばれるため、
+      //   天候アイコンが 1 区画あたり毎秒リクエストされていた
+      //   （STG 4分割で実測: 70秒に 234件 = 200が155・304が79。4回/秒）。
+      //   304 でも往復は発生するので通信回数は変わらない。
+      //   変化したときだけ代入する。
+      var iconSrc = '../assets/images/weather/' + (WEATHER_ICON[race.weather_cd] || 'sunny.svg');
+      if (icon.getAttribute('src') !== iconSrc) icon.src = iconSrc;
+      var iconAlt = race.weather_label || '';
+      if (icon.getAttribute('alt') !== iconAlt) icon.alt = iconAlt;
     }
     setText(doc.querySelector('#hdr-weatherLabel'), race.weather_label || '');
     // field-rename-v0.5 (2026-04-20): race.condition → race.track_cond_cd、race.surface → race.track_cd、
@@ -833,7 +841,8 @@ async function fetchWithOffset(url, timeoutMs) {
 //   onSuccess:    (result) => void           成功コールバック（render 等）
 //   onFailure:    (err, failCount) => void   失敗コールバック（status 更新等、任意）
 //   baseIntervalMs: number                   基本間隔（ミリ秒）
-//   maxMultiplier:  number                   最大倍率（既定12）
+//   maxMultiplier:  number                   最大倍率（既定4＝2分）
+//   maxMultiplierCold: number                一度も成功していない間の上限（既定2＝1分）
 //   name:          string                    ログ識別用
 // 戻り値: { stop(), getStatus() }
 
@@ -883,7 +892,17 @@ function setPrevDaySaleUnavailable(on) {
 
 function startResilientPolling(opts) {
   var baseMs = opts.baseIntervalMs;
-  var maxMult = opts.maxMultiplier || 12;
+  // 🔴 2026-08-24: 上限を 12 → 4 に下げた（30秒 × 4 = **2分**）。
+  //   従来は 5回失敗すると以後 360秒（6分）ごとにしか取りに行かず、
+  //   **配信側が復旧してもフロントは最大6分空表示のまま**だった。
+  //   サテライト石狩様の ISH-43「15分後に見たら復旧していた」は
+  //   5回失敗までの8分 + 6分待ちで説明がつく（8/23 ご報告）。
+  //   売場は「オッズが映っていないとクレームになる」ため、待つ側の上限を下げる。
+  var maxMult = opts.maxMultiplier || 4;
+  // 🔴 **一度も取得できていない間**はさらに短く保つ（30秒 × 2 = 1分）。
+  //   初回の失敗は「サーバが重い」ではなく「まだ配信されていない」ことが多く、
+  //   下がるのを待つ理由が薄い。画面には何も出ていないので体感の実害も大きい。
+  var maxMultCold = opts.maxMultiplierCold || 2;
   var name = opts.name || 'poller';
   var failCount = 0;
   var lastSuccessTime = null;
@@ -893,12 +912,10 @@ function startResilientPolling(opts) {
   var timer = null;
 
   function multiplierFor(fc) {
-    if (fc <= 0) return 1;
-    if (fc === 1) return 1;
-    if (fc === 2) return 2;
-    if (fc === 3) return 4;
-    if (fc === 4) return 8;
-    return maxMult;
+    // 一度も成功していない（lastSuccessTime が null）間は上限を絞る
+    var cap = (lastSuccessTime === null) ? maxMultCold : maxMult;
+    var m = (fc <= 1) ? 1 : (fc === 2) ? 2 : (fc === 3) ? 4 : maxMult;
+    return Math.min(m, cap);
   }
 
   async function tick() {

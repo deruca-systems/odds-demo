@@ -1,8 +1,22 @@
 <!DOCTYPE html>
-<html lang="ja" data-dos-hide-until-data="1" class="single-screen">
+<!--
+  dp=2 単勝・複勝・馬体重・斤量・騎手名フルネーム（screen1-fullname 相当）
+  ------------------------------------------------------------------
+  芥川様 screen1-fullname.html（keiba-odds 28a1aeb）に対応する区画テンプレ。
+  dp=1（single-screen.html）との違いは次の4点だけで、他は同一:
+    ・<html> に fullname を付ける（芥川様 CSS の .fullname 配下が有効になる）
+    ・斤量の列を追加（減量記号ぶんを引いた実負担重量）
+    ・馬体重の増減に weight-diff--plus/--minus と weight-diff__paren を付ける
+    ・騎手名を切り詰めない
+  枠連／枠単は CSS 側で畳まれるため出さない（applyFramePage で常時非表示）。
+
+  🔴 このファイルは scratchpad/gen_fullname.py が single-screen.html から生成する。
+     single-screen.html を直したら**生成し直す**こと。手で両方を直さない。
+-->
+<html lang="ja" data-dos-hide-until-data="1" class="single-screen fullname">
 <head>
   <meta charset="UTF-8">
-  <title>単勝・複勝・枠連 単体表示</title>
+  <title>単勝・複勝・馬体重・斤量・騎手名フルネーム 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20260824b">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260824b">
@@ -42,6 +56,7 @@
           <div class="win">単勝</div>
           <div class="win">複勝</div>
           <div>馬体重</div>
+          <div>斤量</div>
           <div>騎手名</div>
         </div>
         <div class="race-table__body" id="horseBody"></div>
@@ -81,15 +96,18 @@
   //   両ブロックが同時に並び、枠単が画面外へ押し出されて点滅して見えた。
   var framePage = 'uren';   // 'uren'（枠連）| 'utan'（枠単）
 
-  // 現在ページと発売有無から、枠連／枠単ブロックの表示を確定する（唯一の表示制御経路）
+  // dp2: **枠連／枠単は出さない。**
+  //   芥川様 CSS が `.fullname .screen .race-main { grid-template-columns: 1fr }` と
+  //   `.fullname .screen .frame-odds { display:none }` で 1 カラムに畳んでいるため、
+  //   H-03 のローテで display を書き戻すと枠だけ復活してレイアウトが崩れる。
+  //   表示制御はここに集約されているので、ここで常に隠す。
+  //   ⚠ DOM と描画処理そのものは残してある（消すと null 参照になる箇所が多い）。
+  //     隠れた DOM に書き込む無駄はあるが、single-screen.html との差分を小さく保つ方を採った。
   function applyFramePage() {
     var urenEl = document.getElementById('frame-uren');
     var utanEl = document.getElementById('frame-utan');
-    if (!urenEl || !utanEl) return;
-    var urenAvailable = urenEl.dataset.frameOddsAvailable !== '0';
-    var showUtan = (framePage === 'utan');
-    urenEl.style.display = (showUtan || !urenAvailable) ? 'none' : '';
-    utanEl.style.display = showUtan ? '' : 'none';
+    if (urenEl) urenEl.style.display = 'none';
+    if (utanEl) utanEl.style.display = 'none';
   }
 
   // 枠連ブロックの3カラム配置
@@ -112,6 +130,10 @@
     D.renderRaceHeader(document, race, { mode: 'full', correctedNowMs: Date.now() + serverOffsetMs });
 
     var body = document.getElementById('horseBody');
+    // dp2: ばんえいは「斤量」ではなく「重量」で、減量記号の減算も行わない。
+    //   common.js に判定の export が無いため entries-results-3r.html と同じ式を使う。
+    var isBanei = (race && race.organizer_type === 'NAR' && race.place_cd === '03');
+
     var horseFragment = document.createDocumentFragment();
     horses.forEach(function(h) {
       // 指示書08: 取消馬（is_scratched=1 出走取消 / =2 競走除外）
@@ -150,10 +172,21 @@
       var wVal = D.el('span', null, wTxt);
       if (/^\d{4,}$/.test(wTxt)) wVal.classList.add('weight-long');
       weight.appendChild(wVal);
-      weight.appendChild(D.el('span', 'weight-diff', D.fmtWeightDiff(h.weight_diff, h.wt2, h.weight)));
+      // dp2: 増減は 芥川様 §6.7 の DOM に合わせる。
+      //   <span class="weight-diff weight-diff--plus">(<span class="weight-diff__paren">)</span>…
+      //   括弧だけ白、数値はプラス赤 / マイナス青。日本語（計不 等）は --text。
+      weight.appendChild(buildWeightDiff(h));
       row.appendChild(weight);
 
-      row.appendChild(D.el('div', 'race-table__jockey', D.truncateJockey(h.jockey)));
+      // dp2: 斤量。減量記号ぶんを差し引いた実負担重量（entries-results-3r と同じ扱い）。
+      var fwt = D.effectiveFwt(h, isBanei);
+      row.appendChild(D.el('div', 'race-table__assigned-weight',
+                           (fwt === null || fwt === undefined) ? '' : String(fwt)));
+
+      // dp2: 騎手名は**切り詰めない**（この画面の存在理由）。
+      //   NAR は姓名をスペースで桁揃えするので、空白だけ落とす。
+      row.appendChild(D.el('div', 'race-table__jockey',
+                           String(h.jockey || '').replace(/[\s\u3000]+/g, '')));
       horseFragment.appendChild(row);
     });
     body.replaceChildren(horseFragment);
@@ -305,6 +338,27 @@
   });
 
   // 1秒tick でヘッダー deadline を更新（realtime countdown）
+  // dp2: 馬体重の増減セルを 芥川様 DOM で組む。
+  //   fmtWeightDiff は '(+9)' / '(-4)' / '(初)' / '(前計不)' / '' を返す。
+  //   括弧を span で分け、符号つき数値のときだけ色クラスを付ける。
+  function buildWeightDiff(h) {
+    var txt = D.fmtWeightDiff(h.weight_diff, h.wt2, h.weight);
+    var span = D.el('span', 'weight-diff');
+    if (!txt) return span;
+    var m = /^\((.*)\)$/.exec(txt);
+    var inner = m ? m[1] : txt;
+    var sign = /^[+-]?\d+$/.test(inner);
+    if (sign) {
+      span.classList.add(inner.charAt(0) === '-' ? 'weight-diff--minus' : 'weight-diff--plus');
+    } else {
+      span.classList.add('weight-diff--text');   // 「初」「前計不」など日本語
+    }
+    if (m) span.appendChild(D.el('span', 'weight-diff__paren', '('));
+    span.appendChild(document.createTextNode(inner));
+    if (m) span.appendChild(D.el('span', 'weight-diff__paren', ')'));
+    return span;
+  }
+
   D.startHeaderTicker(function() {
     return { doc: document, data: lastData, mode: 'full', serverOffsetMs: serverOffsetMs };
   });
