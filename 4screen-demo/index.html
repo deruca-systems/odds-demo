@@ -8,12 +8,12 @@
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
 <!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260824b"></script>
+<script src="assets/js/config.js?v=20260825a"></script>
 <!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260824b"></script>
+<script src="assets/js/video-display.js?v=20260825a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260824b"></script>
+<script src="assets/js/common.js?v=20260825a"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -343,7 +343,7 @@
   // display_pattern_name → テンプレ（id 未マップ時の二次フォールバック）。
   var DISPLAY_PATTERN_NAME_TO_TEMPLATE = {
     '単勝・複勝・枠連・枠単': 'templates/single-screen.html',
-    '単勝・複勝・馬体重・斤量・騎手名': 'templates/single-screen-fullname.html'
+    '単勝・複勝＋出走表(騎手フルネーム)': 'templates/single-screen-fullname.html'
   };
 
   // screen からテンプレパスを解決（template 直指定 > id マップ > name マップ）。
@@ -616,7 +616,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260824b');
+    params.set('v', '20260825a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {

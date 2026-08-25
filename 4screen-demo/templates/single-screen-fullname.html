@@ -18,9 +18,9 @@
   <meta charset="UTF-8">
   <title>単勝・複勝・馬体重・斤量・騎手名フルネーム 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260824b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260824b">
-  <script src="../assets/js/common.js?v=20260824b"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825a">
+  <script src="../assets/js/common.js?v=20260825a"></script>
 </head>
 <body>
 
@@ -179,9 +179,16 @@
       row.appendChild(weight);
 
       // dp2: 斤量。減量記号ぶんを差し引いた実負担重量（entries-results-3r と同じ扱い）。
+      // 2026-08-25: 小数第1位まで出す（"53" → "53.0"）。
+      //   芥川様 screen1-fullname.html:55 が "53.0"、entries-results-3r も toFixed(1) で、
+      //   dp2 だけ String(fwt) だったため整数に見えていた（PROD 実機で及川が発見）。
+      //   ばんえいは整数（重量）なので entries-results-3r と同じく Math.round。
       var fwt = D.effectiveFwt(h, isBanei);
-      row.appendChild(D.el('div', 'race-table__assigned-weight',
-                           (fwt === null || fwt === undefined) ? '' : String(fwt)));
+      var fwtStr = '';
+      if (fwt !== null && fwt !== undefined) {
+        fwtStr = isBanei ? String(Math.round(fwt)) : Number(fwt).toFixed(1);
+      }
+      row.appendChild(D.el('div', 'race-table__assigned-weight', fwtStr));
 
       // dp2: 騎手名は**切り詰めない**（この画面の存在理由）。
       //   NAR は姓名をスペースで桁揃えするので、空白だけ落とす。
