@@ -5,22 +5,22 @@
   <title>サイネージ（全画面）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- サイネージ（display_pattern 110）。分割の全面にサイネージ画像を表示する。
-       ISH-03（サテライト石狩 引地様 2026-07-30「中止などでサイネージだけ出したい」）。
+       （売場 「中止などでサイネージだけ出したい」）。
        J-WEB と同じ考え方で「画面の種類のひとつ」として扱い、画面選択でこれだけを
        選べばサイネージが出続ける。他の画面と混ぜればローテーションに入る。
 
-       画像 URL の取得（2026-08-01 調査）:
+       画像 URL の取得（ 調査）:
          - 親から postMessage('setSignageUrl') で受け取る（カットイン CUT-003 と共通経路）
          - 親は screen.signage_url / slot.signage_url を解決して送る
-         - 本番 JSON への signage_url 追加は内山様へ依頼中（2026-08-01）。
+         - 本番 JSON への signage_url 追加はバッチへ依頼中。
            それまで prod では signage_id しか出ないため画像は出ない（背景色のみ）
          - S3 実体: dos-signage/{signage_id 6桁}/{時刻}JST_{元ファイル名}
            ファイル名が導出できないため signage_id からは URL を組み立てられない
 
        レースは表示しないため races[] は参照しない。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
   <style>
     html, body {
       margin: 0;

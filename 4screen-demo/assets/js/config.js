@@ -1,7 +1,7 @@
 /**
  * DERUCA Odds System - Runtime Configuration
  *
- * url-config-separation (2026-04-20):
+ * url-config-separation :
  *   環境ごとに書き換える値（URL・パス・場コード対応）を本ファイルに集約。
  *   プロト起動では全てデフォルト値で動作する。本番環境へ切り替える際は、
  *   本ファイルのみを修正すれば足りる設計。
@@ -9,7 +9,7 @@
  * 本番切替時の代表的な変更点:
  *   - baseUrl: 配信元 CloudFront ドメイン（例: 'https://odds.deruca.jp'）
  *              同一オリジン運用（HTML と JSON が同じオリジン）の場合は空文字列のまま。
- *   - video.urlBase: 実際の HLS 配信 URL（2026-04-20 時点で本番値が入っている）。
+ *   - video.urlBase: 実際の HLS 配信 URL（ 時点で本番値が入っている）。
  *   - video.venueCodeMap: 検証済み場コードで書き換え。
  *
  * 読み込み順序: index.html で common.js よりも**前**に <script> 読み込みすること。
@@ -37,22 +37,21 @@
     //   {PP}         2桁ゼロ埋め
     //   {RR}         2桁ゼロ埋め
     //   {fastSuffix} '_fast' or ''（スケジュールのみ）
-    //
     // フロントが直接組み立てるのは schedule のみ。
     // odds / changes は schedule JSON の data_source 経由で取得するため、
     // ここでは参考値として保持する（将来的なテスト用途等）。
     paths: {
       schedule: 'schedules/{YYYYMMDD}/{monitor_id}{fastSuffix}.json',
-      // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
+      //  Phase 3: 手動切替・プレビュー経路（§3.12 /  管理画面確定契約）。
       //   通常=monitor_id / プレビュー=monitor_id+preview=1 / 手動切替=monitor_uuid。
       schedulePreview:      'schedules/preview/{YYYYMMDD}/{monitor_id}{fastSuffix}.json',
       scheduleManual:       'schedules/manual/{YYYYMMDD}/{monitor_uuid}.json',  // v0.6.2（日付フォルダあり）
-      scheduleManualNoDate: 'schedules/manual/{monitor_uuid}.json',            // 内山設計書 v1.2（日付フォルダなし）
+      scheduleManualNoDate: 'schedules/manual/{monitor_uuid}.json',            // バッチ設計書 v1.2（日付フォルダなし）
       odds:     'odds/{YYYYMMDD}/{ORG}_{PP}_{RR}.json',
       changes:  'changes/{YYYYMMDD}/{ORG}_{PP}.json'
     },
 
-    // 手動切替パスの日付フォルダ有無 = **なし**（内山様 スケジュールJSON出力プログラム設計書 v1.2
+    // 手動切替パスの日付フォルダ有無 = **なし**（バッチ スケジュールJSON出力プログラム設計書 v1.2
     //   §3.1/§6.8.3 で確定。根拠: manual は monitor_uuid=VARCHAR(36) の CRM 発番 UUID 単位で大域一意
     //   のため日付フォルダ不要。「manual/ 配下に日付フォルダは挟まない」と明記）。
     //   プレビューは monitor_id 単位のため日付フォルダあり（v1.2 §6.8.2）。
@@ -60,9 +59,9 @@
     manualScheduleHasDateFolder: false,
 
     // ------------------------------------------------------------
-    // display_pattern_id 参照マップ（display_patternマスタ整理一覧_20260623.md §1）
+    // display_pattern_id 参照マップ（display_patternマスタ整理一覧_.md §1）
     // ------------------------------------------------------------
-    // 2026-06-29: display_pattern は **screen(セル)単位** の新ID へ全面移行。
+    // display_pattern は **screen(セル)単位** の新ID へ全面移行。
     //   layout は slot.layout_pattern が持つため、本マップは display_pattern の
     //   表示名参照（デバッグ用）に用途を限定する。index.html の描画は
     //   screen.template（一次）/ DISPLAY_PATTERN_ID_TO_TEMPLATE（二次）で解決。
@@ -109,8 +108,7 @@
     video: {
       // HLS マスタープレイリストの URL ベース（末尾スラッシュ込み）
       // 例: 'https://movie61auhrn2-3.keiba-racing.jp/keiba/nar/live/' → NAR 本番
-      //
-      // 2026-04-17 修正: パスを `/hls-live/keiba/_definst_/liveevent/` → `/keiba/nar/live/` に変更。
+      //  修正: パスを `/hls-live/keiba/_definst_/liveevent/` → `/keiba/nar/live/` に変更。
       //   旧パスはサブプレイリスト（各品質）用で、マスタープレイリスト
       //   （EXT-X-STREAM-INF）は新パス `/keiba/nar/live/` に存在する。
       //   参考: simple.keiba-lv-st.jp が使用している URL =
@@ -182,7 +180,7 @@
   };
 
   /**
-   * プレビュー用スケジュール URL（§3.12 / 2026-06-16 確定契約）。
+   * プレビュー用スケジュール URL（§3.12 /  確定契約）。
    *   ?monitor_id=…&preview=1 → schedules/preview/{date}/{monitor_id}.json
    */
   w.DERUCA_CONFIG.buildPreviewScheduleUrl = function(displayDate, monitorId, fast) {
@@ -194,7 +192,7 @@
   };
 
   /**
-   * 手動切替用スケジュール URL（§3.12 / 2026-06-16 確定契約）。
+   * 手動切替用スケジュール URL（§3.12 /  確定契約）。
    *   ?monitor_uuid=… → schedules/manual/.../{monitor_uuid}.json
    *   日付フォルダ有無は manualScheduleHasDateFolder フラグで切替（版ズレ未確定）。
    */
@@ -215,7 +213,7 @@
    */
   w.DERUCA_CONFIG.resolveDataSource = function(dataSource) {
     if (!dataSource) return null;
-    // 2026-08-01: 先頭スラッシュ付き（オリジン絶対パス）はそのまま返す。
+    // 先頭スラッシュ付き（オリジン絶対パス）はそのまま返す。
     //   schedules JSON の signage_url は "/dos-signage/000003/....jpg" の形で来る
     //   （スケジュールJSON出力プログラム設計書 v1.7 §6.4.6）。従来は odds/... のような
     //   相対パスしか想定しておらず '../' を付けていたため、"..//dos-signage/..." という

@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <title>出走成績（4K用・4分割×6R横並び）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 4K出走成績（display_pattern 60/61/62）。芥川様 screen8.html 6/6 最終版（9646a1c）準拠。
+  <!-- 4K出走成績（display_pattern 60/61/62）。デザイン screen8.html 6/6 最終版（9646a1c）準拠。
        §8.8: html.screen-4k、.wrapper を 2×2 の4分割にし各クアドラントに .six-race（6R横並び）を配置。
        .six-race は 192rem×108rem＝50vw×50vh のため 4 ブロックで 4K 全面を埋める。
        本プロト: 親から受け取った races[] を 6 件ずつブロック化し、最大4ブロック（左上/右上/左下/右下）
-       を描画。運用想定（PL確認 2026-06-29）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
+       を描画。運用想定（PL確認 ）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -40,17 +40,16 @@
   };
   var GENRYO_ICON = { '★':'fill-star', '▲':'fill-triangle', '△':'triangle', '☆':'star', '◇':'diamond' };
 
-  // O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定)
+  // O-4/O-5 ( デザイン打合せ AI#10/#11、 担当確定)
   //   減量記号の凡例は「ばんえい（帯広）のときだけ」出す。
   //   ばんえい時に出すのは、従来カッコ書きだった 2 記号（△20Kg減 / ☆10Kg減）のみ。
   //   通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は出さない。
   //   非ばんえい時は中身を空にするだけで、外側の .six-race__legend は残す
   //   （幅・高さを占有しており display:none にするとブロックのレイアウトがずれるため）。
-  //
   //   判定単位はブロック（6 列＝1 場）。ブロック内に 1 件でもばんえいがあれば出す。
   //   4K で 2 場並ぶとき、帯広のブロックにだけ凡例が出る。
   //   ブロック構築時点ではデータ未取得のため、まず空で挿入し、各列の描画後に
-  //   renderLegends() が中身を流し込む。
+  //   renderLegends が中身を流し込む。
   var LEGEND_HTML = '<div class="six-race__legend"><div class="six-race__legend-inner"></div></div>';
 
   var BANEI_LEGEND_INNER = ''
@@ -87,7 +86,7 @@
     return org === 'NAR' && pp === '03';
   }
   function formatAmount(n) { return (n == null) ? '-' : Number(n).toLocaleString('ja-JP'); }
-  // 2026-08-19: 払戻額の桁数クラス（芥川様 申し送り仕様書 §6.6 / §7.2、keiba-odds 28a1aeb 取込）。
+  // 払戻額の桁数クラス（デザイン 申し送り仕様書 §6.6 / §7.2、keiba-odds 28a1aeb 取込）。
   //   7桁 → --long（2.4rem） / 8桁 → --xlong（2.1rem）。
   //   ⚠ 桁数は**カンマを除いた整数の桁数**で数える（`515,560` は 6 桁）。
   //   ⚠ CSS 定義は 1カラム（`.six-race__payout--single`）向けだが、
@@ -122,18 +121,16 @@
   }
 
   // ---- 競走成績 ----
-  // DOS-04 (2026-08-18): 着差の表示。**実データは全角・空白なし**（`２１／２` `１１／４` `３／４`）。
-  //   旧実装 M-2 は芥川様原版のサンプル（**半角** `1 1/2`）に合わせた `split(' ')` で、
+  //  着差の表示。**実データは全角・空白なし**（`２１／２` `１１／４` `３／４`）。
+  //   旧実装 M-2 はデザイン原版のサンプル（**半角** `1 1/2`）に合わせた `split(' ')` で、
   //   **実データに空白が無いため一度も分岐していなかった**（`.time-int`/`.time-frac` の CSS も無かった）。
   //   結果、全角4字＝実質8字ぶんが枠に収まらず**隣の馬名側へ食い込んでいた**
-  //   （実測 2026-08-18 / 3r: 必要 128px・使える 96px。`overflow` 指定も無い）。
-  //
-  //   🔴 **芥川様 FB 対応デザイン（4K）に合わせ、半角へ変換して `1 1/2` の形で出す**
-  //      （2026-08-18 及川決定）。整数部と分数部の間に**半角空白**を入れることで
+  //   （実測  / 3r: 必要 128px・使える 96px。`overflow` 指定も無い）。
+  //   🔴 **デザイン FB 対応デザイン（4K）に合わせ、半角へ変換して `1 1/2` の形で出す**
+  //      （ 決定）。整数部と分数部の間に**半角空白**を入れることで
   //      「２１／２ が 21/2（21分の2）に読める」誤読（画面仕様書 §3-5）も解消する。
   //      ⚠ 一度は「全角のまま分数部を 0.6em で小さく」実装したが、**小さすぎて視認性が悪い**
-  //        （8/18 及川確認）。デザイン正本どおり **同じ文字サイズの半角**にする。
-  //
+  //        （8/18 担当確認）。デザイン正本どおり **同じ文字サイズの半角**にする。
   //   ⚠ 同じ関数が entries-results-3r.html と entries-results-6r.html の**両方**にある。
   //     片方だけ直すと 4K(6R) 側に残る（HANDOFF 追記(8) と同じ轍）。
   //   分数を持たないもの（クビ／アタマ／ハナ／大差）はそのまま出す（カタカナ・漢字は全角が正）。
@@ -174,7 +171,7 @@
   function buildPayoutGroup(betType, mod, items) {
     var itemsHtml = items.map(function(p) {
       var numHtml;
-      // 2026-07-31: 返還は複勝も combination="0" で来るため place 分岐より先に判定する。
+      // 返還は複勝も combination="0" で来るため place 分岐より先に判定する。
       if (p.is_void) {
         numHtml = '<div class="six-race__payout-num">−</div>';
       } else if (betType === 'place' && p.place_label) {
@@ -184,7 +181,7 @@
       } else {
         numHtml = '<div class="six-race__payout-num">' + comboHtml(p.combination) + '</div>';
       }
-      // 2026-07-31: 返還・特払のラベル付与（3R 版 buildPayoutPrice と同じ扱い）。
+      // 返還・特払のラベル付与（3R 版 buildPayoutPrice と同じ扱い）。
       //   返還はレース不成立で全賭式が元返しになるケース。金額だけ出すと
       //   「0番が100円で的中」に見えるため明示する。
       var priceCls = p.is_void ? ' is-void' : (p.is_special_pay ? ' is-special-pay' : '');
@@ -214,7 +211,7 @@
   }
   // §8.8.1: dead_heat_pattern で払戻レイアウトを選択。
   //   E=--grid+--pattern-E（券種グループ min-height 調整必須） / NORMAL=--single(1カラム) / 他=--grid。
-  //   （芥川 screen8 サンプルは画面位置×R で固定実演だが、実データは dead_heat_pattern 駆動）
+  //   （デザイン screen8 サンプルは画面位置×R で固定実演だが、実データは dead_heat_pattern 駆動）
   function payoutLayoutClasses(pattern) {
     if (pattern === 'E') return { wrap: 'six-race__payout--grid', stack: ' --pattern-E' };
     if (!pattern || pattern === 'NORMAL') return { wrap: 'six-race__payout--single', stack: '' };
@@ -234,7 +231,7 @@
   }
 
   // ---- 出走表 ----
-  // 2026-07-15: 特殊値・計量前対応（馬体重特殊値仕様書 §4.5）。
+  // 特殊値・計量前対応（馬体重特殊値仕様書 §4.5）。
   //   「(計不)」は weight=9999 専用表示のため、diff=null（計量前等）では空にする
   function formatWeightDiff(diff, wt2, weight) {
     if (weight == null || weight === 0 || weight === 9999) return '';
@@ -270,14 +267,14 @@
           html += '<div class="six-race__horse-meta"><div class="six-race__horse-weight">'
                 + (h.is_scratched === 1 ? '出走取消' : '競走除外') + '</div></div>';
         } else {
-          // 2026-07-22: odds JSON の horses[] は org_genryokigo / new_genryokigo（§3 系）。
+          // odds JSON の horses[] は org_genryokigo / new_genryokigo（§3 系）。
           //   `genryokigo`（§4.5.4 系）のみ参照していたため出走表で記号が出なかった。
           var gen6 = D.genryokigoOf ? D.genryokigoOf(h) : h.genryokigo;
           var icon = (gen6 && GENRYO_ICON[gen6])
             ? '<img class="jockey-icon" src="../assets/images/jockey/' + GENRYO_ICON[gen6] + '.svg" alt="">' : '';
           html += '<div class="six-race__horse-meta">'
                 +   '<div class="six-race__horse-weight">' + D.fmtWeight(h.weight) + formatWeightDiff(h.weight_diff, h.wt2, h.weight) + '</div>'
-                // 2026-08-01: 騎手名を D.truncateJockey に通す（single-screen.html /
+                // 騎手名を D.truncateJockey に通す（single-screen.html /
                 //   entries-results-3r.html と同じルール）。未適用だと JRA データで省略切れする。
                 //   JRA-DB の騎手名は姓名を固定長で埋めるため全角スペースが 5〜6 個入り
                 //   （例「舟山　　　　　　瑠泉」）、その幅で枠を超えていた（8/1 JRA 実データで検出）。
@@ -316,7 +313,7 @@
       col.innerHTML = buildHeader(race, 'entries') + buildCancelled(race); return;
     }
     var horses = data.horses || [];
-    // O-1 (2026-07-28): 従来は `if (horses.length)` ガードで、horses が空のとき
+    // O-1 : 従来は `if (horses.length)` ガードで、horses が空のとき
     //   前レースの --horse-count が残っていた。既定 10（ブレイクポイント）に落とす。
     col.style.setProperty('--horse-count', horses.length || 10);
     col.innerHTML = buildHeader(race, 'entries')
@@ -331,18 +328,17 @@
   function buildBlocks(raceCount) {
     var wrapper = document.getElementById('wrapper');
     var blocks = Math.min(MAX_BLOCKS, Math.max(1, Math.ceil(raceCount / COLS_PER_BLOCK)));
-    // 2026-08-04: ページ送りのちらつき対策（引地様 ISH-14 の dp60 対応で顕在化）。
+    // ページ送りのちらつき対策（売場  の dp60 対応で顕在化）。
     //   従来は message を受けるたび wrapper.innerHTML='' で全消しし、空の列枠を作ってから
     //   各列が非同期 fetch で埋まるのを待っていたため、切替の瞬間に画面が白く抜けた。
     //   3R 版（entries-results-3r.html）は列 DOM を保持したまま col.innerHTML を
     //   差し替えるだけなのでちらつかない。**同じ挙動に揃える。**
-    //
     //   ⚠ 判定はレース件数ではなく **ブロック数** で行う。
     //   列は常に blocks × COLS_PER_BLOCK 本作られるため、件数が変わっても
     //   ブロック数が同じなら DOM は作り直さなくてよい。
     //   件数で比較していた版では、**12R 開催でない場（金沢は10R）だけ**
     //   1-6R(6件) → 7-10R(4件) で件数が変わって再構築が走り、
-    //   その場だけちらつく状態になっていた（2026-08-04 STG 実機の録画で確認）。
+    //   その場だけちらつく状態になっていた（ STG 実機の録画で確認）。
     if (builtBlocks === blocks
         && wrapper.querySelectorAll('.six-race').length === blocks) {
       // 使われない列（例: 金沢 7-10R のときの 11R/12R 枠）は明示的に空にする。
@@ -371,17 +367,15 @@
     applyBlockScale(blocks);
   }
 
-  // 2026-07-22: ブロック数に応じて描画スケールを合わせる（及川決定）。
-  //   style.css は芥川様アセットのため改変せず、:root の font-size と wrapper の
+  // ブロック数に応じて描画スケールを合わせる（決定）。
+  //   style.css はデザインアセットのため改変せず、:root の font-size と wrapper の
   //   grid 定義のみをインラインで上書きする。
-  //
   //   背景: `html.screen-4k` は `font-size: 0.2604166667vw`（1rem = 幅の 0.2604%）で、
   //   `.six-race` は `192rem × 108rem` = 常に「viewport の 50% × 50%」になる。
   //   これは 4 ブロック（2場×1-12R）で 4K 全面を埋める前提の値。
   //   dp61/dp62（6R 固定 = 1 ブロック）を 4 分割の 1 コマに割り当てると、
   //   コマの左上 1/4 にしか描画されない（幅 50% × 高さ 50%）。
   //   iframe 内の vw はその iframe 自身が基準のため、コマが小さくても比率は変わらない。
-  //
   //   対処: 1 ブロックのときは 192rem = 100vw となるよう font-size を 2 倍にし、
   //   wrapper を 1×1 グリッドにしてコマ全体を使う。16:9 なら高さも 108rem = 56.25vw
   //   = 100% となり歪みなく収まる。2 ブロック以上は従来どおり（2×2 前提）。
@@ -406,8 +400,8 @@
     if (!urls) return;
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
-      // 2026-07-15: 確定前の空 results（entries=[]）では成績モードに入らない（3r と同旨）
-      // 2026-07-31: 返還レースは entries が永久に空のままなので、着順の有無だけで判定すると
+      // 確定前の空 results（entries=[]）では成績モードに入らない（3r と同旨）
+      // 返還レースは entries が永久に空のままなので、着順の有無だけで判定すると
       //   いつまでも出走表が出続ける（3R 版と同じ扱い）。
       if (res && res.data
           && ((Array.isArray(res.data.entries) && res.data.entries.length > 0)
@@ -425,7 +419,7 @@
       var races = (e.data.races || []).slice(0, COLS_PER_BLOCK * MAX_BLOCKS); // 最大24
       buildBlocks(races.length);
       raceUrls = races.map(function(r) {
-        // 2026-07-15: data_source が odds/ 形式（内山バッチ）でも results を試せるよう双方向導出
+        // data_source が odds/ 形式（バッチ）でも results を試せるよう双方向導出
         var base = r.url || '';
         return { resultsUrl: base.replace('/odds/', '/results/'),
                  oddsUrl: base.replace('/results/', '/odds/') };

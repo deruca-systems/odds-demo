@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <title>出走成績3R表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 3R-entries-results-phase3 (2026-04-30): payout-board DOM を screen5.html 準拠に書き換え。
-       芥川様 screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <!-- 3R-entries-results-phase3 : payout-board DOM を screen5.html 準拠に書き換え。
+       デザイン screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -25,16 +25,16 @@
       </div>
     </div>
     <!-- 右端: 減量記号凡例。
-         構造は芥川様 screen5.html 準拠 (race-info__inner > race-info__item × N)。
+         構造はデザイン screen5.html 準拠 (race-info__inner > race-info__item × N)。
          出典: NAR 公式 https://www.keiba.go.jp/Howtoread/theracecard.html（ばんえい競馬）
-         アイコンは芥川様配布の info/ 系 SVG（申し送り仕様書 §8.5.1 でマッピング正式化）。
+         アイコンはデザイン配布の info/ 系 SVG（申し送り仕様書 §8.5.1 でマッピング正式化）。
 
-         O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定):
+         O-4/O-5 ( デザイン打合せ AI#10/#11、 担当確定):
            凡例はばんえい（帯広）のときだけ「騎手に付く記号 △20Kg減 ☆10Kg減」を出す。
            通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は表示しない。
            それ以外は中身を空にする（外側 div は幅・高さを占有しており、display:none に
            すると 3 列のレイアウトがずれるため残す）。
-           中身は描画のたびに renderLegend() が流し込む。 -->
+           中身は描画のたびに renderLegend が流し込む。 -->
     <div class="race-info">
       <div class="race-info__inner" id="raceInfoLegend"></div>
     </div>
@@ -82,7 +82,7 @@
     return out;
   }
 
-  // 馬体重増減フォーマット（2026-07-15: 特殊値・計量前対応、馬体重特殊値仕様書 §4.5）
+  // 馬体重増減フォーマット（: 特殊値・計量前対応、馬体重特殊値仕様書 §4.5）
   //   「(計不)」は weight=9999 専用表示のため、diff=null（計量前等）では空にする
   function formatWeightDiff(diff, wt2, weight) {
     if (weight == null || weight === 0 || weight === 9999) return '';
@@ -128,13 +128,12 @@
   }
 
   // ==============================================================
-  // O-4/O-5 (2026-07-28 芥川様打合せ AI#10/#11、2026-07-29 及川確定)
+  // O-4/O-5 ( デザイン打合せ AI#10/#11、 担当確定)
   //   減量記号の凡例は「ばんえい（帯広）のときだけ」出す。
   //   ばんえい時に出すのは、従来カッコ書きだった 2 記号（△20Kg減 / ☆10Kg減）のみ。
   //   通常競馬の 5 記号（★4 / ▲3 / △2 / ◇2 / ☆1）は出さない。
   //   非ばんえい時は中身を空にするだけで、外側の .race-info は残す
   //   （幅・高さを占有しており display:none にすると 3 列のレイアウトがずれるため）。
-  //
   //   判定単位は画面（3 列）。1 列でもばんえいがあれば出す。帯広と他場が混在した
   //   画面でも記号の意味を引けるようにするため。
   // ==============================================================
@@ -151,11 +150,10 @@
   }
 
   // ==============================================================
-  // O-6(b) (2026-07-28 芥川様打合せ AI#12 / 2026-07-29 及川決定 15秒)
+  // O-6(b) ( デザイン打合せ AI#12 /  決定 15秒)
   //   出走表の 3 列目を「性齢」と「単勝オッズ」で 15 秒ごとに入れ替える。
   //   お披露目会 §2-4 #8「性齢よりも単勝オッズ」への対応。常時どちらかに固定せず、
   //   画面が煩雑にならないかを実運用で確認するための試験実装。
-  //
   //   ・両方を DOM に持たせ、.race-table[data-col3] で表示を切り替える。
   //     30 秒のポーリング再描画とタイミングが競合してもローテ状態が飛ばない
   //     （枠連↔枠単ローテ H-03 と同じ考え方）。
@@ -216,7 +214,7 @@
             + '<div class="race-record__name" style="--name-length: ' + (e.horse_name || '').length + ';">'
             +   (e.horse_name || '') + '</div>'
             + '<div class="race-record__time">' + renderMarginOrTime(e) + '</div>'
-            // 2026-07-15: 騎手名は略称不可・切り捨てで統一（5/18 議事録 §1.3、README 確認事項C）。
+            // 騎手名は略称不可・切り捨てで統一（5/18 議事録 §1.3、README 確認事項C）。
             //   single-screen.html と同じ D.truncateJockey を通す。未適用だと5文字姓名が2行に折り返す。
             + '<div class="race-record__jockey">' + D.truncateJockey(e.jockey) + '</div>'
             + '</div>';
@@ -225,18 +223,16 @@
     return html;
   }
 
-  // DOS-04 (2026-08-18): 着差の表示。**実データは全角・空白なし**（`２１／２` `１１／４` `３／４`）。
-  //   旧実装 M-2 は芥川様原版のサンプル（**半角** `1 1/2`）に合わせた `split(' ')` で、
+  //  着差の表示。**実データは全角・空白なし**（`２１／２` `１１／４` `３／４`）。
+  //   旧実装 M-2 はデザイン原版のサンプル（**半角** `1 1/2`）に合わせた `split(' ')` で、
   //   **実データに空白が無いため一度も分岐していなかった**（`.time-int`/`.time-frac` の CSS も無かった）。
   //   結果、全角4字＝実質8字ぶんが枠に収まらず**隣の馬名側へ食い込んでいた**
-  //   （実測 2026-08-18 / 3r: 必要 128px・使える 96px。`overflow` 指定も無い）。
-  //
-  //   🔴 **芥川様 FB 対応デザイン（4K）に合わせ、半角へ変換して `1 1/2` の形で出す**
-  //      （2026-08-18 及川決定）。整数部と分数部の間に**半角空白**を入れることで
+  //   （実測  / 3r: 必要 128px・使える 96px。`overflow` 指定も無い）。
+  //   🔴 **デザイン FB 対応デザイン（4K）に合わせ、半角へ変換して `1 1/2` の形で出す**
+  //      （ 決定）。整数部と分数部の間に**半角空白**を入れることで
   //      「２１／２ が 21/2（21分の2）に読める」誤読（画面仕様書 §3-5）も解消する。
   //      ⚠ 一度は「全角のまま分数部を 0.6em で小さく」実装したが、**小さすぎて視認性が悪い**
-  //        （8/18 及川確認）。デザイン正本どおり **同じ文字サイズの半角**にする。
-  //
+  //        （8/18 担当確認）。デザイン正本どおり **同じ文字サイズの半角**にする。
   //   ⚠ 同じ関数が entries-results-3r.html と entries-results-6r.html の**両方**にある。
   //     片方だけ直すと 4K(6R) 側に残る（HANDOFF 追記(8) と同じ轍）。
   //   分数を持たないもの（クビ／アタマ／ハナ／大差）はそのまま出す（カタカナ・漢字は全角が正）。
@@ -325,7 +321,7 @@
 
   // 馬番/組番 HTML（複勝は rank 付き）
   function buildPayoutNumber(betType, p) {
-    // 2026-07-31: 返還は複勝も combination="0" で来る。place 分岐より先に判定しないと
+    // 返還は複勝も combination="0" で来る。place 分岐より先に判定しないと
     //   「1着0」と出てしまう。
     if (p.is_void) return '<div class="payout-board__number">−</div>';
     if (betType === 'place') {
@@ -347,9 +343,9 @@
 
   // 金額 HTML（特払・返還対応）
   function buildPayoutPrice(p) {
-    // 2026-07-31: 返還（is_void=true）。レース不成立で全賭式が元返しになるケース。
+    // 返還（is_void=true）。レース不成立で全賭式が元返しになるケース。
     //   実データ: combination="0" / amount=100 / is_void=true が全賭式に入る
-    //   （2026-07-24 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で発生）。
+    //   （ 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で発生）。
     //   金額をそのまま出すと「0番が100円で的中」に見えるため「返還」を明示する。
     if (p.is_void) {
       return '<div class="payout-board__price is-void">'
@@ -369,11 +365,11 @@
   }
 
   // 返還フッター（screen5.html payout-board__footer 準拠）
-  // 2026-04-30 session3 改訂2:
+  //  session3 改訂2:
   //   - 返還データの有無に関わらず footer (高さ 2.4rem) は常に描画 → 3 列の底揃え保持
   //   - 返還ありの場合: 「返還」ラベル + 返還項目を表示
   //   - 返還なしの場合: ラベル含め内容を出さず、空の footer のみ（背景・border 領域だけ残る）
-  //     （ユーザー指示 2026-04-30 session3 改訂2: 「何もないときは『返還』の文字なしで」）
+  //     （ユーザー指示  session3 改訂2: 「何もないときは『返還』の文字なしで」）
   function buildRefundFooter(refund) {
     var h  = refund ? decodeBitmap(refund.horse_no_bitmap)    : [];
     var b  = refund ? decodeBitmap(refund.bracket_no_bitmap)  : [];
@@ -428,10 +424,10 @@
 
   function buildRaceTable(horses, data) {
     // M-5: プロトタイプのヘッダ「負担」→「斤量」に変更（画面仕様書 §4-1 No.6）
-    // 2026-04-21 Phase 3: ばんえい時は「斤量」→「重量」（議事録 20260408 §3）
+    //  Phase 3: ばんえい時は「斤量」→「重量」（議事録  §3）
     var banei = isBanei(data || {});
     var fwtHeader = banei ? '重量' : '斤量';
-    // O-6(a) (2026-07-28 芥川様打合せ AI#12): 性齢と馬体重のカラム位置を入れ替える。
+    // O-6(a) ( デザイン打合せ AI#12): 性齢と馬体重のカラム位置を入れ替える。
     //   列構成: 番 / 馬名 / 性齢（↔単勝） / 馬体重 / 斤量 / 騎手名
     //   列幅は dos-overrides.css で .race-table__head / .race-table__row を上書き。
     // O-6(b): 3列目は性齢と単勝オッズを 15 秒ごとに入れ替える。両方を DOM に持たせ、
@@ -459,11 +455,11 @@
             + '<div class="race-table__name" style="--name-length: ' + (h.horse_name || '').length + ';">'
             +   (h.horse_name || '') + '</div>';
 
-      // 2026-04-21 Phase 3: ばんえい時は負担重量が整数(3-4桁)、通常は小数 1 桁
-      // 2026-04-30 session3 改: 取消馬でも斤量(fwt)は表示する。
+      //  Phase 3: ばんえい時は負担重量が整数(3-4桁)、通常は小数 1 桁
+      //  session3 改: 取消馬でも斤量(fwt)は表示する。
       // 取消セルは race-table__scratched で 3〜4 列目の 2 セル結合（base CSS span 2）。
-      //   O-6(a) (2026-07-28) の入替後は 性齢(3)+馬体重(4) の結合になる（合計幅は同じ）。
-      // 2026-07-22: 斤量は減量記号ぶんを差し引いた「実負担重量」を表示（及川決定）。
+      //   O-6(a)  の入替後は 性齢(3)+馬体重(4) の結合になる（合計幅は同じ）。
+      // 斤量は減量記号ぶんを差し引いた「実負担重量」を表示（決定）。
       //   JSON の fwt は基本斤量（減量前）。D.effectiveFwt が記号から減算する。
       var fwtVal = D.effectiveFwt ? D.effectiveFwt(h, banei) : h.fwt;
       var fwtStr = '--';
@@ -477,12 +473,12 @@
               +   fwtStr + '</div>';
       } else {
         // O-6(a): 性齢 → 馬体重 の順で出す（従来は馬体重 → 性齢）
-        // O-2 (2026-07-28 AI#7): 性別は D.fmtSex でマッピング（セ → 騙）
+        // O-2 ( AI#7): 性別は D.fmtSex でマッピング（セ → 騙）
         // O-6(b): 同じセルに単勝オッズも持たせ、data-col3 で表示を切り替える。
         //   単勝は他画面と同じく D.fmtOddsOr（票未着は '-'）＋ O-3 の桁数配色。
         //   3列目の幅は性齢基準の 3rem。4 文字（99.9 等）までは性齢と同じ 1.2rem で収まるが、
         //   5 文字（100.0〜999.9）だけは溢れるので col3-win--long でフォントを落とす
-        //   （既存の .weight-long と同じ考え方。及川決定 2026-07-29）。
+        //   （既存の .weight-long と同じ考え方。決定 ）。
         var org3 = (data && data.organizer_type);
         var winStr3 = D.fmtOddsOr(h.win_odds, 'win', org3);
         var winCls3 = D.oddsClass('col3-win', h.win_odds, 'win', org3)
@@ -501,8 +497,8 @@
       }
 
       // 騎手名（減量記号アイコン付き、genryokigo があれば）
-      // 2026-04-30 session3 改訂3: ◇ (JRA-DB コード表2303 値=9 / NAR 公式: 2Kg減 女性騎手) を追加
-      // 2026-07-22: odds JSON の horses[] は org_genryokigo / new_genryokigo（仕様 §3 系）で
+      //  session3 改訂3: ◇ (JRA-DB コード表2303 値=9 / NAR 公式: 2Kg減 女性騎手) を追加
+      // odds JSON の horses[] は org_genryokigo / new_genryokigo（仕様 §3 系）で
       //   `genryokigo`（§4.5.4 entries[] 系）は存在しないため常に空になっていた。D.genryokigoOf で吸収。
       var jockeyIcon = '';
       var gen = D.genryokigoOf ? D.genryokigoOf(h) : h.genryokigo;
@@ -514,7 +510,7 @@
                      + iconName + '.svg" alt="">';
         }
       }
-      // 2026-07-15: 出走表モードの騎手名も切り捨てで統一（single-screen.html と同一方式）。
+      // 出走表モードの騎手名も切り捨てで統一（single-screen.html と同一方式）。
       html += '<div class="race-table__jockey">' + jockeyIcon
             + D.truncateJockey(h.jockey) + '</div>'
             + '</div>';
@@ -536,10 +532,10 @@
     // 1. 成績モード試行（results JSON）
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
-      // 2026-07-15: バッチはレース確定前から entries 空の results JSON を生成する（STG 名古屋5R で確認）。
+      // バッチはレース確定前から entries 空の results JSON を生成する（STG 名古屋5R で確認）。
       //   空のまま成績モードに入るとヘッダーのみの空表示になるため、entries が入るまで出走表モードを継続する。
-      // 2026-07-31: ただし**返還レースは entries が永久に空**のままなので、この条件だけだと
-      //   いつまでも出走表が出続ける（2026-07-24 大井6R で確認）。全賭式が is_void の場合は
+      // ただし**返還レースは entries が永久に空**のままなので、この条件だけだと
+      //   いつまでも出走表が出続ける（ 大井6R で確認）。全賭式が is_void の場合は
       //   着順が無くても成績モードへ入れて「返還」を表示する。
       if (res && res.data
           && ((Array.isArray(res.data.entries) && res.data.entries.length > 0)
@@ -570,7 +566,7 @@
       var races = e.data.races || [];
       // 各レースの URL を組立: results → odds のフォールバック URL も作る
       raceUrls = races.slice(0, 3).map(function(r) {
-        // 2026-07-15: 内山バッチの data_source は常に odds/ 形式（設計書 v1.5）のため、
+        // バッチの data_source は常に odds/ 形式（設計書 v1.5）のため、
         //   どちらの形式が来ても results/odds 両 URL を導出する（プロトの results/ 渡しとも両立）。
         var base = r.url || '';
         return { resultsUrl: base.replace('/odds/', '/results/'),

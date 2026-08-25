@@ -2,18 +2,18 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<!-- 2026-07-22: ブラウザタブに「プロトタイプ」相当の開発時名称が出ていた（7/21 定例 池澤様指摘・
-     決定事項5「タブのタイトルは及川側で修正」）。表示端末・拠点で見えるため製品名に変更。 -->
+<!-- : ブラウザタブに「プロトタイプ」相当の開発時名称が出ていた（7/21 定例 フロント指摘・
+     決定事項5「タブのタイトルは担当側で修正」）。表示端末・拠点で見えるため製品名に変更。 -->
 <title>[D.O.S]DERUCA Odds System</title>
 <meta name="viewport" content="width=1920">
-<!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
-<!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260825b"></script>
-<!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
-     place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260825b"></script>
+<!-- url-config-separation : URL/パス/場コードを config.js に集約 -->
+<!-- : 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
+<script src="assets/js/config.js?v=20260825c"></script>
+<!-- : フロント STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
+     place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
+<script src="assets/js/video-display.js?v=20260825c"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260825b"></script>
+<script src="assets/js/common.js?v=20260825c"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -21,8 +21,8 @@
     font-family: "Yu Gothic UI", sans-serif;
     overflow: hidden;
   }
-  /* 2026-06-04: 芥川 style.css L82 (html.single-screen) と同スケールを親フレームにも適用。
-   * これで .grid.layout-3split の gap や info-bar 等を「芥川と同じ rem 単位」で書け、
+  /* デザイン style.css L82 (html.single-screen) と同スケールを親フレームにも適用。
+   * これで .grid.layout-3split の gap や info-bar 等を「デザインと同じ rem 単位」で書け、
    * 0.4rem (= screen7 .message gap) のような表記がそのまま比例拡縮する。
    *   FHD: 1rem = 20px / 4K: 40px / 1280: 13.3px。
    * 情報バー (1.5rem 等) は管理用オーバーレイで本番非表示のため副作用許容。 */
@@ -75,7 +75,7 @@
   .grid .cell { position: relative; overflow: hidden; }
 
   /* === 4分割レイアウト === */
-  /* 2026-05-01: CRM 設計（手動画面切替の田の字 1/3 上段・2/4 下段）と整合させ
+  /* CRM 設計（手動画面切替の田の字 1/3 上段・2/4 下段）と整合させ
      column-major に固定。プロジェクト当初指示と一致。
      P1=左上, P2=左下, P3=右上, P4=右下。
      iframe 番号 / position 文字列 / schedule JSON 上の意味は不変
@@ -99,18 +99,18 @@
   .grid.layout-1screen .cell-3,
   .grid.layout-1screen .cell-4 { display: none; }
 
-  /* === L字レイアウト 3分割（指示書09 T1 / 2026-04-16 仕様書§4 準拠版） ===
+  /* === L字レイアウト 3分割（指示書09 T1 /  仕様書§4 準拠版） ===
    *   設計思想:
    *     - 仕様書§4「px禁止・rem基本・FHD/4K比例拡縮」に準拠。
-   *     - monitor=0101（.screen）の vw/vh min() スケーリングと同じ思想を踏襲。
+   *     - monitor=0101（.screen）の vw/vh min スケーリングと同じ思想を踏襲。
    *     - cell1 は画面幅 22% 固定比率。FHD 1920 → 422px、4K 3840 → 845px、1280 → 281px。
    *     - cell2 は aspect-ratio: 16/9 で幅から高さ自動決定。常に 16:9 を保証。
    *     - cell3 は残り高さ。
    *   これでビューポートサイズが変わっても全 cell が比例拡縮する。 */
   .grid.layout-3split {
-    grid-template-columns: 20% 1fr;     /* 2026-04-17: 22%→20% に切り上げ（ユーザー要望） */
+    grid-template-columns: 20% 1fr;     /* 22%→20% に切り上げ（ユーザー要望） */
     grid-template-rows: auto 1fr;
-    /* 2026-06-04: 芥川 screen7.html style.css L3050 の .message { gap: 0.4rem } と整合。
+    /* デザイン screen7.html style.css L3050 の .message { gap: 0.4rem } と整合。
      *   親 html に同スケール (1rem = min(1.04vw, 1.85vh)) を適用したので 0.4rem で直接記述可能。
      *   FHD で 8px、4K で 16px に比例拡縮。.grid background: #000 で黒い区切りとして表示。 */
     gap: 0.4rem;
@@ -137,7 +137,7 @@
 <body>
 
 <script>
-// 情報バーはデバッグ用途のため、?debug=1（または true）指定時のみ表示する（2026-07-14、お披露目・実稼働対応）。
+// 情報バーはデバッグ用途のため、?debug=1（または true）指定時のみ表示する（お披露目・実稼働対応）。
 // 非指定時も H キーでトグル可能（no-debug では右上の復帰ハンドルも出さない）。
 (function () {
   if (!/[?&]debug=(1|true)\b/.test(location.search)) {
@@ -171,19 +171,18 @@
 <script>
 (function() {
   // ---- 設定（すぐ変えられる位置にまとめる） ----
-  // C-01 (2026-04-17): 本番デフォルト30秒（全画面リスト v1.0【3/10確定事項】「オッズ画面更新頻度：30秒」）。
+  // C-01 : 本番デフォルト30秒（全画面リスト v1.0【3/10確定事項】「オッズ画面更新頻度：30秒」）。
   //   ?fast=1 付与時のみ 10秒 に短縮（デモ用モード、スロット短縮版と同時連動）。
   //   ?schedule_poll=N / ?odds_poll=N が個別上書き（最優先）。
-  // H-04 (2026-04-17): NEXT_RACE_DELAY_SEC 追加（発走時刻+N秒で次レース自動遷移）。
+  // H-04 : NEXT_RACE_DELAY_SEC 追加（発走時刻+N秒で次レース自動遷移）。
   //   デフォルト60秒（= 締切+180秒、J-WEB準拠）、?fast=1 で 5秒、?next_race_sec=N で上書き可。
   var SCHEDULE_POLL_SEC = 30;   // スケジュールJSONポーリング（秒、本番デフォルト）
   var ODDS_POLL_SEC     = 30;   // 子テンプレのオッズJSONポーリング（秒、本番デフォルト）
   var NEXT_RACE_DELAY_SEC = 60; // 発走時刻+N秒で次レース遷移（H-04 Phase 1 §1 合意値。timer モード時のみ使用）
-  // 2026-07-30: 当回レースの切替トリガ（7/28 お披露目会FB 課題整理 §5-1 ／ 及川決定）。
+  // 当回レースの切替トリガ（7/28 お披露目会FB 課題整理 §5-1 ／ 決定）。
   //   'payout' … 当該レースの**払戻が配信されたら**次レースへ（既定）
   //   'timer'  … 発走時刻+NEXT_RACE_DELAY_SEC で次レースへ（従来動作。デモ・検証用）
-  //
-  //   prod 実測（2026-07-30・NAR 4場 全48レース／`当回レース切替タイミング_実測_20260730.md`）:
+  //   prod 実測（・NAR 4場 全48レース／`当回レース切替タイミング_実測_.md`）:
   //     ① results JSON の出現 … 発走+1.1分（中央値）だが **中身は空**。判定に使えない
   //     ② 払戻の充填          … 発走+8.3分（中央値、範囲 +6.8〜+30.1）← ここで切替
   //     ③ 着順の充填          … 発走+14.4分（中央値、範囲 +11.1〜+33.7）
@@ -196,7 +195,7 @@
   //     短すぎる → 未確定のレースを飛ばす。遷移は前進のみなので**復帰できない**
   //     長すぎる → 確定済みの古いレースを掴むが、払戻チェックが即座に確定を検知して前進する。
   //                各レースの初回チェックはスロットル対象外なので 1 秒に 1 レースずつ収束する
-  //   実測（2026-07-30・48レース）の払戻到着は +6.8〜+30.1 分。最大側をカバーする。
+  //   実測（・48レース）の払戻到着は +6.8〜+30.1 分。最大側をカバーする。
   var PAYOUT_ETA_SEC = 32 * 60;
   // 起動時の先読み（prefetchPayoutProbes）の上限と待ち時間。
   //   PAYOUT_ETA_SEC を最大寄りに取った代償で「確定済みの前レースを掴む」のは避けられないが、
@@ -206,14 +205,16 @@
   var FRAME_UTAN_PAGE_SEC = 15; // H-03: single-screen.html で 枠連↔枠単 を自動切替する間隔（秒）
   var SLOT_TICK_SEC     = 5;    // 時間帯切替の検査間隔（秒）- 1秒tickではなく5秒で十分
   var DISPLAY_TICK_SEC  = 1;    // 情報バー表示更新（秒）。サーバ負荷には関与しない。
+  // 頁ローテの内部値を読むための検証用スイッチ（?debug=1）。既定 OFF。
+  var DEBUG_ROTATION = new URL(location.href).searchParams.get('debug') === '1';
 
   // URLクエリで上書き可能:
   //   ?schedule_poll=5   スケジュールpoll秒（最優先）
   //   ?odds_poll=5       オッズpoll秒（最優先）
   //   ?next_race_sec=5   次レース遷移秒（最優先）
-  //   ?monitor=101       端末番号（INT、既定 101。path-date-folder 2026-04-20 で 0101→101）
-  //   ?display_date=20260420 開催日（YYYYMMDD、任意、未指定時は端末時刻の暦日）
-  //                          後方互換: ?date=20260420 でも可（display_date 優先）
+  //   ?monitor=101       端末番号（INT、既定 101。path-date-folder  で 0101→101）
+  //   ?display_date= 開催日（YYYYMMDD、任意、未指定時は端末時刻の暦日）
+  //                          後方互換: ?date= でも可（display_date 優先）
   //   ?fast=1            デモ用モード: 短縮スケジュール版 + ポーリング10秒 + 次レース遷移5秒
   var USE_FAST = false;
   (function applyQuery() {
@@ -233,7 +234,7 @@
     if (isFinite(sp) && sp >= 1) SCHEDULE_POLL_SEC = sp;
     if (isFinite(op) && op >= 1) ODDS_POLL_SEC = op;
     if (isFinite(nr) && nr >= 1) NEXT_RACE_DELAY_SEC = nr;
-    // 2026-07-30: 切替トリガの選択。
+    // 切替トリガの選択。
     //   ?fast=1 と ?next_race_sec=N は「秒で送る」意図なので timer モードに落とす
     //   （デモ用フィクスチャには払戻が無く、payout モードでは進まないため）。
     if (USE_FAST || (isFinite(nr) && nr >= 1)) RACE_ADVANCE_MODE = 'timer';
@@ -254,11 +255,11 @@
     return n ? document.getElementById('frame' + n) : null;
   }
 
-  // === BEGIN: v0.6.3 dual-read 後方互換 (2026-06-02) ===
-  // 内山さんCRM/バッチの v0.6.3 形式（slot.layout_pattern / screen.layout_section="01".."04" /
+  // === BEGIN: v0.6.3 dual-read 後方互換  ===
+  // バッチCRM/バッチの v0.6.3 形式（slot.layout_pattern / screen.layout_section="01".."04" /
   // screen.display_pattern_id のみ）と、プロト gen_data.py の旧形式（slot.layout /
   // screen.position="P1".."P4" / screen.template 直指定）の両方を読めるようにする。
-  // 両データ源が混在してもよい。本番で内山さん形式へ一本化された後に簡素化可能。
+  // 両データ源が混在してもよい。本番でバッチ形式へ一本化された後に簡素化可能。
 
   // layout_section / position のどちらでも frame 番号(1..4)へ解決。
   //   受理する値: "01".."04" / "1".."4" / "P1".."P4"（大小問わず）。
@@ -279,13 +280,13 @@
     return n ? ('P' + n) : null;
   }
 
-  // display_pattern_id → テンプレパス（内山さん形式で template が無い場合に使用）。
-  //   2026-06-29: display_pattern マスタ整理（display_patternマスタ整理一覧_20260623.md §1）
+  // display_pattern_id → テンプレパス（バッチ形式で template が無い場合に使用）。
+  //   display_pattern マスタ整理（display_patternマスタ整理一覧_.md §1）
   //   に追従し、**screen 単位の新ID** へ全面移行。screen.display_pattern_id を引く。
-  //   ★確認済: 1 = 単勝・複勝・枠連・枠単（SCR-ODD-001、2026-06-02 STG 実機検証）。
+  //   ★確認済: 1 = 単勝・複勝・枠連・枠単（SCR-ODD-001、 STG 実機検証）。
   var DISPLAY_PATTERN_ID_TO_TEMPLATE = {
     1:   'templates/single-screen.html',          // ★単勝・複勝・枠連・枠単（SCR-ODD-001）
-    // 2026-08-19: 騎手名フルネーム版（芥川様 screen1-fullname / keiba-odds 28a1aeb）。
+    // 騎手名フルネーム版（デザイン screen1-fullname / keiba-odds 28a1aeb）。
     //   dp1 に対し 斤量列＋馬体重増減の赤青＋騎手名フル、枠連／枠単は出さない。
     2:   'templates/single-screen-fullname.html',
     // 馬連・ワイド（自動ページング/固定P1-P3）。テンプレ側でページ制御
@@ -293,7 +294,7 @@
     11:  'templates/single-umaren-wide.html',
     12:  'templates/single-umaren-wide.html',
     13:  'templates/single-umaren-wide.html',
-    // 2026-08-16 (ISH-25): 馬連・馬単・人気順の first/second を1枚に統合した。
+    //  馬連・馬単・人気順の first/second を1枚に統合した。
     //   自動ページング(20/30/40)も固定(21/22/31/32/41/42)も**同じテンプレ**を使い、
     //   ページは ?page=N（固定）または postMessage setOddsPage（ローテ）で指定する。
     //   iframe.src が変わらないので**ページ送りで再読込されない＝暗転しない**。
@@ -323,7 +324,7 @@
     70:  'templates/changes-info.html',
     // 動画（NAR=80 / JRA GCH ch1-5=90-94）。いずれも video-frame.html（ch/場は screen 側設定）
     80:  'templates/video-frame.html',
-    // 2026-07-15: dp90-94（中央=JRA動画）は GCH 専用テンプレへ（池澤様 STG 実装の取り込み。
+    // dp90-94（中央=JRA動画）は GCH 専用テンプレへ（フロント STG 実装の取り込み。
     //   ch は dp に内包（90=ch1…94=ch5）、video_config は null（JSON 仕様 v0.6.6 §3.5.1/§3.7））
     90:  'templates/gch-video-frame.html',
     91:  'templates/gch-video-frame.html',
@@ -333,7 +334,7 @@
     // L字(3split) 専用
     100: 'templates/side-entries.html',           // 左袖（出走表）
     101: 'templates/wide-popular.html',           // 右下（人気・ワイド人気 4賭式）
-    // 2026-08-01: サイネージ（ISH-03）。分割の全面にサイネージ画像を表示する。
+    // サイネージ。分割の全面にサイネージ画像を表示する。
     //   J-WEB と同じく「画面の種類のひとつ」として扱い、これだけ選べば出続ける。
     //   画像 URL は既存の setSignageUrl（CUT-003 と共通経路）で子へ渡す。
     //   16:9 用（is_3split_left=0 / is_3split_rightbottom=0）。L字右下バナー（HR-A9）は
@@ -361,12 +362,12 @@
   }
   // === END: v0.6.3 dual-read 後方互換 ===
 
-  // path-date-folder (2026-04-20): v0.5 §1.5 準拠。
+  // path-date-folder : v0.5 §1.5 準拠。
   //   MONITOR_ID は INT（ゼロ埋めなし）。デフォルトは 101（旧 0101）。
   //   SCHEDULE_URL は schedules/{YYYYMMDD}/{monitor_id}[_fast].json。
   //   ?display_date=YYYYMMDD クエリで開催日を任意上書き可（未指定時は端末時刻の暦日）。
   //   後方互換: ?date=YYYYMMDD でも可（display_date 優先）。
-  // 2026-08-04: 致命的な設定ミスを画面に出す（現状はモニター未指定のみ）。
+  // 致命的な設定ミスを画面に出す（現状はモニター未指定のみ）。
   //   売場の端末は無人で回るため、黙って別の画面を出すと誰も気づけない。
   //   CSS に依存せずインラインで組む（テンプレ未ロードでも必ず出す）。
   function showFatalError(title, lead, examples) {
@@ -391,9 +392,9 @@
     console.error('[fatal] ' + title + ' / ' + lead);
   }
 
-  // 2026-08-10: 「この時間帯の設定がありません」の案内（立川 TAC-11・木暮様）。
+  // 「この時間帯の設定がありません」の案内（立川 ・検証）。
   //   showFatalError と違い **復帰する**ため、body を作り替えずオーバーレイを重ねる。
-  //   設定が入れば次のポーリング（applyCurrentSlot）で hideNoScheduleNotice() が呼ばれて消える。
+  //   設定が入れば次のポーリング（applyCurrentSlot）で hideNoScheduleNotice が呼ばれて消える。
   var noScheduleNoticeShown = false;
   function showNoScheduleNotice(slots) {
     // 設定済み（screens がある）時間帯を拾って案内に出す。原因を現場で切り分けられるようにする。
@@ -414,8 +415,8 @@
     var esc = function(s) {
       return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
-    // 2026-08-10: **この画面は来場者からも見えます。**「管理画面」「設定」等の内部の言葉は出さず、
-    //   売場の掲示として不自然でない文言にする（及川指示）。
+    // **この画面は来場者からも見えます。**「管理画面」「設定」等の内部の言葉は出さず、
+    //   売場の掲示として不自然でない文言にする（担当指示）。
     //   切り分け用の情報は右下に小さく端末番号と時刻だけ（係員が電話で伝えられる最小限）。
     //   詳細は console と情報バー（?debug=1 / H キー）で見る。
     el.innerHTML =
@@ -442,7 +443,7 @@
     noScheduleNoticeShown = false;
   }
 
-  // 2026-06-29 Phase 3: 手動切替・プレビュー経路（§3.12 / 2026-06-16 堀井さん確定契約）。
+  //  Phase 3: 手動切替・プレビュー経路（§3.12 /  管理画面確定契約）。
   //   ブラウザは index.html 共通。取得 JSON のみクエリで出し分ける：
   //     通常     ?monitor_id=…（後方互換 ?monitor=）        → schedules/{date}/{id}.json
   //     プレビュー ?monitor_id=…&preview=1                   → schedules/preview/{date}/{id}.json
@@ -451,10 +452,10 @@
   var MONITOR_UUID = _params.get('monitor_uuid') || null;
   var IS_PREVIEW = (_params.get('preview') === '1' || _params.get('preview') === 'true');
   var DISPLAY_MODE = MONITOR_UUID ? 'manual' : (IS_PREVIEW ? 'preview' : 'normal');
-  // 2026-08-04: モニター未指定のときに既定 '101' を見に行くのをやめ、エラー表示にする（及川決定）。
+  // モニター未指定のときに既定 '101' を見に行くのをやめ、エラー表示にする（決定）。
   //   従来は monitor_id / monitor / monitor_uuid のいずれも無いと **黙って monitor=101 の画面**を出していた。
-  //   石狩60台・駅前30台のような環境では「設定したはずの画面が出ない」と現場が原因を探すことになり、
-  //   ISH-17（売場別発売設定の登録漏れ）と同じ「間違いに気づけない」構図を生む。
+  //   売場60台・駅前30台のような環境では「設定したはずの画面が出ない」と現場が原因を探すことになり、
+  //   （売場別発売設定の登録漏れ）と同じ「間違いに気づけない」構図を生む。
   //   **黙って別物を出すより、指定漏れを明示する。**
   var MONITOR_ID_RAW = _params.get('monitor_id') || _params.get('monitor');
   if (!MONITOR_UUID && !MONITOR_ID_RAW) {
@@ -467,7 +468,7 @@
   }
   var MONITOR_ID = MONITOR_ID_RAW;
   // === BEGIN: TEMPORARY-MIGRATION-COMPAT (本番不要、後方互換用) ===
-  // 2026-04-30 session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
+  //  session3: 旧 4 桁ゼロ埋め monitor ID（例: '0101', '0102'）の URL ブックマークを
   // path-date-folder 移行後の 3 桁形式（'101', '102'）に正規化する。
   // 本番運用開始時（旧 URL の utilization が無くなった時点）にこのブロックを削除すること。
   if (/^0\d{3}$/.test(MONITOR_ID)) MONITOR_ID = String(Number(MONITOR_ID));
@@ -482,7 +483,7 @@
     var day = d.getDate();
     return y + (m < 10 ? '0' : '') + m + (day < 10 ? '0' : '') + day;
   })();
-  // url-config-separation (2026-04-20): URL 組み立ては DERUCA_CONFIG に委譲。
+  // url-config-separation : URL 組み立ては DERUCA_CONFIG に委譲。
   //   baseUrl 空文字（プロト）→ 相対パスそのまま。baseUrl 有り（本番）→ 絶対 URL 化。
   var SCHEDULE_URL = (DISPLAY_MODE === 'manual')
     ? DERUCA_CONFIG.buildManualScheduleUrl(DISPLAY_DATE, MONITOR_UUID)
@@ -494,7 +495,7 @@
   }
 
   // 指示書09 T5-3: layout 値 → CSS クラス
-  // 2026-05-08: layout 値 'lshape' → '3split' に変更（4split と同じ命名体系へ統一、4/27 池澤様協議分の反映）
+  // layout 値 'lshape' → '3split' に変更（4split と同じ命名体系へ統一、4/27 フロント協議分の反映）
   var LAYOUT_CLASS_MAP = {
     '4split':  'layout-4split',
     '1screen': 'layout-1screen',
@@ -511,15 +512,15 @@
     gridEl.classList.add(cls);
   }
 
-  // url-config-separation (2026-04-20): 動画 URL・場コード対応は assets/js/config.js に集約。
+  // url-config-separation : 動画 URL・場コード対応は assets/js/config.js に集約。
   //   旧 VIDEO_URL_BASE / VENUE_CODE_MAP / buildVideoUrl は DERUCA_CONFIG.video.* と
-  //   DERUCA_CONFIG.buildVideoUrl() に移行（本ファイルからは削除）。
+  //   DERUCA_CONFIG.buildVideoUrl に移行（本ファイルからは削除）。
   //   呼び出し側: applyVideoScreen 内で DERUCA_CONFIG.buildVideoUrl(cfg) を使用。
 
   // ---- 状態 ----
-  // H-04 (2026-04-17): screens[] 構造対応のため状態を刷新。
+  // H-04 : screens[] 構造対応のため状態を刷新。
   //   screenStates は slot 切替時に再構築され、各画面の独立 race 進行を管理する。
-  // server_time-fix-v3 (2026-04-20): serverOffset は HTTP Date+Age ヘッダから
+  // server_time-fix-v3 : serverOffset は HTTP Date+Age ヘッダから
   //   毎 fetch 再計算し、全子 iframe へ broadcast する。offsetFixed は撤去。
   var serverOffset = 0;              // HTTP Date+Age から毎fetch更新、子iframe に broadcast
   var currentSchedule = null;
@@ -550,7 +551,7 @@
   }
 
   // ---- スケジュール取得 ----
-  // server_time-fix-v3 (2026-04-20): HTTP Date + Age ヘッダから serverOffset を毎 fetch 再計算、
+  // server_time-fix-v3 : HTTP Date + Age ヘッダから serverOffset を毎 fetch 再計算、
   //   全子 iframe へ broadcast する中央集権型同期方式に刷新。
   //   - { cache: 'no-cache' } でブラウザキャッシュ再検証を強制（If-None-Match 付与、304 応答可）
   //   - ?t= クエリは撤去（CloudFront CachingOptimized のキャッシュキー同一性を享受）
@@ -614,9 +615,9 @@
   function buildChildQuery() {
     var params = new URLSearchParams();
     params.set('poll', ODDS_POLL_SEC);
-    // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
+    // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260825b');
+    params.set('v', '20260825c');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -626,7 +627,7 @@
     return '?' + params.toString();
   }
 
-  // 2026-08-04: screen 単位のクエリ。dp11/12/13 の固定ページ指定（?page=N）を付与する。
+  // screen 単位のクエリ。dp11/12/13 の固定ページ指定（?page=N）を付与する。
   //   buildChildQuery は全画面共通のため、dp 由来の値はここで足す。
   //   親URLに ?page= が明示されている場合はそちらを優先（検証用の手動上書き）。
   function childQueryFor(state) {
@@ -677,16 +678,16 @@
     for (var i = 0; i < races.length; i++) {
       var postMs = Date.parse(races[i].post_time_iso);
       if (isNaN(postMs)) continue;
-      // 2026-07-30: payout モードでは実際の切替が「払戻の到着」なので、起動時の目安も
+      // payout モードでは実際の切替が「払戻の到着」なので、起動時の目安も
       //   実測中央値（発走+8.3分）に合わせる。60秒のままだと起動直後に先のレースを掴む。
       var holdSec = (RACE_ADVANCE_MODE === 'payout') ? PAYOUT_ETA_SEC : NEXT_RACE_DELAY_SEC;
       var displayEndMs = postMs + holdSec * 1000;
       if (now < displayEndMs) {
-        // 🔴 2026-08-19: 払戻が既に来ているレースは掴まない。
+        // 🔴 払戻が既に来ているレースは掴まない。
         //   PAYOUT_ETA_SEC(32分) は実測**最大**寄りの見積りなので、払戻が中央値
         //   (+8.3分) で来ていると確定済みの前レースを掴む。従来はその 1〜2 秒後に
         //   payout チェックが前進させて自己修正していたが、**その往復が画面に見えた**
-        //   （2026-08-19 録画: リロードのたび 川崎4R→5R / 名古屋5R→6R / 門別5R→6R。
+        //   （ 録画: リロードのたび 川崎4R→5R / 名古屋5R→6R / 門別5R→6R。
         //     園田だけ無症状なのは 12R＝最終レースで遷移先が無いため）。
         //   _payoutProbe は prefetchPayoutProbes が**描画前に**埋める。
         var probed = _payoutProbe[races[i].race_id || races[i].data_source];
@@ -698,7 +699,7 @@
   }
 
   // H-04: slot.screens[] から screenStates を構築（slot 切替時に呼ばれる）
-  // 2026-06-29: venue_filters（§3.13）の target_race_no_list を rr の集合述語に変換。
+  // venue_filters（§3.13）の target_race_no_list を rr の集合述語に変換。
   //   null / '' / '1-12' → 全レース true。'7-12' 範囲、'10,11' 個別、'1,3,5-7' 混合に対応。
   function makeRaceNoPredicate(listStr) {
     if (listStr == null || listStr === '' || listStr === '1-12') return function() { return true; };
@@ -726,11 +727,11 @@
     return { organizer_type: p[0], place_cd: p[1], rr: rr };
   }
 
-  // 2026-06-29: venue_filters（§3.13）で発売対象外レースを除外する。
+  // venue_filters（§3.13）で発売対象外レースを除外する。
   //   venue_filters 省略/空配列 → 全発売（races そのまま）。
   //   リストに無い開催場のレース → 除外（その売場では売らない）。
-  // 2026-07-30: data_source のパス中の {YYYYMMDD} を offset 日ぶん進める（§3.5.4 前日発売）。
-  //   例: odds/20260730/NAR_21_01.json + offset 1 → odds/20260731/NAR_21_01.json
+  // data_source のパス中の {YYYYMMDD} を offset 日ぶん進める（§3.5.4 前日発売）。
+  //   例: odds//NAR_21_01.json + offset 1 → odds//NAR_21_01.json
   //   日付が見つからない/offset が 0 のときは元の値をそのまま返す。
   function shiftDataSourceDate(dataSource, offset) {
     if (!dataSource || !offset) return dataSource;
@@ -758,11 +759,11 @@
     });
   }
 
-  // === BEGIN: v0.6.7 pages[] 同一区画ローテーション (2026-08-18) ===
+  // === BEGIN: v0.6.7 pages[] 同一区画ローテーション  ===
   //   JSON構造仕様書 v0.6.7 §3.5.2.2 / スケジュールJSON出力PG設計書 v1.8 §6.4.7。
   //   CRM「画面選択1〜4」は **同一区画（layout_section）内で最大4つを順に切り替える**設定だが、
-  //   JSON に器が無く `_01` だけが出ていた（引地様 確認表 №30/№31）。v0.6.7 で
-  //   `screens[].pages[]` が新設され、内山様 v1.8 が STG に反映済み。
+  //   JSON に器が無く `_01` だけが出ていた（売場 確認表 №30/№31）。v0.6.7 で
+  //   `screens[].pages[]` が新設され、バッチ v1.8 が STG に反映済み。
   //     ・`pages` があればそれを順に切り替え、無ければ **直下フィールドを1件**として扱う（dual-read）
   //     ・`pages` が 1 件のときはローテ tick を回さない ＝ **従来と完全に同じ挙動**
   //     ・区画単位の値（back_color / signage_url / is_auto_extend）は `pages[]` に含まれない
@@ -784,10 +785,10 @@
       var isSelf = (p === screen);
       // 🔴 §3.5.2.2「screens[] 直下は **pages[0] と同値**」。したがって **pages[0] は直下の値を
       //   引き継いでよい**（頁2以降は自分の値だけを使う）。
-      //   2026-08-19: ここを `p === screen` だけで判定しており、`pages` がある JSON では
+      //   ここを `p === screen` だけで判定しており、`pages` がある JSON では
       //   pages[0] が別オブジェクトになるため **screen.video_config を落としていた**。
       //   その結果 dp80 の venue_code が解決できず `Unknown venue_code: null` で
-      //   動画が出なかった（8/19 STG monitor 1 sec04 / monitor 2 sec02 で実測）。
+      //   動画が出なかった（8/19 実測 sec04 / monitor 2 sec02 で実測）。
       //   place_cd 等は元から無条件に引き継いでおり、video_config だけが取り残されていた。
       var isFirst = isSelf || i === 0;
       var dpid = (p.display_pattern_id != null) ? p.display_pattern_id : screen.display_pattern_id;
@@ -815,7 +816,7 @@
     raw.forEach(function(p, i) {
       var page = toPage(p, i);
       if (page.racesInherited && p !== screen && String(page.place_cd) !== String(screen.place_cd)) {
-        // 2026-08-19: 代表枠が **video 頁**のときは place_cd が省略されうる（§3.5.2.2「video 頁では省略可」。
+        // 代表枠が **video 頁**のときは place_cd が省略されうる（§3.5.2.2「video 頁では省略可」。
         //   実際 dp80 は場を video_config.venue_code で持つ）。この場合「場が違う」ではなく
         //   「代表枠に場が無く、引き継げる races も無い」が正しい説明なので文言を分ける。
         var why = (screen.place_cd == null)
@@ -854,7 +855,7 @@
 
   function buildScreenStates(slot, venueFilters) {
     var screens = slot.screens || [];
-    // 2026-06-04: slot.signage_url を screens[*] に伝播 (CRM の時間帯設定はスロット単位、
+    // slot.signage_url を screens[*] に伝播 (CRM の時間帯設定はスロット単位、
     //   要件定義書 v3.3 §3.2 SCR-CUT-003)。screen 個別の signage_url が定義されていない場合のみ補完。
     var slotSignageUrl = slot.signage_url || null;
     return screens.map(function(screen) {
@@ -862,7 +863,7 @@
       if (!screen.signage_url && slotSignageUrl) {
         screen.signage_url = slotSignageUrl;
       }
-      // 2026-08-18: 頁（pages[]）を正規化し、先頭頁で state を組む。
+      // 頁（pages[]）を正規化し、先頭頁で state を組む。
       var pages = filterPagesByVenue(normalizeScreenPages(screen), venueFilters);
       var state = buildScreenPageState(screen, pages[0], venueFilters);
       state.screen = screen;          // 頁切替で組み直すため元 screen を保持
@@ -870,7 +871,7 @@
       state.pageIndex = 0;
       state.pageTick = 0;
       state.pageHoldSec = 0;
-      // 🔴 2026-08-19: カットインのキーは raceKey を含むので**区画に1組**で足りる（引地様 №21）。
+      // 🔴 カットインのキーは raceKey を含むので**区画に1組**で足りる（売場 №21）。
       //   当初「頁ごとの単一キー」にしたところ、頁2〜4 で復元されず
       //   **同じレースで4回連続発火**した（実測）。集合にして頁ローテで丸ごと引き継ぐ。
       state.cutinShownKeys = {};
@@ -879,14 +880,14 @@
     });
   }
 
-  // 2026-08-18: screen（区画単位の設定）と page（頁単位の設定）から screenState を組む。
+  // screen（区画単位の設定）と page（頁単位の設定）から screenState を組む。
   //   頁切替のたびに呼ばれ、**頁に依存する値だけ**を作る。
   //   pages を持たない JSON では page = screen 相当の 1 件なので、従来と同じ結果になる。
   function buildScreenPageState(screen, page, venueFilters) {
     // v0.6.3 dual-read: position/template を新旧両形式から解決（layout_section/display_pattern_id も可）
     var canonicalPos = resolveCanonicalPosition(screen);
     var resolvedTemplate = resolveTemplate(page);
-    // 2026-06-29: 対象レース固定 / 前日発売（§3.5.4）。null=自動順送り / 0=当日。
+    // 対象レース固定 / 前日発売（§3.5.4）。null=自動順送り / 0=当日。
     var targetRaceNo = page.target_race_no;
     var targetDateOffset = page.target_date_offset || 0;
     var pageType = page.type;
@@ -900,9 +901,9 @@
      && rawRaces.length && !filteredRaces.length) {
       console.warn('[venue_filters] ' + canonicalPos + ' の発売対象レースが皆無 → 画面スキップ（§3.13.4）');
     }
-    // 2026-07-30: 前日発売（§3.5.4）の参照先を offset 日ぶんずらす（山内様 実機検証 #2）。
+    // 前日発売（§3.5.4）の参照先を offset 日ぶんずらす（検証 実機検証 #2）。
     //   バッチは target_date_offset>=1 でも data_source に「当日」パスを出力する
-    //   （2026-07-30 STG 実測。旭川 TV2: offset=1 でも odds/20260730/... のまま）。
+    //   （ STG 実測。売場 TV2: offset=1 でも odds//... のまま）。
     //   従来フロントは offset を「前日発売」ラベルにしか使っておらず、参照先が当日の
     //   ままだったため「当日のレースが前日発売と表示される」状態になっていた。
     //   ここで races[].data_source を書き換え、以降の全消費側（オッズ画面・出走成績・
@@ -919,36 +920,36 @@
       position: canonicalPos,
       template: resolvedTemplate,
       type: pageType,
-      // 2026-07-15: 出走成績の固定範囲/自動ページング判定等で全画面種別が dp を参照する
+      // 出走成績の固定範囲/自動ページング判定等で全画面種別が dp を参照する
       displayPatternId: page.display_pattern_id,
-      // 2026-07-15: dp50（出走成績 自動ページング）のページ状態
+      // dp50（出走成績 自動ページング）のページ状態
       entriesPages: null,
       entriesPageIndex: 0,
       entriesPageTick: 0,
-      // 2026-08-04: dp20/30/40（オッズ画面の自動ページング）のページ状態（ISH-14 ②③）。
-      //   2026-08-16 ISH-25: 全ページを1テンプレで描くようにしたので、
+      // dp20/30/40（オッズ画面の自動ページング）のページ状態（ ②③）。
+      //    全ページを1テンプレで描くようにしたので、
       //   ここはテンプレではなく**ページ数と種別**だけを持つ。
-      // 2026-08-16 ISH-25: テンプレ配列 → ページ数＋種別
+      //  テンプレ配列 → ページ数＋種別
       oddsPageCount: ODDS_PAGE_COUNT[page.display_pattern_id] || 0,
       oddsPageKind:  ODDS_PAGE_KIND[page.display_pattern_id] || null,
       oddsPageIndex: 0,
       oddsPageTick: 0,
       // 乙案: テンプレ駆動のページ数（dp10）。子の申告で埋まるまでは 1 扱い。
       childPageCount: 1,
-      // 2026-08-05 (引地様 №22): テンプレパス → そのページに中身があるか。
+      //  (売場 №22): テンプレパス → そのページに中身があるか。
       //   子（common.js notifyOddsPagesAvailability）が全ページ分をまとめて通知する。
       //   未通知のページは true 扱い（＝従来どおり送る）。レース切替でクリアする。
       oddsPageAvailable: [],
-      // 2026-08-05 (引地様 №21): カットインの発火済みキーと表示中フラグ。
+      //  (売場 №21): カットインの発火済みキーと表示中フラグ。
       //   ページ送りは iframe をリロードするため子の状態が飛ぶ。親が持って復元する。
       cutinShownForRace: null,
       cutinActive: false,
       oddsPageHoldSec: 0,
       races: filteredRaces,
-      // 2026-07-30: 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
-      //   売場別発売設定の発売場をすべてカバーする（及川決定）。
+      // 変更情報（dp=70）は「モニターに設定した競馬場」ではなく
+      //   売場別発売設定の発売場をすべてカバーする（決定）。
       //   CRM は 1 画面 1 場所のモデルで、画面選択2〜4 に別の場を入れても
-      //   スケジュール JSON には反映されない（2026-07-30 STG 実測）。
+      //   スケジュール JSON には反映されない（ STG 実測）。
       //   そのため screen.races[] ではなく venue_filters から列を組み立てる。
       venue_filters: venueFilters || [],
       target_race_no: targetRaceNo,
@@ -958,15 +959,15 @@
       lastTransitionMs: 0,
       iframeEl: getIframeByPosition(canonicalPos),
       videoConfig: null,
-      // Phase 5 (2026-04-22): ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
+      // Phase 5 : ヘッダー背景色（HEX 6 桁、'#' なし）。CRM 由来の
       //   monitor_schedules_detail.back_color_id → back_color.back_color_code を想定。
       //   値あれば iframe の :root CSS 変数 --race-header-bg に #HEX を注入する。
       //   ⚠ v0.6.7 §3.5.2.2: back_color は**区画単位**。頁ごとには変えられない。
       back_color_code: screen.back_color_code || null,
-      // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot 単位の signage_url を
+      // SCR-CUT-003 サイネージカットイン用 URL。slot 単位の signage_url を
       //   screens[*] へ伝播済 (buildScreenStates 直前に caller が注入)。
       signage_url: screen.signage_url || null,
-      // H-03 (2026-04-19): single-screen.html の枠連/枠単ページング管理
+      // H-03 : single-screen.html の枠連/枠単ページング管理
       //   template が single-screen.html のときのみ 1秒tick で 'uren'↔'utan' を切替。
       //   レース切替時・slot切替時に uren にリセット。他テンプレは無視される。
       //   hasFrameUtan: 子 iframe からの通知で更新される枠単発売有無フラグ。
@@ -977,21 +978,21 @@
     };
     if (state.type === 'video') {
       if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(page.display_pattern_id)) {
-        // 2026-07-15: 中央（GCH、dp90-94）。池澤様 STG 実装の取り込み。
+        // 中央（GCH、dp90-94）。フロント STG 実装の取り込み。
         //   ch=dp-89 を DosVideoDisplay.greenConfig が導出（video_config は null 前提）。
-        //   audio_muted 未指定時は音声デフォルト出力方針（2026-07-14）に合わせ false。
+        //   audio_muted 未指定時は音声デフォルト出力方針に合わせ false。
         var gcfg = DosVideoDisplay.greenConfig(page);
         var gvc = page.video_config || {};
         if (gvc.audio_muted == null) gcfg.audio_muted = false;
         state.videoConfig = gcfg;
       } else {
-        // 2026-07-14: v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
+        // v0.6.5 §3.7 のネスト形式（screen.video_config）が正。
         //   旧フラット形式（screen 直下に venue_code 等）は既存 schedule JSON の
         //   後方互換として dual-read する（生成側の実値出力開始後に削除可）。
-        //   2026-08-18: 頁単位では page.video_config（§3.5.2.2）が正。
+        //   頁単位では page.video_config（§3.5.2.2）が正。
         var vc = page.video_config || page.raw || {};
-        // 2026-07-15: venue_code 未供給（内山様バッチ実装前）の間は、cell の place_cd
-        //   (コード表105) からフロントで自己解決する（池澤様 DosVideoDisplay.narConfig）。
+        // venue_code 未供給（バッチ実装前）の間は、cell の place_cd
+        //   (コード表105) からフロントで自己解決する（フロント DosVideoDisplay.narConfig）。
         var narFallback = (!vc.venue_code && window.DosVideoDisplay)
           ? DosVideoDisplay.narConfig(page) : null;
         state.videoConfig = {
@@ -999,7 +1000,7 @@
           quality_mode:           vc.quality_mode || 'auto',
           quality_cap:            vc.quality_cap,
           quality_fixed:          vc.quality_fixed,
-          // 2026-07-14 方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
+          //  方針: 音声はデフォルト出力（未指定時 muted=false、フォールバックは video-frame.html）
           audio_muted:            vc.audio_muted != null ? vc.audio_muted : false,
           volume:                 vc.volume != null ? vc.volume : 0.7,
           video_source_override:  vc.video_source_override
@@ -1027,17 +1028,17 @@
       applyChangesInfoScreen(state);
       return;
     }
-    // 2026-06-29: 対象レース固定（§3.5.4）。target_race_no 指定時は順送りせず該当レースに固定。
+    // 対象レース固定（§3.5.4）。target_race_no 指定時は順送りせず該当レースに固定。
     if (state.target_race_no != null) {
       state.currentRaceIndex = findRaceIndexByRaceNo(state.races, state.target_race_no);
       if (state.currentRaceIndex < 0 && state.races.length) state.currentRaceIndex = 0; // 念のため
     } else {
-      // 🔴 2026-08-19: 頁ローテでは**レース選択をやり直さない**。
+      // 🔴 頁ローテでは**レース選択をやり直さない**。
       //   頁は賭式・表示形式が変わるだけで、見ているレースは同じはず。
       //   やり直すと getInitialRaceIndex が payout 未着の**締切済みレースを掴み直し**、
       //   その1〜2秒後に次レースへ遷移する往復が毎回起きる。
       //   症状: 「切替時に一瞬 前のR が表示される」＋「締切カットインが毎回再発火する」
-      //   （2026-08-19 STG monitor 1 区画03 で実測: 頁3に入るたび 2R→3R を往復）。
+      //   （ 実測 区画03 で実測: 頁3に入るたび 2R→3R を往復）。
       //   preferRaceId は applyScreenPage が頁切替の直前に積む。**同じ race_id が
       //   新しい races[] に無ければ（＝場が違う頁）通常どおり初期選択する。**
       var pref = state.preferRaceId ? findRaceIndexById(state.races, state.preferRaceId) : -1;
@@ -1051,7 +1052,7 @@
     applyOddsScreen(state);
   }
 
-  // 2026-08-19: races[] から race_id で index を引く（頁ローテのレース維持に使う）。
+  // races[] から race_id で index を引く（頁ローテのレース維持に使う）。
   function findRaceIndexById(races, raceId) {
     if (!races || !raceId) return -1;
     for (var i = 0; i < races.length; i++) {
@@ -1060,7 +1061,7 @@
     return -1;
   }
 
-  // 2026-06-29: races[] から rr=target_race_no のレースを探す（§3.5.4 対象レース固定）。
+  // races[] から rr=target_race_no のレースを探す（§3.5.4 対象レース固定）。
   function findRaceIndexByRaceNo(races, raceNo) {
     if (!races) return -1;
     for (var i = 0; i < races.length; i++) {
@@ -1070,13 +1071,13 @@
     return -1;
   }
 
-  // 3R-entries-results-phase2 (2026-04-21): 3 レース分の data_source を子 iframe へ postMessage で送信。
+  // 3R-entries-results-phase2 : 3 レース分の data_source を子 iframe へ postMessage で送信。
   //   既存の applyOddsScreen は 1 レース単位で動作するため、本関数で bundle 送信する。
   //   子テンプレ (entries-results-3r.html) は受信後、各列で results → odds フォールバック fetch を行う。
-  // 2026-07-15: 出走成績の表示レース解決（display_patternマスタ整理一覧 §1）。
+  // 出走成績の表示レース解決（display_patternマスタ整理一覧 §1）。
   //   実バッチは races[] に当日同場の全レースを出力する（スケジュールJSON出力PG設計書 v1.5 §6.5）
   //   ため、固定範囲（51-54/61/62）は rr で絞り込み、dp50/dp60 は自動ページングを行う。
-  //   2026-08-04 訂正（及川）: dp60 は「**dp61/62（6R表示）をページングして 12R 分を見せる**」が
+  //    訂正（担当）: dp60 は「**dp61/62（6R表示）をページングして 12R 分を見せる**」が
   //   正しい定義。従来は「絞り込み・ページングとも行わない（全件を 6r テンプレの
   //   6件×最大4ブロックへ自動配置）」という実装で、定義と食い違っていた。
   //   ⚠ プロトの monitor 128 は dp60 に 2場×1-12R=24件を渡して1画面に敷き詰める使い方を
@@ -1093,7 +1094,7 @@
     return (v && v > 0) ? v : 15;  // 秒。?page_rotation= で上書き（デモ・検証用）
   })();
 
-  // 2026-08-04: オッズ画面の自動ページング（ISH-14 ②③ / 引地様 8/1 確認表）。
+  // オッズ画面の自動ページング（ ②③ / 売場 8/1 確認表）。
   //   「自動ページング」を名乗る dp10/20/30/40/50 のうち、実装があったのは
   //     dp10 … 子テンプレ single-umaren-wide.html 内でローテ
   //     dp50 … 親側で entriesPages をローテ
@@ -1101,7 +1102,7 @@
   //   無かった（dp40→single-popular.html は dp41 と同一、等）。dp50 と同じ「親側でローテ」
   //   方式に揃えて補う。ローテは template を差し替えるため applyOddsScreen が
   //   iframe.src を貼り替える（dp50 と同じ挙動）。
-  // 2026-08-16 (ISH-25): テンプレ配列 → **ページ数**へ。テンプレは1枚に統合したので、
+  //  テンプレ配列 → **ページ数**へ。テンプレは1枚に統合したので、
   //   ローテは「何ページあるか」だけ分かればよい。切替は postMessage(setOddsPage)。
   //   kind は子が空ページ通知（oddsPagesAvailability）で名乗る種別と一致させる。
   var ODDS_PAGE_KIND = {
@@ -1114,12 +1115,12 @@
     30: 2,
     40: 2
   };
-  // 2026-08-04: 馬連・ワイド（dp10-13）は 1 テンプレ内でページ制御する作りで、
+  // 馬連・ワイド（dp10-13）は 1 テンプレ内でページ制御する作りで、
   //   子は ?page=N で固定ページになる（single-umaren-wide.html の forcedPage）。
   //   ところが親は ?page= を「親URLからの素通し」しかしておらず dp から導出していなかったため、
   //   dp11/12/13 を選んでも固定にならず常にローテしていた。dp→page をここで与える。
   //   dp10（自動ページング）は page を付けない＝テンプレ側のローテに任せる。
-  // 2026-08-16 (ISH-25): 統合に伴い 21/22・31/32・41/42 もここで固定ページを与える。
+  //  統合に伴い 21/22・31/32・41/42 もここで固定ページを与える。
   //   dp11/12/13（馬連・ワイド）は従来どおり。
   var ODDS_FIXED_PAGE = {
     11: 1, 12: 2, 13: 3,
@@ -1128,31 +1129,37 @@
     41: 1, 42: 2
   };
   var ODDS_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
-  // 2026-08-18: 区画内の頁ローテーション（pages[]）の周期。JSON構造仕様書 v0.6.7 §3.5.2.2 で
+  // 区画内の頁ローテーション（pages[]）の周期。JSON構造仕様書 v0.6.7 §3.5.2.2 で
   //   **フロント固定 15 秒**と定めた（JSON には持たせない）。既存の自動ページングと同一周期。
   //   将来 CRM で設定可能にする場合は screens[].page_rotation_sec（予約済・v0.6.7 では未出力）。
-  // 2026-08-19 (案B): 頁ローテのダブルバッファ。
+  //  (案B): 頁ローテのダブルバッファ。
   //   区画あたり iframe を 2 枚持ち、表示中の裏で次頁を読み込み、
   //   **子から renderReady が来てから**入れ替える。空白 0ms を狙う。
   //   案A（データ到着まで遮蔽）で空白は「暗転」になったが、4区画が同時に
-  //   約 217ms 暗転する（2026-08-19 STG monitor 3 の録画をフレーム解析）。
+  //   約 217ms 暗転する（ 実測 の録画をフレーム解析）。
   //   保守的に、必要なときだけ 2 枚目を作る:
   //     ・頁が 1 つの区画は作らない（＝従来と完全に同じ経路）
   //     ・動画（dp80/90-94）は対象外。HLS プレイヤを二重に起こさない
   //     ・次頁のテンプレが同じなら iframe は再ロードされない＝空白が出ないので不要
   //   ?dblbuf=0 で丸ごと無効化できる（切り戻し用）。
   //   ⚠ query の解釈は上方の IIFE で行うが、この var 代入は**その後に実行される**ため
-  //   そこで false にしても true で上書きされてしまう（2026-08-19 に踏んだ）。ここで直接読む。
+  //   そこで false にしても true で上書きされてしまう（ に踏んだ）。ここで直接読む。
   var DOUBLE_BUFFER = !/(^|[?&])dblbuf=0([&#]|$)/.test(location.search);
   var PRELOAD_LEAD_SEC = 4;    // 何秒前から裏で読み込むか
-  // 🔴 2026-08-19 (甲案): カットイン表示中は頁送りを保留するが、**保留したぶんを
+  // 🔴  (甲案): カットイン表示中は頁送りを保留するが、**保留したぶんを
   //   次の頁から差し引いて位相を戻す**。戻さないと、カットインが出た区画だけ
   //   他区画から遅れたままになり、4 区画の切替が揃わなくなる。
   //   カットインの判定を毎秒に直した（common.js startHeaderTicker）ことで
   //   カットインが滞在の途中で始まり境界をまたぐようになったため、この保留が
   //   起きやすくなった。差し引いても最低 MIN_PAGE_VISIBLE_SEC は必ず表示する。
   var MIN_PAGE_VISIBLE_SEC = 5;
-  var SCREEN_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
+  // ?page_rotation= は内側（自動ページング）と外側（区画内ローテ）を
+  //   **同時に**上書きするため、両者を切り分ける検証ができなかった。
+  //   ?screen_rotation= を足し、外側だけを別に指定できるようにする（未指定なら従来どおり）。
+  var SCREEN_PAGE_SEC = (function() {
+    var v = Number(new URL(location.href).searchParams.get('screen_rotation'));
+    return (v && v > 0) ? v : ENTRIES_PAGE_SEC;   // 既定 15 秒
+  })();
 
   // race の R 番号。schedule races[] の rr（設計書 v1.5）を優先し、無ければ race_id から復元
   function raceRr(race) {
@@ -1204,17 +1211,17 @@
     });
   }
 
-  // 2026-08-04: dp20/30/40（馬連・馬単・人気順の自動ページング）の tick（ISH-14 ②③）。
+  // dp20/30/40（馬連・馬単・人気順の自動ページング）の tick（ ②③）。
   //   1 秒ごとに呼ばれ、ODDS_PAGE_SEC ごとにページを送る。
-  //   2026-08-16 ISH-25: **template は変えず postMessage(setOddsPage) でページ番号を送る。**
+  //    **template は変えず postMessage(setOddsPage) でページ番号を送る。**
   //     旧方式（template を first↔second で差し替え＝iframe.src 貼り替え）は
   //     4分割で3画面が同時に 0.33 秒暗転していた（録画のフレーム解析で実測）。
   //   固定ページの dp21/22/31/32/41/42 は oddsPageCount を持たないので対象外
   //     （ODDS_FIXED_PAGE で ?page=N を与える）。
-  // 2026-08-05 (引地様 №22): そのページに中身があるか。子からの通知が無い間は true。
+  //  (売場 №22): そのページに中身があるか。子からの通知が無い間は true。
   //   dp50 の「ページが1つなら送らない」ガードを dp20/30/40 にも用意するための土台。
   function oddsPageIsAvailable(state, idx) {
-    // 2026-08-16 ISH-25: 子は自分の種別の全ページを配列で答える（0 始まり）
+    //  子は自分の種別の全ページを配列で答える（0 始まり）
     return state.oddsPageAvailable[idx] !== false;
   }
   // 現在ページから見て次に送るべきページ。中身のあるページが他に無ければ現在ページを返す。
@@ -1226,13 +1233,13 @@
     }
     return state.oddsPageIndex;
   }
-  // 2026-08-05 №21: カットイン表示中にページ送りするとリロードで表示が切れる。
+  //  №21: カットイン表示中にページ送りするとリロードで表示が切れる。
   //   最大待ち時間は CUT-002(10秒) → CUT-003(30秒) の連鎖ぶん＋余裕。
   //   子が「終わった」を返せなくなった場合に固まらないための上限。
   var ODDS_PAGE_CUTIN_HOLD_MAX_SEC = 45;
 
   /**
-   * 2026-08-16 (ISH-25): 表示中の子へページ番号を送る。**iframe.src は触らない。**
+   *  表示中の子へページ番号を送る。**iframe.src は触らない。**
    *   これが「ちらつかない」ことの本体。子は DOM を描き替えるだけで再読込しない。
    *   出走成績（dp50/60）が既に同じ考え方（sendEntriesResultsPayload）で動いている。
    */
@@ -1254,7 +1261,7 @@
       state.oddsPageTick = (state.oddsPageTick || 0) + 1;
       if (state.oddsPageTick < ODDS_PAGE_SEC) return;
       // カットイン表示中は送らない。
-      // 2026-08-16: 再読込しなくなったので「表示が途中で切れる」理由は消えたが、
+      // 再読込しなくなったので「表示が途中で切れる」理由は消えたが、
       //   カットイン中に背後の内容が変わるのは落ち着かないため待つ方針は維持する。
       if (state.cutinActive && state.oddsPageHoldSec < ODDS_PAGE_CUTIN_HOLD_MAX_SEC) {
         state.oddsPageHoldSec++;
@@ -1262,7 +1269,7 @@
       }
       state.oddsPageHoldSec = 0;
       state.oddsPageTick = 0;
-      // 2026-08-05 №22: 中身の無いページ（少頭数の「軸馬10〜」等）へは送らない
+      //  №22: 中身の無いページ（少頭数の「軸馬10〜」等）へは送らない
       var next = nextAvailableOddsPage(state);
       if (next === state.oddsPageIndex) return;   // 送り先が無い＝1ページ運用
       state.oddsPageIndex = next;
@@ -1270,7 +1277,7 @@
     });
   }
 
-  // 2026-08-18: 区画内の頁ローテーション（pages[]、JSON構造仕様書 v0.6.7 §3.5.2.2）。
+  // 区画内の頁ローテーション（pages[]、JSON構造仕様書 v0.6.7 §3.5.2.2）。
   //   CRM「画面選択1〜4」を 15 秒ごとに送る。**1 頁のときは何もしない**（従来動作）。
   //   既存の自動ページング（dp10/20/30/40/50/60）とは**別の軸**である点に注意。
   //     ・自動ページング … 1 つの表示パターンの中でページを送る（同じ dp のまま）
@@ -1281,23 +1288,23 @@
   function applyScreenPage(state, nextIndex) {
     var page = state.pages[nextIndex];
     if (!page) return;
-    // 🔴 2026-08-19: カットインの発火済みキーを頁ごとに退避・復元する。
+    // 🔴 カットインの発火済みキーを頁ごとに退避・復元する。
     //   子のキーは `raceKey + '_countdown' / '_closed'`（common.js）＝**レースに紐づく**。
     //   ところが buildScreenPageState は毎回 cutinShownForRace を null で作り直すため、
     //   **頁が回るたびに「まだ出していない」に戻り、同じレースの締切カットインが再発火**していた
-    //   （2026-08-19 STG monitor 1 区画03「園田 馬連①」で実測。dp51→52→21→22 は
+    //   （ 実測 区画03「園田 馬連①」で実測。dp51→52→21→22 は
     //     テンプレか ?page= が毎回変わるので iframe が再読込され、そのたびに出ていた）。
     //   頁ごとに持つのは、頁が**別の場のレース**を出しうるため（screen に 1 つでは足りない）。
     state.cutinShownKeys = state.cutinShownKeys || {};
     state.cutinSeededKeys = state.cutinSeededKeys || {};
     // 🔴 **上書きの前に**退避する。buildScreenPageState は currentRaceId を null で
-    //   作り直すため、コピー後に読むと必ず null になる（2026-08-19 に踏んだ。
+    //   作り直すため、コピー後に読むと必ず null になる（ に踏んだ。
     //   「頁が変わってもレースを維持する」修正が丸ごと効いていなかった）。
-    // 🔴 2026-08-19: **出走成績（dp50-54/60-62）は currentRaceId を持たない**（範囲表示のため）。
+    // 🔴 **出走成績（dp50-54/60-62）は currentRaceId を持たない**（範囲表示のため）。
     //   そのまま引き継ぐと、出走成績の頁を通過した時点で null になり、
     //   次のオッズ頁で**毎回レースを選び直す**（＝締切済みレースを掴み直し、
     //   1〜2秒後に次レースへ飛ぶ「一瞬前のRが見える」＋カットイン再発火）。
-    //   実測 2026-08-19 STG monitor 1 区画03（dp51→52→21→22）:
+    //   実測  実測 区画03（dp51→52→21→22）:
     //     頁1・頁2 は race=None → 頁3 で毎回 8R を掴み直し → 2秒後 9R へ。
     //   そこで **値が入っているときだけ更新する sticky な lastRaceId** に覚えさせ、
     //   出走成績の頁を跨いでもレースを保てるようにする。
@@ -1316,21 +1323,21 @@
     initializeScreen(state);
   }
 
-  // 🔴 2026-08-19 (乙案): 頁ローテ(pages[])の滞在時間を「内側のページ数」ぶん延ばす。
+  // 🔴  (乙案): 頁ローテ(pages[])の滞在時間を「内側のページ数」ぶん延ばす。
   //   内側の自動ページングも 15 秒周期なので、外側と**同じ周期・同じ起点**になり
   //   2 ページ目に切り替わる瞬間に外側が次の頁へ送っていた。
-  //   実測 2026-08-19 STG monitor 3 区画01（130 秒観察）:
+  //   実測  実測 区画01（130 秒観察）:
   //     dp20 馬連（自動ページング）… 常に 1/2。**2 ページ目が一度も出ない**
   //     dp40 人気順（自動ページング）… 常に 1/2。同上
   //     dp10 馬連ワイド … P2 は 3.7 秒だけ（案B の先読み 4 秒ぶんずれた副産物）
-  //   これは 2026-08-18 に入れた pages[] が持ち込んだ退行で、
+  //   これは  に入れた pages[] が持ち込んだ退行で、
   //   画面選択に入れずに単独で使う限りは従来どおり動く。
   //   ⚠ 影響範囲を絞る作り:
   //     ・頁が 1 つの区画は checkScreenPageRotation が先に return する＝**呼ばれない**
   //     ・内側ページを持たない dp は 1 を返す＝滞在 15 秒のまま（従来と同じ）
   function innerPageCountOf(state) {
     // 親が駆動する自動ページング（dp20/30/40）。中身の無いページは数えない
-    //   （少頭数で「軸馬10〜」が空になる場合。引地様 №22）。
+    //   （少頭数で「軸馬10〜」が空になる場合。売場 №22）。
     if (state.oddsPageCount >= 2) {
       var avail = 0;
       for (var i = 0; i < state.oddsPageCount; i++) { if (oddsPageIsAvailable(state, i)) avail++; }
@@ -1371,9 +1378,9 @@
       primary.parentNode.insertBefore(buf, badge || null);
       stack(primary);   // 主 iframe も重ね合わせ座標に揃える（見た目は不変）
     }
-    // 🔴 2026-08-19: 裏は「いま表示していない方」。**入れ替えるたびに役割が逆転する**。
+    // 🔴 裏は「いま表示していない方」。**入れ替えるたびに役割が逆転する**。
     //   常に frameNb を裏だと決め打ちすると、2 回目の頁送りで
-    //   **表示中の iframe を潰して 4 秒間なにも映らなくなる**（STG monitor 3 で実測）。
+    //   **表示中の iframe を潰して 4 秒間なにも映らなくなる**（実測 で実測）。
     return (state.iframeEl === buf) ? primary : buf;
   }
 
@@ -1516,7 +1523,7 @@
     });
   }
 
-  // 2026-08-18: 検証用。頁ローテーションは**時間軸の挙動**なので、スクショでも静的リンタでも
+  // 検証用。頁ローテーションは**時間軸の挙動**なので、スクショでも静的リンタでも
   //   捕まらない（CLAUDE.md「名前が動作を約束するものは名前から検査する」）。
   //   render_matrix.py / ブラウザコンソールから現在の頁を読めるようにしておく。
   window.DosDebugScreens = function() {
@@ -1527,7 +1534,7 @@
         display_pattern_id: s.displayPatternId,
         place_cd: s.pages && s.pages[s.pageIndex] ? s.pages[s.pageIndex].place_cd : null,
         page: (s.pageIndex + 1) + '/' + (s.pages ? s.pages.length : 1),
-        // 2026-08-19: 親が駆動する自動ページング（dp20/30/40）の現在ページ。
+        // 親が駆動する自動ページング（dp20/30/40）の現在ページ。
         //   頁ローテ(pages[])と周期が同じだと 2 ページ目が出ないため、検証に要る。
         odds_page: (s.oddsPageIndex + 1) + '/' + (s.oddsPageCount || 1),
         page_dp: s.pages ? s.pages.map(function(p) { return p.display_pattern_id; }) : [],
@@ -1549,7 +1556,7 @@
       iframe.src = state.template + childQuery;
       iframe.onload = (function(races, bg) {
         return function() {
-          // 2026-07-15: 出走成績ヘッダーにも CRM 背景色を適用（CSS 変数方式）
+          // 出走成績ヘッダーにも CRM 背景色を適用（CSS 変数方式）
           applyHeaderColor(iframe, bg);
           sendEntriesResultsPayload(iframe, races);
         };
@@ -1561,7 +1568,7 @@
     }
   }
 
-  // changes-info-phase5 (2026-04-22): 3 場分の changes JSON 参照 URL を postMessage 送信。
+  // changes-info-phase5 : 3 場分の changes JSON 参照 URL を postMessage 送信。
   //   race.data_source には `changes/{YYYYMMDD}/{ORG}_{PP}.json` を指定する想定。
   function applyChangesInfoScreen(state) {
     var iframe = state.iframeEl;
@@ -1580,7 +1587,7 @@
     }
   }
 
-  // 2026-07-30: 変更情報の列を venue_filters（§3.13）から組み立てる（及川決定）。
+  // 変更情報の列を venue_filters（§3.13）から組み立てる（決定）。
   //   ・モニターに設定した競馬場には左右されない
   //   ・売場が発売する全場を対象にする（3 場を超える場合は子側でページング）
   //   ・対象レースも売場別発売設定に従う（target_race_no_list を子へ渡して絞り込む）
@@ -1635,7 +1642,7 @@
 
   function sendEntriesResultsPayload(iframe, races) {
     try {
-      // 6R-entries-results-phase4 (2026-04-21): テンプレに応じて 3R / 6R を自動判定。
+      // 6R-entries-results-phase4 : テンプレに応じて 3R / 6R を自動判定。
       //   entries-results-6r.html なら 6 件まで送信、それ以外（3R テンプレ等）は 3 件まで。
       var tmpl = iframe.getAttribute('data-template') || '';
       var is6r = tmpl.indexOf('entries-results-6r') >= 0;
@@ -1657,11 +1664,11 @@
     } catch (_) {}
   }
 
-  // 2026-07-15: CRM 背景色（back_color_code）→ 芥川ヘッダー色クラスの対応表。
+  // CRM 背景色（back_color_code）→ デザインヘッダー色クラスの対応表。
   //   表示は style.css の .race-header.header-*（グラデーション 2 値）をそのまま流用する
-  //   （単色ベタ塗りはしない＝芥川デザイン準拠。堀井様依頼_back_color芥川パレット10色化_20260715）。
-  //   前半 10 件: 新パレット（back_color マスタ 10 色化後の HEX＝芥川グラデーション開始色）
-  //   後半 8 件: 旧シード値（STG 実値 2026-07-15 SELECT 確認）の互換。マスタ更新の前後どちらでも動く。
+  //   （単色ベタ塗りはしない＝デザイン準拠。）。
+  //   前半 10 件: 新パレット（back_color マスタ 10 色化後の HEX＝デザイングラデーション開始色）
+  //   後半 8 件: 旧シード値（STG 実値  SELECT 確認）の互換。マスタ更新の前後どちらでも動く。
   var BACK_COLOR_TO_HEADER_CLASS = {
     '4A4F57': 'header-gray',       '1C3FAA': 'header-blue',
     '8F4A00': 'header-orange',     '1F6F43': 'header-green',
@@ -1675,10 +1682,10 @@
     'FF1493': 'header-light_blue', '673AB7': 'header-purple'
   };
 
-  // 芥川 style.css の .race-header.header-* グラデーション定義の写し（93.3deg / 45.95%→54.05%）。
+  // デザイン style.css の .race-header.header-* グラデーション定義の写し（93.3deg / 45.95%→54.05%）。
   //   出走成績（3r/6r）のヘッダーは .race-header と別構造かつ描画ごとに再生成されるため、
   //   クラス付け替えではなく CSS 変数（--custom-header-grad）＋dos-overrides.css の受けルールで適用する。
-  //   ※出典は style.css（芥川様アセット・改変禁止）。芥川様側で色定義が更新された場合はここも追従すること。
+  //   ※出典は style.css（デザインアセット・改変禁止）。デザイン側で色定義が更新された場合はここも追従すること。
   var HEADER_GRADS = {
     'header-gray':       ['#4A4F57', '#303C50'],
     'header-blue':       ['#1C3FAA', '#001D76'],
@@ -1693,9 +1700,9 @@
   };
 
   // back_color_code を iframe 内ヘッダーに適用する。
-  //   ① .race-header を持つテンプレ（単勝系・人気順系・マトリクス系・L字右下）: 芥川クラス付け替え
-  //   ② 出走成績（3r/6r）: CSS 変数＋has-custom-hdr（2026-07-15 即適用・及川決定）
-  //   Phase 5 (2026-04-22) の旧 CSS 変数注入方式は受け側 CSS 未実装で機能していなかったため置換。
+  //   ① .race-header を持つテンプレ（単勝系・人気順系・マトリクス系・L字右下）: デザインクラス付け替え
+  //   ② 出走成績（3r/6r）: CSS 変数＋has-custom-hdr（ 即適用・決定）
+  //   Phase 5  の旧 CSS 変数注入方式は受け側 CSS 未実装で機能していなかったため置換。
   function applyHeaderColor(iframe, bg) {
     if (!bg) return;
     try {
@@ -1703,7 +1710,7 @@
       if (!doc) return;
       var cls = BACK_COLOR_TO_HEADER_CLASS[String(bg).toUpperCase()];
       if (!cls) {
-        console.warn('[back_color] 芥川パレット対応表に無い back_color_code:', bg);
+        console.warn('[back_color] パレット対応表に無い back_color_code:', bg);
         return;
       }
       var hdr = doc.querySelector('.race-header');
@@ -1727,21 +1734,21 @@
     var iframe = state.iframeEl;
     if (!iframe) return;
     var race = state.currentRaceIndex >= 0 ? state.races[state.currentRaceIndex] : null;
-    // url-config-separation (2026-04-20): data_source 解決は DERUCA_CONFIG に委譲。
+    // url-config-separation : data_source 解決は DERUCA_CONFIG に委譲。
     var dataUrl = race ? DERUCA_CONFIG.resolveDataSource(race.data_source) : null;
-    // 2026-06-04: SCR-CUT-003 サイネージカットイン用 URL。slot.signage_url を解決して送信。
+    // SCR-CUT-003 サイネージカットイン用 URL。slot.signage_url を解決して送信。
     //   要件定義書 v3.3 §3.2「サイネージカットイン、締切後30秒程度をオッズエリアに重畳表示」。
     var signageUrl = state.signage_url
       ? DERUCA_CONFIG.resolveDataSource(state.signage_url)
       : null;
-    // 2026-06-29: 前日発売/対象レース固定 context（§3.5.4）。子は target_date_offset>=1 で
+    // 前日発売/対象レース固定 context（§3.5.4）。子は target_date_offset>=1 で
     //   ヘッダを「前日発売」モードに切替える（renderRaceHeader）。
     var saleContext = {
       type: 'setSaleContext',
       target_race_no: state.target_race_no,
       target_date_offset: state.target_date_offset || 0
     };
-    // 2026-08-04: dp11/12/13 の固定ページ（?page=N）を付与（ISH-14）
+    // dp11/12/13 の固定ページ（?page=N）を付与
     var childQuery = childQueryFor(state);
     if (iframe.getAttribute('data-template') !== state.template) {
       iframe.setAttribute('data-template', state.template);
@@ -1749,11 +1756,11 @@
       iframe.src = state.template + childQuery;
       iframe.onload = (function(d, bg, su, sc, cutinKey, seedKey) {
         return function() {
-          // 2026-07-15: CRM 背景色を芥川ヘッダークラス付け替えで適用（applyHeaderColor 参照）。
+          // CRM 背景色をデザインヘッダークラス付け替えで適用（applyHeaderColor 参照）。
           //   旧 Phase 5 の CSS 変数注入（--race-header-bg / has-custom-bg）は受け側 CSS
           //   未実装で機能していなかったため廃止。
           applyHeaderColor(iframe, bg);
-          // 2026-08-05 (引地様 №21): カットイン発火済み状態を復元する。
+          //  (売場 №21): カットイン発火済み状態を復元する。
           //   ページ送り（dp20/30/40）は iframe をリロードするため、これが無いと
           //   同じレースの「締切5分前」がページ送りのたびに再発火する。
           //   ⚠ setDataUrl より前に送ること（子の初回 poll → checkCutin より先に届かせる）。
@@ -1765,7 +1772,7 @@
               }, '*');
             } catch (_) {}
           }
-          // 2026-06-04: signage_url 送信 (CUT-003 用、テンプレに依存しない共通 postMessage)
+          // signage_url 送信 (CUT-003 用、テンプレに依存しない共通 postMessage)
           if (su) {
             try {
               iframe.contentWindow.postMessage({
@@ -1773,13 +1780,13 @@
               }, '*');
             } catch (_) {}
           }
-          // 2026-06-29: sale context（前日発売/対象レース固定）を先に送る
+          // sale context（前日発売/対象レース固定）を先に送る
           try { iframe.contentWindow.postMessage(sc, '*'); } catch (_) {}
           if (!d) return;
           try {
             iframe.contentWindow.postMessage({
               type: 'setDataUrl', url: d
-              // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
+              // server_time-fix-v3 : baseOffset 撤去、offset 伝達は setServerOffset に一本化
             }, '*');
           } catch (_) {}
         };
@@ -1789,13 +1796,13 @@
     } else if (iframe.getAttribute('data-source') !== dataUrl) {
       // template 同じ・data_source のみ変化 = レース遷移 or slot切替で data_source 更新
       if (dataUrl) iframe.setAttribute('data-source', dataUrl);
-      // 2026-07-15: slot 切替で同一テンプレのまま背景色だけ変わるケースに対応（iframe 非リロード経路）
+      // slot 切替で同一テンプレのまま背景色だけ変わるケースに対応（iframe 非リロード経路）
       applyHeaderColor(iframe, state.back_color_code);
       try {
-        iframe.contentWindow.postMessage(saleContext, '*'); // 2026-06-29: 前日発売 context 再送
+        iframe.contentWindow.postMessage(saleContext, '*'); // 前日発売 context 再送
         iframe.contentWindow.postMessage({
           type: 'setDataUrl', url: dataUrl
-          // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
+          // server_time-fix-v3 : baseOffset 撤去、offset 伝達は setServerOffset に一本化
         }, '*');
         // signage_url も同タイミングで再送 (slot 切替で URL 変化する可能性に対応)
         if (signageUrl) {
@@ -1813,13 +1820,13 @@
     if (!iframe || state.currentRaceIndex < 0) return;
     var race = state.races[state.currentRaceIndex];
     if (!race) return;
-    // url-config-separation (2026-04-20): data_source 解決は DERUCA_CONFIG に委譲。
+    // url-config-separation : data_source 解決は DERUCA_CONFIG に委譲。
     var dataUrl = DERUCA_CONFIG.resolveDataSource(race.data_source);
     iframe.setAttribute('data-source', dataUrl);
     try {
       iframe.contentWindow.postMessage({
         type: 'setDataUrl', url: dataUrl
-        // server_time-fix-v3 (2026-04-20): baseOffset 撤去、offset 伝達は setServerOffset に一本化
+        // server_time-fix-v3 : baseOffset 撤去、offset 伝達は setServerOffset に一本化
       }, '*');
     } catch (_) {}
   }
@@ -1827,7 +1834,7 @@
   // ---- video screen（指示書09 T5-4 互換） ----
   // === BEGIN: TECH-VERIFICATION-ONLY ===
   function applyVideoScreen(state) {
-    // 2026-07-15: 中央（GCH、dp90-94）は専用経路へ（池澤様 STG 実装の取り込み）
+    // 中央（GCH、dp90-94）は専用経路へ（フロント STG 実装の取り込み）
     if (window.DosVideoDisplay && DosVideoDisplay.isGreenPattern(state.displayPatternId)) {
       applyGreenChannelScreen(state);
       return;
@@ -1837,7 +1844,7 @@
     var cfg = state.videoConfig || {};
     var videoTemplate = state.template;
     var sig = 'video|' + (cfg.venue_code || '') + '|' + (cfg.quality_mode || 'auto') + '|' + (cfg.quality_fixed || '') + '|' + (cfg.video_source_override || '')
-            + '|' + cfg.audio_muted + '|' + cfg.volume;  // 2026-07-15: 音声設定変更でも再送（池澤様実装より）
+            + '|' + cfg.audio_muted + '|' + cfg.volume;  // 音声設定変更でも再送（フロント実装より）
     var needsReload = iframe.getAttribute('data-template') !== videoTemplate;
     var needsReconfig = iframe.getAttribute('data-sig') !== sig;
 
@@ -1852,7 +1859,7 @@
           quality_cap:  cfg.quality_cap  != null ? cfg.quality_cap  : 4,
           audio_muted:  cfg.audio_muted  != null ? cfg.audio_muted  : false,
           volume:       cfg.volume       != null ? cfg.volume       : 0.7,
-          // 2026-07-14: video-frame の左下ステータス（デバッグ表示）の表示可否。
+          // video-frame の左下ステータス（デバッグ表示）の表示可否。
           //   親 URL の ?debug=1 のときのみ true（情報バーと同一条件）。
           debug:        !document.body.classList.contains('no-debug')
         }, '*');
@@ -1863,7 +1870,7 @@
       iframe.setAttribute('data-template', videoTemplate);
       iframe.setAttribute('data-sig', sig);
       iframe.removeAttribute('data-source');
-      // 2026-08-14: 動画テンプレだけキャッシュバスターが付いておらず、
+      // 動画テンプレだけキャッシュバスターが付いておらず、
       //   video-frame.html を直しても旧版がキャッシュから読まれる状態だった。
       //   オッズ子テンプレ（state.template + childQuery）と同じ扱いに揃える。
       //   data-template は従来どおりクエリ無しで保持する（needsReload の比較キーのため）。
@@ -1875,9 +1882,9 @@
     }
   }
 
-  // 2026-07-15: 中央（GCH、dp90-94）用。池澤様 STG 実装（7/15）をそのまま取り込み。
+  // 中央（GCH、dp90-94）用。フロント STG 実装（7/15）をそのまま取り込み。
   //   gch-video-frame.html + assets/js/gch-video-frame.js / video-display.js とセット。
-  //   postMessage 形式 setGreenChannelConfig（channel/audio_muted/volume）は池澤実装の契約。
+  //   postMessage 形式 setGreenChannelConfig（channel/audio_muted/volume）はフロント実装の契約。
   function applyGreenChannelScreen(state) {
     var iframe = state.iframeEl;
     if (!iframe) return;
@@ -1919,7 +1926,7 @@
   }
   // === END: TECH-VERIFICATION-ONLY ===
 
-  // 2026-07-30: 払戻の到着でレースを送る（§5-1・及川決定）。
+  // 払戻の到着でレースを送る（§5-1・決定）。
   //   results JSON の「存在」は発走したことしか意味しない（発走+1分で空の器が作られる）。
   //   確定の判定は payouts.win の中身で行う。
   //   レース単位で状態を持ち、確定したら以後 fetch しない。画面が同じレースを見ている場合は共有される。
@@ -1953,7 +1960,7 @@
     return false;
   }
 
-  // 2026-08-19: 払戻の有無を 1 回だけ確認して _payoutProbe に載せる（Promise 版）。
+  // 払戻の有無を 1 回だけ確認して _payoutProbe に載せる（Promise 版）。
   //   isPayoutConfirmed は「毎秒 tick から呼ぶ」前提の同期 API で**初回は必ず false** を返す。
   //   起動時はその false のせいで確定済みの前レースを掴むので、await できる形が要る。
   function probePayoutOnce(race) {
@@ -1972,7 +1979,7 @@
       .catch(function() { return false; });   // 未生成(403/404)・通信断は「未確定」
   }
 
-  // 🔴 2026-08-19: 初期レース選択の**前に**、掴む候補レースの払戻を先読みする。
+  // 🔴 初期レース選択の**前に**、掴む候補レースの払戻を先読みする。
   //   これが無いと「リロードのたびに前の R が約 2 秒映ってから当該 R に飛ぶ」。
   //   待つのは先頭頁だけ。他頁は 15 秒後に出るので fire-and-forget で温めれば間に合う
   //   （頁が別の場を出す構成では、温めておかないと同じ往復がその頁で起きる）。
@@ -2013,9 +2020,9 @@
     screenStates.forEach(function(state) {
       if (state.type === 'video') return;
       if (state.currentRaceIndex < 0) return;
-      if (state.target_race_no != null) return;  // 2026-06-29: 対象レース固定は順送りしない（§3.5.4）
+      if (state.target_race_no != null) return;  // 対象レース固定は順送りしない（§3.5.4）
       if (state.races.length <= 1) return;  // 1レース固定は遷移なし
-      // 2026-07-30: 末尾レースは遷移先が無い（transitionToNextRace が no-op）。
+      // 末尾レースは遷移先が無い（transitionToNextRace が no-op）。
       //   ここで抜けないと payout モードのフェイルセーフが毎秒 warn を出し続ける。
       if (state.currentRaceIndex + 1 >= state.races.length) return;
       var currentRace = state.races[state.currentRaceIndex];
@@ -2047,19 +2054,19 @@
     state.currentRaceIndex = nextIndex;
     state.currentRaceId = state.races[nextIndex].race_id;
     state.lastTransitionMs = now;
-    // 2026-08-05: レースが変わったらページ送り関連の判定をやり直す。
+    // レースが変わったらページ送り関連の判定をやり直す。
     //   №22 oddsPageAvailable … 頭数が変わるので前レースの可否を持ち越さない
     //                            （新レースのデータ受信後に子からの通知で再判定）
     //   №21 cutinShownForRace … カットインは raceKey 込みなので実害は無いが、
     //                            前レースのキーを残さない
     state.oddsPageAvailable = [];
-    // 2026-08-19: 集合方式ではレースごとにキーが違うのでクリア不要
+    // 集合方式ではレースごとにキーが違うのでクリア不要
     //   （クリアすると前レースの発火済みを忘れ、掴み直しで再発火する）
     state.cutinShownForRace = null;
     state.cutinActive = false;
     state.oddsPageHoldSec = 0;
     applyOddsScreenDataSourceOnly(state);
-    // H-03 (2026-04-19): レース切替時は枠連/枠単ページを初期値 'uren' に戻す
+    // H-03 : レース切替時は枠連/枠単ページを初期値 'uren' に戻す
     //   iframe 側 DOM は継続使用（再ロードなし）のため、前レースの表示状態（utan）が
     //   残り得る。明示的に 'uren' へ戻して一貫性を確保。
     //   hasFrameUtan も初期値 true に戻す（新レースのデータ受信後に子からの通知で再判定）。
@@ -2071,18 +2078,16 @@
     }
   }
 
-  // ---- ISH-28 「開催終了まで自動延長あり」----
-  // 2026-08-25 実装。CRM に選択肢があり配信 JSON に `screens[].is_auto_extend` も出ているのに
-  //   **フロント・バッチとも誰も実装していなかった**（ISH-14 と同型）。
-  //   2026-08-17 の実測（STG monitor 4）で **バッチは end_time を動かさない**ことを確認済み
+  // ----  「開催終了まで自動延長あり」----
+  //  実装。CRM に選択肢があり配信 JSON に `screens[].is_auto_extend` も出ているのに
+  //   **フロント・バッチとも誰も実装していなかった**（ と同型）。
+  //    の実測（実測）で **バッチは end_time を動かさない**ことを確認済み
   //   （19:40 の時点で次スロットへ切り替わっていた）。よってフロントで実装する。
-  //
   // 「開催終了」の判定は **最終レースの払戻到着**。既存の isPayoutConfirmed をそのまま使う。
-  //   ⚠ 払戻が来ない事故（バッチ停止 = DOS-01）では永久に延長し続けてしまうため、
+  //   ⚠ 払戻が来ない事故（バッチ停止 = ）では永久に延長し続けてしまうため、
   //     **最終レースの発走 + 30分で強制解除**する（払戻は実測で発走+8分なので通常運用は妨げない）。
-  //
   // ⚠ 枠単位の延長は未実装。仕様上は「次スロットとレイアウトが同じときだけ枠単位」だが、
-  //   運用に合うかを引地様へ照会中のため、**いまはスロット全体を延長する**
+  //   運用に合うかを売場へ照会中のため、**いまはスロット全体を延長する**
   //   （＝仕様のうち「レイアウトが変わる場合」と同じ振る舞い）。
   var AUTO_EXTEND_GRACE_SEC = 30 * 60;
 
@@ -2143,7 +2148,7 @@
   function pickCurrentSlotIndex(slots) {
     if (!slots || !slots.length) return -1;
     var now = correctedNow();
-    // 0) ISH-28: 「延長あり」で開催が続いているスロットが最優先。
+    // 0) : 「延長あり」で開催が続いているスロットが最優先。
     //    次スロットを優先すると is_auto_extend が無効果になり、フラグの意味が消える。
     var ext = pickAutoExtendedSlotIndex(slots, now);
     if (ext >= 0) {
@@ -2181,13 +2186,13 @@
   var currentSlotIndex = -1;
   var currentSlotSig = null;
 
-  // 2026-08-04: slot の「中身」が変わったかを判定するシグネチャ（ISH-19 / 木暮様 事象①）。
+  // slot の「中身」が変わったかを判定するシグネチャ（ / 検証 事象①）。
   //   従来 applyCurrentSlot は slot_id の変化でしか screenStates を再構築しなかった。
   //   CRM で「時間帯（time_section）はそのまま、中の画面設定（layout_section）だけ変更」した
   //   場合は slot_id が変わらないため、スケジュールJSONを 30 秒ごとに取り直していても
   //   画面が作り直されず、F5 するまで古い設定が残り続けた。
-  //     ・引地様 ISH-19「札幌→新潟に変えてもオッズ画面は札幌のまま」
-  //     ・木暮様 事象①「ナイターに切り替えても画面が止まったまま。手動 F5 まで復帰しない」
+  //     ・売場 「札幌→新潟に変えてもオッズ画面は札幌のまま」
+  //     ・検証 事象①「ナイターに切り替えても画面が止まったまま。手動 F5 まで復帰しない」
   //   video 画面が data-sig で行っている「設定が変わったか」の判定を slot 全体へ広げる。
   //   ⚠ server_time など毎ポーリングで変わる値は絶対に入れない（毎回再構築＝画面が点滅する）。
   function slotSignature(slot, venueFilters) {
@@ -2206,7 +2211,7 @@
         races.length,
         races.map(function(r) { return r.data_source || r.race_id || ''; }).join('~'),
         JSON.stringify(sc.video_config || null),
-        // 2026-08-18: 頁（pages[]、v0.6.7 §3.5.2.2）の構成も「中身」に含める。
+        // 頁（pages[]、v0.6.7 §3.5.2.2）の構成も「中身」に含める。
         //   CRM で「時間帯はそのまま、画面選択2〜4 だけ差し替え」した場合、
         //   ここに入れないと screenStates が組み直されず F5 まで古い頁が回り続ける。
         //   ⚠ 頁ごとの races も含める（場をまたぐ頁は参照先が丸ごと変わるため）。
@@ -2228,14 +2233,14 @@
     return parts.join('#');
   }
 
-  // H-04 (2026-04-17): 旧 applyCurrentRace → applyCurrentSlot に刷新。
+  // H-04 : 旧 applyCurrentRace → applyCurrentSlot に刷新。
   //   race_rotation_seconds を廃止し、slot.screens[] から screenStates を構築。
-  //   2026-08-04: 再構築の条件を「slot_id の変化」から「slot_id または中身の変化」へ拡張。
+  //   再構築の条件を「slot_id の変化」から「slot_id または中身の変化」へ拡張。
   function applyCurrentSlot(schedule) {
     var slots = schedule.slots;
-    // 2026-08-10: 設定が無い時間帯で全画面が真っ黒になるのをやめ、案内を出す（立川 TAC-11・木暮様）。
+    // 設定が無い時間帯で全画面が真っ黒になるのをやめ、案内を出す（立川 ・検証）。
     //   現地では「モニターか PC の電源が入っていない」ように見え、故障と区別できない。
-    //   ISH-18（モニターID未指定）で入れた「黙って何も出さない、をやめる」方針と同じ趣旨。
+    //   （モニターID未指定）で入れた「黙って何も出さない、をやめる」方針と同じ趣旨。
     //   ※ fatal と違い復帰するため body は壊さず、オーバーレイを重ねて次のポーリングで消す。
     if (!slots || !slots.length) { showNoScheduleNotice(null); return; }
     var slotIdx = pickCurrentSlotIndex(slots);
@@ -2260,7 +2265,7 @@
       screenStates.forEach(abortPagePreload);   // 案B: 旧スロットの先読みを捨てる
       hideAllBufferIframes();
       screenStates = buildScreenStates(slot, schedule.venue_filters);
-      // 🔴 2026-08-19: 初期レースを決める前に払戻を先読みする（prefetchPayoutProbes 参照）。
+      // 🔴 初期レースを決める前に払戻を先読みする（prefetchPayoutProbes 参照）。
       //   描画が最大 1.5 秒遅れるが、遅らせないと**必ず**前の R が一瞬映る。
       var built = screenStates;
       prefetchPayoutProbes(built, correctedNow(), schedule.venue_filters).then(function() {
@@ -2319,7 +2324,7 @@
   }
 
   function checkSlotTransition(schedule) {
-    // H-04 (2026-04-17): スロット境界到達時に applyCurrentSlot 再実行。
+    // H-04 : スロット境界到達時に applyCurrentSlot 再実行。
     //   screenStates の再構築は applyCurrentSlot 内で slot_id 変化を検知して行われる。
     var transitionMs = getNextSlotTransitionMs(schedule);
     if (isNaN(transitionMs)) return;
@@ -2350,7 +2355,7 @@
       },
       onFailure: function(err, failCount) {
         setStatus('スケジュール取得失敗（連続' + failCount + '回）');
-        // 2026-08-10: **一度も描画できていない**ときだけ案内を出す（立川 TAC-11・木暮様）。
+        // **一度も描画できていない**ときだけ案内を出す（立川 ・検証）。
         //   その日の設定が無い（＝スケジュール JSON が未生成）と 404 になり、
         //   従来は真っ黒のままで「モニターか PC の電源が入っていない」ように見えていた。
         //   すでに描画できている場合は**現在の表示を維持**する（従来どおり。一時的な通信断で
@@ -2362,7 +2367,7 @@
   }
 
   // 表示用1秒tick（純クライアント側。サーバ負荷には一切寄与しない）
-  // H-04 (2026-04-17): 1秒tick で以下をまとめて実行:
+  // H-04 : 1秒tick で以下をまとめて実行:
   //   1. 情報バー表示更新
   //   2. slot情報バーの最新化（screenStates の race 表示を反映）
   //   3. 次レース遷移判定（checkNextRaceTransitions）
@@ -2385,15 +2390,19 @@
     }
 
     // H-04: 1秒tick で次レース遷移判定を実施
+    if (DEBUG_ROTATION) {
+      window.__dosTickAlive = Date.now();
+      window.__dosTickGate = { schedule: !!currentSchedule, states: screenStates.length };
+    }
     if (currentSchedule && screenStates.length) {
       checkNextRaceTransitions();
       // H-03: 1秒tick で枠連/枠単の 15秒周期切替を実施
       checkFrameOddsPaging();
-      // 2026-07-15: dp50（出走成績）の自動ページング（1-3R→…→10-12R ループ）
+      // dp50（出走成績）の自動ページング（1-3R→…→10-12R ループ）
       checkEntriesResultsPaging();
-      // 2026-08-04: dp20/30/40（馬連・馬単・人気順）の自動ページング（ISH-14 ②③）
+      // dp20/30/40（馬連・馬単・人気順）の自動ページング（ ②③）
       checkOddsAutoPaging();
-      // 2026-08-18: 区画内の頁ローテーション（pages[]、v0.6.7 §3.5.2.2）
+      // 区画内の頁ローテーション（pages[]、v0.6.7 §3.5.2.2）
       checkScreenPageRotation();
       // 情報バーのレース表示を最新化（遷移発生時に表示も更新）
       var slots = currentSchedule.slots || [];
@@ -2402,10 +2411,38 @@
         if (slots[i].slot_id === currentSlotId) { currentSlot = slots[i]; break; }
       }
       if (currentSlot) updateInfoBarSlotAndRace(currentSlot);
+      // ?debug=1 のときだけ、頁ローテの内部値を window に出す。
+      //   ダブルバッファは表と裏の役割が入れ替わるため、DOM の visibility から
+      //   「いまどちらが見えているか」を当てるのは当てにならない（8/25 に3度誤判定した）。
+      //   検証は推測ではなく実装が持っている値を読む。表示には一切影響しない。
+      if (DEBUG_ROTATION) {
+        window.__dosRotationAt = Date.now();   // この出力がいつ更新されたか（tick が生きているかの確認用）
+        window.__dosTickInfo = { schedule: !!currentSchedule, states: screenStates.length };
+        window.__dosRotation = screenStates.map(function(s) {
+          return {
+            position: s.position,
+            pageIndex: s.pageIndex,
+            pages: (s.pages || []).length,
+            dp: s.displayPatternId,
+            pageTick: s.pageTick,
+            dwell: (s.pages && s.pages.length >= 2) ? screenPageDwellSec(s) : null,
+            innerPages: innerPageCountOf(s),
+            entriesPages: s.entriesPages ? s.entriesPages.length : 0,
+            entriesPageIndex: s.entriesPageIndex,
+            oddsPageCount: s.oddsPageCount,
+            childPageCount: s.childPageCount,
+            cutinActive: !!s.cutinActive,
+            pageHoldSec: s.pageHoldSec,
+            preload: s.preload ? { index: s.preload.index, ready: !!s.preload.ready } : null,
+            visibleFrame: s.iframeEl ? s.iframeEl.id : null,
+            visibleTemplate: s.template
+          };
+        });
+      }
     }
   }, DISPLAY_TICK_SEC * 1000);
 
-  // H-03 (2026-04-19): 枠連・枠単の自動ページング管理
+  // H-03 : 枠連・枠単の自動ページング管理
   //   template === 'templates/single-screen.html' の screenState に対し、1秒tickで経過秒を加算し、
   //   FRAME_UTAN_PAGE_SEC（15秒）経過で 'uren'↔'utan' を切り替え iframe に postMessage 通知。
   //   他 template は対象外（Tick数も進めない = 無駄処理回避）。
@@ -2414,7 +2451,7 @@
       if (state.type !== 'odds') return;
       if (state.template !== 'templates/single-screen.html') return;
       if (!state.iframeEl) return;
-      // H-03 (2026-04-19 改訂): 枠単発売なしレースはページング停止
+      // H-03 ( 改訂): 枠単発売なしレースはページング停止
       if (state.hasFrameUtan === false) return;
       state.frameOddsPageTick = (state.frameOddsPageTick || 0) + 1;
       if (state.frameOddsPageTick >= FRAME_UTAN_PAGE_SEC) {
@@ -2448,7 +2485,7 @@
       childOffsets[d.url] = d.offset;
       return;
     }
-    // server_time-fix-v3 (2026-04-20): 子 common.js 起動直後のハンドシェイク要求に応答。
+    // server_time-fix-v3 : 子 common.js 起動直後のハンドシェイク要求に応答。
     //   iframe.onload と <script> ロード完了のタイミング不一致を解消し、
     //   全子 iframe が起動 1 秒以内に最新 serverOffset を受信できることを保証する。
     if (d.type === 'requestServerOffset') {
@@ -2473,7 +2510,7 @@
       if (owner && owner.preload) owner.preload.ready = true;
       return;
     }
-    // H-03 (2026-04-19 改訂): 子 single-screen.html から枠単発売有無の通知受信
+    // H-03 ( 改訂): 子 single-screen.html から枠単発売有無の通知受信
     //   発売なし時はページング停止、強制的に枠連表示へ戻す
     if (d.type === 'frameUtanAvailability') {
       var state = findScreenStateBySource(e.source);
@@ -2486,7 +2523,7 @@
       }
       return;
     }
-    // 2026-08-05 (引地様 №22): オッズ画面 各ページの中身の有無を子から受信。
+    //  (売場 №22): オッズ画面 各ページの中身の有無を子から受信。
     //   frameUtanAvailability と同じ「子が判定 → 親がページ送りを止める」パターン。
     //   表示中の子が**全ページ分**を答えるので、空のページは一度も画面に出ない。
     //   対象: 馬番順マトリクス（dp20/30）と人気順（dp40）。
@@ -2510,14 +2547,14 @@
       }
       return;
     }
-    // 2026-08-05 (引地様 №21): 子のカットイン状態を受信。
+    //  (売場 №21): 子のカットイン状態を受信。
     //   ・shownForRace を親が保持し、ページ送りでリロードした子へ復元する（再発火の防止）
     //   ・表示中（active）はページ送りを保留する（10秒/30秒の表示を途中で切らない）
     if (d.type === 'cutinState') {
       var cState = findScreenStateBySource(e.source);
       if (!cState) return;
       if (d.shownForRace) cState.cutinShownForRace = d.shownForRace;
-      // 2026-08-19: 発火済み／評価済みの**キー集合**を親に集約する（区画に1組）
+      // 発火済み／評価済みの**キー集合**を親に集約する（区画に1組）
       cState.cutinShownKeys = cState.cutinShownKeys || {};
       cState.cutinSeededKeys = cState.cutinSeededKeys || {};
       var kk;

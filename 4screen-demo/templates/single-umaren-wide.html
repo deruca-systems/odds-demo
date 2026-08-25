@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate() が起動時に fetch して body 末尾に挿入する -->
+<!-- カットインDOM（templates/cutin.html）は common.js の ensureCutinTemplate が起動時に fetch して body 末尾に挿入する -->
 
 <script>
 (function() {
@@ -81,7 +81,6 @@
   // 1軸分のブロックを生成
   // position: 'top' → [name, row, row, ...]  grid-row: 1 / span itemCount
   // position: 'bottom' → [row, row, ..., name]  grid-row: span itemCount / -1
-  //
   // 指示書08: 取消馬対応
   //   - 軸馬取消: body に body-scratched（ブロック全体薄表示）、各行のオッズ空白
   //   - 相手馬取消: 該当行に row-scratched、オッズ空白
@@ -130,7 +129,7 @@
 
       var umaren = getPairOdds(umarenMap, axisHorse.horse_no, opp);
       // O-3: 配色は桁数ベース（従来の odds>=1000 しきい値は廃止）
-      // 2026-08-18: 桁数によるフォント縮小クラス（申し送り仕様書 §6.7.1-D）。
+      // 桁数によるフォント縮小クラス（申し送り仕様書 §6.7.1-D）。
       //   馬連は JRA cap 99999.9 ＝ **整数部5桁が実際に出る**（例 13138.3）。
       var umarenCls = umaren
         ? D.joinClass(D.oddsClass('race-table__umaren', umaren.odds, 'quinella', currentOrganizer),
@@ -247,7 +246,7 @@
         startPageRotation(pageCount);
       }
     }
-    // 乙案 (2026-08-19): 親は頭数を知らないのでページ数を算出できない。
+    // 乙案 : 親は頭数を知らないのでページ数を算出できない。
     //   区画内の頁ローテ(pages[])の滞在時間を決めるのに要るので申告する。
     if (pageCount !== lastNotifiedPageCount && window.parent !== window) {
       lastNotifiedPageCount = pageCount;
@@ -257,7 +256,7 @@
     renderCurrentPage();
   }
 
-  // 指示書07: 指数バックオフ付きポーリング。失敗時は render() を呼ばず既存表示を維持。
+  // 指示書07: 指数バックオフ付きポーリング。失敗時は render を呼ばず既存表示を維持。
   // checkCutin は親から受け取った初回固定 offset (serverOffsetMs) を使う（ヘッダーと同じ時刻基準）。
   function startPolling() {
     if (currentPoller) currentPoller.stop();
@@ -269,8 +268,8 @@
         return D.fetchWithOffset(dataUrl);
       },
       onSuccess: function(res) {
-        // ISH-16B (2026-08-14): 受領した offset を保持する。代入が無いと 0 のままで
-        //   締切表示・カットイン・ヘッダーtick が端末時計そのままになる。render() より前に置く。
+        //  受領した offset を保持する。代入が無いと 0 のままで
+        //   締切表示・カットイン・ヘッダーtick が端末時計そのままになる。render より前に置く。
         serverOffsetMs = res.serverOffset || 0;
         render(res.data);
         D.checkCutin(res.data.race, Date.now() + serverOffsetMs);
@@ -288,7 +287,7 @@
   }
 
   window.addEventListener('message', function(e) {
-    // 乙案 (2026-08-19): 表に出た時点でページ送りを 1 ページ目から数え直す。
+    // 乙案 : 表に出た時点でページ送りを 1 ページ目から数え直す。
     //   ダブルバッファは表示の 4 秒前に読み込むため、そのままだと内側の 15 秒が
     //   4 秒先行し、P1 が 11 秒・末尾にまた P1 が 4 秒という出方になる。
     if (e.data && e.data.type === 'resetPageRotation') {
@@ -298,7 +297,7 @@
     }
     if (e.data && e.data.type === 'setDataUrl') {
       dataUrl = e.data.url;
-      // server_time-fix-v3 (2026-04-20): 親からの baseOffset 撤去（setServerOffset に一本化）。
+      // server_time-fix-v3 : 親からの baseOffset 撤去（setServerOffset に一本化）。
       //   serverOffsetMs は onSuccess: res.serverOffset 経由で更新される（fetchWithOffset 内で
       //   親 broadcast 優先、未受信時は Date+Age ヘッダから算出）。
       if (e.data.page) forcedPage = e.data.page;

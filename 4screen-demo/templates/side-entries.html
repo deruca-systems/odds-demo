@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  指示書09 T2 / 芥川様 screen7.html L15-156 準拠版 (2026-06-04)。
+  指示書09 T2 / デザイン screen7.html L15-156 準拠版 。
   L字レイアウト左袖（cell-1、幅20%）用の出走表テンプレート。
-  芥川様 screen7.html の .message__sidebar 構造を踏襲し、枠ごとにグループ化して
+  デザイン screen7.html の .message__sidebar 構造を踏襲し、枠ごとにグループ化して
   「枠 / 馬番 / 馬名 / 単勝」を表示する。
 -->
 <html lang="ja" data-dos-hide-until-data="1" class="single-screen lshape-side">
@@ -10,10 +10,10 @@
   <meta charset="UTF-8">
   <title>出走表（L字左袖）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
   <!-- L字左袖固有スタイル (.lshape-side / .message.sidebar-only) は dos-overrides.css に集約。 -->
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -36,7 +36,7 @@
   </div>
 </div>
 
-<!-- C-03 (2026-04-17): L字レイアウト専用テンプレのため、カットインDOM挿入はしない。 -->
+<!-- C-03 : L字レイアウト専用テンプレのため、カットインDOM挿入はしない。 -->
 
 <script>
 (function() {
@@ -53,7 +53,7 @@
   };
 
   function renderRaceHead(race) {
-    // field-rename-v0.5 (2026-04-20): race.venue → race.place_name、race.race_no → race.rr
+    // field-rename-v0.5 : race.venue → race.place_name、race.race_no → race.rr
     var venueEl = document.getElementById('hdr-venue');
     var raceEl  = document.getElementById('hdr-race');
     if (venueEl) venueEl.textContent = race.place_name || '';

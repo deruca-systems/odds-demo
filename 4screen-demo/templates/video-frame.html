@@ -21,7 +21,7 @@
       object-fit: contain; background: #000;
       display: block;
     }
-    /* C-05 (2026-04-17): 仕様書§4 px禁止ルール遵守のため font-size を vw/vh 比例化。
+    /* C-05 : 仕様書§4 px禁止ルール遵守のため font-size を vw/vh 比例化。
      * FHD (1920×1080): min(13.44px, 12.96px) = 12.96px（旧12px相当）
      * 4K  (3840×2160): min(26.88px, 25.92px) = 25.92px（比例拡大）
      * 1280×720       : min(8.96px,  8.64px)  = 8.64px（小画面で縮小、デバッグ用途のため許容）
@@ -30,7 +30,7 @@
       position: fixed; left: 0.5rem; bottom: 0.5rem;
       color: #888; font-size: min(0.7vw, 1.2vh); font-family: monospace;
       pointer-events: none;
-      /* 2026-07-14: デバッグ表示のため既定は非表示。親からの setVideoConfig の
+      /* デバッグ表示のため既定は非表示。親からの setVideoConfig の
          debug=true（親 URL の ?debug=1）のときのみ .visible 付与で表示する。 */
       display: none;
     }
@@ -51,7 +51,7 @@
     var audioWanted = false;  // 直近 config が音声ON（audio_muted=false）を要求しているか
 
     /* ------------------------------------------------------------------
-     * 2026-08-14: 映像だけ止まる事象への対処（ISH-26 / TAC-07 / TAC-12 / 8/3 事象①）
+     * 映像だけ止まる事象への対処（ /  /  / 8/3 事象①）
      *
      * 症状: オッズは進むのにレース映像が待機画面のまま／途中で張り付く。リロードで復帰。
      *       とくに「実況が始まる前に動画画面を設定しておくと、実況が始まっても始まらない」。
@@ -131,9 +131,9 @@
 
     /**
      * 再生開始（Autoplay Policy フォールバック付き）。
-     * 音声ON（muted=false）での play() がポリシーによりブロックされた場合は
+     * 音声ON（muted=false）での play がポリシーによりブロックされた場合は
      * ミュートに切り替えて再生を開始する（映像を止めないことを優先）。
-     * 表示端末は起動フラグで音声ON自動再生を許可する運用（2026-07-14 方針）。
+     * 表示端末は起動フラグで音声ON自動再生を許可する運用（ 方針）。
      */
     function tryPlay() {
       videoEl.play().catch(function() {
@@ -173,9 +173,9 @@
       var videoSource = cfg.video_source;
       var qualityMode = cfg.quality_mode || 'auto';
       var qualityCap  = cfg.quality_cap != null ? Number(cfg.quality_cap) : null;
-      // 2026-07-14 方針: 音声はデフォルトで出力（未指定時 muted=false）。
+      //  方針: 音声はデフォルトで出力（未指定時 muted=false）。
       //   表示端末は起動フラグ --autoplay-policy=no-user-gesture-required で許可する運用。
-      //   ポリシー未許可のブラウザでは tryPlay() がミュート開始へフォールバックする。
+      //   ポリシー未許可のブラウザでは tryPlay がミュート開始へフォールバックする。
       var audioMuted  = cfg.audio_muted != null ? !!cfg.audio_muted : false;
       var volume      = cfg.volume != null ? Number(cfg.volume) : 0.7;
       audioWanted = !audioMuted;
@@ -227,7 +227,7 @@
           setStatus('再生開始 ' + (videoSource.split('/').pop()));
           tryPlay();
         });
-        // 2026-08-14: fatal を放置していたため一度落ちると永久に復帰しなかった。
+        // fatal を放置していたため一度落ちると永久に復帰しなかった。
         //   hls.js 標準の復帰手順を踏み、それでも駄目なら張り直しを予約する。
         hls.on(Hls.Events.ERROR, function(event, data) {
           if (!data) return;

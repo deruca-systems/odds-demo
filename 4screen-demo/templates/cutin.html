@@ -4,7 +4,7 @@
   ■ 役割
     各オッズ画面（single-*.html）の子iframe内に、起動時に 1回 fetch され
     `document.body` に DOM として差し込まれる。以後は JS（common.js）の
-    showCutin() が id 属性を手掛かりに中身を書き換え、オーバーレイの
+    showCutin が id 属性を手掛かりに中身を書き換え、オーバーレイの
     表示／非表示を切り替える。
 
   ■ 構造
@@ -13,9 +13,9 @@
                                             プロト固有要件（複数iframe重畳）
                                             のため dos-overrides.css に最小定義。
     - 内側 (排他切替):
-      A) .closing-timer-board — CUT-001/CUT-002 用 (芥川 screen6 正式 96rem × 54rem)。
+      A) .closing-timer-board — CUT-001/CUT-002 用 (デザイン screen6 正式 96rem × 54rem)。
                                   is-hidden で表示制御。CSS は style.css L3003-3053（改変禁止）。
-      B) .cutin-signage        — CUT-003 サイネージカットイン用（2026-06-04 追加）。
+      B) .cutin-signage        — CUT-003 サイネージカットイン用（ 追加）。
                                   is-hidden で表示制御。要件定義書 v3.3 §3.2「サイネージカットイン、
                                   締切後30秒程度をオッズエリアに重畳表示」（SCR-CUT-003）対応。
                                   オーバーレイ内に img を 100% フィット&センター。

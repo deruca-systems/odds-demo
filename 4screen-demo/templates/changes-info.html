@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <title>変更情報</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- changes-info-phase6 (2026-04-30): race-board DOM を screen6.html 準拠に書き換え。
+  <!-- changes-info-phase6 : race-board DOM を screen6.html 準拠に書き換え。
        インライン style 廃止、race-board*/race-board__col--{color} クラス使用。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -154,7 +154,7 @@
   var PAGE_INTERVAL_MS = 8000;
 
   // pageState[colIdx][section] = { items: [], buildRow: fn }
-  // 2026-07-30: パネルの並び順（お披露目会FB・及川決定）。
+  // パネルの並び順（お披露目会FB・決定）。
   //   発走時刻変更は優先度が低いため 3 段目へ下げ、取消・除外 → 騎手変更 の順にした。
   //   HTML 側のパネル並び順もこの配列と一致させること。
   var SECTIONS = ['scratch', 'jockey', 'time'];
@@ -239,7 +239,7 @@
   }
 
   // 出走取消・競走除外行
-  // 2026-07-30: 「取消」「除外」のバッジを廃止（お披露目会FB・及川決定）。
+  // 「取消」「除外」のバッジを廃止（お披露目会FB・決定）。
   //   パネル見出しが「出走取消・競走除外」なので、行ごとの区別は付けない。
   //   ※ 区別が必要になった場合は chg_type（2=取消 / 3=除外）から復元できる。
   function buildScratchRow(c) {
@@ -255,8 +255,8 @@
     var det    = c.detail || {};
     var oldJ   = det.org_jockey_nm  || '-';
     var newJ   = det.new_jockey_nm  || '未定';
-    // 2026-07-30: 出走表と表記を揃える（及川決定）。JSON の fwt は基本斤量（減量前）なので
-    //   減量記号ぶんを差し引いた実負担重量を出す（山内様 実機検証 #1 と同じ扱い）。
+    // 出走表と表記を揃える（決定）。JSON の fwt は基本斤量（減量前）なので
+    //   減量記号ぶんを差し引いた実負担重量を出す（検証 実機検証 #1 と同じ扱い）。
     //   これを入れる前は、出走表が 51.0kg（54 − ▲3）を出す騎手を変更情報は 54.0kg と
     //   表示しており、同一騎手で 2 画面の数字が食い違っていた。
     function fwtText(fwt, gen) {
@@ -289,7 +289,7 @@
     }
 
     var changes = (data && data.changes) || [];
-    // 2026-07-30: 売場別発売設定の対象レースだけを残す（及川決定）。
+    // 売場別発売設定の対象レースだけを残す（決定）。
     //   target_race_no_list が null/未指定なら全レース（§3.13 の規約と同じ）。
     if (raceNoList && raceNoList.length) {
       changes = changes.filter(function(c) { return raceNoList.indexOf(c.rr) >= 0; });
@@ -313,7 +313,7 @@
     renderAll();
   }
 
-  // 2026-07-30: 売場が発売する全場を対象にし、3 場ずつ巡回表示する（及川決定）。
+  // 売場が発売する全場を対象にし、3 場ずつ巡回表示する（決定）。
   //   allColumns … 親から受け取った全場（venue_filters 由来。モニターの競馬場に依存しない）
   //   colPage    … 3 場ぶんのページ番号
   var allColumns = [];
@@ -338,9 +338,9 @@
     } catch (_) {}
   }
 
-  // 2026-07-30: 発売場が 3 未満のとき、余った列を消す（お披露目会FB・及川決定）。
+  // 発売場が 3 未満のとき、余った列を消す（お披露目会FB・決定）。
   //   従来は場名が「---」のまま 3 パネルが「変更情報はありません」で並び、
-  //   1 場しか発売しない売場では 2/3 が無意味な空欄になっていた（山内様 実機検証 #6）。
+  //   1 場しか発売しない売場では 2/3 が無意味な空欄になっていた（検証 実機検証 #6）。
   function applyColumnVisibility() {
     var vis = visibleColumns();
     [0, 1, 2].forEach(function(i) {

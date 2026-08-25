@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  指示書09 T4 / 芥川様 screen7.html L163-443 準拠版 (2026-06-04)。
+  指示書09 T4 / デザイン screen7.html L163-443 準拠版 。
   L字レイアウト右下（cell-3、幅80%×高さ約20%）用。
-  芥川様 screen7.html の .message__bottom 構造を踏襲し、馬連 / 馬単 / 3連複 / 3連単
+  デザイン screen7.html の .message__bottom 構造を踏襲し、馬連 / 馬単 / 3連複 / 3連単
   の人気上位1〜10位を 2サブカラム×5行 で並べる（旧版の 1〜5 → 1〜10 に拡張）。
 -->
 <html lang="ja" data-dos-hide-until-data="1" class="single-screen lshape-bottom">
@@ -10,10 +10,10 @@
   <meta charset="UTF-8">
   <title>人気順 4賭式 上位1〜10（L字右下）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825b">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
   <!-- L字右下固有スタイル (.lshape-bottom / .message.bottom-only) は dos-overrides.css に集約。 -->
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825b">
-  <script src="../assets/js/common.js?v=20260825b"></script>
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
+  <script src="../assets/js/common.js?v=20260825c"></script>
 </head>
 <body>
 
@@ -79,7 +79,7 @@
   }
 
   // 1件分の .message__bet-row を生成。entry が null なら空行（プレースホルダ）。
-  // O-3b (2026-07-29): betType を引数化。従来は 4 賭式すべてに 'wide' を渡しており、
+  // O-3b : betType を引数化。従来は 4 賭式すべてに 'wide' を渡しており、
   //   3連複・3連単のオッズ上限が 9999.9（ワイドの cap）で頭打ちになっていた
   //   （JSON構造仕様書 v0.6.6 §4.2: NAR 3連複/3連単は 99999.9）。
   function buildRow(entry, horses, combSize, race, betType) {
@@ -109,7 +109,7 @@
       : 'message__bet-odds';
     // O-3b: entry なし（票未着・件数不足）は '0.0' ではなく '-'
     var oddsText = entry ? D.fmtOdds(entry.odds, betType, race && race.organizer_type) : D.ODDS_EMPTY;
-    // DOS-05 (2026-08-19): 桁数で溢れないよう表示文字数を --odds-len で渡す
+    //  桁数で溢れないよう表示文字数を --odds-len で渡す
     row.appendChild(D.setOddsLen(D.el('div', oddsCls, oddsText), oddsText));
     return row;
   }
