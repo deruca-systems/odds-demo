@@ -8,12 +8,12 @@
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation (2026-04-20): URL/パス/場コードを config.js に集約 -->
 <!-- 2026-06-29: 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260825a"></script>
+<script src="assets/js/config.js?v=20260825b"></script>
 <!-- 2026-07-15: 池澤様 STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
      place_cd(105)→venue_code のフロント自己解決（内山様バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260825a"></script>
+<script src="assets/js/video-display.js?v=20260825b"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260825a"></script>
+<script src="assets/js/common.js?v=20260825b"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -616,7 +616,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 2026-06-29: 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260825a');
+    params.set('v', '20260825b');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -2071,11 +2071,93 @@
     }
   }
 
+  // ---- ISH-28 「開催終了まで自動延長あり」----
+  // 2026-08-25 実装。CRM に選択肢があり配信 JSON に `screens[].is_auto_extend` も出ているのに
+  //   **フロント・バッチとも誰も実装していなかった**（ISH-14 と同型）。
+  //   2026-08-17 の実測（STG monitor 4）で **バッチは end_time を動かさない**ことを確認済み
+  //   （19:40 の時点で次スロットへ切り替わっていた）。よってフロントで実装する。
+  //
+  // 「開催終了」の判定は **最終レースの払戻到着**。既存の isPayoutConfirmed をそのまま使う。
+  //   ⚠ 払戻が来ない事故（バッチ停止 = DOS-01）では永久に延長し続けてしまうため、
+  //     **最終レースの発走 + 30分で強制解除**する（払戻は実測で発走+8分なので通常運用は妨げない）。
+  //
+  // ⚠ 枠単位の延長は未実装。仕様上は「次スロットとレイアウトが同じときだけ枠単位」だが、
+  //   運用に合うかを引地様へ照会中のため、**いまはスロット全体を延長する**
+  //   （＝仕様のうち「レイアウトが変わる場合」と同じ振る舞い）。
+  var AUTO_EXTEND_GRACE_SEC = 30 * 60;
+
+  function slotWantsAutoExtend(slot) {
+    var scr = (slot && slot.screens) || [];
+    for (var i = 0; i < scr.length; i++) {
+      if (scr[i] && scr[i].is_auto_extend) return true;
+    }
+    return false;
+  }
+
+  // スロットが参照するレースのうち、発走が最も遅いもの（＝そのスロットの「最終レース」）
+  function slotLastRace(slot) {
+    var best = null, bestMs = -Infinity;
+    var scr = (slot && slot.screens) || [];
+    for (var i = 0; i < scr.length; i++) {
+      var pages = (scr[i] && scr[i].pages) || [scr[i]];
+      for (var p = 0; p < pages.length; p++) {
+        var races = (pages[p] && pages[p].races) || [];
+        for (var r = 0; r < races.length; r++) {
+          var ms = Date.parse(races[r].post_time_iso);
+          if (!isNaN(ms) && ms > bestMs) { bestMs = ms; best = races[r]; }
+        }
+      }
+    }
+    return best;
+  }
+
+  function slotStillRunning(slot, now) {
+    var last = slotLastRace(slot);
+    if (!last) return false;                       // レースが分からないなら延長しない
+    var postMs = Date.parse(last.post_time_iso);
+    if (isNaN(postMs)) return false;
+    if (now >= postMs + AUTO_EXTEND_GRACE_SEC * 1000) return false;   // 最後の砦
+    if (now < postMs) return true;                 // まだ発走前＝開催中
+    return !isPayoutConfirmed(last, now);          // 払戻が来ていなければ開催中
+  }
+
+  var _autoExtendLogged = null;
+
+  // 終了済みだが「延長あり」で、まだ開催が終わっていないスロットを探す。無ければ -1。
+  function pickAutoExtendedSlotIndex(slots, now) {
+    var best = -1, bestEnd = -Infinity;
+    for (var k = 0; k < slots.length; k++) {
+      var s = resolveSlotTime(slots[k].start_time);
+      var e = resolveSlotTime(slots[k].end_time);
+      if (isNaN(s) || isNaN(e)) continue;
+      if (!(s <= now && now >= e)) continue;        // 終了済みのスロットだけ
+      if (!slotWantsAutoExtend(slots[k])) continue;
+      if (!slotStillRunning(slots[k], now)) continue;
+      if (e > bestEnd) { bestEnd = e; best = k; }
+    }
+    return best;
+  }
+
   // ---- スロット選択 ----
   // slots[] から correctedNow に含まれるスロットを選ぶ。なければ直近の未来スロット or 最後のスロット。
   function pickCurrentSlotIndex(slots) {
     if (!slots || !slots.length) return -1;
     var now = correctedNow();
+    // 0) ISH-28: 「延長あり」で開催が続いているスロットが最優先。
+    //    次スロットを優先すると is_auto_extend が無効果になり、フラグの意味が消える。
+    var ext = pickAutoExtendedSlotIndex(slots, now);
+    if (ext >= 0) {
+      if (_autoExtendLogged !== slots[ext].slot_id) {
+        _autoExtendLogged = slots[ext].slot_id;
+        console.info('[auto-extend] 開催終了まで延長中: slot ' +
+          slots[ext].start_time + '〜' + slots[ext].end_time);
+      }
+      return ext;
+    }
+    if (_autoExtendLogged !== null) {
+      console.info('[auto-extend] 延長を解除しました');
+      _autoExtendLogged = null;
+    }
     // 1) now が start..end に収まるスロット
     for (var i = 0; i < slots.length; i++) {
       var s = resolveSlotTime(slots[i].start_time);
