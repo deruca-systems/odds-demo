@@ -11,9 +11,9 @@
        を描画。運用想定（PL確認 ）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260825c">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260825c">
-  <script src="../assets/js/common.js?v=20260825c"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260829a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260829a">
+  <script src="../assets/js/common.js?v=20260829a"></script>
 </head>
 <body>
 
@@ -138,8 +138,21 @@
                          '５':'5','６':'6','７':'7','８':'8','９':'9','／':'/' };
   function normalizeMargin(s) {
     var out = s.replace(/[０-９／]/g, function(c) { return MARGIN_ZEN2HAN[c]; });
+    // 主催者で着差の書き方が違う（2026-08-29 に PROD 実データ 588 件で確認）。
+    //   NAR  `１１／２`    全角・区切りなし・単位なし
+    //   JRA  `1.1/2馬身`  半角・ピリオド区切り・単位つき
+    // 画面の表記を `1 1/2` に揃える（芥川デザイン準拠）。
+    //
+    // 1) 単位「馬身」を落とす。
+    //    JRA だけ単位が付くため、NAR と並ぶと不揃いになるうえ、
+    //    `1. 1/2馬身` は当初設計の桁を超えて枠からはみ出す。
+    //    🔴 はみ出しを overflow:hidden で隠すのは禁止。整数部が消えて誤読になる。
+    //    「馬身」は必ず末尾（実データ 19 種すべて）。文字系（クビ/ハナ/アタマ/大差）には付かない。
+    out = out.replace(/馬身$/, '');
+    // 2) JRA のピリオドを空白に直す。これをしないと `1. 1/2` になる。
+    out = out.replace(/(\d)\.(\d\/\d)/, '$1 $2');
     // `21/2` → `2 1/2`。分母・分子は1桁なので、`/` の1つ前から分数部が始まる。
-    //   既に空白がある（半角データ）ときは触らない。
+    //   既に空白がある（半角データ・JRA を直したあと）ときは触らない。
     var i = out.indexOf('/');
     if (i >= 2 && out.indexOf(' ') < 0) out = out.slice(0, i - 1) + ' ' + out.slice(i - 1);
     return out;
