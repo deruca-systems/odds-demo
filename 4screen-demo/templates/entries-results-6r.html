@@ -11,9 +11,9 @@
        を描画。運用想定（PL確認 ）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260829a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260829a">
-  <script src="../assets/js/common.js?v=20260829a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260830a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260830a">
+  <script src="../assets/js/common.js?v=20260830a"></script>
 </head>
 <body>
 
@@ -176,6 +176,20 @@
   }
 
   // ---- 払戻（§8.8.1 パターン選択） ----
+  // 組番の桁数クラス（dos-overrides.css の .six-race__payout-num--n4/n5/n6）。
+  //   🔴 2026-08-30: 3連複・3連単の組番が左隣の賭式ラベルへ食い込み、
+  //     `10-11-7` が `0-11-7` に読めていた（8/29 札幌の実データで実測）。
+  //     組番の欄は 9.8rem 固定・右詰め・overflow 指定なしのため、あふれた分が左へ出る。
+  //   数えるのは**ハイフンを除いた数字の総桁数**。`11-15-16` は 6、`3-5-12` は 4。
+  //   文字数ではなく桁数で数えるのは、ハイフンの幅が桁と無関係に一定だから。
+  //   ⚠ クラスを出さないと縮まない（金額側の --long / --xlong と同じ約束）。
+  function comboDigitClass(combination) {
+    var d = String(combination == null ? '' : combination).replace(/[^0-9]/g, '').length;
+    if (d >= 6) return ' six-race__payout-num--n6';
+    if (d === 5) return ' six-race__payout-num--n5';
+    if (d === 4) return ' six-race__payout-num--n4';
+    return '';
+  }
   function comboHtml(combination) {
     return String(combination == null ? '' : combination).split('-').map(function(n, i) {
       return (i > 0 ? '<span class="hyphen">-</span>' : '') + esc(n);
@@ -192,7 +206,8 @@
                 + '<span class="rank-label">' + String(p.place_label).replace('着', '<span>着</span>') + '</span>'
                 + '<span class="rank-num">' + esc(p.combination) + '</span></div>';
       } else {
-        numHtml = '<div class="six-race__payout-num">' + comboHtml(p.combination) + '</div>';
+        numHtml = '<div class="six-race__payout-num' + comboDigitClass(p.combination) + '">'
+                + comboHtml(p.combination) + '</div>';
       }
       // 返還・特払のラベル付与（3R 版 buildPayoutPrice と同じ扱い）。
       //   返還はレース不成立で全賭式が元返しになるケース。金額だけ出すと

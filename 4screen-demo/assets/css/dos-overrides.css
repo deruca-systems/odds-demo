@@ -866,3 +866,48 @@ html[data-dos-hide-until-data] { visibility: hidden; }
 .screen.screen-umatan .screen-main .screen-table__odds.odds-longest {
   font-size: 1.6rem;
 }
+
+/* ============================================================
+ * 6R 出走成績（dp60/61/62）: 払戻の組番が賭式ラベルへ食い込むのを防ぐ
+ *
+ * 🔴 2026-08-30 発見。8/29 札幌の実データで、3連複・3連単の組番が
+ *   左隣の賭式ラベルに重なり、先頭の馬番が読めなくなっていた。
+ *
+ *     11 - 15 - 16  食い込み 27.2px  先頭が「複」「単」に完全に隠れる
+ *     10 - 11 - 7   食い込み 13.9px  「0 - 11 - 7」と読める（＝的中の誤判定）
+ *     3 - 5 - 12    食い込み  6.0px
+ *
+ *   style.css の
+ *     .six-race__payout--single .six-race__payout-item { grid-template-columns: 9.8rem 14.9rem }
+ *     .six-race__payout-num { display:flex; justify-content:flex-end; white-space:nowrap }
+ *   に overflow 指定が無いため、9.8rem を超えた分がそのまま左へ出る。
+ *   馬番が2桁になるほど食い込むので、JRA（最大18頭）で目立つが NAR でも10頭以上で起きる。
+ *
+ * 直し方は金額側（--long / --xlong）と同じ「桁数でクラスを付けて縮める」に揃えた。
+ * 寸法（列幅）は芥川様デザインの領分なので動かさない。縮むのは
+ * 「数字の総桁数が4以上」の組番だけで、単勝・複勝・枠連などは 1px も変わらない。
+ *
+ * ⚠ `overflow: hidden` は付けない。右詰めなので隠れるのは**左＝先頭の馬番**で、
+ *   `10-11-7` が `0-11-7` に化ける。上の馬連マトリクスと同じ理由。
+ * ⚠ hyphen は style.css で 2.2rem 固定のため、親を縮めても付いてこない。
+ *   ここで一緒に指定する。忘れると縮み方が足りない。
+ *
+ * 倍率は Playwright の Range 実測（8/29 実データ・FHD）で決めた。
+ * ⚠ 収める先は 98px ではなく **94px**。9.8rem のうち padding-right が 0.4rem あり、
+ *   文字が置けるのは 94px しかない。98px で計算して一度足りなかった。
+ *   検算  6桁 121.2px × 2.0/2.8 = 86.6px  < 94px ✅
+ *         5桁 107.9px × 2.3/2.8 = 88.6px  < 94px ✅
+ *         4桁 100.1px × 2.5/2.8 = 89.4px  < 94px ✅
+ *   （hyphen も一緒に縮むので実測はこれよりさらに小さくなる）
+ * ============================================================ */
+/* ⚠ セレクタは `--single` から書き起こす。style.css 側が
+ *   `.six-race__payout--single .six-race__payout-num`（詳細度 0,2,0）なので、
+ *   `.six-race__payout-num--n6` 単独（0,1,0）では負けて縮まない。
+ *   最初にそう書いて hyphen だけ縮み、4.5px しか動かず気づいた。
+ * ⚠ `--grid`（同着パターン）は左詰め・2rem で、あふれても左には出ないため対象外。 */
+.six-race__payout--single .six-race__payout-num--n4 { font-size: 2.5rem; }
+.six-race__payout--single .six-race__payout-num--n4 .hyphen { font-size: 1.95rem; }
+.six-race__payout--single .six-race__payout-num--n5 { font-size: 2.3rem; }
+.six-race__payout--single .six-race__payout-num--n5 .hyphen { font-size: 1.8rem; }
+.six-race__payout--single .six-race__payout-num--n6 { font-size: 2.0rem; }
+.six-race__payout--single .six-race__payout-num--n6 .hyphen { font-size: 1.55rem; }
