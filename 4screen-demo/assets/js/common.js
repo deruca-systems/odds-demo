@@ -235,6 +235,38 @@ function isBaneiRace(race) {
   return !!race && race.organizer_type === 'NAR' && race.place_cd === '03';
 }
 
+// 馬場状態のコードを選ぶ（芝／ダートで別カラムのため）
+//   JRA 取込設計書 v1.5 §6.7 / §6.12:
+//     csc.track_cond_cd      = 芝の馬場状態
+//     csc.track_cond_dirt_cd = ダートの馬場状態
+//   track_cd（コード表508）: 0=ダート 1=芝 2=サンド 3=障害
+//   🔴  発覚: 従来は track_cond_cd（＝芝）だけを見ていたため、
+//     ・ダートのレースで**芝の馬場状態**を出していた
+//     ・芝側が空の場（当日 A307 で NULL 上書きされた中山・阪神）で**何も出なかった**
+//     現場から「中山・阪神で馬場状況が出ない」と報告されて判明した。
+//   🔴 **片方が空でも、もう片方で代用しない。**
+//     一時、空なら反対側を使うフォールバックを入れたが取り止めた（ 判断）。
+//     芝が空のときにダートの馬場状態を芝のレースに出すと、**別の馬場の状態を
+//     その馬場の状態として見せる**ことになる。馬券を買う方が見る画面で、
+//     空欄より悪い。空欄は「分からない」だが、誤った値は「分かったつもり」にさせる。
+//     配信側の NULL 上書き（A307）はフォーマイルズ様が修正済みで、
+//     直れば両側に値が入るため代用は不要になる。
+//   ⚠ NAR は芝／ダートの区別を持たず track_cond_cd だけを使う
+//     （NAR取込設計書 v1.7 §6.1 SUA(77) / §6.10 BA1）。
+//     主催者で分岐しないと、NAR のダート戦が全部空欄になる。
+//   ⚠ 障害（3）は芝・ダートを横断するが、芝側を採る。
+function trackCondCodeOf(race) {
+  if (!race) return null;
+  var v;
+  if (race.organizer_type === 'JRA') {
+    var t = Number(race.track_cd);
+    v = (t === 1 || t === 3) ? race.track_cond_cd : race.track_cond_dirt_cd;
+  } else {
+    v = race.track_cond_cd;
+  }
+  return (v === null || v === undefined || v === '') ? null : v;
+}
+
 // ---- フォーマッタ ----
 //  Phase 5: 賭式 × 主催者別のオッズ上限 (cap) 値。
 // DB 仕様:
@@ -403,6 +435,16 @@ function fmtSex(sex) {
 //   NAR/JRA とも 5 記号で kg 値は一致（★4 / ▲3 / △2 / ◇2 / ☆1）。
 var GENRYO_KG = { '★': 4, '▲': 3, '△': 2, '◇': 2, '☆': 1 };
 
+// ばんえいの減量 kg（地全協「出馬表の見方」注記＝ 平地とは別体系）。
+//   「ばんえい競馬は、△は20kg、☆は10kgを減じたものを表示します」
+//   ★ ▲ ◇ の ばんえい値は注記に無いため、この表には載せない。
+//   **載っていない記号は引かない**（＝従来の表示のまま）ので、読みが外れても
+//   新たな誤りは出ない。
+//   実データ確認（prod 帯広 15 開催日 180 レース 1766 頭）:
+//     ☆ 212 件 / ★ ▲ △ ◇ いずれも 0 件。
+//   ☆＝10kg は 9/6 帯広12R を NAR 公式と突合して実証（3番 650、4番 630）。
+var GENRYO_KG_BANEI = { '△': 20, '☆': 10 };
+
 // 減量記号の解決（検証 実機検証 §3-2 の欠落修正）。
 //   odds JSON の horses[] は `org_genryokigo` / `new_genryokigo`（仕様 §3 系）、
 //   results JSON の entries[] は `genryokigo`（仕様 §4.5.4）と名前が異なる。
@@ -410,8 +452,15 @@ var GENRYO_KG = { '★': 4, '▲': 3, '△': 2, '◇': 2, '☆': 1 };
 //   常に空になり、減量記号が表示されなかった。両系統を吸収する。
 //   優先順は仕様 §4.5.4（`crc.new_genryokigo` または `crc.org_genryokigo`）に合わせ
 //   騎手変更後（new）を優先する。
+//   🔴 騎手変更のあった馬は `new_genryokigo` をそのまま採用する（null＝記号なしが
+//   正しい状態）。従来は org へフォールバックしていたため、「減量あり→減量なし」の
+//   変更で変更前の記号が残り、effectiveFwt が斤量を余計に減らしていた
+//   （実データで確認: 変更後の騎手は減量記号を持たないのに変更前の ▲ を拾い、
+//    基本斤量 54.0kg が 51.0kg として表示されていた）。
+//   `jockey_changed` を持たない results 系 entries[] は従来どおりの順で解決する。
 function genryokigoOf(h) {
   if (!h) return null;
+  if (h.jockey_changed) return h.genryokigo || h.new_genryokigo || null;
   return h.genryokigo || h.new_genryokigo || h.org_genryokigo || null;
 }
 
@@ -419,12 +468,40 @@ function genryokigoOf(h) {
 //   JSON の `fwt` は「基本斤量（減量前）」。同一レース・同一性齢で減量記号のある騎手と
 //   無い騎手の fwt が同値であることを prod 実データで確認済（笠松 7/24 1R ほか）。
 //   出馬表は減量後の実負担重量を表示するため、記号ぶんを差し引く。
-//   ばんえいは負担重量（3-4桁）で減量記号の運用が無いため対象外。
+//   ばんえいも減量記号を運用しており（☆＝10kg）、配信の fwt は積載重量の基本値。
+//   減量 kg が平地と違うだけで、引く必要があるのは同じ（ 修正。
+//   それまで「ばんえいは減量の運用が無い」と誤認して引いていなかった）。
+//   🔴 取込側（バッチ ②）が減量後の fwt を配信し始めたら、GENRYO_KG_BANEI 側の
+//   　 減算を外すこと。両方入ると二重に引かれる。
 function effectiveFwt(h, banei) {
   if (!h || h.fwt === null || h.fwt === undefined) return null;
-  if (banei) return h.fwt;
-  var kg = GENRYO_KG[genryokigoOf(h)];
-  return kg ? h.fwt - kg : h.fwt;
+  var kg = (banei ? GENRYO_KG_BANEI : GENRYO_KG)[genryokigoOf(h)];
+  // 減算して 0 以下になる値は引かない。取込が積載重量を 0 で配信していた時期
+  // （〜）の値や欠測で、負の重量を画面に出さないため。
+  if (!kg || h.fwt - kg <= 0) return h.fwt;
+  return h.fwt - kg;
+}
+
+// 複勝の着順ラベル（ 追加）。
+//   配信の payouts.place[].place_label は取込側が **上から順に**「1着」「2着」「3着」を
+//   振っており、同着があると必ずずれる。
+//   実例:  水沢2R は 2着同着（馬番4・馬番5）なのに 3 頭目が「3着」だった。
+//   prod 実データ 16 日ぶん・複勝払戻のある 686 レースを走査し、同着が上位 3 着に
+//   絡んだ 3 件すべてで place_label が entries[].rank と食い違うことを確認している
+//   （9/7 水沢2R ／ 9/6 NAR_31 7R ／ 9/3 NAR_36 12R。最後の 1 件は 1着同着）。
+//   🔴 正しい直しは取込側（ResultsJsonGenerator）。ここは表示側の二重の守りで、
+//   　 取込側が直ったあとも entries[].rank と一致するため外す必要はない。
+//   entries が無い／馬番が一致しない／rank が null のときは従来どおり place_label を
+//   使う（返還レース等で退行させないため）。
+function placeRankOf(entries, p) {
+  var list = entries || [];
+  var no = p && p.combination;
+  for (var i = 0; i < list.length; i++) {
+    if (String(list[i].horse_no) === String(no) && list[i].rank != null) {
+      return String(list[i].rank);
+    }
+  }
+  return String((p && p.place_label) || '').replace('着', '');
 }
 
 // 馬体重の表示（馬体重特殊値仕様書 v1.0 §4.5 準拠、 表示文字列確定）
@@ -638,8 +715,20 @@ function renderRaceHeader(doc, race, opts) {
       //   （STG 4分割で実測: 70秒に 234件 = 200が155・304が79。4回/秒）。
       //   304 でも往復は発生するので通信回数は変わらない。
       //   変化したときだけ代入する。
-      var iconSrc = '../assets/images/weather/' + (WEATHER_ICON[race.weather_cd] || 'sunny.svg');
-      if (icon.getAttribute('src') !== iconSrc) icon.src = iconSrc;
+      // 🔴 未着（weather_cd が 0 / null）を「晴」と断定しない（ 修正）。
+      //   従来は WEATHER_ICON[...] || 'sunny.svg' のフォールバックがあり、電文が届く前の画面が
+      //   **すべて晴**になっていた。9/7 の帯広・川崎が weather_cd=0 で該当し、
+      //   雨の水沢・名古屋と晴の帯広・川崎が並ぶ状態になっていた（実データで確認）。
+      //   馬場状態を空欄にしているのと同じ扱いにし、出さない側へ倒す。
+      //   場所は空けたまま（visibility）にして、届いたときに帯の並びがずれないようにする。
+      var iconFile = WEATHER_ICON[race.weather_cd];
+      if (iconFile) {
+        var iconSrc = '../assets/images/weather/' + iconFile;
+        if (icon.getAttribute('src') !== iconSrc) icon.src = iconSrc;
+        if (icon.style.visibility) icon.style.visibility = '';
+      } else if (icon.style.visibility !== 'hidden') {
+        icon.style.visibility = 'hidden';
+      }
       var iconAlt = race.weather_label || '';
       if (icon.getAttribute('alt') !== iconAlt) icon.alt = iconAlt;
     }
@@ -648,7 +737,7 @@ function renderRaceHeader(doc, race, opts) {
     //   race.direction → race.course_direction。INT コードを表示文字列に変換（ラベルマップ参照）。
     //  Phase 3: ばんえい時は馬場水分 (track_water_pct) を良/稍重/重/不良の代わりに表示、
     //   かつ「ダ 200m (直線)」は固定値で冗長なため非表示（ユーザーフィードバック ラウンド 4）
-    var condText = TRACK_COND_LABEL[race.track_cond_cd] || '';
+    var condText = TRACK_COND_LABEL[trackCondCodeOf(race)] || '';
     if (isBaneiRace(race) && race.track_water_pct != null) {
       // 数値をそのまま連結すると 0.0 が "0%" になり小数が落ちる。
       //   常に小数1桁で表示する（検証 実機検証 §3-5「##0.0％」であるべき）。
@@ -662,7 +751,10 @@ function renderRaceHeader(doc, race, opts) {
     } else {
       setText(doc.querySelector('#hdr-surface'),   TRACK_LABEL[race.track_cd] || '');
       setText(doc.querySelector('#hdr-distance'),  (race.distance || '') + 'm');
-      setText(doc.querySelector('#hdr-direction'), '(' + (COURSE_DIRECTION_LABEL[race.course_direction] || '') + ')');
+      // 🔴 方向が無いレース（障害競走は course_direction=null で配信される）では
+      //   括弧ごと出さない。従来は空の  だけが帯に残っていた。
+      var dirLabel = COURSE_DIRECTION_LABEL[race.course_direction];
+      setText(doc.querySelector('#hdr-direction'), dirLabel ? '(' + dirLabel + ')' : '');
     }
 
     // ヘッダー右側（.race-time）の表示を時刻依存で動的に切替:
@@ -1117,6 +1209,14 @@ function getPartners(axis, totalHorses) {
   return partners;
 }
 
+// 騎手名から空白を除去する（表示用の共通規則）。
+//   JRA / NAR とも姓名の間を空白で詰めて桁揃えしてくる（例「川端　　海翼」「佐々木 世麗」）。
+//   そのまま出すと画面上で不自然に間延びするため、表示前に必ずここを通す。
+//   JS の \s は全角空白（U+3000）も含む。
+function compactJockey(name) {
+  return String(name == null ? '' : name).replace(/\s+/g, '');
+}
+
 // 騎手名 5文字以上のとき 先頭4文字に切り詰める（日本競馬オッズ表示の慣例）
 // 元HTMLでも「L．ヒュ」「M．デム」など4文字に切られている
 function truncateJockey(name) {
@@ -1133,7 +1233,7 @@ function truncateJockey(name) {
   //     - **同姓衝突が 2 件 → 0 件**（佐々木 世麗/志音 → 佐々木世/佐々木志、山本 聡哉/聡紀 → 山本聡哉/山本聡紀）
   //   4 文字枠をすべて実文字に使えるため、スペース温存より情報量が多く衝突も少ない。
   //     佐々木 世麗 → 佐々木世 ／ 菅原 吏久人 → 菅原吏久 ／ 木間塚 龍馬 → 木間塚龍
-  var s = String(name).replace(/\s+/g, '');
+  var s = compactJockey(name);
   return s.length >= 5 ? s.slice(0, 4) : s;
 }
 
@@ -1409,6 +1509,7 @@ window.OddsDemo = {
   GENRYO_KG: GENRYO_KG,
   genryokigoOf: genryokigoOf,
   effectiveFwt: effectiveFwt,
+  placeRankOf: placeRankOf,   // 複勝の着順ラベル（同着で place_label がずれるため）
   frameClassOf: frameClassOf,
   frameOfHorse: frameOfHorse,
   isVoidRace: isVoidRace,   // 返還レース判定（3R/6R 出走成績で使用）
@@ -1428,6 +1529,7 @@ window.OddsDemo = {
   calcUmarenLayout: calcUmarenLayout,
   getPartners: getPartners,
   truncateJockey: truncateJockey,
+  compactJockey: compactJockey,
   computeDeadline: computeDeadline,
   startHeaderTicker: startHeaderTicker,
   checkCutin: checkCutin,

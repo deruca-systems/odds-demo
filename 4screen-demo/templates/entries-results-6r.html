@@ -11,9 +11,9 @@
        を描画。運用想定（PL確認 ）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260830a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260830a">
-  <script src="../assets/js/common.js?v=20260830a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
+  <script src="../assets/js/common.js?v=20260906d"></script>
 </head>
 <body>
 
@@ -138,11 +138,10 @@
                          '５':'5','６':'6','７':'7','８':'8','９':'9','／':'/' };
   function normalizeMargin(s) {
     var out = s.replace(/[０-９／]/g, function(c) { return MARGIN_ZEN2HAN[c]; });
-    // 主催者で着差の書き方が違う（2026-08-29 に PROD 実データ 588 件で確認）。
+    // 主催者で着差の書き方が違う（ に PROD 実データ 588 件で確認）。
     //   NAR  `１１／２`    全角・区切りなし・単位なし
     //   JRA  `1.1/2馬身`  半角・ピリオド区切り・単位つき
-    // 画面の表記を `1 1/2` に揃える（芥川デザイン準拠）。
-    //
+    // 画面の表記を `1 1/2` に揃える（デザイン準拠）。
     // 1) 単位「馬身」を落とす。
     //    JRA だけ単位が付くため、NAR と並ぶと不揃いになるうえ、
     //    `1. 1/2馬身` は当初設計の桁を超えて枠からはみ出す。
@@ -177,7 +176,7 @@
 
   // ---- 払戻（§8.8.1 パターン選択） ----
   // 組番の桁数クラス（dos-overrides.css の .six-race__payout-num--n4/n5/n6）。
-  //   🔴 2026-08-30: 3連複・3連単の組番が左隣の賭式ラベルへ食い込み、
+  //   🔴 3連複・3連単の組番が左隣の賭式ラベルへ食い込み、
   //     `10-11-7` が `0-11-7` に読めていた（8/29 札幌の実データで実測）。
   //     組番の欄は 9.8rem 固定・右詰め・overflow 指定なしのため、あふれた分が左へ出る。
   //   数えるのは**ハイフンを除いた数字の総桁数**。`11-15-16` は 6、`3-5-12` は 4。
@@ -195,15 +194,18 @@
       return (i > 0 ? '<span class="hyphen">-</span>' : '') + esc(n);
     }).join('');
   }
-  function buildPayoutGroup(betType, mod, items) {
+  function buildPayoutGroup(betType, mod, items, entries) {
     var itemsHtml = items.map(function(p) {
       var numHtml;
       // 返還は複勝も combination="0" で来るため place 分岐より先に判定する。
       if (p.is_void) {
         numHtml = '<div class="six-race__payout-num">−</div>';
       } else if (betType === 'place' && p.place_label) {
+        // 🔴 place_label は同着でずれる。着順は entries[].rank から引き直す（3R 版と同じ）。
+        var rankN = D.placeRankOf ? D.placeRankOf(entries, p)
+                                  : String(p.place_label).replace('着', '');
         numHtml = '<div class="six-race__payout-num six-race__payout-num--rank">'
-                + '<span class="rank-label">' + String(p.place_label).replace('着', '<span>着</span>') + '</span>'
+                + '<span class="rank-label">' + rankN + '<span>着</span></span>'
                 + '<span class="rank-num">' + esc(p.combination) + '</span></div>';
       } else {
         numHtml = '<div class="six-race__payout-num' + comboDigitClass(p.combination) + '">'
@@ -245,12 +247,13 @@
     if (!pattern || pattern === 'NORMAL') return { wrap: 'six-race__payout--single', stack: '' };
     return { wrap: 'six-race__payout--grid', stack: '' };
   }
-  function buildPayout(payouts, refund, pattern) {
+  //   entries は複勝の着順ラベルを引き直すために渡す（D.placeRankOf 参照）。
+  function buildPayout(payouts, refund, pattern, entries) {
     payouts = payouts || {};
     var groups = '';
     BET_TYPE_ORDER.forEach(function(pair) {
       var items = payouts[pair[0]] || [];
-      if (items.length) groups += buildPayoutGroup(pair[0], pair[1], items);
+      if (items.length) groups += buildPayoutGroup(pair[0], pair[1], items, entries);
     });
     var cls = payoutLayoutClasses(pattern);
     return '<div class="six-race__payout ' + cls.wrap + '">'
@@ -331,7 +334,7 @@
     if ((data.entries || []).length) col.style.setProperty('--horse-count', data.entries.length);
     col.innerHTML = buildHeader(data, 'results')
       + '<div class="six-race__body">' + buildRecord(data.entries)
-      +   buildPayout(data.payouts, data.refund, data.dead_heat_pattern) + '</div>';
+      +   buildPayout(data.payouts, data.refund, data.dead_heat_pattern, data.entries) + '</div>';
   }
   function renderEntriesMode(idx, data) {
     var col = colEl(idx); if (!col) return;

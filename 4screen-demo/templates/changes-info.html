@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- changes-info-phase6 : race-board DOM を screen6.html 準拠に書き換え。
        インライン style 廃止、race-board*/race-board__col--{color} クラス使用。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260830a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260830a">
-  <script src="../assets/js/common.js?v=20260830a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
+  <script src="../assets/js/common.js?v=20260906d"></script>
 </head>
 <body>
 
@@ -253,28 +253,48 @@
   // 騎手変更行
   function buildJockeyRow(c) {
     var det    = c.detail || {};
-    var oldJ   = det.org_jockey_nm  || '-';
-    var newJ   = det.new_jockey_nm  || '未定';
-    // 出走表と表記を揃える（決定）。JSON の fwt は基本斤量（減量前）なので
-    //   減量記号ぶんを差し引いた実負担重量を出す（検証 実機検証 #1 と同じ扱い）。
-    //   これを入れる前は、出走表が 51.0kg（54 − ▲3）を出す騎手を変更情報は 54.0kg と
-    //   表示しており、同一騎手で 2 画面の数字が食い違っていた。
-    function fwtText(fwt, gen) {
+    // 🔴 騎手名の空白を詰める。出走表（truncateJockey / フルネーム版）と規則を合わせる。
+    //   配信値は姓名の間が全角空白で詰められており、そのまま出すと間延びする。
+    var oldJ   = D.compactJockey(det.org_jockey_nm) || '-';
+    var newJ   = D.compactJockey(det.new_jockey_nm) || '未定';
+    // 🔴 変更情報の fwt は「その騎手の実負担重量」＝**減量後**の値。
+    //   出走表の horses[].fwt（基本斤量＝減量前）とは意味が違うため、ここで
+    //   減量記号ぶんを引いてはいけない。引くと二重適用になる。
+    //   実データで確認: 主催者公式の負担重量と org_fwt / new_fwt は一致しており、
+    //   そのまま出すのが正しい。加工は不要。
+    //   ⚠ 旧実装は「同一騎手で 2 画面の数字が食い違う」として減算していたが、
+    //   出走表が出すのは**変更後**の騎手、変更情報が出すのは**変更前と変更後**の
+    //   両方であり、そもそも同一騎手を比べていなかった。
+    //   🔴 ばんえい（帯広）は積載重量で 3 桁の整数。平地の斤量と同じ toFixed(1) を
+    //   当てると「610.0kg」になる。場ごとに書式を切り替える。_banei は renderColumn が
+    //   変更情報 JSON 最上位の organizer_type / place_cd から各行に付与する。
+    function fwtText(fwt) {
       if (fwt == null) return '';
-      var v = D.effectiveFwt({ fwt: fwt, genryokigo: gen || null });
-      return v == null ? '' : ' ' + Number(v).toFixed(1) + 'kg';
+      var s = c._banei ? String(Math.round(fwt)) : Number(fwt).toFixed(1);
+      return ' ' + s + 'kg';
     }
-    var oldFwt = fwtText(det.org_fwt, det.org_genryokigo);
-    var newFwt = fwtText(det.new_fwt, det.new_genryokigo);
+    var oldFwt = fwtText(det.org_fwt);
+    var newFwt = fwtText(det.new_fwt);
     var oldGen = det.org_genryokigo || '';
     var newGen = det.new_genryokigo || '';
+    // 🔴 長い騎手名は文字を縮めて収める（馬名の --name-length と同じ方式）。
+    //   固定幅＋ellipsis だけだと、外国人騎手のフルネームが読めないまま切れる。
+    //   実データ 164 種の分布は 3〜5 文字ぶんが 95%、6 文字が 5 種、8 文字が 3 種。
+    //   基準を 9（＝5文字の名前＋斤量ぶん）に置き、超えた分だけ比例縮小する。
+    var lenFw = function(str) {
+      var n = 0;
+      for (var i = 0; i < str.length; i++) n += str.charCodeAt(i) < 128 ? 0.5 : 1;
+      return n;
+    };
+    var oldLen = lenFw(oldGen + oldJ + oldFwt);
+    var newLen = lenFw(newGen + newJ + newFwt);
     return '<div class="race-board__row race-board__row--jockey">'
          +   '<span class="race-board__race">' + (c.rr || '-') + 'R</span>'
          +   '<span class="race-board__horse-num">' + (c.horse_no != null ? c.horse_no : '-') + '</span>'
          +   '<div class="race-board__jockey-change">'
-         +     '<span class="race-board__jockey-old">' + oldGen + oldJ + oldFwt + '</span>'
+         +     '<span class="race-board__jockey-old" style="--jockey-length:' + oldLen + '">' + oldGen + oldJ + oldFwt + '</span>'
          +     '<img class="race-board__shift-mark" src="../assets/images/race-board/shift-mark.svg" alt="">'
-         +     '<span class="race-board__jockey-new">' + newGen + newJ + newFwt + '</span>'
+         +     '<span class="race-board__jockey-new" style="--jockey-length:' + newLen + '">' + newGen + newJ + newFwt + '</span>'
          +   '</div>'
          + '</div>';
   }
@@ -289,9 +309,16 @@
     }
 
     var changes = (data && data.changes) || [];
+    // ばんえい（帯広）は重量が積載重量（整数 3 桁）で平地の斤量と桁が違う。
+    // 行を作る関数には data が渡らないため、ここで各行に印を付ける。
+    var baneiCol = !!(data && data.organizer_type === 'NAR' && data.place_cd === '03');
+    changes.forEach(function(c) { c._banei = baneiCol; });
     // 売場別発売設定の対象レースだけを残す（決定）。
     //   target_race_no_list が null/未指定なら全レース（§3.13 の規約と同じ）。
-    if (raceNoList && raceNoList.length) {
+    //   🔴 配列でないもの（文字列 '1-12' 等）が渡ってきたら絞り込まない。
+    //   文字列に対する indexOf は部分文字列検索になり、'1-12'.indexOf(8) === -1 で
+    //   3〜11R の変更情報が丸ごと消える。展開は親（index.html）の責務。
+    if (Array.isArray(raceNoList) && raceNoList.length) {
       changes = changes.filter(function(c) { return raceNoList.indexOf(c.rr) >= 0; });
     }
     var buckets = { time: [], scratch: [], jockey: [] };
@@ -300,6 +327,24 @@
       else if (c.chg_type === 2 || c.chg_type === 3) buckets.scratch.push(c);
       else if (c.chg_type === 1)                   buckets.jockey.push(c);
     });
+    // 🔴 同じ対象に複数回の変更が届いたら、最新の 1 件だけを残す。
+    //   騎手変更は「いったん 未定 → 後で確定」の順に 2 件配信されることがあり、
+    //   そのまま並べると同じ馬が 2 行出て、どちらが有効か画面から判断できない。
+    //   主催者公式も最新のみを掲示する。
+    //   新しさは chg_time（ISO 8601）で比較し、無い／同値なら配信順で後勝ち。
+    //   取消(2)と除外(3)は同じ枠に並ぶため、種別をまたいで 1 頭 1 行にする。
+    function keepLatest(list, keyOf) {
+      var idx = {}, order = [];
+      list.forEach(function(c) {
+        var k = keyOf(c);
+        if (!(k in idx)) { idx[k] = c; order.push(k); return; }
+        if ((c.chg_time || '') >= (idx[k].chg_time || '')) idx[k] = c;
+      });
+      return order.map(function(k) { return idx[k]; });
+    }
+    buckets.time    = keepLatest(buckets.time,    function(c) { return 'r' + c.rr; });
+    buckets.scratch = keepLatest(buckets.scratch, function(c) { return 'r' + c.rr + '-' + c.horse_no; });
+    buckets.jockey  = keepLatest(buckets.jockey,  function(c) { return 'r' + c.rr + '-' + c.horse_no; });
     ['time','scratch','jockey'].forEach(function(k) {
       buckets[k].sort(function(a, b) { return (a.rr || 0) - (b.rr || 0); });
     });

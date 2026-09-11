@@ -1,19 +1,19 @@
 /**
- * odds-demo 専用ヘルパーCSS（芥川様 style.css へは一切手を入れない）
+ * odds-demo 専用ヘルパーCSS（デザイン style.css へは一切手を入れない）
  *
  * 含まれるのは以下の最小限のみ:
  *  1. .is-hidden        表示切替用ユーティリティ（前日発売⇔race-info など）
- *  2. rem基準のビューポート適合   FHDで画面が縦にはみ出さないための min() 合算
+ *  2. rem基準のビューポート適合   FHDで画面が縦にはみ出さないための min 合算
  */
 
 /* 表示切替用 */
 .is-hidden { display: none !important; }
 
 /*
- * html.single-screen の font-size をビューポート幅基準に加え高さ基準も考慮した min() に変更。
- * 芥川様CSSは font-size: 1.0416666667vw（幅基準だけ）で 54rem がちょうど 540px になる前提だが、
+ * html.single-screen の font-size をビューポート幅基準に加え高さ基準も考慮した min に変更。
+ * デザインCSSは font-size: 1.0416666667vw（幅基準だけ）で 54rem がちょうど 540px になる前提だが、
  * 実際のブラウザは上部URLバー・ブックマークバー等でビューポート高さが 540px を下回ることがあり
- * 縦方向に見切れが発生する。min() で幅・高さの小さい方に追従させて見切れを抑止する。
+ * 縦方向に見切れが発生する。min で幅・高さの小さい方に追従させて見切れを抑止する。
  *
  *   1.0416666667vw ... 96rem がビューポート幅100%
  *   1.8518518518vh ... 54rem がビューポート高さ100%
@@ -25,12 +25,12 @@ html.single-screen {
 /*
  * 天候ラベルの2文字対応（小雨 / 小雪）
  *
- * 新 style.css (2026-06-04 取込) では `.weather { width: auto; white-space: nowrap }` が
+ * 新 style.css ( 取込) では `.weather { width: auto; white-space: nowrap }` が
  * 親要素に既設のため、span の wrap 抑止と width auto は不要。
  * 残課題は「1文字時と2文字時で box 幅が変動する」点のみで、min-width 8.6rem を
  * 与えて両者を視覚的に揃える。
  *
- * 恒久対応案（要・芥川様確認）:
+ * 恒久対応案（要・デザイン確認）:
  *   - style.css 側で .weather に min-width を追加してもらう
  *   - 本ルールは追加されたら削除する
  */
@@ -41,14 +41,14 @@ html.single-screen {
 }
 
 /*
- * 「前日発売」ラベル: 2026-06-04 取込の新 style.css L294-313 で `.screen` / `.umaren-wide` /
+ * 「前日発売」ラベル:  取込の新 style.css L294-313 で `.screen` / `.umaren-wide` /
  * `.popular` の3つに同一スタイルが定義されたため、本オーバーライドは redundant。削除済み。
  */
 
 /*
  * 馬連ワイドの 4列 × 上下2段 レイアウト用の列ラッパー。
  *
- * 芥川様リファレンスの意図: 単勝・複勝・枠連側（左）と馬連・ワイド側（右）で
+ * デザインリファレンスの意図: 単勝・複勝・枠連側（左）と馬連・ワイド側（右）で
  * 「1行の高さ」が完全に揃うこと。
  *   単勝側: 10 or N 行の grid（--row-count = max(10, --horse-count)）
  *   馬連側: 同じ --row-count の行グリッドを使用し、body はその中で grid-row で配置
@@ -85,7 +85,7 @@ html.single-screen {
  * 何百 px もはみ出す（54rem ≒ 245px の枠を破る）。
  * これにより 1行の高さが単勝画面（P1）と一致しなくなる。
  *   修正: flex chain 全段に min-height: 0 を付与し、grid を親高さに収める。
- *   芥川様 style.css にも同等の修正を取り込んでもらうべき確認事項。
+ *   デザイン style.css にも同等の修正を取り込んでもらうべき確認事項。
  */
 .umaren-wide,
 .umaren-wide .race-main,
@@ -104,7 +104,7 @@ html.single-screen {
  * .race-table__col grid + body の grid-row span で実現済みのため、
  * 行自体には固定 height を与えず、body grid に従わせる必要がある。
  *   修正: row の height を auto にして body grid に従わせる。
- *   芥川様 style.css の該当ルールも組み込み時に削除依頼すべき確認事項。
+ *   デザイン style.css の該当ルールも組み込み時に削除依頼すべき確認事項。
  */
 .umaren-wide .race-main .race-table__row,
 .umaren-wide .race-main .race-table__name {
@@ -139,13 +139,13 @@ html.single-screen {
 /*
  * 画面共通: countdown/closed モード時の .race-time 背景を単勝画面と同じ赤グラデに統一。
  *
- * 芥川様 style.css は画面種別ごとに .race-time の背景を別定義:
+ * デザイン style.css は画面種別ごとに .race-time の背景を別定義:
  *   .screen (単勝画面)            → 赤グラデ（締切表示想定）
  *   .umaren-wide/.popular/.screen-second → 黒（発走時刻表示想定）
  * 4画面全てで時間ベース切替（pre=発走, countdown=締切, closed=発売締切）を
  * 行うため、countdown/closed モード時は赤グラデ警告色に統一する（暫定）。
- * pre モード（発走HH:MM表示）のときは芥川様CSSの画面種別背景を維持。
- * 芥川様から正式CSSが到着したらこのブロックは差し替え／削除する。
+ * pre モード（発走HH:MM表示）のときはデザインCSSの画面種別背景を維持。
+ * デザインから正式CSSが到着したらこのブロックは差し替え／削除する。
  */
 .race-header .race-info .race-time[data-mode="countdown"],
 .race-header .race-info .race-time[data-mode="closed"] {
@@ -160,14 +160,14 @@ html.single-screen {
 /*
  * カットイン外殻オーバーレイ（CUT-001 / CUT-002 共通）
  *
- * 2026-05-01: 芥川 design.zip screen6.html L803-835 由来の
+ * デザイン design.zip screen6.html L803-835 由来の
  *             closing-timer-board 正式版へ移植完了（assets/css/style.css L3003-3053）。
  *             プロト独自暫定スタイル（.cutin / .cutin__* 各種、85 行）は削除。
  *
  * 残置: .cutin-overlay のみ（フルスクリーン覆い + 中央配置 + is-hidden トグル）。
  *      これはプロト固有要件で、各 single-*.html iframe 内で
  *      closing-timer-board (96rem × 54rem 固定) を画面いっぱいに重ねる外殻として必要。
- *      芥川様 screen6.html では board 単独表示のため overlay 概念が無い。
+ *      デザイン screen6.html では board 単独表示のため overlay 概念が無い。
  */
 .cutin-overlay {
   position: fixed;
@@ -189,10 +189,10 @@ html.single-screen {
 }
 
 /*
- * CUT-003 サイネージカットイン (2026-06-04 追加)
+ * CUT-003 サイネージカットイン ( 追加)
  * 要件定義書 v3.3 §3.2「SCR-CUT-003 (サイネージカットイン、締切後30秒程度) をオッズエリアに重畳表示」。
  * 既存 cutin-overlay 内に closing-timer-board (CUT-001/002) と並列に配置し、is-hidden で排他切替。
- * 寸法は closing-timer-board と同じ 96rem × 54rem (芥川 screen6 board に合わせる)。
+ * 寸法は closing-timer-board と同じ 96rem × 54rem (デザイン screen6 board に合わせる)。
  * 画像は object-fit: contain でアスペクト比維持＋センター配置。16:9 ガイドライン準拠。
  */
 .cutin-overlay .cutin-signage {
@@ -219,7 +219,7 @@ html.single-screen {
  *
  * style.css に is-special-pay ルール未定義のため暫定追加。
  * 実際の払戻金額 + 「特払」ラベルをセットで表示する。
- * 芥川様正式CSS追加時にこのブロックは削除・差し替えする。
+ * デザイン正式CSS追加時にこのブロックは削除・差し替えする。
  */
 .payout-board__price.is-special-pay {
   position: relative;
@@ -233,11 +233,11 @@ html.single-screen {
 }
 
 /*
- * [DEMO ONLY 防御コード / 芥川様確認事項] entries-results-3r 列高オーバー対策
- * (2026-04-30 session3 追加 → 改訂2 で防御目的に変更)
+ * [DEMO ONLY 防御コード / デザイン確認事項] entries-results-3r 列高オーバー対策
+ * ( session3 追加 → 改訂2 で防御目的に変更)
  *
  * 同着パターン定義書 v1.1 §5「成績行数」欄では、すべてのパターンで成績行数 ≤ 5
- * (NORMAL/B/C/D/F/G/H=5, E=4, A=3) と定義されており、芥川様 style.css の
+ * (NORMAL/B/C/D/F/G/H=5, E=4, A=3) と定義されており、デザイン style.css の
  * .race-record__row { height: 2.8rem } 固定でも 50.6rem の列高に収まる。
  *
  * 本ルールに従っている限り本 CSS は発火しない。
@@ -245,7 +245,7 @@ html.single-screen {
  * （初回 session3 では gen_data.py の B パターンが 6 行生成していたため必要だったが、
  *   改訂2 で gen_data.py 側を spec 準拠に修正済み。本ブロックは予防的に残置）
  *
- * 芥川様確認事項:
+ * デザイン確認事項:
  *   - 想定外データ (例: バッチ実装側で 6 頭以上の成績データが流入) のフォールバック仕様
  *
  * 確実に不要と判断された時にこのブロックは削除予定。
@@ -264,7 +264,7 @@ html.single-screen {
 }
 
 /*
- * 取消馬（is_scratched）の視覚処理（指示書08 v2 改訂 2026-04-16）
+ * 取消馬（is_scratched）の視覚処理（指示書08 v2 改訂 ）
  *
  * 方針変更:
  *   旧: opacity 0.5 で薄化 → 馬場の暗背景に埋もれて逆に読みにくい／単勝と複勝の
@@ -277,7 +277,7 @@ html.single-screen {
  *   .odds-scratched          — マトリクス空白セルの暗背景
  *   .body-scratched          — マトリクス/馬連ワイドの取消軸ブロック全体の暗背景
  *
- * 色値は指示書08 の仮値。芥川様確認の上で後日調整予定。
+ * 色値は指示書08 の仮値。デザイン確認の上で後日調整予定。
  */
 
 /* 単勝（+複勝）の結合ラベルセル。.race-table__row の grid を前提に grid-column span。
@@ -285,9 +285,9 @@ html.single-screen {
  * - .popular では 単勝のみなので通常のセル幅（span 指定なし、下で上書き）
  * - .race-screen (entries-results-3r, 6列: 番/馬名/馬体重/性齢/斤量/騎手名) でも
  *   span 2 (馬体重(2)+性齢(3)) で結合し、斤量(4) と騎手名(5) は通常セルのまま表示する
- *   （ユーザー指示 2026-04-30 session3 改: 「出走取消は2セル / 斤量は表示」）
+ *   （ユーザー指示  session3 改: 「出走取消は2セル / 斤量は表示」）
  * 背景 #3a3a3a + 赤太字で警告を明示。nth-child(even) の #26364E より優先する。
- * 芥川様確認事項: scratched クラスの正式定義（col 構造・font-size・色値の確定）。 */
+ * デザイン確認事項: scratched クラスの正式定義（col 構造・font-size・色値の確定）。 */
 .race-table__scratched {
   grid-column: span 2;
   display: grid;
@@ -316,7 +316,7 @@ html.single-screen {
  *
  * 軸取消（body-scratched）時は body 自体の背景は付けず、配下の全オッズセルのみ暗背景にする。
  * body に background: #1a1a1a を付けると、ブロック末尾の余白スペースまで染まって
- * 相手が少ない軸ほど不格好になるため、セル単位に留める（ユーザー要望 2026-04-16）。
+ * 相手が少ない軸ほど不格好になるため、セル単位に留める（ユーザー要望 ）。
  * 軸番号セル（.screen-table__name）は通常の枠色を保持（同要望）。 */
 .screen .screen-main .screen-table .screen-table__row .screen-table__odds.odds-scratched,
 .screen .screen-main .screen-table .screen-table__body.body-scratched .screen-table__row .screen-table__odds {
@@ -335,12 +335,12 @@ html.single-screen {
 /*
  * 馬単画面（.screen-umatan）用の number-{color} フレーム色適用（暫定）。
  *
- * 芥川様 style.css では .screen-umaren にのみ number-{color} 対応があり、
+ * デザイン style.css では .screen-umaren にのみ number-{color} 対応があり、
  * .screen-umatan では nth-child ベースで 18頭固定の色分けになっている。
  * <18頭レースや正確な枠色反映のため、umaren と同じ number-{color} 対応を
  * .screen-umatan にも展開する。セレクタ詳細度を nth-child ルールより高く
  * して確実に上書きする。
- * 芥川様から .screen-umatan 正式CSS追加時にこのブロックは削除する。
+ * デザインから .screen-umatan 正式CSS追加時にこのブロックは削除する。
  */
 .screen.screen-umatan .screen-main .screen-table__row .screen-table__number.number-white {
   background-color: #DFDFDF;
@@ -376,9 +376,9 @@ html.single-screen {
 }
 
 /* ============================================================
- * L字 (layout-3split) サブ部分の iframe 単独展開 — 2026-06-04 追加
+ * L字 (layout-3split) サブ部分の iframe 単独展開 —  追加
  *
- * 芥川 screen7.html の `.message` テンプレ (96rem × 54rem, grid 3エリア:
+ * デザイン screen7.html の `.message` テンプレ (96rem × 54rem, grid 3エリア:
  * sidebar / main / bottom) は単一画面前提だが、本プロト 3-iframe 構成では
  * 動画フレーム (cell-2 = video-frame.html) を中央に挟むため、
  *   cell-1 (左) = `.message__sidebar` 単独
@@ -387,7 +387,7 @@ html.single-screen {
  *
  * 識別: html 要素に `lshape-side` / `lshape-bottom` クラスを付与（テンプレ側）。
  *   テンプレ側はこれ以外の inline <style> を持たない（旧版に存在した <style> ブロックは
- *   2026-06-04 で本ファイルに移設）。
+ *    で本ファイルに移設）。
  *
  * font-size 注意: vw は iframe 自身のビューポート基準（親ウィンドウ基準ではない）。
  *   cell-1 = 20vw_parent → iframe 内では 100vw_iframe
@@ -396,7 +396,7 @@ html.single-screen {
 
 /* --- cell-1 (左袖、出走表): side-entries.html 用 ---
  * 寸法計算:
- *   芥川 .message__sidebar 幅 = 18.8rem。screen7 全体 (96rem) の 19.58% で、
+ *   デザイン .message__sidebar 幅 = 18.8rem。screen7 全体 (96rem) の 19.58% で、
  *   layout-3split の cell-1 = 20vw_parent と概ね整合。
  * font-size:
  *   1rem = min(iframe幅 / 18.8rem, iframe高さ / 54rem)
@@ -411,7 +411,7 @@ html.lshape-side {
 
 /* --- cell-3 (右下、4賭式上位): wide-popular.html 用 ---
  * 寸法計算:
- *   芥川 .message__bottom 幅 = 76.8rem (= 80%)、高さ = 10.5rem (= 19.44%)。
+ *   デザイン .message__bottom 幅 = 76.8rem (= 80%)、高さ = 10.5rem (= 19.44%)。
  *   cell-3 = 80vw_parent × 残り高（layout-3split で cell-2 が 16:9 を取った残り）。
  * font-size:
  *   1rem = min(iframe幅 / 76.8rem, iframe高さ / 10.5rem)
@@ -425,7 +425,7 @@ html.lshape-bottom {
 }
 
 /* --- 共通: .wrapper を grid 解除して iframe 全面に展開 ---
- * 芥川 .wrapper は 2×2 grid (4分割表示前提)。L字テンプレでは 1 子要素のみなので
+ * デザイン .wrapper は 2×2 grid (4分割表示前提)。L字テンプレでは 1 子要素のみなので
  * block 化して子を 100vw × 100vh で展開。
  */
 html.lshape-side .wrapper,
@@ -438,11 +438,11 @@ html.lshape-bottom .wrapper {
 }
 
 /* --- cell-1: .message を sidebar 専用化 ---
- * 芥川 .message は 96rem × 54rem の grid(sidebar/main/bottom)。
+ * デザイン .message は 96rem × 54rem の grid(sidebar/main/bottom)。
  * sidebar のみ展開するため block 化し、cell-1 全面に広げる。
  * sidebar 自体の 18.8rem 固定幅も 100% に拡張。
  * horse-table の row-height 計算は iframe 全高 (100vh) ベースに切替
- *   （芥川版の calc(54rem - ...) は 96rem×54rem 想定の固定値）。
+ *   （デザイン版の calc(54rem - ...) は 96rem×54rem 想定の固定値）。
  */
 html.lshape-side .message.sidebar-only {
   width: 100%;
@@ -483,16 +483,16 @@ html.lshape-bottom .message.bottom-only .message__bottom {
 
 
 /* ==========================================================================
- * 2026-07-15: 出走成績（3r/6r）ヘッダーへの CRM 背景色適用（及川決定・即適用）
+ * 出走成績（3r/6r）ヘッダーへの CRM 背景色適用（決定・即適用）
  *   親 index.html の applyHeaderColor が iframe <html> に class 'has-custom-hdr' と
- *   CSS 変数 --custom-header-grad（芥川グラデーション 2 値）を注入する。
+ *   CSS 変数 --custom-header-grad（デザイングラデーション 2 値）を注入する。
  *   .race-header 系はクラス付け替え（style.css の定義を直接使用）だが、
  *   出走成績のヘッダーは描画ごとに再生成されるため変数方式で受ける。
  * ========================================================================== */
-/* 2026-07-15 修正: 3r は芥川既定（style.css）どおり「場名＋レース番号」
+/*  修正: 3r はデザイン既定（style.css）どおり「場名＋レース番号」
  *   （.race-screen__header-name）のみに着色する。ヘッダー全体に塗ると
  *   発走時刻／競走成績の部分まで色が付き既定デザインから逸脱するため。
- *   6r は芥川既定がヘッダー全体グラデのためコンテナに適用（-title の
+ *   6r はデザイン既定がヘッダー全体グラデのためコンテナに適用（-title の
  *   背景は子要素側の background-color が優先されるので影響なし）。 */
 html.has-custom-hdr .race-screen__header-name,
 html.has-custom-hdr .six-race__header {
@@ -501,7 +501,7 @@ html.has-custom-hdr .six-race__header {
 
 
 /* ==========================================================================
- * O-1 (2026-07-28 芥川様打合せ AI#3): 4K出走成績（出走表モード）の均等割り付けを廃止
+ * O-1 ( デザイン打合せ AI#3): 4K出走成績（出走表モード）の均等割り付けを廃止
  *   頭数が少ないレースで縦に均等割りされると間延びして見えるという指摘（お披露目会
  *   §2-3 #2/#3）を受け、10頭をブレイクポイントとして上詰め＋下部に空きを残す。
  *
@@ -521,7 +521,7 @@ html.screen-4k .six-race__horse-table {
 
 
 /* ==========================================================================
- * O-6(a) (2026-07-28 芥川様打合せ AI#12): 出走表の性齢・馬体重カラムを入れ替え
+ * O-6(a) ( デザイン打合せ AI#12): 出走表の性齢・馬体重カラムを入れ替え
  *   entries-results-3r.html（出走表モード）の列構成を
  *     番 / 馬名 / 馬体重 / 性齢 / 斤量 / 騎手名
  *   から
@@ -541,7 +541,7 @@ html.screen-4k .six-race__horse-table {
 
 
 /* ==========================================================================
- * O-3 (2026-07-28 芥川様打合せ AI#9 / 2026-07-29 及川決定): オッズ配色の統一
+ * O-3 ( デザイン打合せ AI#9 /  決定): オッズ配色の統一
  *   従来は画面ごとに付与ルールが異なっていた（単勝=昇順上位3/4-5位、複勝=上位50%、
  *   枠連枠単=is_popular、馬連ワイド=odds>=1000、人気順=rank<=3、
  *   マトリクス=昇順上位5と odds>=1000）。これを「オッズの桁数」に一本化する。
@@ -551,7 +551,7 @@ html.screen-4k .six-race__horse-table {
  *     3桁以上 (odds >= 100.0) → .odds-d3  #00B2FF（水色）
  *
  *   色値は style.css の既存 2 色をそのまま使う（新色は増やさない）。
- *   クラス付与は common.js の oddsColorClass() / oddsClass() が一元管理する。
+ *   クラス付与は common.js の oddsColorClass / oddsClass が一元管理する。
  *   値が無い（'-' 表示）ときはクラスを付けないので色は付かない。
  *
  *   セレクタは style.css 側の既存ルール（例 .screen .race-table__odds-win.win-popular
@@ -592,7 +592,7 @@ html.screen-4k .six-race__horse-table {
 
 
 /* ==========================================================================
- * O-6(b) (2026-07-28 芥川様打合せ AI#12 / 2026-07-29 及川決定): 出走表 3列目の
+ * O-6(b) ( デザイン打合せ AI#12 /  決定): 出走表 3列目の
  *   性齢 ↔ 単勝オッズ ローテーション（15秒）
  *
  *   entries-results-3r.html は 3列目のセルに性齢と単勝オッズの両方を持たせ、
@@ -611,7 +611,7 @@ html.screen-4k .six-race__horse-table {
  *   4 文字まで（9.9 / 13.2 / 99.9）… 1.2rem で 32px 前後 → 収まる
  *   5 文字（100.0〜999.9）        … 1.2rem で 39.6px → わずかに溢れる
  * よって 5 文字のときだけ 1.1rem（36px）に落とす。JS 側が文字数を見て
- * .col3-win--long を付与する（既存の .weight-long と同じ考え方。及川決定 2026-07-29）。 */
+ * .col3-win--long を付与する（既存の .weight-long と同じ考え方。決定 ）。 */
 .race-container .race-screen .race-table__sex-age .col3-win {
   font-family: "Segoe UI", sans-serif;
   font-size: 1.2rem;
@@ -631,7 +631,7 @@ html.screen-4k .six-race__horse-table {
   display: none;
 }
 
-/* 2026-07-30: 前日発売の参照先が存在しないときの案内（山内様 実機検証 #2 / 及川決定 案B）。
+/* 前日発売の参照先が存在しないときの案内（検証 実機検証 #2 / 決定 案B）。
  * index.html が target_date_offset>=1 で参照先を翌日パスへ書き換えた結果、
  * その場が翌日に開催しないと 404 になる。誤って当日オッズを「前日発売」として
  * 出すよりは空が正しいが、理由が伝わらないため案内を重ねる。
@@ -652,7 +652,7 @@ html.screen-4k .six-race__horse-table {
   padding: 4%;
 }
 
-/* 2026-07-30: 変更情報の出走取消・競走除外行からバッジを外したことに伴う列定義の是正。
+/* 変更情報の出走取消・競走除外行からバッジを外したことに伴う列定義の是正。
  * style.css は 4 列（R / バッジ 3.5rem / 馬番 2.4rem / 馬名 auto）を前提にしており、
  * バッジを削ると馬名が馬番用の 2.4rem 枠に入って overflow:hidden で切れていた。
  * 騎手変更行（.race-board__row--jockey）と同じ 3 列構成に揃える。 */
@@ -660,13 +660,13 @@ html.screen-4k .six-race__horse-table {
   grid-template-columns: 1.9rem 2.4rem auto;
 }
 
-/* 2026-07-31: 返還表示（is-void）
+/* 返還表示（is-void）
  *
  * レース不成立で全賭式が元返し（100円）になるケース。実データでは
  * combination="0"/"0-0"/"0-0-0"、amount=100、is_void=true が全賭式に入る
- * （2026-07-24 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で実発生）。
+ * （ 大井5R・6R、07-28 名古屋2R・3R、金沢4R・5R で実発生）。
  * 金額だけ出すと「0番が100円で的中」に見えるため「返還」を明示する。
- * 特払（is-special-pay）と同じ扱い。芥川様の正式CSSが来たら差し替える。 */
+ * 特払（is-special-pay）と同じ扱い。デザインの正式CSSが来たら差し替える。 */
 .payout-board__price.is-void {
   position: relative;
 }
@@ -689,9 +689,9 @@ html.screen-4k .six-race__horse-table {
 }
 
 /* ------------------------------------------------------------------
- * ISH-10 (2026-08-01): L字左袖の見出し「馬番」が枠線からはみ出す
+ *  L字左袖の見出し「馬番」が枠線からはみ出す
  *
- * サテライト石狩 引地様のご指摘（7/30）:
+ * 売場のご指摘（7/30）:
  *   「L字の際の単勝オッズの部分上部の『枠』『馬番』『馬名』の『馬番』だけ
  *     線よりはみ出している（おそらく L字だけ。単勝と人気順は大丈夫そう）」
  *
@@ -706,11 +706,11 @@ html.screen-4k .six-race__horse-table {
  *   見出しの文字サイズを列に収まる値へ下げる。.win（単勝）は 3.4rem 列で
  *   溢れていないので据え置く。
  *
- * 【原版でも同じ】芥川様デザイン原版 design/htdocs/screen7.html でも溢れている
- *   （実測 2026-08-01: 馬番 clientWidth 46px / scrollWidth 51px）。style.css の
+ * 【原版でも同じ】デザイン原版 design/htdocs/screen7.html でも溢れている
+ *   （実測 : 馬番 clientWidth 46px / scrollWidth 51px）。style.css の
  *   値をそのまま引き継いだ結果で、プロト側で持ち込んだ問題ではない。
  *
- * 【本 override は恒久措置】2026-08-01 及川判断。スピード優先、かつ本番実装も
+ * 【本 override は恒久措置】 判断。スピード優先、かつ本番実装も
  *   実質デルカ側で行うため、原版 style.css の改訂は待たずにここで吸収する。
  *   原版が将来修正された場合は、本ブロックの要否を再確認すること。
  * ------------------------------------------------------------------ */
@@ -720,7 +720,7 @@ html.screen-4k .six-race__horse-table {
 }
 
 /* ============================================================
- * DOS-03 (2026-08-17): 変更情報（dp70）騎手変更の「変更前」欄が隣へ重なる
+ *  変更情報（dp70）騎手変更の「変更前」欄が隣へ重なる
  * ------------------------------------------------------------
  * style.css `.race-board__jockey-change` は
  *     grid-template-columns: 10rem 0.8rem auto;   / 変更前 / 矢印 / 変更後 /
@@ -728,7 +728,7 @@ html.screen-4k .six-race__horse-table {
  * で、変更前の欄が 10rem 固定。**減量記号(▲◇☆★△) + 4文字の騎手名 + 斤量**は
  * 12.1rem 必要なため、`overflow` の指定も無いまま矢印・変更後の上に重なる。
  *
- * 実測（2026-08-17 / STG 8/16 スナップショット JRA_01 の騎手変更 6 件）:
+ * 実測（ / STG 8/16 スナップショット JRA_01 の騎手変更 6 件）:
  *     1screen  1rem=20px … 必要 242px / 枠 200px   6/6 件がはみ出し
  *     4分割    1rem=10px … 必要 121px / 枠 100px   6/6 件がはみ出し
  *   列幅も文字も rem 指定のため**倍率に依らず同じ比率で溢れる**。
@@ -738,29 +738,61 @@ html.screen-4k .six-race__horse-table {
  * **重なる（読めない・誤読する）のではなく、切れた（欠けたと判る）**形にする。
  * ============================================================ */
 .race-board__jockey-change {
-  grid-template-columns: 12.6rem 0.8rem auto;
+  /* 12.6rem → 10rem（style.css の原版に戻す）。
+   *   12.6rem は  に「▲＋騎手名＋斤量が入らない」として広げたが、
+   *   当時の騎手名は配信値のまま**全角空白入り**（例「▲川端　　海翼」）だった。
+   *   空白を D.compactJockey で詰めるようにしたため前提が変わり、
+   *   そのままでは矢印が右に寄りすぎる。
+   *   長い名前は下の font-size 縮小で収めるので、幅で稼ぐ必要はない。 */
+  grid-template-columns: 10rem 0.8rem auto;
+}
+
+/* 長い騎手名は文字を縮めて収める。
+ *   固定幅＋ellipsis だけだと、外国人騎手のフルネーム（例「Ｒ．ヘルナンデス」＝
+ *   全角8文字）が読めないまま切れる。実データ 164 種の分布は
+ *     3〜5 文字ぶん … 156 種（95%）
+ *     6 文字ぶん   …   5 種
+ *     8 文字ぶん   …   3 種（外国人騎手）
+ *   基準を 9（＝5 文字の名前＋斤量ぶん）に置き、超えた分だけ比例縮小する。
+ *   馬名の `--name-length`（style.css）と同じ方式に揃える。
+ *   ellipsis は保険として残す（想定外に長い表記でも隣へ食い込ませない）。 */
+.race-board__jockey-old,
+.race-board__jockey-new {
+  --jockey-count: max(9, var(--jockey-length, 9));
+  /* 🔴 overflow: hidden / text-overflow: ellipsis を付けてはいけない。
+   *   line-height が font-size と同値（22px/22px・24px/24px）のため、
+   *   `g` `y` `p` のディセンダが行ボックスの外に出る。hidden にすると
+   *   それが切り落とされ、`54.0kg` が `54.0kq` に見える
+   *   （ に PROD へ出してしまい、担当の指摘で発覚。
+   *    実測 clientHeight 24 / scrollHeight 28 ＝ 4px ぶん切れていた）。
+   *   横方向は下の font-size 縮小が
+   *     幅 ≒ count × (1.1rem × 9 / count) = 9.9rem ≦ 列幅 10rem
+   *   を常に満たすので、そもそも溢れない（実測 scrollWidth == clientWidth）。
+   *   ellipsis は一度も働かない保険であり、付ける利得が無い。 */
 }
 .race-board__jockey-old {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: min(1.1rem * 9 / var(--jockey-count), 1.1rem);
+}
+.race-board__jockey-new {
+  font-size: min(1.2rem * 9 / var(--jockey-count), 1.2rem);
 }
 
 /* ============================================================
- * DOS-04 (2026-08-18): 出走成績の着差が枠からはみ出し、隣（馬名側）に食い込む
+ *  出走成績の着差が枠からはみ出し、隣（馬名側）に食い込む
  * ------------------------------------------------------------
  * 実データの `margin_name` は **全角・空白なし**（`２１／２` `１１／４` `１３／４`）。
  * `.race-record__time` / `.six-race__record-time` は
  *     display:flex / justify-content:end / white-space:nowrap / **overflow 指定なし**
  * で、全角4字＝実質8字ぶんが入らず、右詰めのぶん**左（馬名列）へ溢れる**。
  *
- * 【本体の対処はテンプレ側】芥川様 FB 対応デザイン（4K）どおり **半角 `1 1/2`** へ変換して出す
+ * 【本体の対処はテンプレ側】デザイン FB 対応デザイン（4K）どおり **半角 `1 1/2`** へ変換して出す
  * （entries-results-3r / -6r の `normalizeMargin`）。半角なら 3r で 3.9rem（枠 4.8rem）に収まり、
  * 整数部と分数部の間の空白で「21/2」という誤読も消える。
  * ⚠ 一度「全角のまま分数部を 0.6em で小さく」実装したが **小さすぎて視認性が悪く**取り止め
- *   （8/18 及川確認）。`.time-int` / `.time-frac` の span も廃止した（死んだ配線を残さない）。
+ *   （8/18 担当確認）。`.time-int` / `.time-frac` の span も廃止した（死んだ配線を残さない）。
  *
  * 【ここに残す対処 1】分数を持たない `アタマ`（全角3字）は半角化で縮まず、6R テンプレで 3px 食い込む
- * （実測 2026-08-18 / dp61 FHD: 必要 54px / 使える 53px。4K では倍の 6px）→ `letter-spacing`。
+ * （実測  / dp61 FHD: 必要 54px / 使える 53px。4K では倍の 6px）→ `letter-spacing`。
  * 数字にも効くが `1:25.5` は元々 8px 余っており影響しない。
  *
  * 【ここに残す対処 2】`1 1/2` の**空白を広げる**（`word-spacing`）。Segoe UI の空白は 0.267em と狭く、
@@ -773,7 +805,7 @@ html.screen-4k .six-race__horse-table {
  *   `2 1/2` が `1/2` に化けて **着差が小さい方に誤読される**。
  *   「重なる（読めない）」より「値が変わって見える」方が危険なので、切らずに溢れさせる。
  *
- * 【表示方針は及川決定範囲】芥川様・引地様を介さない（2026-08-18）。
+ * 【表示方針は決定範囲】デザイン・売場を介さない。
  * ============================================================ */
 .race-record__time,
 .six-race__record-time {
@@ -782,14 +814,14 @@ html.screen-4k .six-race__horse-table {
 }
 
 /* ============================================================
- * DOS-05 (2026-08-19): 人気順・L字組番オッズが桁数で枠から溢れ、隣の列に食い込む
+ *  人気順・L字組番オッズが桁数で枠から溢れ、隣の列に食い込む
  * ------------------------------------------------------------
  * `.popular .popular-table__odds`（2.2rem / 枠 6.8rem）と
  * `.message__bet-odds`（1.4rem / 枠 4.1〜4.4rem）は
  *     display:flex / justify-content:right / **overflow 指定なし**
  * で、**整数部4桁で既に溢れる**。右詰めなので溢れは**左＝隣の列**に出る。
  *
- * 実測（2026-08-19 / 新 style.css・Segoe UI・FHD 1rem=20px。人気順）:
+ * 実測（ / 新 style.css・Segoe UI・FHD 1rem=20px。人気順）:
  *     3桁 `999.9`     109px / 枠 128px  ok
  *     4桁 `9999.9`    133px / 枠 128px  🔴 +7px
  *     5桁 `99999.9`   158px            🔴 +32px
@@ -802,8 +834,8 @@ html.screen-4k .six-race__horse-table {
  *
  * 【なぜ override で解決するか】申し送り仕様書 §6.7.1-D の桁数クラス
  *   （`odds-long` / `odds-longest`）は**馬連ワイド専用**で、人気順の定義は仕様に無い。
- *   **例外発生時に溢れるのを事前に止めたいので、及川判断で先に塞ぐ**（2026-08-19）。
- *   芥川様へ実装依頼はしない。仕様側が後で定義したらそちらへ寄せる。
+ *   **例外発生時に溢れるのを事前に止めたいので、判断で先に塞ぐ**。
+ *   デザインへ実装依頼はしない。仕様側が後で定義したらそちらへ寄せる。
  *
  * 【方式】§6.7「`font-size` の直接指定（インラインstyle / JS）は禁止。
  *   CSS変数または定義済みクラスの付与のみで制御する」に従い、
@@ -813,7 +845,7 @@ html.screen-4k .six-race__horse-table {
  *   ⚠ 桁数ではなく**文字数**で数える（`9999.9` は 6 文字）。小数第1位まで固定なので等価。
  *
  * ⚠ **`overflow: hidden` は付けない。**右詰めなので隠れるのは**左＝上位桁**であり、
- *   `9999.9` が `999.9` に化けて**オッズが1桁小さく誤読される**（着差 DOS-04 と同じ理由）。
+ *   `9999.9` が `999.9` に化けて**オッズが1桁小さく誤読される**（着差  と同じ理由）。
  * ⚠ clamp の下限は「想定外に長い文字列でも枠内に収める」保険。
  * ============================================================ */
 .popular .popular-table__odds {
@@ -823,7 +855,7 @@ html.screen-4k .six-race__horse-table {
   font-size: clamp(0.9rem, calc(1.4rem * 5 / max(5, var(--odds-len, 5))), 1.4rem);
 }
 
-/* DOS-06 (2026-08-19): データ到着まで中身を出さない。
+/*  データ到着まで中身を出さない。
    JS で visibility を落とす方式では **common.js の実行前に骨組みが描かれ得る**ため、
    レンダリングブロックする CSS で伏せる。解除は common.js が属性を外して行う
    （notifyFirstPaint）。属性を宣言したテンプレだけが対象。 */
@@ -831,28 +863,28 @@ html[data-dos-hide-until-data] { visibility: hidden; }
 
 
 /* ============================================================
- * DOS-07 (2026-08-19): 馬連・馬単マトリクスのオッズを馬連ワイドと同じ大きさにする
+ *  馬連・馬単マトリクスのオッズを馬連ワイドと同じ大きさにする
  * ------------------------------------------------------------
  * 馬連ワイド（dp10）に `.fullname` を当てて 2.2rem にしたところ、
  * 同じ 4 分割に並ぶ馬連①②（dp20-22）／馬単①②（dp30-32）が 1.6rem のままで
- * **相対的に小さく見える**（2026-08-19 及川判断で拡大）。
+ * **相対的に小さく見える**（ 判断で拡大）。
  * 人気順（.popular-table__odds）は既に 2.2rem なので、これで 4 分割の
  * オッズ文字サイズが揃う。
  *
- * 実測（2026-08-19 STG・FHD 1rem=20px・Segoe UI 700。セル内寸 65px）:
+ * 実測（ STG・FHD 1rem=20px・Segoe UI 700。セル内寸 65px）:
  *     文字数      1.6rem  1.8rem  2.0rem  2.2rem
  *     999.9 (5)     ○       ○       ○       ○
  *     9999.9 (6)    ○       ○       ○      ×+5px
  *     99999.9(7)    ○      ×+2px   ×+10px  ×+17px
- *   → 芥川様の馬連ワイドと**同じ 2.2 / 1.8 / 1.6rem の三段**がちょうど収まる。
+ *   → デザインの馬連ワイドと**同じ 2.2 / 1.8 / 1.6rem の三段**がちょうど収まる。
  *
  * 縦: セル高は 37〜45px（mon1/3 実測）。軸馬でページ分割（①=1〜9 / ②=10〜）するため
  *   列幅・行高は頭数が増えても縮まない。2.2rem=22px は余裕をもって収まる。
  *
  * ⚠ `overflow: hidden` は付けない。右詰めなので隠れるのは**左＝上位桁**で、
- *   `9999.9` が `999.9` に化けて 1 桁小さく誤読される（DOS-04 / DOS-05 と同じ理由）。
+ *   `9999.9` が `999.9` に化けて 1 桁小さく誤読される（ /  と同じ理由）。
  * ⚠ 仕様側（申し送り仕様書 §6.7.1）はマトリクスのサイズを定義していない。
- *   定義されたらそちらへ寄せる。芥川様へ実装依頼はしない。
+ *   定義されたらそちらへ寄せる。デザインへ実装依頼はしない。
  * ============================================================ */
 .screen.screen-umaren .screen-main .screen-table__odds,
 .screen.screen-umatan .screen-main .screen-table__odds {
@@ -870,7 +902,7 @@ html[data-dos-hide-until-data] { visibility: hidden; }
 /* ============================================================
  * 6R 出走成績（dp60/61/62）: 払戻の組番が賭式ラベルへ食い込むのを防ぐ
  *
- * 🔴 2026-08-30 発見。8/29 札幌の実データで、3連複・3連単の組番が
+ * 🔴  発見。8/29 札幌の実データで、3連複・3連単の組番が
  *   左隣の賭式ラベルに重なり、先頭の馬番が読めなくなっていた。
  *
  *     11 - 15 - 16  食い込み 27.2px  先頭が「複」「単」に完全に隠れる
@@ -884,7 +916,7 @@ html[data-dos-hide-until-data] { visibility: hidden; }
  *   馬番が2桁になるほど食い込むので、JRA（最大18頭）で目立つが NAR でも10頭以上で起きる。
  *
  * 直し方は金額側（--long / --xlong）と同じ「桁数でクラスを付けて縮める」に揃えた。
- * 寸法（列幅）は芥川様デザインの領分なので動かさない。縮むのは
+ * 寸法（列幅）はデザインの領分なので動かさない。縮むのは
  * 「数字の総桁数が4以上」の組番だけで、単勝・複勝・枠連などは 1px も変わらない。
  *
  * ⚠ `overflow: hidden` は付けない。右詰めなので隠れるのは**左＝先頭の馬番**で、
@@ -911,3 +943,37 @@ html[data-dos-hide-until-data] { visibility: hidden; }
 .six-race__payout--single .six-race__payout-num--n5 .hyphen { font-size: 1.8rem; }
 .six-race__payout--single .six-race__payout-num--n6 { font-size: 2.0rem; }
 .six-race__payout--single .six-race__payout-num--n6 .hyphen { font-size: 1.55rem; }
+
+/* ============================================================
+ *  レース名が長いと発走時刻が切れる
+ * ------------------------------------------------------------
+ * 報告:  検証。園田3R「ＮｅｗＢｅｇｉｎｎｉｎｇ　２歳初出走」で
+ *   ヘッダ右上の「発走 11:40」が「発走 11:」になった。
+ *
+ * 原因（ 実測）
+ *   .race-title  … min-width:auto ＋ 子が nowrap → **縮まない**
+ *   .race-time   … flex-shrink:1 → 押し出される
+ *   .wrapper     … overflow:hidden → 押し出された時刻がここで切られる
+ *
+ * 🔴 時刻が切れると「16:25」が「16:2」に見え、**締切の誤読**になる。
+ *   着差や斤量より重い。レース名は末尾が「…」になっても読めるが、
+ *   時刻は1文字欠けると別の時刻に見える。**時刻の領域を先に確保する。**
+ *
+ * ⚠ line-height を 1.35 にしているのは**ディセンダ対策**。
+ *   overflow:hidden と line-height:1（＝font-size と同値）を組み合わせると
+ *   `ｇ` `ｙ` `ｐ` の下が切れる（ に騎手名で実際にやってしまった）。
+ *   レース名には `ＮｅｗＢｅｇｉｎｎｉｎｇ` のように `ｇ` が入る。
+ *
+ * 実測（4split 1区画・960px、6テンプレート中5つで確認。fullname は
+ *   markup が single-screen と同一のため同じ扱い）
+ *     園田3R   +42px → 0    佐賀1R  +13px → 0
+ *     阪神10R    0px → 0    短い名前   0px → 0（変化なし）
+ *     全角40文字 +457px → 0
+ * ============================================================ */
+.race-header .race-time  { flex-shrink: 0; }
+.race-header .race-title { min-width: 0; }
+.race-header .race-title #hdr-raceName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+}

@@ -18,9 +18,9 @@
   <meta charset="UTF-8">
   <title>単勝・複勝・馬体重・斤量・騎手名フルネーム 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260830a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260830a">
-  <script src="../assets/js/common.js?v=20260830a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
+  <script src="../assets/js/common.js?v=20260906d"></script>
 </head>
 <body>
 
@@ -191,9 +191,9 @@
       row.appendChild(D.el('div', 'race-table__assigned-weight', fwtStr));
 
       // dp2: 騎手名は**切り詰めない**（この画面の存在理由）。
-      //   NAR は姓名をスペースで桁揃えするので、空白だけ落とす。
-      row.appendChild(D.el('div', 'race-table__jockey',
-                           String(h.jockey || '').replace(/[\s\u3000]+/g, '')));
+      //   姓名を空白で桁揃えしてくるので、空白だけ落とす。
+      //   規則は D.compactJockey に集約（変更情報・出走表と同じ扱いにする）。
+      row.appendChild(D.el('div', 'race-table__jockey', D.compactJockey(h.jockey)));
       horseFragment.appendChild(row);
     });
     body.replaceChildren(horseFragment);

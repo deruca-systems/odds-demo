@@ -8,12 +8,12 @@
 <meta name="viewport" content="width=1920">
 <!-- url-config-separation : URL/パス/場コードを config.js に集約 -->
 <!-- : 親 config.js/common.js もキャッシュバスター付与（無版だと編集が反映されない事故対策） -->
-<script src="assets/js/config.js?v=20260830a"></script>
+<script src="assets/js/config.js?v=20260906d"></script>
 <!-- : フロント STG 実装（7/15 11:30）より取り込み。動画パターン判定・GCH ch 導出・
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
-<script src="assets/js/video-display.js?v=20260830a"></script>
+<script src="assets/js/video-display.js?v=20260906d"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260830a"></script>
+<script src="assets/js/common.js?v=20260906d"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -617,7 +617,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260830a');
+    params.set('v', '20260906d');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     ['page_rotation', 'page'].forEach(function(k) {
@@ -1591,12 +1591,41 @@
   //   ・モニターに設定した競馬場には左右されない
   //   ・売場が発売する全場を対象にする（3 場を超える場合は子側でページング）
   //   ・対象レースも売場別発売設定に従う（target_race_no_list を子へ渡して絞り込む）
-  //   target_date_offset>=1 の行は前日発売用の重複エントリなので当日分だけを使う。
   //   パス規約は JSON 構造仕様書 §1.5（changes/{YYYYMMDD}/{organizer_type}_{place_cd}.json）。
+  // venue_filters の target_race_no_list を rr の**配列**に展開する。
+  //   🔴 子（changes-info）は配列として indexOf で絞り込む。文字列のまま渡すと
+  //   部分文字列検索になり、'1-12'.indexOf(8) === -1 で 3〜11R の変更情報が
+  //   丸ごと消える（'1' '2' '12' だけが残る）。prod 実データで確認。
+  //   全レース相当（null / '' / '1-12'）は null を返し、子側の絞り込みを無効にする。
+  //   書式は makeRaceNoPredicate と同じ（'7-12' 範囲 / '10,11' 個別 / 混合）。
+  function expandRaceNoList(listStr) {
+    if (listStr == null || listStr === '' || listStr === '1-12') return null;
+    var out = [];
+    String(listStr).split(',').forEach(function(tok) {
+      tok = tok.trim();
+      if (!tok) return;
+      var m = tok.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        var a = +m[1], b = +m[2];
+        for (var i = a; i <= b; i++) out.push(i);
+      } else if (/^\d+$/.test(tok)) {
+        out.push(+tok);
+      }
+    });
+    return out.length ? out : null;
+  }
+
+  //   🔴 対象日は画面の target_date_offset に従う（ 修正）。
+  //   従来は offset>=1 の行を捨てて常に当日を読んでいたため、CRM で「表示日＝翌日」に
+  //   しても変更情報だけ当日の内容が出ていた（同じ画面の出走表は shiftDataSourceDate で
+  //   翌日を出すため、1 画面の中で日付の扱いが割れていた。9/5 検証の確認で発覚）。
+  //   venue_filters は同じ場について当日行と前日発売行が 2 本入るので、画面の offset と
+  //   一致する行だけを採る。一致する行が無ければ呼び出し元の races[] フォールバックへ。
   function changesColumnsOf(state) {
+    var off = state.target_date_offset || 0;
     var seen = {};
     return (state.venue_filters || []).filter(function(vf) {
-      if (vf.target_date_offset) return false;
+      if ((vf.target_date_offset || 0) !== off) return false;
       var k = vf.organizer_type + '_' + vf.place_cd;
       if (seen[k]) return false;
       seen[k] = true;
@@ -1605,9 +1634,9 @@
       return {
         race_id: vf.organizer_type + '_' + vf.place_cd,
         race_key: vf.place_cd,
-        race_no_list: vf.target_race_no_list || null,
-        url: DERUCA_CONFIG.resolveDataSource(
-          'changes/' + DISPLAY_DATE + '/' + vf.organizer_type + '_' + vf.place_cd + '.json')
+        race_no_list: expandRaceNoList(vf.target_race_no_list),
+        url: DERUCA_CONFIG.resolveDataSource(shiftDataSourceDate(
+          'changes/' + DISPLAY_DATE + '/' + vf.organizer_type + '_' + vf.place_cd + '.json', off))
       };
     });
   }

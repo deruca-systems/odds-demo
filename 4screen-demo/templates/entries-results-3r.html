@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- 3R-entries-results-phase3 : payout-board DOM を screen5.html 準拠に書き換え。
        デザイン screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260830a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260830a">
-  <script src="../assets/js/common.js?v=20260830a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
+  <script src="../assets/js/common.js?v=20260906d"></script>
 </head>
 <body>
 
@@ -117,7 +117,7 @@
     col.innerHTML = ''
       + buildHeader(data, 'results')
       + buildRaceRecord(data.entries, data.dead_heat_pattern)
-      + buildRacePayout(data.payouts, data.refund, data.dead_heat_pattern);
+      + buildRacePayout(data.payouts, data.refund, data.dead_heat_pattern, data.entries);
   }
 
   // ばんえい判定: organizer_type='NAR' かつ place_cd='03'（帯広）
@@ -240,11 +240,10 @@
                          '５':'5','６':'6','７':'7','８':'8','９':'9','／':'/' };
   function normalizeMargin(s) {
     var out = s.replace(/[０-９／]/g, function(c) { return MARGIN_ZEN2HAN[c]; });
-    // 主催者で着差の書き方が違う（2026-08-29 に PROD 実データ 588 件で確認）。
+    // 主催者で着差の書き方が違う（ に PROD 実データ 588 件で確認）。
     //   NAR  `１１／２`    全角・区切りなし・単位なし
     //   JRA  `1.1/2馬身`  半角・ピリオド区切り・単位つき
-    // 画面の表記を `1 1/2` に揃える（芥川デザイン準拠）。
-    //
+    // 画面の表記を `1 1/2` に揃える（デザイン準拠）。
     // 1) 単位「馬身」を落とす。
     //    JRA だけ単位が付くため、NAR と並ぶと不揃いになるうえ、
     //    `1. 1/2馬身` は当初設計の桁を超えて枠からはみ出す。
@@ -287,7 +286,8 @@
     return 'payout-board__column';
   }
 
-  function buildRacePayout(payouts, refund, pattern) {
+  //   entries は複勝の着順ラベルを引き直すために渡す（D.placeRankOf 参照）。
+  function buildRacePayout(payouts, refund, pattern, entries) {
     payouts = payouts || {};
     var boardCls = getPayoutBoardClass(pattern);
     var colCls   = getColumnClass(pattern);
@@ -299,7 +299,7 @@
     BET_TYPE_ORDER.forEach(function(bt) {
       var items = payouts[bt] || [];
       if (items.length > 0) {
-        html += buildPayoutGroup(bt, items);
+        html += buildPayoutGroup(bt, items, entries);
       }
     });
 
@@ -313,11 +313,11 @@
   }
 
   // 賭式グループ（ラベル + アイテム列）
-  function buildPayoutGroup(betType, items) {
+  function buildPayoutGroup(betType, items, entries) {
     var label = BET_TYPE_LABEL[betType] || betType;
     var mod   = BET_TYPE_MOD[betType]   || betType;
     var itemsHtml = items.map(function(p) {
-      return buildPayoutItem(betType, p);
+      return buildPayoutItem(betType, p, entries);
     }).join('');
     return '<div class="payout-board__group payout-board__group--' + mod + '">'
          + '<div class="payout-board__type">' + label + '</div>'
@@ -325,21 +325,23 @@
          + '</div>';
   }
 
-  function buildPayoutItem(betType, p) {
+  function buildPayoutItem(betType, p, entries) {
     return '<div class="payout-board__item">'
-         + buildPayoutNumber(betType, p)
+         + buildPayoutNumber(betType, p, entries)
          + buildPayoutPrice(p)
          + '</div>';
   }
 
   // 馬番/組番 HTML（複勝は rank 付き）
-  function buildPayoutNumber(betType, p) {
+  function buildPayoutNumber(betType, p, entries) {
     // 返還は複勝も combination="0" で来る。place 分岐より先に判定しないと
     //   「1着0」と出てしまう。
     if (p.is_void) return '<div class="payout-board__number">−</div>';
     if (betType === 'place') {
-      var rankLabel = p.place_label || '';       // e.g. "1着"
-      var rankNum   = rankLabel.replace('着', '');
+      // 🔴 place_label は同着でずれる（取込側が上から順に振っている）。
+      //   着順は entries[].rank から引き直す。entries が無ければ place_label に戻る。
+      var rankNum = D.placeRankOf ? D.placeRankOf(entries, p)
+                                  : String(p.place_label || '').replace('着', '');
       var horse     = String(p.combination || '');
       return '<div class="payout-board__number payout-board__number--rank">'
            + '<span class="rank-flex">' + rankNum + '<span>着</span></span>'
