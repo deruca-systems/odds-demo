@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- 3R-entries-results-phase3 : payout-board DOM を screen5.html 準拠に書き換え。
        デザイン screen5.html ベース + 返還フッター・同着パターン・特払い・中止オーバーレイ・取消ラベル実装。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
-  <script src="../assets/js/common.js?v=20260906d"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260912a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260912a">
+  <script src="../assets/js/common.js?v=20260912a"></script>
 </head>
 <body>
 
@@ -547,6 +547,9 @@
     // 1. 成績モード試行（results JSON）
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
+      // 取得中にページが切り替わっていたら描かない。
+      //   遅れて届いた前ページのレースが、新しいページの列を上書きしてしまうため。
+      if (raceUrls[colIdx] !== urls) return;
       // バッチはレース確定前から entries 空の results JSON を生成する（STG 名古屋5R で確認）。
       //   空のまま成績モードに入るとヘッダーのみの空表示になるため、entries が入るまで出走表モードを継続する。
       // ただし**返還レースは entries が永久に空**のままなので、この条件だけだと
@@ -565,6 +568,7 @@
     // 2. 出走表モード（odds JSON）
     try {
       var res2 = await D.fetchWithOffset(urls.oddsUrl);
+      if (raceUrls[colIdx] !== urls) return;   // 同上
       if (res2 && res2.data) {
         renderEntriesMode(colIdx, res2.data);
         return;
@@ -580,15 +584,32 @@
     if (e.data.type === 'setEntriesResults3r') {
       var races = e.data.races || [];
       // 各レースの URL を組立: results → odds のフォールバック URL も作る
-      raceUrls = races.slice(0, 3).map(function(r) {
+      // 列は常に 3 本。レースが来なかった列は null にする。
+      raceUrls = [0, 1, 2].map(function(i) {
+        var r = races[i];
+        if (!r) return null;
         // バッチの data_source は常に odds/ 形式（設計書 v1.5）のため、
         //   どちらの形式が来ても results/odds 両 URL を導出する（プロトの results/ 渡しとも両立）。
         var base = r.url || '';
         return { resultsUrl: base.replace('/odds/', '/results/'),
                  oddsUrl: base.replace('/results/', '/odds/') };
       });
+      // 使われない列は明示的に空にする（6R 版と同じ）。
+      //   列 DOM は保持して中身だけ差し替えるため、消さないと前ページの内容が残る。
+      //   10R 開催の自動ページングでは 4 ページ目が「10R / 8R / 9R」になり、
+      //   残った 2 列はポーリング対象からも外れて古い内容のまま固まっていた。
+      raceUrls.forEach(function(u, i) {
+        if (u) return;
+        var col = document.querySelector('[data-col-idx="' + i + '"]');
+        if (col) {
+          col.innerHTML = '';
+          col.setAttribute('data-odds-status', '0');
+        }
+        colIsBanei[i] = false;
+      });
+      renderLegend();
       // 初回即時 fetch
-      raceUrls.forEach(function(_, i) { pollRaceColumn(i); });
+      raceUrls.forEach(function(u, i) { if (u) pollRaceColumn(i); });
     }
   });
 

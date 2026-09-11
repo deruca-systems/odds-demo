@@ -11,9 +11,9 @@
        を描画。運用想定（PL確認 ）= 左列=1場目(上1-6R/下7-12R)、右列=2場目(上1-6R/下7-12R)。
        払戻は §8.8.1: --single(1カラム)/--grid/--grid+--pattern-E を dead_heat_pattern で選択。
        クラスは公式 style.css の .six-race__* / num-* / row-* / diff を使用（style.css は改変しない）。 -->
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260906d">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260906d">
-  <script src="../assets/js/common.js?v=20260906d"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260912a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260912a">
+  <script src="../assets/js/common.js?v=20260912a"></script>
 </head>
 <body>
 
@@ -431,6 +431,9 @@
     if (!urls) return;
     try {
       var res = await D.fetchWithOffset(urls.resultsUrl);
+      // 取得中にページが切り替わっていたら描かない（3R 版と同じ）。
+      //   遅れて届いた前ページのレースが、新しいページの列や空にした列を上書きしてしまうため。
+      if (raceUrls[idx] !== urls) return;
       // 確定前の空 results（entries=[]）では成績モードに入らない（3r と同旨）
       // 返還レースは entries が永久に空のままなので、着順の有無だけで判定すると
       //   いつまでも出走表が出続ける（3R 版と同じ扱い）。
@@ -440,6 +443,7 @@
     } catch (e) { /* 404 → 出走表へ */ }
     try {
       var res2 = await D.fetchWithOffset(urls.oddsUrl);
+      if (raceUrls[idx] !== urls) return;   // 同上
       if (res2 && res2.data) { renderEntriesMode(idx, res2.data); return; }
     } catch (e2) { console.warn('[entries-results-6r] both fetches failed col=' + idx, e2); }
   }
