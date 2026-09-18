@@ -1311,9 +1311,16 @@
     //   ⚠ 場が違う頁では findRaceIndexById が -1 を返し、通常の初期選択に落ちる（安全）。
     if (state.currentRaceId) state.lastRaceId = state.currentRaceId;
     var keepRaceId = state.lastRaceId || state.currentRaceId;
+    // 🔴 表示中の iframe を控えておく。buildScreenPageState は常に主 iframe（frameN）を返すが、
+    //   先読み（案B）を一度でも入れ替えると表示中は 2 枚目（frameNb）になっている。
+    //   先読みが間に合わずこの経路に落ちたときに主 iframe へ差し替えると、
+    //   隠れた主 iframe に描き、次の先読みが表示中の 2 枚目を隠して**両方とも見えなくなる**
+    //   （9/18 長時間検証で実測: 通信が遅い瞬間に約 30 秒真っ暗）。
+    var shownEl = state.iframeEl;
     var fresh = buildScreenPageState(state.screen, page, state.venue_filters);
     // fresh は頁依存の値だけを持つ。pages / pageIndex / screen 等の管理値は上書きされない。
     for (var k in fresh) { if (fresh.hasOwnProperty(k)) state[k] = fresh[k]; }
+    if (shownEl) state.iframeEl = shownEl;
     // 集合は state に載ったまま引き継がれる（fresh に無いキーなので上書きされない）
     // 頁が変わっても見ているレースは維持する（上の initializeScreen が拾う）
     state.preferRaceId = keepRaceId;
