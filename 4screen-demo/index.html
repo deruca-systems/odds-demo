@@ -1488,6 +1488,21 @@
     return null;
   }
 
+  // 子からの「中身の有無」通知の宛先を引く。表示中の iframe に加え、先読み中（裏）の iframe も対象にする。
+  //   🔴 子はデータを受けた直後に 1 回だけ通知する。頁ローテで次頁を裏で読み込むと、
+  //   その 1 回は裏の iframe から届くため、表示中の iframe だけを照合すると**毎回捨てられる**。
+  //   すると表に出たあとも「全ページあり」のままになり、少頭数で中身の無いページ
+  //   （馬単・馬連の軸馬10〜、人気順の後半、枠単未発売の枠単）へ送ってしまう。
+  //   裏からの通知は、表に出るときに state へ引き継がれる preload 側の状態に書く。
+  //   ⚠ カットイン状態（cutinState）は対象にしない。裏はカットインを止めているため、
+  //     裏の「出した／出していない」を集めると表で出すべきカットインが出なくなる。
+  function findAvailabilityTarget(sourceWin) {
+    var s = findScreenStateBySource(sourceWin);
+    if (s) return s;
+    var owner = findPreloadOwner(sourceWin);
+    return owner ? owner.preload.st : null;
+  }
+
   // 1 秒 tick。SCREEN_PAGE_SEC ごとに次の頁へ送る。
   function checkScreenPageRotation() {
     screenStates.forEach(function(state) {
@@ -2542,7 +2557,7 @@
     // H-03 ( 改訂): 子 single-screen.html から枠単発売有無の通知受信
     //   発売なし時はページング停止、強制的に枠連表示へ戻す
     if (d.type === 'frameUtanAvailability') {
-      var state = findScreenStateBySource(e.source);
+      var state = findAvailabilityTarget(e.source);
       if (!state) return;
       state.hasFrameUtan = !!d.available;
       if (!state.hasFrameUtan && state.frameOddsPage !== 'uren') {
@@ -2557,7 +2572,7 @@
     //   表示中の子が**全ページ分**を答えるので、空のページは一度も画面に出ない。
     //   対象: 馬番順マトリクス（dp20/30）と人気順（dp40）。
     if (d.type === 'oddsPagesAvailability') {
-      var mState = findScreenStateBySource(e.source);
+      var mState = findAvailabilityTarget(e.source);
       if (!mState || !mState.oddsPageCount) return;
       // 種別が食い違う通知は無視（slot 切替直後に前テンプレの通知が届くことがある）
       if (d.kind && mState.oddsPageKind && d.kind !== mState.oddsPageKind) return;
