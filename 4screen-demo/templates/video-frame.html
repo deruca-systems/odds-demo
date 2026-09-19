@@ -35,6 +35,7 @@
       display: none;
     }
     .status.visible { display: block; }
+    .status.visible::after { content: ' ' attr(data-latency); }
     .status.error { color: #FF5252; }
   </style>
 </head>
@@ -82,6 +83,21 @@
 
     function nowMs() { return new Date().getTime(); }
 
+    /* ------------------------------------------------------------------
+     * 遅延の設定（9/19）
+     *   地方競馬 LIVE は 8 秒のセグメントで配られ、hls.js は既定で「最新から 3 本（約 24 秒）遅れ」を再生する。
+     *   ・VIDEO_SYNC … 何本遅れを再生するか。親 URL の ?video_sync=N（1〜5、既定 3）。2 にすると約 8 秒縮むが止まりやすい
+     *   ・VIDEO_MAX_LATENCY … これを超えて遅れたら最新側（VIDEO_SYNC 本遅れ）へ飛ぶ。?video_max_latency=N（既定 VIDEO_SYNC+2）
+     *     🔴 これが無いと、一瞬止まって再開するたびに遅延が積み上がり、再読み込みまで戻らない
+     *        （PC の性能や回線で台ごとに実況のずれが違う、の原因になりうる）。
+     * ------------------------------------------------------------------ */
+    function intParam(k, lo, hi, dflt) {
+      var v = parseInt(new URLSearchParams(location.search).get(k), 10);
+      return (isFinite(v) && v >= lo && v <= hi) ? v : dflt;
+    }
+    var VIDEO_SYNC        = intParam('video_sync', 1, 5, 3);
+    var VIDEO_MAX_LATENCY = intParam('video_max_latency', VIDEO_SYNC + 1, 20, VIDEO_SYNC + 2);
+
     /** 再接続を予約する。連続失敗時はバックオフを伸ばす。 */
     function scheduleRecover(reason) {
       if (recoverTimer || !lastCfg) return;
@@ -105,6 +121,13 @@
     // 再生位置が進んでいるかを見張る。events ではなく実測値をポーリングする
     // （stalled/waiting は発火しないまま止まることがあるため）。
     setInterval(function() {
+      // 現在の遅延（最新セグメントの端からの秒数）。検証用に公開し、?debug=1 のときは画面隅にも出す
+      if (hls && typeof hls.latency === 'number' && isFinite(hls.latency)) {
+        window.__dosVideoLatency = hls.latency;
+        if (statusEl && statusEl.classList.contains('visible')) {
+          statusEl.setAttribute('data-latency', '遅延 ' + hls.latency.toFixed(1) + '秒（' + VIDEO_SYNC + '本/上限' + VIDEO_MAX_LATENCY + '本）');
+        }
+      }
       if (!currentSource || recoverTimer) return;
       var t = videoEl.currentTime;
       if (t !== lastTime) {
@@ -216,7 +239,9 @@
       if (window.Hls && Hls.isSupported()) {
         hls = new Hls({
           maxMaxBufferLength: 10,   // ライブ配信向けに短めバッファ
-          liveDurationInfinity: true
+          liveDurationInfinity: true,
+          liveSyncDurationCount: VIDEO_SYNC,               // 何本遅れを再生するか（既定 3＝従来と同じ）
+          liveMaxLatencyDurationCount: VIDEO_MAX_LATENCY   // これを超えて遅れたら最新側へ飛ぶ
         });
         hls.loadSource(videoSource);
         hls.attachMedia(videoEl);

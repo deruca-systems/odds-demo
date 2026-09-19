@@ -82,6 +82,33 @@ var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダ�
 //   未受信時は null（初期値）。親が broadcast を送ってきた時点で数値化される。
 var _broadcastedServerOffset = null;
 
+// ---- Date+Age から求めた補正値の安定化 ----
+//   🔴 CloudFront は「いまの Date」と「経過秒 Age」を同時に返すことがあり、足すと Age ぶん未来になる。
+//   9/19 本番で実測: 正しい補正 −2.6 秒が、数十秒ごとに +5.4 秒（8 秒進み）へ飛んでいた。
+//   締切表示・カットインが 10〜20 秒早く出ていたのはこのため。
+//   外れは必ず「進む」向き（Date が古ければ Age がそのぶんを足して正しくなる）なので、
+//   直近 OFFSET_WINDOW_MS の標本の**最小値**を採る。
+//   ⚠ 中央寄せ（+500ms）はしない。Date も Age も秒単位で丸められて打ち消し合い、最小値が NTP とほぼ一致する
+//     （9/19 帯広12R 実測: 最小値 +0.08 秒。+500ms を足すと締切表示が 0.3〜0.8 秒早くなった）。
+//   端末時計が大きく動いた（標本が OFFSET_RESET_MS 以上跳ねた）ときは古い標本を捨てる。
+//   窓は**直近 OFFSET_SAMPLES 件**（30 秒ごとの取得で約 3 分）。
+//   ・長いと、時計の進みが狂った端末で古い標本を掴み続ける（1 時間に 6 秒狂う端末で 10 分窓なら最大 1 秒。3 分なら 0.3 秒）
+//   ・時間で区切ると、通信が 3 分以上止まった直後に標本が 1 件（Age で膨らんだもの）だけになる
+//     （9/19 佐賀10R 実測: 停止明けに +2 秒を掴み「4分前」が 1.9 秒早く出た）。件数で区切れば古い標本が残る
+var OFFSET_SAMPLES   = 6;
+var OFFSET_RESET_MS  = 60 * 1000;
+var _offsetSamples = [];
+function stableServerOffset(candidate) {
+  if (typeof candidate !== 'number' || !isFinite(candidate)) return candidate;
+  var min = Infinity, max = -Infinity;
+  _offsetSamples.forEach(function(v) { if (v < min) min = v; if (v > max) max = v; });
+  // 端末時計が動いた（NTP 補正・手動変更）とみなせるほど外れたら、古い標本は使えない
+  if (_offsetSamples.length && (candidate - min > OFFSET_RESET_MS || max - candidate > OFFSET_RESET_MS)) _offsetSamples = [];
+  _offsetSamples.push(candidate);
+  if (_offsetSamples.length > OFFSET_SAMPLES) _offsetSamples.shift();
+  return Math.min.apply(null, _offsetSamples);
+}
+
 // 前日発売/対象レース固定 context（§3.5.4）。親 index.html が
 //   setSaleContext で送る。target_date_offset>=1 のとき renderRaceHeader を
 //   「前日発売」モードに切替える（旧 odds JSON の is_previous_day は v0.6.4 で撤去）。
@@ -858,9 +885,13 @@ function computeDeadline(postTime, correctedNowMs) {
     return { deadline_min: null, remaining_sec: null, is_approaching: false, is_closing: false, is_closed: false };
   }
   var deadlineMs = effectiveDeadlineMs(postMs);
-  var remainingSec = Math.floor((deadlineMs - correctedNowMs) / 1000);
-  var isClosed = remainingSec <= 0;
-  var deadlineMin = isClosed ? 0 : Math.ceil(remainingSec / 60);
+  // 🔴 ミリ秒のまま判定する（9/19）。従来は残り秒を切り捨ててから判定しており、
+  //   残り 0.9 秒でも「締切」、残り 60.9 秒でも「1分前」になって**最大 1 秒早く**切り替わっていた。
+  //   remaining_sec は切り上げ（残りがある間は 1 以上）にして、到達判定と食い違わないようにする。
+  var remainingMs = deadlineMs - correctedNowMs;
+  var remainingSec = Math.ceil(remainingMs / 1000);
+  var isClosed = remainingMs <= 0;
+  var deadlineMin = isClosed ? 0 : Math.ceil(remainingMs / 60000);
   return {
     deadline_min: deadlineMin,
     remaining_sec: remainingSec,
@@ -907,7 +938,7 @@ async function fetchWithOffset(url, timeoutMs) {
         var dateMs = Date.parse(dateHeader);
         if (!isNaN(dateMs)) {
           var ageSec = Number(res.headers.get('Age')) || 0;
-          serverOffset = (dateMs + ageSec * 1000) - clientTime;
+          serverOffset = stableServerOffset((dateMs + ageSec * 1000) - clientTime);
         }
       }
     }
@@ -1557,7 +1588,9 @@ window.OddsDemo = {
   // server_time-fix-v3 : テスト T22 観測用の exposure。
   //   親 window 側から document.getElementById('frameN').contentWindow.OddsDemo
   //     .getBroadcastedOffset で各子の broadcast 受信状態（null 未受信 / 数値受信済）を確認可能。
-  getBroadcastedOffset: function() { return _broadcastedServerOffset; }
+  getBroadcastedOffset: function() { return _broadcastedServerOffset; },
+  // 親 index.html もスケジュール取得のたびにこれで補正値を安定化する
+  stableServerOffset: stableServerOffset
 };
 
 /**
@@ -1869,7 +1902,18 @@ function findMatrixEntry(matrix, a, b, type) {
  *   data が null の間（初回poll前）は何もしない。
  */
 function startHeaderTicker(getState) {
-  setInterval(function() {
+  // 🔴 補正済み時刻の「秒の頭」に合わせて動かす（9/19）。従来の setInterval(1000) は
+  //   ページを読み込んだ瞬間が起点のため、切替が最大 1 秒遅れ、その遅れが画面ごとにばらついていた。
+  //   毎回「次の秒の頭 + TICK_ALIGN_MS」まで待つので、回数は従来と同じ毎秒 1 回のまま。
+  var TICK_ALIGN_MS = 5;
+  function schedule() {
+    var off = 0;
+    try { var s0 = getState(); off = (s0 && s0.serverOffsetMs) || 0; } catch (_) {}
+    var now = Date.now() + off;
+    var wait = 1000 - (((now % 1000) + 1000) % 1000) + TICK_ALIGN_MS;
+    setTimeout(function() { tick(); schedule(); }, wait);
+  }
+  function tick() {
     try {
       var s = getState();
       if (!s || !s.data || !s.data.race) return;
@@ -1889,5 +1933,6 @@ function startHeaderTicker(getState) {
       //     判定は純計算で、発火済みキーで多重発火は防がれる（CUT-000 / shownKeys）。
       checkCutin(s.data.race, nowMs);
     } catch (_) {}
-  }, 1000);
+  }
+  schedule();
 }

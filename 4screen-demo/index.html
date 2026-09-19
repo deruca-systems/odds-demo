@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20260912a"></script>
+<script src="assets/js/common.js?v=20260919a"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -578,7 +578,10 @@
         if (!isNaN(dateMs)) {
           var ageSec = Number(res.headers.get('Age')) || 0;
           var serverNow = dateMs + ageSec * 1000;
-          serverOffset = serverNow - clientTime;
+          // Date+Age は Age ぶん未来に外れることがある（common.js stableServerOffset 参照）
+          serverOffset = (window.OddsDemo && window.OddsDemo.stableServerOffset)
+            ? window.OddsDemo.stableServerOffset(serverNow - clientTime)
+            : serverNow - clientTime;
           // 全子 iframe に broadcast（定期更新）
           broadcastServerOffsetToChildren();
         }
@@ -592,10 +595,14 @@
 
   // server_time-fix-v3: 全子 iframe に serverOffset を通知
   function broadcastServerOffsetToChildren() {
+    // 案B の 2 枚目（frameNb）にも送る。頁ローテでは表示中が 2 枚目のことが多く、
+    //   送らないと起動時のハンドシェイクで受けた値のまま更新されない。
     [1, 2, 3, 4].forEach(function(pos) {
-      var iframe = document.getElementById('frame' + pos);
-      if (!iframe || !iframe.contentWindow) return;
-      sendServerOffsetTo(iframe.contentWindow);
+      ['frame' + pos, 'frame' + pos + 'b'].forEach(function(id) {
+        var iframe = document.getElementById(id);
+        if (!iframe || !iframe.contentWindow) return;
+        sendServerOffsetTo(iframe.contentWindow);
+      });
     });
   }
 
@@ -617,10 +624,11 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20260912a');
+    params.set('v', '20260919a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
-    ['page_rotation', 'page'].forEach(function(k) {
+    //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
+    ['page_rotation', 'page', 'video_sync', 'video_max_latency'].forEach(function(k) {
       var v = parentQ.get(k);
       if (v) params.set(k, v);
     });
