@@ -499,6 +499,13 @@ html.has-custom-hdr .six-race__header {
   background: var(--custom-header-grad) !important;
 }
 
+/*  水川様（みぞべ）9/20 ご指摘: 3分割（L字）の左袖＝出走表の場名ヘッダーだけ
+ *   CRM の背景色が反映されず、常に緑（style.css の .message__race-head 固定グラデ）だった。
+ *   .message__race-head は .race-header ではないためクラス付け替えの対象外。変数方式で受ける。 */
+html.has-custom-hdr .message__race-head {
+  background: var(--custom-header-grad) !important;
+}
+
 
 /* ==========================================================================
  * O-1 ( デザイン打合せ AI#3): 4K出走成績（出走表モード）の均等割り付けを廃止
