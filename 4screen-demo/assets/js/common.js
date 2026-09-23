@@ -16,7 +16,12 @@ var POLL_INTERVAL_MS = 30000; // 子テンプレのポーリング間隔（?fast
 
 // ---- 締切／カットイン制御用定数 ----
 // 表示上の締切時刻 = post_time - DEADLINE_BEFORE_POST_MIN分 - DEADLINE_SAFETY_MARGIN_SEC秒
-// （客体験保護のため、実際の投票締切より DEADLINE_SAFETY_MARGIN_SEC 秒早く締切表示を出す）
+// 2026-09-23: 余裕を 30 秒 → 0 秒 に変更（発走 2 分前ちょうど＝主催者の締切時刻と同じ）。
+//   理由: 売場で「オッズの締切表示から 1 分以上たって映像が締切になる」ずれが問題になっていた。
+//   実測（output/reports/締切と映像_比較_20260922.md）で差は 65〜77 秒。内訳は
+//   この余裕 30 秒 ＋ 主催者が締切画面を出すまで 0〜13 秒 ＋ 配信 約10秒 ＋ 端末の再生 約25秒。
+//   実際の発売締切は映像の締切表示よりさらに後で、買えない事態は起きていない（現場確認）ため、
+//   余裕を詰めても「画面はまだなのに券売機は締切」にはならない。
 // C-02 : カットイン表示秒数の仕様値を 30秒 → 10秒 に変更。
 //   担当の実機確認で「30秒は長すぎ、オッズ画面の視認時間が相対的に短くなる」と判断。
 //   10秒は告知効果とオッズ視認時間のバランスとして最適と判断した。
@@ -29,7 +34,7 @@ var CUTIN_DISPLAY_SEC = 10;             // カットイン表示秒数（正式�
 //   ?signage_cutin_sec=N で上書き可（開発検証用）。
 var SIGNAGE_CUTIN_DISPLAY_SEC = 30;
 var DEADLINE_BEFORE_POST_MIN = 2;       // 発走何分前を「投票締切」とするか（実業務）
-var DEADLINE_SAFETY_MARGIN_SEC = 30;    // 表示を実締切より何秒早めるか（URLクエリ ?safety_margin_sec=N で上書き可）
+var DEADLINE_SAFETY_MARGIN_SEC = 0;     // 表示を実締切より何秒早めるか（URLクエリ ?safety_margin_sec=N で上書き可）
 var COUNTDOWN_START_MIN = 5;            // 表示締切何分前からカットイン CUT-001 を出すか
 var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダーを「発走 HH:MM」→「締切N分前」に切替えるか
 
@@ -852,14 +857,14 @@ function setRaceNumber(raceEl, num) {
 // postTime: "HH:MM" 文字列 または ISO 8601 文字列
 // correctedNowMs: 補正済み現在時刻(ms)
 // 「締切」は「表示上の締切時刻」を指す（post_time - DEADLINE_BEFORE_POST_MIN分 - DEADLINE_SAFETY_MARGIN_SEC秒）。
-// 実際の投票締切より DEADLINE_SAFETY_MARGIN_SEC 秒早く is_closed に入るため、客が
-// 「画面上まだ締切と出ていないのに券売機で締切」という体験を防ぐ。
+// DEADLINE_SAFETY_MARGIN_SEC は「実締切より何秒早く締切表示を出すか」。
+// 2026-09-23 に 0 秒（＝発走 2 分前ちょうど）へ変更。?safety_margin_sec=N で台ごとに戻せる。
 // 戻り値: {
 //   deadline_min: number  // 表示締切までの残り分（切り上げ。0以上）
 //   remaining_sec: number // 表示締切までの残り秒（マイナス含む、= 締切到達後は負）
 //   is_approaching: bool  // 表示締切 COUNTDOWN_START_MIN(=5)分前以内
 //   is_closing: bool      // 表示締切 1分前以内（点滅演出用）
-//   is_closed: bool       // 表示締切到達（= 実締切より DEADLINE_SAFETY_MARGIN_SEC 秒早い）
+//   is_closed: bool       // 表示締切到達（= 実締切の DEADLINE_SAFETY_MARGIN_SEC 秒前。既定 0＝実締切と同時）
 // }
 function computeDeadline(postTime, correctedNowMs) {
   if (!postTime) {
