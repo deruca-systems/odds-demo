@@ -494,6 +494,24 @@
     console.log('[routing] mode=' + DISPLAY_MODE + ' url=' + SCHEDULE_URL);
   }
 
+  // ---- 日付の切り替え（0 時をまたいだとき） ----
+  //   開きっぱなしの端末でも翌日の画面になるよう、スケジュールを取るたびに
+  //   サーバ時刻（serverOffset 補正後）の暦日と DISPLAY_DATE を比べる。
+  //   違っていれば新しい日付のスケジュールを試しに取り、取れたときだけ切り替える
+  //   （取れなければ前の日の表示のまま。ROLLOVER_RETRY_MS ごとに取り直す）。
+  //   対象は通常表示だけ。プレビュー（押したときだけ作られる）・手動切替（日付フォルダなし）・
+  //   URL で日付を指定した表示（検証用の固定）は切り替えない。
+  var DISPLAY_DATE_FIXED = /^\d{8}$/.test(_params.get('display_date') || _params.get('date') || '');
+  var DATE_ROLLOVER_ENABLED = (DISPLAY_MODE === 'normal') && !DISPLAY_DATE_FIXED;
+  var ROLLOVER_RETRY_MS = 120000;
+  var rolloverNextTryMs = 0;
+  // 日本時間の暦日（YYYYMMDD）。端末のタイムゾーン設定に左右されないよう +9 時間して UTC で読む。
+  function jstDateStr(ms) {
+    var d = new Date(ms + 9 * 3600 * 1000);
+    var m = d.getUTCMonth() + 1, day = d.getUTCDate();
+    return d.getUTCFullYear() + (m < 10 ? '0' : '') + m + (day < 10 ? '0' : '') + day;
+  }
+
   // 指示書09 T5-3: layout 値 → CSS クラス
   // layout 値 'lshape' → '3split' に変更（4split と同じ命名体系へ統一、4/27 フロント協議分の反映）
   var LAYOUT_CLASS_MAP = {
@@ -587,7 +605,37 @@
         }
       }
       // Date ヘッダ欠落時は serverOffset を更新しない（前回値 or 初期値 0 を維持）
+      var rolled = await tryDateRollover();
+      return rolled || data;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // 暦日が変わっていたら、新しい日付のスケジュールを取る。取れたらそれを返し、
+  // DISPLAY_DATE と SCHEDULE_URL を差し替える（以後のポーリングは新しい日付）。
+  // 取れなければ null を返し、呼び出し側は前の日のスケジュールをそのまま使う。
+  async function tryDateRollover() {
+    if (!DATE_ROLLOVER_ENABLED) return null;
+    var now = correctedNow();
+    var today = jstDateStr(now);
+    if (today === DISPLAY_DATE) return null;
+    if (now < rolloverNextTryMs) return null;
+    rolloverNextTryMs = now + ROLLOVER_RETRY_MS;
+    var url = DERUCA_CONFIG.buildScheduleUrl(today, MONITOR_ID, USE_FAST);
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, 10000);
+    try {
+      var res = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
+      if (!res.ok) return null;
+      var data = await res.json();
+      console.log('[date-rollover] ' + DISPLAY_DATE + ' -> ' + today);
+      DISPLAY_DATE = today;
+      SCHEDULE_URL = url;
+      rolloverNextTryMs = 0;
       return data;
+    } catch (_) {
+      return null;
     } finally {
       clearTimeout(timer);
     }
