@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>馬連・ワイド 単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20260921a">
-  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260921a">
-  <script src="../assets/js/common.js?v=20260923a"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20260930a">
+  <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20260930a">
+  <script src="../assets/js/common.js?v=20260930a"></script>
 </head>
 <body>
 
@@ -80,7 +80,7 @@
 
   // 1軸分のブロックを生成
   // position: 'top' → [name, row, row, ...]  grid-row: 1 / span itemCount
-  // position: 'bottom' → [row, row, ..., name]  grid-row: span itemCount / -1
+  // position: 'bottom' → [name, row, row, ...]  grid-row: span itemCount / -1（9/30 馬名を上に）
   // 指示書08: 取消馬対応
   //   - 軸馬取消: body に body-scratched（ブロック全体薄表示）、各行のオッズ空白
   //   - 相手馬取消: 該当行に row-scratched、オッズ空白
@@ -146,14 +146,11 @@
       return row;
     });
 
-    if (position === 'top') {
-      body.appendChild(nameBlock);
-      rowEls.forEach(function(r) { body.appendChild(r); });
-    } else {
-      // bottom: rows first, then name
-      rowEls.forEach(function(r) { body.appendChild(r); });
-      body.appendChild(nameBlock);
-    }
+    // EKI-01（芥川様 keiba-odds 3fbd4bb）: 折り返し側（下段）も軸馬名の帯をブロックの先頭（上）に置く。
+    //   従来は下段だけ [相手行…, 馬名] の順で、軸馬名が一番下に来て読みにくかった（9/8 札幌駅前）。
+    //   ブロックの位置（col の末尾に揃える grid-row）はそのまま、中の順序だけ上段と同じにする。
+    body.appendChild(nameBlock);
+    rowEls.forEach(function(r) { body.appendChild(r); });
     return body;
   }
 

@@ -75,12 +75,27 @@ var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダ�
   } catch (_) {}
 })();
 
+// 表示テーマと不人気（3桁以上）の色（芥川様 keiba-odds 3fbd4bb）。
+//   ?theme=light … 枠番・馬番をライトカラーに（style.css の [data-theme=light]。既定はダーク）
+//   ?unpop=blue  … 3桁以上のオッズを水色に（既定は黄色。dos-overrides.css の html[data-unpop="blue"]）
+//   どちらも場外に STG の実画面で見比べていただくための切り替え。親 index.html が子へ引き継ぐ。
+(function applyThemeQuery() {
+  try {
+    var sp = new URL(location.href).searchParams;
+    var root = document.documentElement;
+    if (sp.get('theme') === 'light' || sp.get('theme') === 'dark') root.setAttribute('data-theme', sp.get('theme'));
+    if (sp.get('unpop') === 'blue') root.setAttribute('data-unpop', 'blue');
+  } catch (_) {}
+})();
+
 // ---- 親 iframe からの serverOffset broadcast 受信 ----
 // server_time-fix-v3 : 中央集権型の時刻同期。
 //   親が HTTP Date+Age から算出した serverOffset を postMessage で受信し保持する。
 //   fetchWithOffset は優先的にこの値を使い、未受信時のみ自前で Date+Age から算出する。
 //   未受信時は null（初期値）。親が broadcast を送ってきた時点で数値化される。
 var _broadcastedServerOffset = null;
+// 自前で求めた直近の補正値（親の broadcast が届く前に、取得の瞬間をそろえるのに使う。TAC-08）
+var _lastServerOffset = null;
 
 // ---- Date+Age から求めた補正値の安定化 ----
 //   🔴 CloudFront は「いまの Date」と「経過秒 Age」を同時に返すことがあり、足すと Age ぶん未来になる。
@@ -942,6 +957,7 @@ async function fetchWithOffset(url, timeoutMs) {
         }
       }
     }
+    _lastServerOffset = serverOffset;
     return { data: data, serverOffset: serverOffset };
   } finally {
     clearTimeout(timer);
@@ -1035,6 +1051,22 @@ function startResilientPolling(opts) {
     return Math.min(m, cap);
   }
 
+  // 🔴 TAC-08: 取りに行く瞬間を、サーバ時刻の baseMs 刻み（30 秒なら毎分 0 秒・30 秒）にそろえる。
+  //   従来は「ページを開いた時点」から数えて、取得が終わってから baseMs 待っていた。
+  //   位相が PC ごとに違い、取得にかかった時間ぶん少しずつずれるため、
+  //   隣り合うテレビでオッズの切り替わりが最大 baseMs（本番 30 秒）食い違っていた（7/31 木暮様・9/30 再確認）。
+  //   サーバ時刻：opts.nowMs があればそれ（親 index.html の correctedNow）。
+  //   無ければ親から受け取った補正値、それも無ければ自前の補正値（子テンプレ）。
+  //   次の刻みまで 1 秒未満なら、その次の刻みにする（待ち時間が極端に短くならないように）。
+  function alignedWait(minWait) {
+    if (baseMs < 5000) return minWait;
+    var off = (_broadcastedServerOffset !== null) ? _broadcastedServerOffset : (_lastServerOffset || 0);
+    var now = opts.nowMs ? opts.nowMs() : (Date.now() + off);
+    if (!isFinite(now)) return minWait;
+    var target = Math.ceil((now + minWait - baseMs + 1000) / baseMs) * baseMs;
+    return Math.max(1000, target - now);
+  }
+
   async function tick() {
     if (stopped) return;
     try {
@@ -1061,7 +1093,7 @@ function startResilientPolling(opts) {
       }
     }
     if (stopped) return;
-    var wait = baseMs * multiplierFor(failCount);
+    var wait = alignedWait(baseMs * multiplierFor(failCount));
     timer = setTimeout(tick, wait);
   }
 
