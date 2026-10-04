@@ -78,13 +78,15 @@ var COUNTDOWN_HEADER_START_MIN = 10;    // 表示締切何分前からヘッダ�
 // 表示テーマと不人気（3桁以上）の色（芥川様 keiba-odds 3fbd4bb）。
 //   ?theme=light … 枠番・馬番をライトカラーに（style.css の [data-theme=light]。既定はダーク）
 //   ?unpop=blue  … 3桁以上のオッズを水色に（既定は黄色。dos-overrides.css の html[data-unpop="blue"]）
-//   どちらも場外に STG の実画面で見比べていただくための切り替え。親 index.html が子へ引き継ぐ。
+//   ?pop=orange   … 1桁のオッズをオレンジに（既定は赤。dos-overrides.css の html[data-pop="orange"]）
+//   いずれも場外に STG の実画面で見比べていただくための切り替え。親 index.html が子へ引き継ぐ。
 (function applyThemeQuery() {
   try {
     var sp = new URL(location.href).searchParams;
     var root = document.documentElement;
     if (sp.get('theme') === 'light' || sp.get('theme') === 'dark') root.setAttribute('data-theme', sp.get('theme'));
     if (sp.get('unpop') === 'blue') root.setAttribute('data-unpop', 'blue');
+    if (sp.get('pop') === 'orange') root.setAttribute('data-pop', 'orange');
   } catch (_) {}
 })();
 

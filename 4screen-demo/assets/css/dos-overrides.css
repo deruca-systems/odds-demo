@@ -553,14 +553,14 @@ html.screen-4k .six-race__horse-table {
  *   枠連枠単=is_popular、馬連ワイド=odds>=1000、人気順=rank<=3、
  *   マトリクス=昇順上位5と odds>=1000）。これを「オッズの桁数」に一本化する。
  *
- *     1桁     (odds <  10.0)  → .odds-d1  #E82E00（赤寄り）
+ *     1桁     (odds <  10.0)  → .odds-d1  #E82E00（赤寄り）／ html[data-pop="orange"] のとき #FF8000（オレンジ）
  *     2桁     (10.0〜99.9)    → クラスなし（既定色＝白）
  *     3桁以上 (odds >= 100.0) → .odds-d3  #E2C000（黄色）／ html[data-unpop="blue"] のとき #00B2FF（水色）
  *
  *   色値は style.css（芥川様 keiba-odds 3fbd4bb）の人気色・不人気色に合わせる。
  *   9/20 のデザインで人気をオレンジ #FF8000 → #E82E00、不人気を水色 → 黄色（水色は選択肢として残す）に変更。
- *   不人気の黄色／水色は場外に STG の実画面で選んでいただくため、?unpop=blue で水色に切り替えられる
- *   （common.js が html に data-unpop を付ける）。
+ *   人気の赤／オレンジ、不人気の黄色／水色は場外に STG の実画面で選んでいただくため、
+ *   ?pop=orange でオレンジ、?unpop=blue で水色に切り替えられる（common.js が html に data-pop / data-unpop を付ける）。
  *   クラス付与は common.js の oddsColorClass / oddsClass が一元管理する。
  *   値が無い（'-' 表示）ときはクラスを付けないので色は付かない。
  *
@@ -582,6 +582,21 @@ html.screen-4k .six-race__horse-table {
 /* O-6(b): 出走表 3列目にローテ表示する単勝オッズ */
 .race-container .race-screen .race-table__sex-age .col3-win.odds-d1 {
   color: #E82E00;
+}
+/* --- 1桁: オレンジ（?pop=orange。9/20 以前の色。比較用に残す） --- */
+html[data-pop="orange"] .screen .race-table__odds-win.odds-d1,
+html[data-pop="orange"] .screen .race-table__odds-place span.odds-d1,
+html[data-pop="orange"] .screen .frame-odds__value.odds-d1,
+html[data-pop="orange"] .screen .frame-umatan__item.odds-d1,
+html[data-pop="orange"] .screen .screen-main .screen-table__odds.odds-d1,
+html[data-pop="orange"] .popular .race-table__odds-win.odds-d1,
+html[data-pop="orange"] .popular .popular-table__odds.odds-d1,
+html[data-pop="orange"] .umaren-wide .race-main .race-table__umaren.odds-d1,
+html[data-pop="orange"] .umaren-wide .race-main .race-table__wide span.odds-d1,
+html[data-pop="orange"] .message .message__horse-win.odds-d1,
+html[data-pop="orange"] .message .message__bet-odds.odds-d1,
+html[data-pop="orange"] .race-container .race-screen .race-table__sex-age .col3-win.odds-d1 {
+  color: #FF8000;
 }
 /* --- 3桁以上: 黄色（既定） --- */
 .screen .race-table__odds-win.odds-d3,
