@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20261005c"></script>
+<script src="assets/js/common.js?v=20261005d"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -672,7 +672,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20261005c');
+    params.set('v', '20261005d');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
@@ -1910,8 +1910,14 @@
     };
     // dp11/12/13 の固定ページ（?page=N）を付与
     var childQuery = childQueryFor(state);
+    // 子へ最後に渡したサイネージ URL を iframe に控える（data-signage）。
+    //   テンプレもレースも同じまま、CRM で区画のサイネージだけ「なし→あり」「あり→なし」
+    //   「別の画像」に変えたとき、従来は子へ何も送られず、F5 するまで反映されなかった
+    //   （サイネージ全画面 dp110・L字の出走表 dp100。 運用チーム報告）。
+    var signageKey = signageUrl || '';
     if (iframe.getAttribute('data-template') !== state.template) {
       iframe.setAttribute('data-template', state.template);
+      iframe.setAttribute('data-signage', signageKey);
       iframe.removeAttribute('data-sig'); // video から odds に切り替わるケースを考慮
       iframe.src = state.template + childQuery;
       iframe.onload = (function(d, bg, su, sc, cutinKey, seedKey) {
@@ -1964,12 +1970,20 @@
           type: 'setDataUrl', url: dataUrl
           // server_time-fix-v3 : baseOffset 撤去、offset 伝達は setServerOffset に一本化
         }, '*');
-        // signage_url も同タイミングで再送 (slot 切替で URL 変化する可能性に対応)
-        if (signageUrl) {
-          iframe.contentWindow.postMessage({
-            type: 'setSignageUrl', url: signageUrl
-          }, '*');
-        }
+        // signage_url も同タイミングで再送 (slot 切替で URL 変化する可能性に対応)。
+        //   「あり→なし」も伝える（url: null。子は画像を消す／カットインをやめる）。
+        iframe.setAttribute('data-signage', signageKey);
+        iframe.contentWindow.postMessage({
+          type: 'setSignageUrl', url: signageUrl
+        }, '*');
+      } catch (_) {}
+    } else if ((iframe.getAttribute('data-signage') || '') !== signageKey) {
+      // template も data_source も同じで、サイネージだけ変わった
+      iframe.setAttribute('data-signage', signageKey);
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'setSignageUrl', url: signageUrl
+        }, '*');
       } catch (_) {}
     }
   }
