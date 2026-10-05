@@ -126,6 +126,35 @@ function stableServerOffset(candidate) {
   return Math.min.apply(null, _offsetSamples);
 }
 
+// ---- 時刻合わせ専用の取得（DOS-55） ----
+//   🔴 データの取得（cache:'no-cache'＝条件つき）の応答ヘッダから時刻を求めてはいけない。
+//   ・CloudFront の 304 は Hit のとき「いまの Date」と Age を両方返す（足すと Age ぶん未来）
+//   ・キャッシュ更新時の 304（RefreshHit）には Age が付かず、**ブラウザは前の応答の Age を持ち続ける**
+//   このため一度 Age=N を受けた画面は、Age の付かない応答が続くかぎり N 秒進んだまま固定された
+//   （10/5 帯広: 同じ PC の 2 画面の片方だけ「発売締切」が約 21 秒早い。最小値でも外せない＝6 標本とも同じ値）。
+//   条件なしの取得（cache:'no-store'）なら 200 が返り、Date はキャッシュに入った時刻・Age はその経過秒で、
+//   足すと常にいまの時刻になる（10/5 本番で実測: +1.1〜+2.0 秒。RefreshHit・Miss でも同じ）。
+//   本文は要らないので HEAD で取る（スケジュールは 63KB・圧縮なし）。
+//   戻り値: 補正の候補（ms）。取れなければ null（呼び出し側は前回値を維持する）
+async function measureServerOffset(url, timeoutMs) {
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, timeoutMs || 5000);
+  try {
+    var t0 = Date.now();
+    var res = await fetch(url, { method: 'HEAD', signal: controller.signal, cache: 'no-store' });
+    var t1 = Date.now();
+    if (!res.ok) return null;
+    var dateMs = Date.parse(res.headers.get('Date') || '');
+    if (isNaN(dateMs)) return null;
+    var ageSec = Number(res.headers.get('Age')) || 0;
+    return (dateMs + ageSec * 1000) - (t0 + (t1 - t0) / 2);
+  } catch (e) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // 前日発売/対象レース固定 context（§3.5.4）。親 index.html が
 //   setSaleContext で送る。target_date_offset>=1 のとき renderRaceHeader を
 //   「前日発売」モードに切替える（旧 odds JSON の is_previous_day は v0.6.4 で撤去）。
@@ -948,16 +977,10 @@ async function fetchWithOffset(url, timeoutMs) {
       // 親 broadcast が届いていればそれを使う（中央集権、全子 iframe で同一）
       serverOffset = _broadcastedServerOffset;
     } else {
-      // フォールバック: Date+Age ヘッダから自前計算
-      serverOffset = 0;
-      var dateHeader = res.headers.get('Date');
-      if (dateHeader) {
-        var dateMs = Date.parse(dateHeader);
-        if (!isNaN(dateMs)) {
-          var ageSec = Number(res.headers.get('Age')) || 0;
-          serverOffset = stableServerOffset((dateMs + ageSec * 1000) - clientTime);
-        }
-      }
+      // フォールバック: 時刻合わせ専用の取得で自前計算（この応答のヘッダは使わない。DOS-55）
+      var cand = await measureServerOffset(url);
+      serverOffset = (cand !== null) ? stableServerOffset(cand)
+                   : (_lastServerOffset !== null ? _lastServerOffset : 0);
     }
     _lastServerOffset = serverOffset;
     return { data: data, serverOffset: serverOffset };
@@ -1624,7 +1647,8 @@ window.OddsDemo = {
   //     .getBroadcastedOffset で各子の broadcast 受信状態（null 未受信 / 数値受信済）を確認可能。
   getBroadcastedOffset: function() { return _broadcastedServerOffset; },
   // 親 index.html もスケジュール取得のたびにこれで補正値を安定化する
-  stableServerOffset: stableServerOffset
+  stableServerOffset: stableServerOffset,
+  measureServerOffset: measureServerOffset
 };
 
 /**

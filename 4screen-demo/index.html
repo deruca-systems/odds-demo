@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20261005d"></script>
+<script src="assets/js/common.js?v=20261006a"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -574,9 +574,8 @@
   //   - { cache: 'no-cache' } でブラウザキャッシュ再検証を強制（If-None-Match 付与、304 応答可）
   //   - ?t= クエリは撤去（CloudFront CachingOptimized のキャッシュキー同一性を享受）
   //   - data.server_time は補正に使用しない（監査用途でフィールド自体は継続出力）
-  //   - Date 欠落時は serverOffset=0、Age 欠落時は Age=0 として扱う
+  //   - 時刻補正は別の取得（HEAD・cache:'no-store'）の Date+Age から求める（DOS-55）
   async function fetchSchedule() {
-    var t0 = Date.now();
     var controller = new AbortController();
     var timer = setTimeout(function() { controller.abort(); }, 10000);
     try {
@@ -586,25 +585,17 @@
       });
       if (!res.ok) throw new Error('schedule HTTP ' + res.status);
       var data = await res.json();
-      var t1 = Date.now();
-      var clientTime = t0 + (t1 - t0) / 2;
 
-      // HTTP Date + Age から serverOffset 算出（CloudFront キャッシュ経由でも正確）
-      var dateHeader = res.headers.get('Date');
-      if (dateHeader) {
-        var dateMs = Date.parse(dateHeader);
-        if (!isNaN(dateMs)) {
-          var ageSec = Number(res.headers.get('Age')) || 0;
-          var serverNow = dateMs + ageSec * 1000;
-          // Date+Age は Age ぶん未来に外れることがある（common.js stableServerOffset 参照）
-          serverOffset = (window.OddsDemo && window.OddsDemo.stableServerOffset)
-            ? window.OddsDemo.stableServerOffset(serverNow - clientTime)
-            : serverNow - clientTime;
-          // 全子 iframe に broadcast（定期更新）
-          broadcastServerOffsetToChildren();
-        }
+      // 時刻補正は、この応答のヘッダではなく時刻合わせ専用の取得から求める（DOS-55。
+      //   条件つき取得の 304 では、ブラウザが古い Age を持ち続けて補正が進んだまま固定される。
+      //   common.js measureServerOffset 参照）
+      var cand = await window.OddsDemo.measureServerOffset(SCHEDULE_URL);
+      if (cand !== null) {
+        serverOffset = window.OddsDemo.stableServerOffset(cand);
+        // 全子 iframe に broadcast（定期更新）
+        broadcastServerOffsetToChildren();
       }
-      // Date ヘッダ欠落時は serverOffset を更新しない（前回値 or 初期値 0 を維持）
+      // 取れなかったときは serverOffset を更新しない（前回値 or 初期値 0 を維持）
       var rolled = await tryDateRollover();
       return rolled || data;
     } finally {
@@ -672,7 +663,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20261005d');
+    params.set('v', '20261006a');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
