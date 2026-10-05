@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20261005a"></script>
+<script src="assets/js/common.js?v=20261005b"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -672,7 +672,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20261005a');
+    params.set('v', '20261005b');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
@@ -799,6 +799,24 @@
       var pad = function(n) { return (n < 10 ? '0' : '') + n; };
       return '/' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '/';
     });
+  }
+
+  // races[] の 1 件を雛形に、同じ場・同じ日の別のレース番号の 1 件を作る（前日発売×対象レース固定の補い）。
+  //   race_id と data_source の中のレース番号だけを差し替える。雛形から番号を読めなければ null。
+  function synthesizeTargetRace(base, raceNo) {
+    var info = base && parseRaceId(base.race_id);
+    if (!info || !base.data_source) return null;
+    var rr2 = (raceNo < 10 ? '0' : '') + raceNo;
+    var newId = info.organizer_type + '_' + info.place_cd + '_' + rr2;
+    if (base.data_source.indexOf(base.race_id) < 0) return null;
+    return {
+      race_id: newId,
+      race_key: (base.race_key || '').replace(/\d+R$/, raceNo + 'R'),
+      rr: raceNo,
+      post_time_iso: null,
+      deadline_iso: null,
+      data_source: base.data_source.replace(base.race_id, newId)
+    };
   }
 
   function applyVenueFilters(races, venueFilters) {
@@ -972,6 +990,17 @@
         copy.data_source = shiftDataSourceDate(race.data_source, targetDateOffset);
         return copy;
       });
+    }
+    // 前日発売×対象レース固定で、対象のレース番号が races[] に無い場合の補い。
+    //   バッチは target_date_offset>=1 でも races[] を「当日」の番組で出力する。
+    //   当日が 10R まで・翌日が 12R まである場で翌日 11R を固定すると rr=11 が見つからず、
+    //   先頭（1R）に落ちていた（ みぞべ 129 番・大井。翌日 1R は前日発売が無くオッズが空）。
+    //   当日の 1 件を雛形に、対象レースの race_id と参照先を作って足す。
+    //   発走時刻は当日の番組からは分からないので持たせない（見出しはオッズ JSON 側の値で出る）。
+    if (targetDateOffset >= 1 && targetRaceNo != null && filteredRaces.length
+     && findRaceIndexByRaceNo(filteredRaces, targetRaceNo) < 0) {
+      var synth = synthesizeTargetRace(filteredRaces[0], targetRaceNo);
+      if (synth) filteredRaces = filteredRaces.concat([synth]);
     }
     var state = {
       position: canonicalPos,
