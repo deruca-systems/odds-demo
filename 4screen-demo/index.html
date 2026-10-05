@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20261005b"></script>
+<script src="assets/js/common.js?v=20261005c"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -672,7 +672,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20261005b');
+    params.set('v', '20261005c');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
@@ -816,6 +816,23 @@
       post_time_iso: null,
       deadline_iso: null,
       data_source: base.data_source.replace(base.race_id, newId)
+    };
+  }
+
+  // races[] が空のとき用：頁の主催・場コードと表示日＋offset から、対象レースの 1 件を作る。
+  //   変更情報（場単位）・映像の頁、場コードの無い頁では作らない。
+  function synthesizeTargetRaceFromPage(page, raceNo, offset) {
+    if (!page || !page.organizer_type || !page.place_cd) return null;
+    if (page.type === 'video' || page.display_pattern_id === 70) return null;
+    var rr2 = (raceNo < 10 ? '0' : '') + raceNo;
+    var id = page.organizer_type + '_' + page.place_cd + '_' + rr2;
+    return {
+      race_id: id,
+      race_key: raceNo + 'R',
+      rr: raceNo,
+      post_time_iso: null,
+      deadline_iso: null,
+      data_source: shiftDataSourceDate('odds/' + DISPLAY_DATE + '/' + id + '.json', offset)
     };
   }
 
@@ -997,9 +1014,15 @@
     //   先頭（1R）に落ちていた（ みぞべ 129 番・大井。翌日 1R は前日発売が無くオッズが空）。
     //   当日の 1 件を雛形に、対象レースの race_id と参照先を作って足す。
     //   発走時刻は当日の番組からは分からないので持たせない（見出しはオッズ JSON 側の値で出る）。
-    if (targetDateOffset >= 1 && targetRaceNo != null && filteredRaces.length
+    //   当日その場の開催が無い（翌日だけ開催がある場の前日発売）ときは races[] が空で届く
+    //   （生成側は当日の番組から races[] を作る。設計書 6.5）。その場合は頁の場コードと
+    //   表示日＋offset から参照先を作る。設計書 6.4.5 の「固定レースはフロントが翌日の
+    //   odds JSON を直接参照する」に沿った動き。
+    if (targetDateOffset >= 1 && targetRaceNo != null
      && findRaceIndexByRaceNo(filteredRaces, targetRaceNo) < 0) {
-      var synth = synthesizeTargetRace(filteredRaces[0], targetRaceNo);
+      var synth = filteredRaces.length
+        ? synthesizeTargetRace(filteredRaces[0], targetRaceNo)
+        : synthesizeTargetRaceFromPage(page, targetRaceNo, targetDateOffset);
       if (synth) filteredRaces = filteredRaces.concat([synth]);
     }
     var state = {
