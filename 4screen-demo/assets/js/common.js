@@ -143,8 +143,16 @@ function stableServerOffset(candidate) {
 //   /schedules/* と /odds/* のキャッシュキーにはクエリの monitor が含まれる（dos-json-30s / 10s）ので、
 //   monitor に使い捨ての値を付ければ必ず Miss になる。S3 はクエリを無視するので、同じファイルの HEAD が返る。
 //   同じ台を何台で開いていても、互いのキャッシュの影響を受けない。
+//
+//   Date は秒単位なので、1 回の取得で分かるのは「実時刻 +0〜1 秒」まで。どこに落ちるかは、取得の瞬間が
+//   サーバの秒の中のどこだったかで決まる。30 秒ごとに 1 回だけ取ると、その位置がゆっくりしか動かず、
+//   補正が +0〜+0.95 秒を約 10 分周期で波打った（10/6 笠松 8・9R: 「発売締切」が最大 1.2 秒早い）。
+//   そこで 1 回の時刻合わせで、**約 1/3 秒ずつずらして 3 回**取り、最小値を採る。
+//   3 回のどれかは必ず秒の終わり 1/3 に入るので、誤差は +0〜0.33 秒に収まる。
 //   戻り値: 補正の候補（ms）。取れなければ null（呼び出し側は前回値を維持する）
-async function measureServerOffset(url, timeoutMs) {
+var SYNC_PROBES      = 3;
+var SYNC_PROBE_GAP_MS = 333;
+async function measureServerOffsetOnce(url, timeoutMs) {
   var controller = new AbortController();
   var timer = setTimeout(function() { controller.abort(); }, timeoutMs || 5000);
   try {
@@ -164,6 +172,17 @@ async function measureServerOffset(url, timeoutMs) {
   } finally {
     clearTimeout(timer);
   }
+}
+async function measureServerOffset(url, timeoutMs) {
+  var best = null;
+  var start = Date.now();
+  for (var i = 0; i < SYNC_PROBES; i++) {
+    var wait = start + i * SYNC_PROBE_GAP_MS - Date.now();
+    if (wait > 0) await new Promise(function(r) { setTimeout(r, wait); });
+    var c = await measureServerOffsetOnce(url, timeoutMs);
+    if (c !== null && (best === null || c < best)) best = c;
+  }
+  return best;
 }
 
 // 時刻合わせを 1 回行い、採用する補正値（ms）を返す。今回は更新しない場合は null（呼び出し側は前回値を維持）
