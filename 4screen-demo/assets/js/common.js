@@ -132,27 +132,44 @@ function stableServerOffset(candidate) {
 //   ・キャッシュ更新時の 304（RefreshHit）には Age が付かず、**ブラウザは前の応答の Age を持ち続ける**
 //   このため一度 Age=N を受けた画面は、Age の付かない応答が続くかぎり N 秒進んだまま固定された
 //   （10/5 帯広: 同じ PC の 2 画面の片方だけ「発売締切」が約 21 秒早い。最小値でも外せない＝6 標本とも同じ値）。
-//   条件なしの取得（cache:'no-store'）なら 200 が返り、Date はキャッシュに入った時刻・Age はその経過秒で、
-//   足すと常にいまの時刻になる（10/5 本番で実測: +1.1〜+2.0 秒。RefreshHit・Miss でも同じ）。
-//   本文は要らないので HEAD で取る（スケジュールは 63KB・圧縮なし）。
+//
+//   🔴 キャッシュから返った応答（Hit）の Date も使えない（10/6 に NTP を基準に実測）。
+//   Date+Age は実時刻 −1〜+1 秒に散り、キャッシュの作られ方（Miss か RefreshHit か）で符号が変わる。
+//   応答からは見分けられず、最小値を採れば約 1 秒遅く、中央に寄せれば約 1 秒早くなった（笠松 1〜7R）。
+//   正確なのは「この取得でオリジンまで取りに行った応答（X-Cache: Miss）」だけで、Date は実時刻 +0〜1 秒、
+//   直近の最小値がほぼ実時刻になる（旧方式が、端末 1 台だけの台で正確だったのはこのため）。
+//
+//   そこで時刻合わせ専用に、**毎回キャッシュに無い URL** を HEAD・cache:'no-store' で取る。
+//   /schedules/* と /odds/* のキャッシュキーにはクエリの monitor が含まれる（dos-json-30s / 10s）ので、
+//   monitor に使い捨ての値を付ければ必ず Miss になる。S3 はクエリを無視するので、同じファイルの HEAD が返る。
+//   同じ台を何台で開いていても、互いのキャッシュの影響を受けない。
 //   戻り値: 補正の候補（ms）。取れなければ null（呼び出し側は前回値を維持する）
 async function measureServerOffset(url, timeoutMs) {
   var controller = new AbortController();
   var timer = setTimeout(function() { controller.abort(); }, timeoutMs || 5000);
   try {
+    var u = new URL(url, location.href);
+    u.searchParams.set('monitor', 'ts' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
     var t0 = Date.now();
-    var res = await fetch(url, { method: 'HEAD', signal: controller.signal, cache: 'no-store' });
+    var res = await fetch(u.toString(), { method: 'HEAD', signal: controller.signal, cache: 'no-store' });
     var t1 = Date.now();
     if (!res.ok) return null;
     var dateMs = Date.parse(res.headers.get('Date') || '');
     if (isNaN(dateMs)) return null;
-    var ageSec = Number(res.headers.get('Age')) || 0;
-    return (dateMs + ageSec * 1000) - (t0 + (t1 - t0) / 2);
+    // 万一キャッシュから返った（Hit）ら使わない。X-Cache が無い（開発用サーバなど）ときは使う
+    if (/^(Refresh)?Hit/i.test(res.headers.get('X-Cache') || '')) return null;
+    return dateMs - (t0 + (t1 - t0) / 2);
   } catch (e) {
     return null;
   } finally {
     clearTimeout(timer);
   }
+}
+
+// 時刻合わせを 1 回行い、採用する補正値（ms）を返す。今回は更新しない場合は null（呼び出し側は前回値を維持）
+async function syncServerOffset(url) {
+  var cand = await measureServerOffset(url);
+  return (cand === null) ? null : stableServerOffset(cand);
 }
 
 // 前日発売/対象レース固定 context（§3.5.4）。親 index.html が
@@ -978,8 +995,8 @@ async function fetchWithOffset(url, timeoutMs) {
       serverOffset = _broadcastedServerOffset;
     } else {
       // フォールバック: 時刻合わせ専用の取得で自前計算（この応答のヘッダは使わない。DOS-55）
-      var cand = await measureServerOffset(url);
-      serverOffset = (cand !== null) ? stableServerOffset(cand)
+      var synced = await syncServerOffset(url);
+      serverOffset = (synced !== null) ? synced
                    : (_lastServerOffset !== null ? _lastServerOffset : 0);
     }
     _lastServerOffset = serverOffset;
@@ -1648,7 +1665,8 @@ window.OddsDemo = {
   getBroadcastedOffset: function() { return _broadcastedServerOffset; },
   // 親 index.html もスケジュール取得のたびにこれで補正値を安定化する
   stableServerOffset: stableServerOffset,
-  measureServerOffset: measureServerOffset
+  measureServerOffset: measureServerOffset,
+  syncServerOffset: syncServerOffset
 };
 
 /**

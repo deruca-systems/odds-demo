@@ -13,7 +13,7 @@
      place_cd(105)→venue_code のフロント自己解決（バッチの venue_code 実値出力前の暫定解決を兼ねる） -->
 <script src="assets/js/video-display.js?v=20260912a"></script>
 <!-- common.js を親でも読み込む（指示書07: OddsDemo.startResilientPolling を使うため） -->
-<script src="assets/js/common.js?v=20261006a"></script>
+<script src="assets/js/common.js?v=20261006d"></script>
 <style>
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
@@ -576,6 +576,16 @@
   //   - data.server_time は補正に使用しない（監査用途でフィールド自体は継続出力）
   //   - 時刻補正は別の取得（HEAD・cache:'no-store'）の Date+Age から求める（DOS-55）
   async function fetchSchedule() {
+    // 時刻合わせは、スケジュールの取得より**先**に行う（DOS-55）。
+    //   キャッシュに無い URL を毎回取るので順序に依存はしないが、補正を新しくしてからスケジュールを評価する
+    //   （common.js measureServerOffset 参照）
+    var synced = await window.OddsDemo.syncServerOffset(SCHEDULE_URL);
+    if (synced !== null) {
+      serverOffset = synced;
+      // 全子 iframe に broadcast（定期更新）
+      broadcastServerOffsetToChildren();
+    }
+    // 取れなかったときは serverOffset を更新しない（前回値 or 初期値 0 を維持）
     var controller = new AbortController();
     var timer = setTimeout(function() { controller.abort(); }, 10000);
     try {
@@ -586,16 +596,8 @@
       if (!res.ok) throw new Error('schedule HTTP ' + res.status);
       var data = await res.json();
 
-      // 時刻補正は、この応答のヘッダではなく時刻合わせ専用の取得から求める（DOS-55。
-      //   条件つき取得の 304 では、ブラウザが古い Age を持ち続けて補正が進んだまま固定される。
-      //   common.js measureServerOffset 参照）
-      var cand = await window.OddsDemo.measureServerOffset(SCHEDULE_URL);
-      if (cand !== null) {
-        serverOffset = window.OddsDemo.stableServerOffset(cand);
-        // 全子 iframe に broadcast（定期更新）
-        broadcastServerOffsetToChildren();
-      }
-      // 取れなかったときは serverOffset を更新しない（前回値 or 初期値 0 を維持）
+      // 時刻補正にこの応答のヘッダは使わない（DOS-55。条件つき取得の 304 では、
+      //   ブラウザが古い Age を持ち続けて補正が進んだまま固定される）
       var rolled = await tryDateRollover();
       return rolled || data;
     } finally {
@@ -663,7 +665,7 @@
     params.set('poll', ODDS_POLL_SEC);
     // 子テンプレ HTML のキャッシュバスター。デプロイ版とともに更新する。
     //   テンプレ内 common.js?v= とも整合させ、改修反映漏れ（旧テンプレ→旧 common.js 連鎖）を防ぐ。
-    params.set('v', '20261006a');
+    params.set('v', '20261006d');
     var parentQ = new URL(location.href).searchParams;
     // 子テンプレートが解釈するクエリのみ伝播
     //   video_sync / video_max_latency … 地方動画（video-frame.html）の遅延設定。台ごとに試すため URL で指定する
