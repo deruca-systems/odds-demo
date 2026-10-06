@@ -185,10 +185,31 @@ async function measureServerOffset(url, timeoutMs) {
   return best;
 }
 
-// 時刻合わせを 1 回行い、採用する補正値（ms）を返す。今回は更新しない場合は null（呼び出し側は前回値を維持）
+// 時刻合わせを行い、採用する補正値（ms）を返す。今回は更新しない場合は null（呼び出し側は前回値を維持）。
+//   呼び出しは従来どおり取得のたび（30 秒ごと）だが、**実際に測るのは SYNC_INTERVAL_MS に 1 回**。
+//   端末の時計は数分では大きく狂わないので、毎回測る必要はない（毎回 3 回測ると、配信側から元のファイルへの
+//   問い合わせが全体で約 2.6 倍になる。5 分に 1 回なら +16% で済む。10/6 のログから試算）。
+//   ・起動直後と、測定に失敗した次の回は、すぐに測る
+//   ・端末の時計が飛んだとき（時刻の自動修正など）は、間隔を待たずに測り直す。
+//     Date.now() と performance.now()（時計の修正に影響されない）の差が CLOCK_JUMP_MS 以上動いたら「飛んだ」とみなす
+//   ・直近の最小値（stableServerOffset）は使わない。1 回の測定がすでに 3 回の最小値で、
+//     5 分おきの値をさらに何回分も比べると、時計の進みが狂った端末で古い値を掴み続けるため
+var SYNC_INTERVAL_MS = 5 * 60 * 1000;
+var CLOCK_JUMP_MS    = 500;
+var _syncAtPerf      = null;   // 最後に測れたときの performance.now()
+var _syncSkew        = 0;      // そのときの Date.now() - performance.now()
 async function syncServerOffset(url) {
+  var perf = performance.now();
+  var skew = Date.now() - perf;
+  var due = (_syncAtPerf === null)
+         || (perf - _syncAtPerf >= SYNC_INTERVAL_MS)
+         || (Math.abs(skew - _syncSkew) >= CLOCK_JUMP_MS);
+  if (!due) return null;
   var cand = await measureServerOffset(url);
-  return (cand === null) ? null : stableServerOffset(cand);
+  if (cand === null) return null;          // 次の呼び出しでもう一度測る
+  _syncAtPerf = performance.now();
+  _syncSkew   = Date.now() - _syncAtPerf;
+  return cand;
 }
 
 // 前日発売/対象レース固定 context（§3.5.4）。親 index.html が
