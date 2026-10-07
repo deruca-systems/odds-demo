@@ -1706,7 +1706,8 @@ window.OddsDemo = {
   // 親 index.html もスケジュール取得のたびにこれで補正値を安定化する
   stableServerOffset: stableServerOffset,
   measureServerOffset: measureServerOffset,
-  syncServerOffset: syncServerOffset
+  syncServerOffset: syncServerOffset,
+  widePopularList: widePopularList
 };
 
 /**
@@ -1854,6 +1855,26 @@ function popularLists(data, horses) {
     filterScratchedFromPopular(data.trio_popular,     horses, 3),
     filterScratchedFromPopular(data.trifecta_popular, horses, 3)
   ];
+}
+
+/**
+ * ワイドの人気順（OGA-02）。配信の odds JSON には wide_popular が無いので、wide_matrix から並べる。
+ *   並び: 下限オッズの小さい順 → 上限オッズの小さい順 → 馬番（a, b）の小さい順。
+ *   下限が無い（票が入っていない）組は載せない。取消馬を含む組は除く（他の人気順と同じ扱い）。
+ *   将来 JSON に wide_popular が出たら、そちらを優先する（{a, b, min, max} の並び済みリストを想定）。
+ */
+function widePopularList(data, horses) {
+  data = data || {};
+  if (Array.isArray(data.wide_popular) && data.wide_popular.length) {
+    return filterScratchedFromPopular(data.wide_popular, horses, 2);
+  }
+  var num = function(v) { return (typeof v === 'number' && isFinite(v)) ? v : Infinity; };
+  return filterScratchedFromPopular(data.wide_matrix, horses, 2)
+    .filter(function(e) { return e && typeof e.min === 'number' && isFinite(e.min) && e.min > 0; })
+    .slice()
+    .sort(function(x, y) {
+      return (x.min - y.min) || (num(x.max) - num(y.max)) || (x.a - y.a) || (x.b - y.b);
+    });
 }
 
 /**

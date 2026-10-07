@@ -4375,4 +4375,82 @@ html.screen-4k {
   height: 1.2rem;
 }
 
+/*----------
+screen9
+人気順（馬連・馬単・ワイド・3連複・3連単）
+.popular の基本スタイルは screen1 を継承し、差分のみ記述
+----------*/
+.screen9 .popular .race-main {
+  /* 馬連 馬単 ワイド 3連複 3連単 */
+  grid-template-columns: 15.7rem 15.7rem 23.4rem 19.8rem 19.8rem;
+  gap: 0;
+}
+.screen9 .popular .popular-table:first-child .popular-table__body::before {
+  display: none;
+}
+.screen9 .popular .popular-table__body.three-combination .popular-table__row {
+  grid-template-columns: 11.4rem 1fr;
+}
+.screen9 .popular .popular-table__row {
+  grid-template-columns: 7.3rem 1fr;
+}
+.screen9 .popular .popular-table__row:nth-child(even) .popular-table__wide {
+  background-color: #26364E;
+}
+.screen9 .popular .popular-table__combination {
+  margin: 0;
+  padding: 0 0.4rem;
+}
+.screen9 .popular .popular-table__combination span {
+  width: 1.3rem;
+}
+.screen9 .popular .popular-table__combination span:first-child, .screen9 .popular .popular-table__combination span:last-child, .screen9 .popular .popular-table__combination span[class^=number-] {
+  width: 2.4rem;
+}
+.screen9 .popular .popular-table__combination span:only-child {
+  grid-column: 1/-1;
+  width: auto;
+}
+.screen9 .popular .popular-table__odds {
+  padding-right: 0.8rem;
+}
+.screen9 .popular .popular-table__wide {
+  display: grid;
+  grid-template-columns: 7.2rem 1.4rem 7.5rem;
+  align-items: center;
+  gap: 0;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 2.2rem;
+}
+.screen9 .popular .popular-table__wide span {
+  text-align: right;
+}
+.screen9 .popular .popular-table__wide span:first-child {
+  padding-right: 0.4rem;
+}
+.screen9 .popular .popular-table__wide span:nth-child(2) {
+  text-align: center;
+  color: #FFFFFF;
+}
+.screen9 .popular .popular-table__wide span:last-child {
+  padding-right: 0.8rem;
+}
+.screen9 .popular .popular-table__wide.odds-popular {
+  color: #E82E00;
+}
+
+/* 小数点付きオッズのみ等幅数字で桁を揃える */
+.screen9 .race-table__odds-win,
+.screen9 .race-table__odds-place span:first-child,
+.screen9 .race-table__odds-place span:last-child,
+.screen9 .race-table__umaren,
+.screen9 .race-table__wide span:first-child,
+.screen9 .race-table__wide span:last-child,
+.screen9 .frame-odds__value,
+.screen9 .popular-table__odds,
+.screen9 .popular-table__wide span:first-child,
+.screen9 .popular-table__wide span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
 /*# sourceMappingURL=style.css.map */

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ja" data-dos-hide-until-data="1" class="single-screen">
+<html lang="ja" data-dos-hide-until-data="1" class="single-screen screen9">
 <head>
   <meta charset="UTF-8">
-  <title>人気順1-15 単体表示</title>
+  <title>人気順（ワイド付き）単体表示</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../assets/css/style.css?v=20261007b">
   <link rel="stylesheet" href="../assets/css/dos-overrides.css?v=20261007b">
@@ -34,12 +34,6 @@
       <div class="previous-day is-hidden"><span>前日発売</span></div>
     </div>
     <div class="race-main">
-      <div class="race-table">
-        <div class="race-table__head">
-          <div>枠</div><div>馬番</div><div>馬名</div><div class="win">単勝</div>
-        </div>
-        <div class="race-table__body" id="horseBody"></div>
-      </div>
       <div class="popular-table">
         <div class="popular-table__head">馬連 上位1～15</div>
         <div class="popular-table__body" id="umarenList"></div>
@@ -47,6 +41,10 @@
       <div class="popular-table">
         <div class="popular-table__head">馬単 上位1～15</div>
         <div class="popular-table__body" id="umatanList"></div>
+      </div>
+      <div class="popular-table">
+        <div class="popular-table__head">ワイド 上位1～15</div>
+        <div class="popular-table__body wide-combination" id="wideList"></div>
       </div>
       <div class="popular-table">
         <div class="popular-table__head">3連複 上位1～15</div>
@@ -89,7 +87,7 @@
     return D.popularPageOpts(currentPage) || { offset: 0, limit: 15 };
   }
   // 見出しもページで変わる（上位1〜15 / 上位16〜30）
-  var LIST_HEADS = { umarenList: '馬連', umatanList: '馬単',
+  var LIST_HEADS = { umarenList: '馬連', umatanList: '馬単', wideList: 'ワイド',
                      trioList: '3連複', trifectaList: '3連単' };
   function updateListHeads() {
     var s = pageSpec();
@@ -102,31 +100,36 @@
     });
   }
 
+  // OGA-02: この画面に馬名・単勝の表は無い。デザインが参照する --horse-count だけ付ける（申し送り仕様書 §8.9）
   function renderHorses(horses) {
     document.getElementById('popular').style.setProperty('--horse-count', horses.length);
-    var body = document.getElementById('horseBody');
+  }
+
+  // ワイドの人気順。オッズは「下限 - 上限」の 3 span（馬連・ワイド画面と同じ fillMinMaxCell）。
+  //   並びは common.js widePopularList（wide_matrix から下限の小さい順）
+  function renderWideList(containerId, list, horses, offset, limit) {
+    var body = document.getElementById(containerId);
     var fragment = document.createDocumentFragment();
-    horses.forEach(function(h) {
-      // 指示書08: 取消馬は row-scratched + 「取消」/「除外」ラベル
-      var isScratched = !!h.is_scratched;
-      var rowClasses = 'race-table__row ' + D.frameClassOf(h.frame_no, 'row');
-      if (isScratched) rowClasses += ' row-scratched';
-      var row = D.el('div', rowClasses);
-      row.appendChild(D.el('div', 'race-table__frame', h.frame_no));
-      row.appendChild(D.el('div', 'race-table__number', h.horse_no));
-      var name = D.el('div', 'race-table__name', h.horse_name);
-      name.style.setProperty('--name-length', (h.horse_name || '').length);
-      row.appendChild(name);
-      if (isScratched) {
-        // 指示書08 v2: 単勝セルを「取消」/「除外」ラベル専用セルに差替。
-        // 人気順画面は単勝セル幅 6.3rem に収まらないため 2文字の短縮ラベルを使用。
-        row.appendChild(D.el('div', 'race-table__scratched', D.scratchedLabelShort(h.is_scratched)));
-      } else {
-        // O-3b: 票が入っていない馬は win_odds が null → '-' / O-3: 配色は桁数ベース
-        row.appendChild(D.el('div', D.oddsClass('race-table__odds-win', h.win_odds, 'win', currentOrganizer), D.fmtOddsOr(h.win_odds, 'win', currentOrganizer)));
-      }
+    var rows = (list || []).slice(offset, offset + limit);
+    for (var i = 0; i < limit; i++) {
+      var entry = rows[i];
+      var row = D.el('div', 'popular-table__row');
+      var comb = D.el('div', 'popular-table__combination');
+      ['a', 'b'].forEach(function(k, idx) {
+        if (entry) {
+          var num = entry[k];
+          comb.appendChild(D.el('span', D.frameClassOf(D.frameOfHorse(horses, num), 'num'), num));
+        } else {
+          comb.appendChild(D.el('span', null, ''));
+        }
+        if (idx === 0) comb.appendChild(D.el('span', null, '-'));
+      });
+      row.appendChild(comb);
+      var cell = D.el('div', 'popular-table__wide');
+      D.fillMinMaxCell(cell, entry ? entry.min : null, entry ? entry.max : null, 'wide', currentOrganizer);
+      row.appendChild(cell);
       fragment.appendChild(row);
-    });
+    }
     body.replaceChildren(fragment);
   }
 
@@ -194,6 +197,7 @@
     updateListHeads();
     renderCombinationList('umarenList',   umarenList,   horses, 2, SP.offset, SP.limit, 'quinella');
     renderCombinationList('umatanList',   umatanList,   horses, 2, SP.offset, SP.limit, 'exacta');
+    renderWideList('wideList', D.widePopularList(data, horses), horses, SP.offset, SP.limit);
     renderCombinationList('trioList',     trioList,     horses, 3, SP.offset, SP.limit, 'trio');
     renderCombinationList('trifectaList', trifectaList, horses, 3, SP.offset, SP.limit, 'trifecta');
     //  №22: 各ページに中身があるかを親へ通知（親は空のページへページ送りしない）
@@ -204,7 +208,7 @@
   function startPolling() {
     if (currentPoller) currentPoller.stop();
     currentPoller = D.startResilientPolling({
-      name: 'single-popular',
+      name: 'single-popular-wide',
       baseIntervalMs: D.pollInterval,
       fetch: function() {
         if (!dataUrl) return Promise.reject(new Error('dataUrl not set'));
