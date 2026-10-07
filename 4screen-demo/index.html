@@ -312,10 +312,10 @@
     42:  'templates/single-popular.html',
     // OGA-02（芥川様 keiba-odds 4452bbb・screen9）: ワイド付き人気順。馬名・単勝を外し、
     //   馬連・馬単・ワイド・3連複・3連単の 5 列。今の人気順（40〜42）は残し、別の画面として追加（9/29 男鹿・石狩の回答）。
-    //   番号は仮（10/7）。確定したら config.js・display_pattern_lint.py と合わせて直す
+    //   43=自動ページング／44=①（1〜15 位）／45=②（16〜30 位）。10/7 及川さん決定
+    43:  'templates/single-popular-wide.html',
+    44:  'templates/single-popular-wide.html',
     45:  'templates/single-popular-wide.html',
-    46:  'templates/single-popular-wide.html',
-    47:  'templates/single-popular-wide.html',
     // 出走成績（3R 系: 自動ページング/固定範囲）
     50:  'templates/entries-results-3r.html',
     51:  'templates/entries-results-3r.html',
@@ -1217,13 +1217,13 @@
     20: 'umaren',
     30: 'umatan',
     40: 'popular',
-    45: 'popular'
+    43: 'popular'
   };
   var ODDS_PAGE_COUNT = {
     20: 2,
     30: 2,
     40: 2,
-    45: 2
+    43: 2
   };
   // 馬連・ワイド（dp10-13）は 1 テンプレ内でページ制御する作りで、
   //   子は ?page=N で固定ページになる（single-umaren-wide.html の forcedPage）。
@@ -1237,7 +1237,7 @@
     21: 1, 22: 2,
     31: 1, 32: 2,
     41: 1, 42: 2,
-    46: 1, 47: 2
+    44: 1, 45: 2
   };
   var ODDS_PAGE_SEC = ENTRIES_PAGE_SEC;  // 既定 15 秒。?page_rotation= で一括上書き
   // 区画内の頁ローテーション（pages[]）の周期。JSON構造仕様書 v0.6.7 §3.5.2.2 で
