@@ -1021,3 +1021,33 @@ html[data-dos-hide-until-data] { visibility: hidden; }
   text-overflow: ellipsis;
   line-height: 1.35;
 }
+
+/* ==========================================================================
+ * 出走成績の「レース中止」「開催中止」（DOS-57）
+ *   テンプレートは中止のとき、成績の代わりに文字だけを出す
+ *   （entries-results-3r: .race-cancelled-message ／ entries-results-6r: .six-race__cancelled）。
+ *   ところがこの 2 つのクラスに当たるスタイルが style.css にも本ファイルにも無く、
+ *   **既定の小さい文字（FHD の 4 分割で 10px ほど）が左上に出るだけ**で、テレビでは読めなかった
+ *   （10/8、成績データの状態を書き換えて表示して確認。実際の中止の日は成績データ自体が無く、気づけなかった）。
+ *   列の中央に大きく出す。色は 1 桁のオッズと同じ赤。
+ * ========================================================================== */
+.payout-board.payout-board--cancelled,
+.six-race__body:has(> .six-race__cancelled) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60%;
+  height: 60%;
+  background: none;
+  border: 0;
+}
+.race-cancelled-message,
+.six-race__cancelled {
+  font-size: 4.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  color: #E82E00;
+  text-align: center;
+  white-space: nowrap;
+}
